@@ -1,0 +1,2 @@
+# SolidarityHub
+PSW project
