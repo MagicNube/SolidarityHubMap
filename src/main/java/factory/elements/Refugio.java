@@ -1,6 +1,6 @@
-package es.pingu.map.mapController.elements;
+package factory.elements;
 
-import es.pingu.map.mapController.MapElement;
+import factory.MapElement;
 
 public class Refugio extends MapElement {
     public Refugio(double lat, double lon, String description) {
