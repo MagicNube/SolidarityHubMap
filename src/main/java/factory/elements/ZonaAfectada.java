@@ -1,6 +1,6 @@
-package es.pingu.map.mapController.elements;
+package factory.elements;
 
-import es.pingu.map.mapController.MapElement;
+import factory.MapElement;
 
 public class ZonaAfectada extends MapElement {
     public ZonaAfectada(double lat, double lon, String description) {

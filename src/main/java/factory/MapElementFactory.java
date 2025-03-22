@@ -1,8 +1,8 @@
-package es.pingu.map.mapController;
+package factory;
 
-import es.pingu.map.mapController.elements.ElementTypes;
-import es.pingu.map.mapController.elements.Refugio;
-import es.pingu.map.mapController.elements.ZonaAfectada;
+import factory.elements.ElementTypes;
+import factory.elements.Refugio;
+import factory.elements.ZonaAfectada;
 
 public class MapElementFactory {
     public static MapElement crearElemento(ElementTypes type, double lat, double lon, String description) {
