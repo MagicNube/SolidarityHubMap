@@ -78,6 +78,17 @@
             <artifactId>vaadin-testbench-junit5</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>software.xdev</groupId>
+            <artifactId>vaadin-maps-leaflet-flow</artifactId>
+            <version>4.6.0</version>
+        </dependency>
     </dependencies>
 
     <build>
