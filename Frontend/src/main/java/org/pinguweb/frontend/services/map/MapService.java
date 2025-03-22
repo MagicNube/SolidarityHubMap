@@ -1,11 +1,15 @@
 package org.pinguweb.frontend.services.map;
 
 import com.vaadin.flow.component.UI;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
+import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
+import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
+import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
+import software.xdev.vaadin.maps.leaflet.map.LMap;
+import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
 import java.util.ArrayList;
 
@@ -20,11 +24,10 @@ public class MapService {
     @Getter
     private boolean zone = false;
 
-    public MapService(@NotNull LComponentManagementRegistry reg, @NonNull LMap map) {
+    public MapService(@NonNull LComponentManagementRegistry reg, @NonNull LMap map) {
         this.reg = reg;
         this.map = map;
     }
-
 
     // TODO: Texto para el el marcador de tarea
     public void createTask(){
@@ -33,7 +36,6 @@ public class MapService {
         System.out.println("Task created at: " + coords);
         new LMarker(reg,coords).addTo(map);
         UI.getCurrent();
-
     }
 
     public void createZone(){

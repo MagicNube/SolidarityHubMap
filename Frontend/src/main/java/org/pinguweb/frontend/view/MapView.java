@@ -9,16 +9,16 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
-import es.pingu.map.commons.NavigationBar;
-import es.pingu.map.controllers.MapControllTypes;
 import org.pinguweb.frontend.services.map.MapService;
+import org.pinguweb.frontend.services.map.MapTypes;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
 import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
-import es.pingu.map.controllers.MapController;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
+
+import static org.pinguweb.frontend.services.map.MapTypes.TAREA;
 
 @Route("map")
 @PageTitle("Visor del mapa")
@@ -54,16 +54,15 @@ public class MapView extends HorizontalLayout {
         tarea.isDisableOnClick();
         ButtonLayout.add(tarea, zona);
 
+        this.controller = new MapService(reg, map);
 
-        controller = new MapController(reg, map);
-
-        tarea.addClickListener(e -> click(MapControllTypes.TAREA, tarea));
-        zona.addClickListener(e -> click(MapControllTypes.ZONA, zona));
+        tarea.addClickListener(e -> click(TAREA, tarea));
+        zona.addClickListener(e -> click(MapTypes.ZONA, zona));
 
     }
 
 
-    public void click(MapControllTypes Action, Button button) {
+    public void click(MapTypes Action, Button button) {
         switch (Action) {
             case TAREA:
                 this.map.once("click", "e => document.getElementById('" + ID + "').$server.mapTarea(e.latlng)");
@@ -82,29 +81,27 @@ public class MapView extends HorizontalLayout {
                         }
                     }
                     if (ui != null) {
-                        ui.access(controller::createTask);
+                        ui.access(this.controller::createTask);
                     }
                 }).start();
 
                 break;
             case ZONA:
-                if (!controller.isZone()){
+                if (!this.controller.isZone()){
                     System.out.println("Registrando puntos para la zona");
                     this.map.on("click", "e => document.getElementById('" + ID + "').$server.mapZona(e.latlng)");
                     button.setEnabled(false);
                     button.setText("Terminar zona");
-                    controller.setZone(true);
+                    this.controller.setZone(true);
                 }else {
                     this.map.off();
                     button.setText("Zona");
                     button.setEnabled(true);
-                    controller.createZone();
-                    controller.setZone(false);
+                    this.controller.createZone();
+                    this.controller.setZone(false);
                 }
                 break;
         }
-
-
     }
 
     @ClientCallable
@@ -118,7 +115,6 @@ public class MapView extends HorizontalLayout {
         synchronized (lock) {
             lock.notify();
         }
-
         ui.push();
     }
 
@@ -133,6 +129,5 @@ public class MapView extends HorizontalLayout {
         if (controller.getNumPoints() > 2){
             zona.setEnabled(true);
         }
-
     }
 }
