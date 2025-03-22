@@ -17,7 +17,6 @@ public class DashboardView extends VerticalLayout {
   
     public DashboardView() {
         this.setSizeFull();
-        this.add(NavigationBar.createNavBar());
 
         VerticalLayout dashboardLayout = new VerticalLayout();
         HorizontalLayout buttonLayout = new HorizontalLayout();
