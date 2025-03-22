@@ -1,6 +1,6 @@
 package es.pingu.map.views;
 
-import com.vaadin.flow.component.button.Button;
+
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -11,7 +11,6 @@ import es.pingu.map.controllers.DashboardController;
 
 @Route("dashboard")
 public class DashboardView extends VerticalLayout {
-    DashboardController controller;
 
     public DashboardView() {
         this.setSizeFull();
