@@ -1,4 +1,4 @@
-package factory;
+package es.pingu.map.mapController;
 
 public abstract class MapElement {
     protected double lat;

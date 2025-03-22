@@ -1,4 +1,4 @@
-package factory.elements;
+package es.pingu.map.mapController.elements;
 
 public enum ElementTypes {
     AFECTADA,
