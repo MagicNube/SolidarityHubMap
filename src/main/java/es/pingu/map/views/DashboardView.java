@@ -10,7 +10,7 @@ import es.pingu.map.commons.NavigationBar;
 import es.pingu.map.controllers.DashboardController;
 
 @Route("dashboard")
-public class DashboardView extends VerticalLayout {
+public class DashboardView extends VerticalLayout{
 
     public DashboardView() {
         this.setSizeFull();
