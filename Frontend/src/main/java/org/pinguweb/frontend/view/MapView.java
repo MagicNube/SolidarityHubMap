@@ -54,7 +54,9 @@ public class MapView extends HorizontalLayout {
         tarea.isDisableOnClick();
         ButtonLayout.add(tarea, zona);
 
-        this.controller = new MapService(reg, map);
+        this.controller = new MapService();
+        this.controller.setReg(reg);
+        this.controller.setMap(map);
 
         tarea.addClickListener(e -> click(TAREA, tarea));
         zona.addClickListener(e -> click(MapTypes.ZONA, zona));

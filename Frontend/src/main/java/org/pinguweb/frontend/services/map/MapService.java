@@ -11,12 +11,16 @@ import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 @Service
 public class MapService {
-    private final LComponentManagementRegistry reg;
-    private final LMap map;
+    @Setter
+    private LComponentManagementRegistry reg;
+
+    @Setter
+    private LMap map;
     private LLatLng coords;
     private final ArrayList<LLatLng> points = new ArrayList<>();
 
@@ -24,9 +28,7 @@ public class MapService {
     @Getter
     private boolean zone = false;
 
-    public MapService(@NonNull LComponentManagementRegistry reg, @NonNull LMap map) {
-        this.reg = reg;
-        this.map = map;
+    public MapService() {
     }
 
     // TODO: Texto para el el marcador de tarea
