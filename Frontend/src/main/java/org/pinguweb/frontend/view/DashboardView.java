@@ -6,7 +6,6 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import es.pingu.map.commons.NavigationBar;
 
 @Route("dashboard")
 public class DashboardView extends VerticalLayout {
