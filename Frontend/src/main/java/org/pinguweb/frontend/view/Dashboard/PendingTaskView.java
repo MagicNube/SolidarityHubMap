@@ -1,4 +1,4 @@
-package es.pingu.map.views.Dashboard;
+package org.pinguweb.frontend.view.Dashboard;
 
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.ChartType;
