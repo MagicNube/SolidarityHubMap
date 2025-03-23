@@ -7,7 +7,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import es.pingu.map.commons.NavigationBar;
-import es.pingu.map.controllers.DashboardController;
 
 @Route("dashboard")
 public class DashboardView extends VerticalLayout{
@@ -29,29 +28,29 @@ public class DashboardView extends VerticalLayout{
         cardL.setFlexWrap(FlexLayout.FlexWrap.WRAP);
         cardL.setJustifyContentMode(FlexLayout.JustifyContentMode.CENTER);
         cardL.setWidthFull();
-        String[] cards = {"Users", "Reportes", "Configuración","PendingTaskView", "Necesidades", "Proyectos"};
+        String[] cards = {"volunteer-skills", "users-affected", "Configuración","PendingTaskView", "needs", "Proyectos"};
         for (int i = 0; i < 6; i++) {
             Div card = createCard(cards[i], "Description " + i);
             int finalI = i;
             card.addClickListener(e -> {
                 switch (finalI){
                     case 0:
-                        getUI().ifPresent(ui -> ui.navigate("users"));
+                        getUI().ifPresent(ui -> ui.navigate("dashboard/volunteer-skills"));
                         break;
                     case 1:
-                        getUI().ifPresent(ui -> ui.navigate("reportes"));
+                        getUI().ifPresent(ui -> ui.navigate("dashboard/users-affected"));
                         break;
                     case 2:
-                        getUI().ifPresent(ui -> ui.navigate("Configuración"));
+                        getUI().ifPresent(ui -> ui.navigate("dashboard/settings"));
                         break;
                     case 3:
                         getUI().ifPresent(ui -> ui.navigate("dashboard/pending-task"));
                         break;
                     case 4:
-                        getUI().ifPresent(ui -> ui.navigate("Necesidades"));
+                        getUI().ifPresent(ui -> ui.navigate("dashboard/needs"));
                         break;
                     case 5:
-                        getUI().ifPresent(ui -> ui.navigate("Proyectos"));
+                        getUI().ifPresent(ui -> ui.navigate("dashboard/projects"));
                         break;
                     default:
                         break;
