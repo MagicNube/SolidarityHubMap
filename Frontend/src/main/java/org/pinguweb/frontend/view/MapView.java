@@ -11,12 +11,18 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import org.pinguweb.frontend.services.map.MapService;
 import org.pinguweb.frontend.services.map.MapTypes;
+import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
+import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
 import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import static org.pinguweb.frontend.services.map.MapTypes.TAREA;
 
@@ -33,6 +39,9 @@ public class MapView extends HorizontalLayout {
     private UI ui;
     private final Button tarea = new Button("Tarea");
     private final Button zona = new Button("Zona");
+    private HashMap<Tuple<Double, Double>, LMarker> zoneMarkers = new HashMap<>();
+    private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
+    private Tuple<Double, Double> zoneMarkerStartingPoint;
     private String clickFuncReference;
 
     public MapView() {
@@ -46,7 +55,7 @@ public class MapView extends HorizontalLayout {
         this.add(MapVerticalLayout);
 
         LComponentManagementRegistry reg = new LDefaultComponentManagementRegistry(this);
-        MapContainer mapContainer = new MapContainer(reg);
+        mapContainer = new MapContainer(reg);
         mapContainer.setSizeFull();
         this.map = mapContainer.getlMap();
         this.map.addLayer(LTileLayer.createDefaultForOpenStreetMapTileServer(reg));
@@ -63,12 +72,12 @@ public class MapView extends HorizontalLayout {
         this.controller = new MapService();
         this.controller.setReg(reg);
         this.controller.setMap(map);
+        this.controller.setID(ID);
 
         tarea.addClickListener(e -> click(TAREA, tarea));
         zona.addClickListener(e -> click(MapTypes.ZONA, zona));
 
     }
-
 
     public void click(MapTypes Action, Button button ) {
         switch (Action) {
@@ -108,9 +117,16 @@ public class MapView extends HorizontalLayout {
                     System.out.println("Zona terminada");
                     button.setText("Zona");
                     button.setEnabled(true);
-                    this.controller.createZone();
+                    this.controller.createZone(this.zoneMarkerPoints);
                     this.controller.setZone(false);
                     this.mapContainer.removeClassName("map_action");
+
+                    for (LMarker marker : zoneMarkers.values()){
+                        marker.removeFrom(this.map);
+                    }
+
+                    zoneMarkers.clear();
+                    zoneMarkerPoints.clear();
                 }
                 break;
         }
@@ -136,12 +152,45 @@ public class MapView extends HorizontalLayout {
             return;
         }
 
+        LMarker marker = this.controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
 
-        controller.addPoint(obj.getNumber("lat"), obj.getNumber("lng"));
+        zoneMarkerPoints.add(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
+        zoneMarkers.put(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")), marker);
 
-        if (controller.getNumPoints() > 2){
+        if (zoneMarkerPoints.size() > 2){
             zona.setEnabled(true);
         }
+    }
+
+    @ClientCallable
+    public void zoneMarkerStart(final JsonValue input) {
+        if (!(input instanceof final JsonObject obj)) {
+            return;
+        }
+
+        this.zoneMarkerStartingPoint = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+    }
+
+    @ClientCallable
+    public void zoneMarkerEnd(final JsonValue input) {
+        if (!(input instanceof final JsonObject obj)) {
+            return;
+        }
+
+        Tuple<Double, Double> point = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+
+        int index = -1;
+        for (int i = 0; i < zoneMarkerPoints.size(); i++) {
+            Tuple<Double, Double> t = zoneMarkerPoints.get(i);
+
+            if (t._1().equals(this.zoneMarkerStartingPoint._1()) && t._2().equals(this.zoneMarkerStartingPoint._2())) {
+                index = i;
+                break;
+            }
+        }
+
+        System.out.println(this.zoneMarkerStartingPoint);
+        zoneMarkerPoints.set(index, point);
     }
 
 
