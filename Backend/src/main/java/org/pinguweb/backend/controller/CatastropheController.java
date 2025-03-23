@@ -2,6 +2,7 @@ package org.pinguweb.backend.controller;
 
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Catastrophe;
+import org.pinguweb.backend.model.Zone;
 import org.pinguweb.backend.repository.CatastropheRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,18 @@ public class CatastropheController {
 
         if (repository.existsById(id)) {
             return ResponseEntity.ok(repository.getReferenceById(id));
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/catastrophe/{id}/zones")
+    public ResponseEntity<List<Zone>> getCatastropheZones(@PathVariable Integer id) {
+        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+
+        if (repository.existsById(id)) {
+            return ResponseEntity.ok(repository.getReferenceById(id).getZones());
         }
         else {
             return ResponseEntity.notFound().build();
