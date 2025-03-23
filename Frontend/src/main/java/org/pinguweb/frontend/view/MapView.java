@@ -31,6 +31,7 @@ public class MapView extends HorizontalLayout {
     private UI ui;
     private final Button tarea = new Button("Tarea");
     private final Button zona = new Button("Zona");
+    private String clickFuncReference;
 
     public MapView() {
         this.setId(ID);
@@ -47,6 +48,9 @@ public class MapView extends HorizontalLayout {
         mapContainer.setSizeFull();
         this.map = mapContainer.getlMap();
         this.map.addLayer(LTileLayer.createDefaultForOpenStreetMapTileServer(reg));
+        clickFuncReference = map.clientComponentJsAccessor() + ".myCoolClickFunc";
+        reg.execJs(clickFuncReference + "=e => document.getElementById('" + ID + "').$server.mapZona(e.latlng)");
+
         this.map.locate(new LMapLocateOptions().withSetView(true));
 
         MapVerticalLayout.add(mapContainer);
@@ -64,7 +68,7 @@ public class MapView extends HorizontalLayout {
     }
 
 
-    public void click(MapTypes Action, Button button) {
+    public void click(MapTypes Action, Button button ) {
         switch (Action) {
             case TAREA:
                 this.map.once("click", "e => document.getElementById('" + ID + "').$server.mapTarea(e.latlng)");
@@ -91,12 +95,13 @@ public class MapView extends HorizontalLayout {
             case ZONA:
                 if (!this.controller.isZone()){
                     System.out.println("Registrando puntos para la zona");
-                    this.map.on("click", "e => document.getElementById('" + ID + "').$server.mapZona(e.latlng)");
+                    map.on("click", clickFuncReference);
                     button.setEnabled(false);
                     button.setText("Terminar zona");
                     this.controller.setZone(true);
                 }else {
-                    this.map.off();
+                    this.map.off("click", clickFuncReference);
+                    System.out.println("Zona terminada");
                     button.setText("Zona");
                     button.setEnabled(true);
                     this.controller.createZone();
@@ -132,4 +137,6 @@ public class MapView extends HorizontalLayout {
             zona.setEnabled(true);
         }
     }
+
+
 }
