@@ -27,6 +27,8 @@ public class MapView extends HorizontalLayout {
     MapService controller;
     private final String ID = "mapa";
     private final LMap map;
+    private LComponentManagementRegistry reg;
+    private MapContainer mapContainer;
     private final Object lock = new Object();
     private UI ui;
     private final Button tarea = new Button("Tarea");
@@ -43,8 +45,8 @@ public class MapView extends HorizontalLayout {
 
         this.add(MapVerticalLayout);
 
-        final LComponentManagementRegistry reg = new LDefaultComponentManagementRegistry(this);
-        final MapContainer mapContainer = new MapContainer(reg);
+        LComponentManagementRegistry reg = new LDefaultComponentManagementRegistry(this);
+        MapContainer mapContainer = new MapContainer(reg);
         mapContainer.setSizeFull();
         this.map = mapContainer.getlMap();
         this.map.addLayer(LTileLayer.createDefaultForOpenStreetMapTileServer(reg));
@@ -71,6 +73,7 @@ public class MapView extends HorizontalLayout {
     public void click(MapTypes Action, Button button ) {
         switch (Action) {
             case TAREA:
+                this.mapContainer.addClassName("map_action");
                 this.map.once("click", "e => document.getElementById('" + ID + "').$server.mapTarea(e.latlng)");
 
                 ui = UI.getCurrent();
@@ -82,17 +85,18 @@ public class MapView extends HorizontalLayout {
                             System.out.println("Esperando clic en el mapa...");
                             lock.wait();
                         } catch (InterruptedException e) {
-                            System.out.println("Erros esperando clic en el mapa"+e);
+                            System.out.println("Error esperando clic en el mapa"+e);
                             return;
                         }
                     }
                     if (ui != null) {
-                        ui.access(this.controller::createTask);
+                        ui.access(() -> this.mapContainer.removeClassName("map_action"));
                     }
                 }).start();
 
                 break;
             case ZONA:
+                this.mapContainer.addClassName("map_action");
                 if (!this.controller.isZone()){
                     System.out.println("Registrando puntos para la zona");
                     map.on("click", clickFuncReference);
@@ -106,6 +110,7 @@ public class MapView extends HorizontalLayout {
                     button.setEnabled(true);
                     this.controller.createZone();
                     this.controller.setZone(false);
+                    this.mapContainer.removeClassName("map_action");
                 }
                 break;
         }
@@ -117,7 +122,7 @@ public class MapView extends HorizontalLayout {
             return;
         }
 
-        controller.setCoords(obj.getNumber("lat"), obj.getNumber("lng"));
+        controller.createTask(obj.getNumber("lat"), obj.getNumber("lng"));
 
         synchronized (lock) {
             lock.notify();
@@ -130,6 +135,7 @@ public class MapView extends HorizontalLayout {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
+
 
         controller.addPoint(obj.getNumber("lat"), obj.getNumber("lng"));
 

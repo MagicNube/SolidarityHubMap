@@ -21,7 +21,6 @@ public class MapService {
 
     @Setter
     private LMap map;
-    private LLatLng coords;
     private final ArrayList<LLatLng> points = new ArrayList<>();
 
     @Setter
@@ -32,23 +31,19 @@ public class MapService {
     }
 
     // TODO: Texto para el el marcador de tarea
-    public void createTask(){
+    public void createTask(double lat, double lng) {
         // TODO: ¿Modificar el mapa? realmente no tengo ni idea
-        // TODO: ¿Cambiar cursor?
-        System.out.println("Task created at: " + coords);
+
+        LLatLng coords = new LLatLng(this.reg, lat, lng);
+
         new LMarker(reg,coords).addTo(map);
         UI.getCurrent();
     }
 
     public void createZone(){
         // TODO: ¿Modificar el mapa? realmente no tengo ni idea
-        // TODO: ¿Cambiar cursor?
         new LPolygon(reg, points.toArray(new LLatLng[0])).addTo(map);
         points.clear();
-    }
-
-    public void setCoords(double lat, double lng) {
-        this.coords = new LLatLng(reg, lat, lng);
     }
 
     public void addPoint(double lat, double lng){
