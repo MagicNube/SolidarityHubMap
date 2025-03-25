@@ -60,6 +60,6 @@ public class Task {
         this.priority = priority;
         this.status = status;
         this.volunteers= volunteers;
-        this.type = needs.getFirst().getNeedType();
+        this.type = needs.get(0).getNeedType();
     }
 }
