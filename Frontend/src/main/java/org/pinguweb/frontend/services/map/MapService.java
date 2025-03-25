@@ -1,10 +1,12 @@
 package org.pinguweb.frontend.services.map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.UI;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIcon;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIconOptions;
@@ -56,6 +58,20 @@ public class MapService {
 
         new LPolygon(reg, points).addTo(map);
         points.clear();
+    }
+
+    public void getAllPointsSaved(){
+        RestTemplate restTemplate = new RestTemplate();
+        String jsonResponse = restTemplate.getForObject("http://localhost:8081/api/zone/1", String.class);
+
+        // TODO: Ejemplo de una petición al servidor REST
+
+        /*try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(jsonResponse, new TypeReference<List<Task>>() {});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
     }
 
     public LMarker createZoneMarker(double lat, double lng){
