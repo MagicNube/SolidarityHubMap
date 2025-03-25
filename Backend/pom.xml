@@ -11,7 +11,7 @@
     <groupId>org.pinguweb</groupId>
     <artifactId>BackendMap</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Backend</name>
+    <name>BackendMap</name>
     <description>Backend</description>
     <url/>
     <licenses>
