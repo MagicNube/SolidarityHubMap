@@ -1,5 +1,6 @@
 package org.pinguweb.frontend.view.Dashboard;
 
+import com.storedobject.chart.*;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.ChartType;
 import com.vaadin.flow.component.charts.model.Configuration;
@@ -13,30 +14,42 @@ public class Needs extends VerticalLayout{
     public Needs(){
         this.setSizeFull();
 
-        Chart pieChart = new Chart(ChartType.PIE);
-        Configuration pieConf = pieChart.getConfiguration();
-        pieConf.setTitle("Needs Distribution");
+        SOChart soChart = new SOChart();
+        soChart.setSize("800px", "500px");
 
-        DataSeries pieSeries = new DataSeries();
-        //TODO: Aqui tengo que extraer de la base de datos para rellenar la tarta
-        pieSeries.add(new DataSeriesItem("Need 1", 10));
-        pieSeries.add(new DataSeriesItem("Need 2", 20));
-        pieSeries.add(new DataSeriesItem("Need 3", 30));
-        pieSeries.add(new DataSeriesItem("Need 4", 40));
-        pieConf.setSeries(pieSeries);
+// Let us define some inline data.
+        CategoryData labels = new CategoryData("Banana", "Apple", "Orange", "Grapes");
+        Data data = new Data(25, 40, 20, 30);
 
-        Chart barChart = new Chart(ChartType.BAR);
-        Configuration barConfig = barChart.getConfiguration();
-        barConfig.setTitle("Needs Distribution");
+// We are going to create a couple of charts. So, each chart should be positioned
+// appropriately.
+// Create a self-positioning chart.
+        NightingaleRoseChart nc = new NightingaleRoseChart(labels, data);
+        Position p = new Position();
+        p.setTop(Size.percentage(50));
+        nc.setPosition(p); // Position it leaving 50% space at the top
 
-        DataSeries barSeries = new DataSeries();
-        //TODO: Aqui tengo que extraer de la base de datos para rellenar la barra
-        barSeries.add(new DataSeriesItem("Need 1", 10));
-        barSeries.add(new DataSeriesItem("Need 2", 20));
-        barSeries.add(new DataSeriesItem("Need 3", 30));
-        barSeries.add(new DataSeriesItem("Need 4", 40));
-        barConfig.setSeries(barSeries);
+// Second chart to add.
+        BarChart bc = new BarChart(labels, data);
+        RectangularCoordinate rc;
+        rc  = new RectangularCoordinate(new XAxis(DataType.CATEGORY), new YAxis(DataType.NUMBER));
+        p = new Position();
+        p.setBottom(Size.percentage(55));
+        rc.setPosition(p); // Position it leaving 55% space at the bottom
+        bc.plotOn(rc); // Bar chart needs to be plotted on a coordinate system
 
-        this.add(pieChart, barChart);
+// Just to demonstrate it, we are creating a "Download" and a "Zoom" toolbox button.
+        Toolbox toolbox = new Toolbox();
+        toolbox.addButton(new Toolbox.Download(), new Toolbox.Zoom());
+
+// Let's add some titles.
+        Title title = new Title("My First Chart");
+        title.setSubtext("2nd Line of the Title");
+
+// Add the chart components to the chart display area.
+        soChart.add(nc, bc, toolbox, title);
+
+// Now, add the chart display (which is a Vaadin Component) to your layout.
+        this.add(soChart);
     }
 }

@@ -8,9 +8,14 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.util.Tuple;
+import software.xdev.vaadin.maps.leaflet.basictypes.LIcon;
+import software.xdev.vaadin.maps.leaflet.basictypes.LIconOptions;
 import org.springframework.web.client.RestTemplate;
 import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
+import software.xdev.vaadin.maps.leaflet.basictypes.LPoint;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
+import software.xdev.vaadin.maps.leaflet.layer.ui.LMarkerOptions;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
@@ -26,12 +31,13 @@ public class MapService {
 
     @Setter
     private LMap map;
-    private LLatLng coords;
-    private final ArrayList<LLatLng> points = new ArrayList<>();
 
     @Setter
     @Getter
     private boolean zone = false;
+
+    @Setter
+    private String ID;
 
     public MapService() {
         load();
@@ -57,33 +63,44 @@ public class MapService {
             e.printStackTrace();
         }
     }
+  
+    public void createTask(double lat, double lng) {
+        LLatLng coords = new LLatLng(this.reg, lat, lng);
 
-    // TODO: Texto para el el marcador de tarea
-    public void createTask(){
-        // TODO: ¿Modificar el mapa? realmente no tengo ni idea
-        // TODO: ¿Cambiar cursor?
-        System.out.println("Task created at: " + coords);
-        LMarker marker = new LMarker(reg,coords);
-        marker.addTo(map);
+        new LMarker(reg,coords).addTo(map);
         UI.getCurrent();
     }
 
-    public void createZone(){
-        // TODO: ¿Modificar el mapa? realmente no tengo ni idea
-        // TODO: ¿Cambiar cursor?
-        new LPolygon(reg, points.toArray(new LLatLng[0])).addTo(map);
+    public void createZone(List<Tuple<Double, Double>> markers){
+
+        List<LLatLng> points = new ArrayList<>();
+
+        for (Tuple<Double, Double> marker : markers) {
+            points.add(new LLatLng(this.reg, marker._1(), marker._2()));
+        }
+
+        new LPolygon(reg, points).addTo(map);
         points.clear();
     }
 
-    public void setCoords(double lat, double lng) {
-        this.coords = new LLatLng(reg, lat, lng);
-    }
+    public LMarker createZoneMarker(double lat, double lng){
+        LIcon icon = new LIcon(this.reg, new LIconOptions()
+                .withIconUrl("https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png")
+                .withShadowUrl("https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png")
+                .withIconSize(new LPoint(this.reg, 25, 41))
+                .withIconAnchor(new LPoint(this.reg, 12, 41))
+                .withPopupAnchor(new LPoint(this.reg, 1, -34))
+                .withShadowSize(new LPoint(this.reg, 41, 41))
+        );
 
-    public void addPoint(double lat, double lng){
-        points.add(new LLatLng(reg, lat, lng));
-    }
+        LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
 
-    public int getNumPoints(){
-        return points.size();
+        LMarker marker = new LMarker(this.reg, new LLatLng(this.reg, lat, lng), options);
+
+        marker.on("dragstart", "e => document.getElementById('" + ID + "').$server.zoneMarkerStart(e.target.getLatLng())");
+        marker.on("dragend", "e => document.getElementById('" + ID + "').$server.zoneMarkerEnd(e.target.getLatLng())");
+
+        marker.addTo(this.map);
+        return marker;
     }
 }
