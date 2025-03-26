@@ -1,31 +1,19 @@
 package org.pinguweb.backend.controller;
 
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Need;
-import org.pinguweb.backend.model.Need;
-import org.pinguweb.backend.repository.NeedRepository;
-import org.springframework.http.HttpStatus;
+import org.pinguweb.backend.model.Skill;
+import org.pinguweb.backend.repository.SkillRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api")
-public class NeedController {
+public class SkillController {
 
-    NeedRepository repository;
+    SkillRepository repository;
 
-    @GetMapping("/need")
-    public ResponseEntity<List<Need>> getAll(){
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
-
-        List<Need> needs = repository.findAll();
-        return ResponseEntity.ok(needs);
-    }
-
-    @GetMapping("/need/{id}")
-    public ResponseEntity<Need> getNeed(@PathVariable Integer id) {
+    @GetMapping("/skill/{id}")
+    public ResponseEntity<Skill> getSkill(@PathVariable String id) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
@@ -36,15 +24,15 @@ public class NeedController {
         }
     }
 
-    @PostMapping("/need")
-    public ResponseEntity<Need> addNeed(@RequestBody Need need) {
+    @PostMapping("/skill")
+    public ResponseEntity<Skill> addSkill(@RequestBody Skill skill) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
-        return ResponseEntity.ok(repository.save(need));
+        return ResponseEntity.ok(repository.save(skill));
     }
 
-    @DeleteMapping("/need/{id}")
-    public ResponseEntity<Void>  deleteNeed(@PathVariable Integer id) {
+    @DeleteMapping("/skill/{id}")
+    public ResponseEntity<Void>  deleteSkill(@PathVariable String id) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
@@ -56,12 +44,12 @@ public class NeedController {
         }
     }
 
-    @PutMapping("/need")
-    public ResponseEntity<Need>  updateNeed(@RequestBody Need need) {
+    @PutMapping("/skill")
+    public ResponseEntity<Skill>  updateSkill(@RequestBody Skill skill) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(need.getId())) {
-            return ResponseEntity.ok(repository.save(need));
+        if (repository.existsById(skill.getName())) {
+            return ResponseEntity.ok(repository.save(skill));
         }
         else {
             return ResponseEntity.notFound().build();

@@ -52,7 +52,7 @@ public class Catastrophe {
     @ManyToMany(mappedBy = "catastrophes")
     private List<Zone> zones;
 
-    public Catastrophe(String name, String description, GPSCoordinates location, LocalDate startDate , EmergencyLevel emergencyLevel) {
+    public Catastrophe(@NonNull String name, @NonNull String description, @NonNull GPSCoordinates location, LocalDate startDate , @NonNull EmergencyLevel emergencyLevel) {
         this.zones = new ArrayList<>();
         this.needs = new ArrayList<>();
         this.name = name;

@@ -1,10 +1,8 @@
 package org.pinguweb.backend.controller;
 
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Need;
-import org.pinguweb.backend.model.Need;
-import org.pinguweb.backend.repository.NeedRepository;
-import org.springframework.http.HttpStatus;
+import org.pinguweb.backend.model.Task;
+import org.pinguweb.backend.repository.TaskRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,20 +10,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class NeedController {
+public class TaskController {
 
-    NeedRepository repository;
+    TaskRepository repository;
 
-    @GetMapping("/need")
-    public ResponseEntity<List<Need>> getAll(){
+    @GetMapping("/task")
+    public ResponseEntity<List<Task>> getAll(){
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<Need> needs = repository.findAll();
-        return ResponseEntity.ok(needs);
+        List<Task> tasks = repository.findAll();
+        return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/need/{id}")
-    public ResponseEntity<Need> getNeed(@PathVariable Integer id) {
+    @GetMapping("/task/{id}")
+    public ResponseEntity<Task> getTask(@PathVariable Integer id) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
@@ -36,15 +34,15 @@ public class NeedController {
         }
     }
 
-    @PostMapping("/need")
-    public ResponseEntity<Need> addNeed(@RequestBody Need need) {
+    @PostMapping("/task")
+    public ResponseEntity<Task> addTask(@RequestBody Task task) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
-        return ResponseEntity.ok(repository.save(need));
+        return ResponseEntity.ok(repository.save(task));
     }
 
-    @DeleteMapping("/need/{id}")
-    public ResponseEntity<Void>  deleteNeed(@PathVariable Integer id) {
+    @DeleteMapping("/task/{id}")
+    public ResponseEntity<Void>  deleteTask(@PathVariable Integer id) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
@@ -56,12 +54,12 @@ public class NeedController {
         }
     }
 
-    @PutMapping("/need")
-    public ResponseEntity<Need>  updateNeed(@RequestBody Need need) {
+    @PutMapping("/task")
+    public ResponseEntity<Task>  updateTask(@RequestBody Task task) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(need.getId())) {
-            return ResponseEntity.ok(repository.save(need));
+        if (repository.existsById(task.getId())) {
+            return ResponseEntity.ok(repository.save(task));
         }
         else {
             return ResponseEntity.notFound().build();
