@@ -1,10 +1,12 @@
 package org.pinguweb.frontend.services.map;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.UI;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
@@ -32,6 +34,28 @@ public class MapService {
     private boolean zone = false;
 
     public MapService() {
+        load();
+    }
+
+    public void load() {
+        RestTemplate restTemplate = new RestTemplate();
+        String jsonResponse = restTemplate.getForObject("http://localhost:8081/api/task", String.class);
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Task> tasks = objectMapper.readValue(jsonResponse, new TypeReference<>(){});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        jsonResponse = restTemplate.getForObject("http://localhost:8081/api/zone", String.class);
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Zone> zones = objectMapper.readValue(jsonResponse, new TypeReference<>(){});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // TODO: Texto para el el marcador de tarea
@@ -49,20 +73,6 @@ public class MapService {
         // TODO: ¿Cambiar cursor?
         new LPolygon(reg, points.toArray(new LLatLng[0])).addTo(map);
         points.clear();
-    }
-
-    public void getAllPointsSaved(){
-        RestTemplate restTemplate = new RestTemplate();
-        String jsonResponse = restTemplate.getForObject("http://localhost:8081/api/zone/1", String.class);
-
-        // TODO: Ejemplo de una petición al servidor REST
-
-        /*try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(jsonResponse, new TypeReference<List<Task>>() {});
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
     }
 
     public void setCoords(double lat, double lng) {
