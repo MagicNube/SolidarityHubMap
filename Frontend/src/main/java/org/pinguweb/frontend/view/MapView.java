@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.pinguweb.frontend.services.map.MapTypes.TAREA;
+import static org.pinguweb.frontend.services.map.MapTypes.ZONA;
 
 @Route("map")
 @PageTitle("Visor del mapa")
@@ -75,7 +76,7 @@ public class MapView extends HorizontalLayout {
         this.controller.setID(ID);
 
         tarea.addClickListener(e -> click(TAREA, tarea));
-        zona.addClickListener(e -> click(MapTypes.ZONA, zona));
+        zona.addClickListener(e -> click(ZONA, zona));
 
     }
 
@@ -83,6 +84,7 @@ public class MapView extends HorizontalLayout {
         switch (Action) {
             case TAREA:
                 this.mapContainer.addClassName("map_action");
+                this.controller.crearDialogoTarea();
                 this.map.once("click", "e => document.getElementById('" + ID + "').$server.mapTarea(e.latlng)");
 
                 ui = UI.getCurrent();
@@ -107,6 +109,7 @@ public class MapView extends HorizontalLayout {
             case ZONA:
                 this.mapContainer.addClassName("map_action");
                 if (!this.controller.isZone()){
+                    this.controller.createDialogZona();
                     System.out.println("Registrando puntos para la zona");
                     map.on("click", clickFuncReference);
                     button.setEnabled(false);
