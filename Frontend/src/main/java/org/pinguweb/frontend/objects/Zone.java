@@ -1,6 +1,7 @@
 package org.pinguweb.frontend.objects;
 
-
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 import org.pinguweb.frontend.objects.enums.EmergencyLevel;
 
@@ -8,10 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+
 @NoArgsConstructor
 @ToString
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 public class Zone {
-
+    
+    
     private int id;
 
     @Setter
@@ -21,15 +28,21 @@ public class Zone {
     private String description;
 
     @Setter
-
+    
     private EmergencyLevel emergencyLevel;
 
     @Setter
+    
+    
+            
+            
     private List<Catastrophe> catastrophes;
 
     @Setter
+    
     private List<Storage> storages;
 
+    
     @Setter
     @NonNull
     private List<GPSCoordinates> points;

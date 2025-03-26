@@ -1,13 +1,21 @@
 package org.pinguweb.frontend.objects;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@NoArgsConstructor
-public class Notification {
 
+@NoArgsConstructor
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
+public class Notification {
+    
+    
     private int id;
     @Setter
     private String title;

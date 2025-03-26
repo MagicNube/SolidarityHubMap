@@ -1,5 +1,7 @@
 package org.pinguweb.frontend.objects;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,12 +10,18 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor
-public class Resource {
 
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
+public class Resource {
+    
+    
     private int id;
 
     @Setter
-    private String type;
+        private String type;
 
     private double quantity;
 

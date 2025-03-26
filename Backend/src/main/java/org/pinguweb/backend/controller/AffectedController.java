@@ -3,18 +3,19 @@ package org.pinguweb.backend.controller;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Affected;
 import org.pinguweb.backend.repository.AffectedRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
 public class AffectedController {
-
+    @Autowired
     AffectedRepository repository;
 
     @GetMapping("/affected/{id}")
     public ResponseEntity<Affected> getAffected(@PathVariable String id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
             return ResponseEntity.ok(repository.getReferenceById(id));
@@ -26,14 +27,14 @@ public class AffectedController {
 
     @PostMapping("/affected")
     public ResponseEntity<Affected> addAffected(@RequestBody Affected affected) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         return ResponseEntity.ok(repository.save(affected));
     }
 
     @DeleteMapping("/affected/{id}")
     public ResponseEntity<Void>  deleteAffected(@PathVariable String id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
             repository.deleteById(id);
@@ -46,7 +47,7 @@ public class AffectedController {
 
     @PutMapping("/affected")
     public ResponseEntity<Affected>  updateAffected(@RequestBody Affected affected) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(affected.getDNI())) {
             return ResponseEntity.ok(repository.save(affected));

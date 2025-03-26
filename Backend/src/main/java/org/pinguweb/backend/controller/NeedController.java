@@ -2,9 +2,7 @@ package org.pinguweb.backend.controller;
 
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Need;
-import org.pinguweb.backend.model.Need;
 import org.pinguweb.backend.repository.NeedRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +16,7 @@ public class NeedController {
 
     @GetMapping("/need")
     public ResponseEntity<List<Need>> getAll(){
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         List<Need> needs = repository.findAll();
         return ResponseEntity.ok(needs);
@@ -26,7 +24,7 @@ public class NeedController {
 
     @GetMapping("/need/{id}")
     public ResponseEntity<Need> getNeed(@PathVariable Integer id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
             return ResponseEntity.ok(repository.getReferenceById(id));
@@ -38,14 +36,14 @@ public class NeedController {
 
     @PostMapping("/need")
     public ResponseEntity<Need> addNeed(@RequestBody Need need) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         return ResponseEntity.ok(repository.save(need));
     }
 
     @DeleteMapping("/need/{id}")
     public ResponseEntity<Void>  deleteNeed(@PathVariable Integer id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
             repository.deleteById(id);
@@ -58,7 +56,7 @@ public class NeedController {
 
     @PutMapping("/need")
     public ResponseEntity<Need>  updateNeed(@RequestBody Need need) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(need.getId())) {
             return ResponseEntity.ok(repository.save(need));

@@ -15,9 +15,13 @@ import com.vaadin.flow.component.textfield.TextArea;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import org.pinguweb.frontend.objects.Task;
 import org.pinguweb.frontend.objects.Zone;
-import org.springframework.scheduling.config.Task;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIcon;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIconOptions;
@@ -32,6 +36,7 @@ import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -55,25 +60,19 @@ public class MapService {
 
     public void load() {
         RestTemplate restTemplate = new RestTemplate();
-        String jsonResponse = restTemplate.getForObject("http://localhost:8081/api/task", String.class);
 
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<Task> tasks = objectMapper.readValue(jsonResponse, new TypeReference<>(){});
-
-            System.out.println(tasks);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        jsonResponse = restTemplate.getForObject("http://localhost:8081/api/zone", String.class);
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<Zone> zones = objectMapper.readValue(jsonResponse, new TypeReference<>(){});
-
-            System.out.println(zones);
-        } catch (Exception e) {
+            ResponseEntity<List<Task>> claimResponse = restTemplate.exchange(
+                    "http://localhost:8081/api/task",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<Task>>() {});
+            if(claimResponse != null && claimResponse.hasBody()){
+                List<Task> tasks = claimResponse.getBody();
+                System.out.println(Arrays.toString(tasks.toArray()));
+            }
+        } catch (RestClientException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

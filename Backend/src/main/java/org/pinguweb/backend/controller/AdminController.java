@@ -3,18 +3,19 @@ package org.pinguweb.backend.controller;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Admin;
 import org.pinguweb.backend.repository.AdminRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
 public class AdminController {
-
+    @Autowired
     AdminRepository repository;
 
     @GetMapping("/admin/{id}")
     public ResponseEntity<Admin> getAdmin(@PathVariable String id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
             return ResponseEntity.ok(repository.getReferenceById(id));
@@ -26,14 +27,14 @@ public class AdminController {
 
     @PostMapping("/admin")
     public ResponseEntity<Admin> addAdmin(@RequestBody Admin admin) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         return ResponseEntity.ok(repository.save(admin));
     }
 
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<Void>  deleteAdmin(@PathVariable String id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
             repository.deleteById(id);
@@ -46,7 +47,7 @@ public class AdminController {
 
     @PutMapping("/admin")
     public ResponseEntity<Admin>  updateAdmin(@RequestBody Admin admin) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(admin.getDni())) {
             return ResponseEntity.ok(repository.save(admin));
@@ -58,7 +59,7 @@ public class AdminController {
 
     @GetMapping("/admin/login/")
     public ResponseEntity<Void> login(@RequestParam String ID, @RequestParam String password) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(ID)) {
             Admin admin = repository.getReferenceById(ID);

@@ -3,6 +3,7 @@ package org.pinguweb.backend.controller;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Task;
 import org.pinguweb.backend.repository.TaskRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +13,12 @@ import java.util.List;
 @RequestMapping("/api")
 public class TaskController {
 
+    @Autowired
     TaskRepository repository;
 
     @GetMapping("/task")
     public ResponseEntity<List<Task>> getAll(){
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         List<Task> tasks = repository.findAll();
         return ResponseEntity.ok(tasks);
@@ -24,7 +26,7 @@ public class TaskController {
 
     @GetMapping("/task/{id}")
     public ResponseEntity<Task> getTask(@PathVariable Integer id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
             return ResponseEntity.ok(repository.getReferenceById(id));
@@ -36,14 +38,14 @@ public class TaskController {
 
     @PostMapping("/task")
     public ResponseEntity<Task> addTask(@RequestBody Task task) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         return ResponseEntity.ok(repository.save(task));
     }
 
     @DeleteMapping("/task/{id}")
     public ResponseEntity<Void>  deleteTask(@PathVariable Integer id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
             repository.deleteById(id);
@@ -56,7 +58,7 @@ public class TaskController {
 
     @PutMapping("/task")
     public ResponseEntity<Task>  updateTask(@RequestBody Task task) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+        if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(task.getId())) {
             return ResponseEntity.ok(repository.save(task));

@@ -1,28 +1,36 @@
 package org.pinguweb.frontend.objects;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
-public class Storage {
 
+@NoArgsConstructor
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
+public class Storage {
+    
+    
     private int id;
 
-    @Setter
+        @Setter
     private String name;
 
     @Setter
     private GPSCoordinates gpsCoordinates;
 
-    @Setter
+        @Setter
     private boolean isFull;
 
     @Setter
+    
     private List<Resource> resources;
 
     @Setter

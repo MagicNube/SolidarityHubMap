@@ -1,5 +1,7 @@
 package org.pinguweb.frontend.objects;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,18 +12,21 @@ import java.util.List;
 @Setter
 @Getter
 @NoArgsConstructor
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "dni",
+        scope = Volunteer.class
+)
 public class Volunteer extends Person {
-
     private List<Skill> skills;
 
     private List<ScheduleAvailability> scheduleAvailabilities;
-
     private List<Preference> preferences;
-
+            
     private List<Task> tasks;
-
+    
     private List<Donation> donations;
-
+    
     private List<Certificate> certificates;
 
     private List<Notification> notifications;
