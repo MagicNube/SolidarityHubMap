@@ -42,16 +42,37 @@ import java.util.List;
 @Setter
 @Service
 public class MapService {
+    @Setter
     private LComponentManagementRegistry reg;
 
+    @Setter
     private LMap map;
 
+    @Setter
     @Getter
     private boolean zone = false;
 
+    @Setter
     private String ID;
 
+    @Setter
+    @Getter
+    private boolean delete = false;
+
+    @Setter
+    private String ID;
+
+    private String clickFuncReference;
+
+    @Getter
+    private ArrayList<LMarker> markers = new ArrayList<>();
+
+    @Getter
+    private ArrayList<LPolygon> polygons = new ArrayList<>();
+
+
     public MapService() {}
+
 
     @Async
     public void load() {
@@ -60,15 +81,19 @@ public class MapService {
 
         if (needs.getStatusCode() == HttpStatus.OK) {
             for (NeedDTO need : needs.getData()) {
-                    createNeed(need.getLatitude(), need.getLongitude());
+                createNeed(need.getLatitude(), need.getLongitude());
             }
         }
     }
-  
+
+    // TODO: Texto para el el marcador de tarea
     public void createNeed(double lat, double lng) {
         LLatLng coords = new LLatLng(this.reg, lat, lng);
 
-        new LMarker(reg, coords).addTo(map);
+        LMarker marker = new LMarker(this.reg, coords);
+        marker.addTo(this.map);
+
+        markers.add(marker);
         UI.getCurrent();
     }
 
@@ -80,7 +105,16 @@ public class MapService {
             points.add(new LLatLng(this.reg, marker._1(), marker._2()));
         }
 
-        new LPolygon(reg, points).addTo(map);
+        LPolygon polygon = new LPolygon(this.reg, points, new LPolylineOptions().withColor("red").withFillColor("blue"));
+
+        clickFuncReference = map.clientComponentJsAccessor() + ".myCoolClickFunc";
+        reg.execJs(clickFuncReference + "=e => document.getElementById('" + ID + "').$server.clickOnZone(e.latlng)");
+
+        polygon.on("click", clickFuncReference);
+
+        polygon.addTo(this.map);
+
+        polygons.add(polygon);
         points.clear();
     }
 
