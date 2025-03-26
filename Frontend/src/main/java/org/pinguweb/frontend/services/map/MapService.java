@@ -15,6 +15,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import org.pinguweb.frontend.objects.Zone;
 import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
@@ -59,6 +60,8 @@ public class MapService {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             List<Task> tasks = objectMapper.readValue(jsonResponse, new TypeReference<>(){});
+
+            System.out.println(tasks);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,6 +71,8 @@ public class MapService {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             List<Zone> zones = objectMapper.readValue(jsonResponse, new TypeReference<>(){});
+
+            System.out.println(zones);
         } catch (Exception e) {
             e.printStackTrace();
         }
