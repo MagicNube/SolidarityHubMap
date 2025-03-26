@@ -18,7 +18,7 @@ public class AffectedController {
     @Autowired
     AffectedRepository repository;
 
-    @GetMapping("/affeected")
+    @GetMapping("/affected")
     public ResponseEntity<List<AffectedDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
@@ -47,11 +47,11 @@ public class AffectedController {
     }
 
     @DeleteMapping("/affected/{id}")
-    public ResponseEntity<Void>  deleteAffected(@PathVariable AffectedDTO id) {
+    public ResponseEntity<Void>  deleteAffected(@PathVariable String id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id.getDni())) {
-            repository.deleteById(id.getDni());
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
             return ResponseEntity.ok().build();
         }
         else {

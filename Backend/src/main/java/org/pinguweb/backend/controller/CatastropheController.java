@@ -60,11 +60,11 @@ public class CatastropheController {
     }
 
     @DeleteMapping("/catastrophe/{id}")
-    public ResponseEntity<Void>  deleteCatastrophe(@PathVariable CatastropheDTO id) {
+    public ResponseEntity<Void>  deleteCatastrophe(@PathVariable int id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id.getId())) {
-            repository.deleteById(id.getId());
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
             return ResponseEntity.ok().build();
         }
         else {

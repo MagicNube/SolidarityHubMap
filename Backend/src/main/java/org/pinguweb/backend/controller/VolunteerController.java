@@ -46,11 +46,11 @@ public class VolunteerController {
     }
 
     @DeleteMapping("/volunteer/{id}")
-    public ResponseEntity<Void>  deleteVolunteer(@PathVariable VolunteerDTO id) {
+    public ResponseEntity<Void>  deleteVolunteer(@PathVariable String id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id.getDni())) {
-            repository.deleteById(id.getDni());
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
             return ResponseEntity.ok().build();
         }
         else {

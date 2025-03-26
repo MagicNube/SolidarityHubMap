@@ -48,11 +48,11 @@ public class SkillController {
     }
 
     @DeleteMapping("/skill/{id}")
-    public ResponseEntity<Void>  deleteSkill(@PathVariable SkillDTO id) {
+    public ResponseEntity<Void>  deleteSkill(@PathVariable String id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id.getName())) {
-            repository.deleteById(id.getName());
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
             return ResponseEntity.ok().build();
         }
         else {

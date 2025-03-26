@@ -43,15 +43,15 @@ public class TaskController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         //TODO: Los posts no funcionan muy bien
-        return ResponseEntity.ok(repository.save(new Task().fromDTO(task)).toDTO());
+        return ResponseEntity.ok(repository.save(Task.fromDTO(task)).toDTO());
     }
 
     @DeleteMapping("/task/{id}")
-    public ResponseEntity<Void>  deleteTask(@PathVariable TaskDTO id) {
+    public ResponseEntity<Void>  deleteTask(@PathVariable int id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id.getId())) {
-            repository.deleteById(id.getId());
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
             return ResponseEntity.ok().build();
         }
         else {

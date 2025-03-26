@@ -45,11 +45,11 @@ public class NeedController {
     }
 
     @DeleteMapping("/need/{id}")
-    public ResponseEntity<Void>  deleteNeed(@PathVariable NeedDTO id) {
+    public ResponseEntity<Void>  deleteNeed(@PathVariable int id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id.getId())) {
-            repository.deleteById(id.getId());
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
             return ResponseEntity.ok().build();
         }
         else {

@@ -82,11 +82,11 @@ public class ZoneController {
     }
 
     @DeleteMapping("/zone/{id}")
-    public ResponseEntity<Void>  deleteZone(@PathVariable ZoneDTO id) {
+    public ResponseEntity<Void>  deleteZone(@PathVariable int id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id.getId())) {
-            repository.deleteById(id.getId());
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
             return ResponseEntity.ok().build();
         }
         else {

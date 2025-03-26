@@ -35,11 +35,11 @@ public class AdminController {
     }
 
     @DeleteMapping("/admin/{id}")
-    public ResponseEntity<Void>  deleteAdmin(@PathVariable AdminDTO id) {
+    public ResponseEntity<Void>  deleteAdmin(@PathVariable String id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id.getDni())) {
-            repository.deleteById(id.getDni());
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
             return ResponseEntity.ok().build();
         }
         else {
@@ -61,7 +61,7 @@ public class AdminController {
     }
 
     @GetMapping("/admin/login/")
-    public ResponseEntity<Void> login(@RequestParam AdminDTO adminDto) {
+    public ResponseEntity<Void> login(@RequestBody AdminDTO adminDto) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(adminDto.getDni())) {
