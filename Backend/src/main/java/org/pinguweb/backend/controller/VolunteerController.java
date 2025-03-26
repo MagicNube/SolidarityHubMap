@@ -1,10 +1,8 @@
 package org.pinguweb.backend.controller;
 
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Need;
-import org.pinguweb.backend.model.Need;
-import org.pinguweb.backend.repository.NeedRepository;
-import org.springframework.http.HttpStatus;
+import org.pinguweb.backend.model.Volunteer;
+import org.pinguweb.backend.repository.VolunteerRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,20 +10,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class NeedController {
+public class VolunteerController {
+    
+    VolunteerRepository repository;
 
-    NeedRepository repository;
-
-    @GetMapping("/need")
-    public ResponseEntity<List<Need>> getAll(){
+    @GetMapping("/volunteer")
+    public ResponseEntity<List<Volunteer>> getAll(){
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<Need> needs = repository.findAll();
-        return ResponseEntity.ok(needs);
+        List<Volunteer> volunteers = repository.findAll();
+        return ResponseEntity.ok(volunteers);
     }
 
-    @GetMapping("/need/{id}")
-    public ResponseEntity<Need> getNeed(@PathVariable Integer id) {
+    @GetMapping("/volunteer/{id}")
+    public ResponseEntity<Volunteer> getVolunteer(@PathVariable String id) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
@@ -36,15 +34,15 @@ public class NeedController {
         }
     }
 
-    @PostMapping("/need")
-    public ResponseEntity<Need> addNeed(@RequestBody Need need) {
+    @PostMapping("/volunteer")
+    public ResponseEntity<Volunteer> addVolunteer(@RequestBody Volunteer volunteer) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
-        return ResponseEntity.ok(repository.save(need));
+        return ResponseEntity.ok(repository.save(volunteer));
     }
 
-    @DeleteMapping("/need/{id}")
-    public ResponseEntity<Void>  deleteNeed(@PathVariable Integer id) {
+    @DeleteMapping("/volunteer/{id}")
+    public ResponseEntity<Void>  deleteVolunteer(@PathVariable String id) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
@@ -56,12 +54,12 @@ public class NeedController {
         }
     }
 
-    @PutMapping("/need")
-    public ResponseEntity<Need>  updateNeed(@RequestBody Need need) {
+    @PutMapping("/volunteer")
+    public ResponseEntity<Volunteer>  updateVolunteer(@RequestBody Volunteer volunteer) {
         if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(need.getId())) {
-            return ResponseEntity.ok(repository.save(need));
+        if (repository.existsById(volunteer.getDNI())) {
+            return ResponseEntity.ok(repository.save(volunteer));
         }
         else {
             return ResponseEntity.notFound().build();
