@@ -20,7 +20,5 @@ public class DashboardGeneralView extends VerticalLayout implements BeforeEnterO
 
         String type = event.getRouteParameters().get("type").get();
         System.out.println(type);
-
-
     }
 }
