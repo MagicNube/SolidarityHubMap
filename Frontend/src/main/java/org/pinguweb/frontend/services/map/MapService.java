@@ -1,5 +1,6 @@
 package org.pinguweb.frontend.services.map;
 
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -10,6 +11,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -21,7 +24,10 @@ import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
 import software.xdev.vaadin.maps.leaflet.basictypes.LPoint;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarkerOptions;
+import software.xdev.vaadin.maps.leaflet.layer.ui.LPopup;
+import software.xdev.vaadin.maps.leaflet.layer.ui.LPopupOptions;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
+import software.xdev.vaadin.maps.leaflet.layer.vector.LPolylineOptions;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
@@ -42,7 +48,19 @@ public class MapService {
     private boolean zone = false;
 
     @Setter
+    @Getter
+    private boolean delete = false;
+
+    @Setter
     private String ID;
+
+    private String clickFuncReference;
+
+    @Getter
+    private ArrayList<LMarker> markers = new ArrayList<>();
+
+    @Getter
+    private ArrayList<LPolygon> polygons = new ArrayList<>();
 
     public MapService() {
     }
@@ -51,7 +69,10 @@ public class MapService {
     public void createTask(double lat, double lng) {
         LLatLng coords = new LLatLng(this.reg, lat, lng);
 
-        new LMarker(reg, coords).addTo(map);
+        LMarker marker = new LMarker(this.reg, coords);
+        marker.addTo(this.map);
+
+        markers.add(marker);
         UI.getCurrent();
     }
 
@@ -63,7 +84,17 @@ public class MapService {
             points.add(new LLatLng(this.reg, marker._1(), marker._2()));
         }
 
-        new LPolygon(reg, points).addTo(map);
+
+        LPolygon polygon = new LPolygon(this.reg, points, new LPolylineOptions().withColor("red").withFillColor("blue"));
+
+        clickFuncReference = map.clientComponentJsAccessor() + ".myCoolClickFunc";
+        reg.execJs(clickFuncReference + "=e => document.getElementById('" + ID + "').$server.clickOnZone(e.latlng)");
+
+        polygon.on("click", clickFuncReference);
+
+        polygon.addTo(this.map);
+
+        polygons.add(polygon);
         points.clear();
     }
 
@@ -150,4 +181,5 @@ public class MapService {
 
         icoClose.addClickListener(iev -> dialog.close());
     }
+
 }
