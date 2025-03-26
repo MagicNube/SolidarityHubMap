@@ -1,5 +1,6 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.backend.DTO.AdminDTO;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Admin;
 import org.pinguweb.backend.repository.AdminRepository;
@@ -14,11 +15,11 @@ public class AdminController {
     AdminRepository repository;
 
     @GetMapping("/admin/{id}")
-    public ResponseEntity<Admin> getAdmin(@PathVariable String id) {
+    public ResponseEntity<AdminDTO> getAdmin(@PathVariable String id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id));
+            return ResponseEntity.ok(repository.getReferenceById(id).toDTO());
         }
         else {
             return ResponseEntity.notFound().build();
@@ -26,18 +27,19 @@ public class AdminController {
     }
 
     @PostMapping("/admin")
-    public ResponseEntity<Admin> addAdmin(@RequestBody Admin admin) {
+    public ResponseEntity<AdminDTO> addAdmin(@RequestBody AdminDTO admin) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        return ResponseEntity.ok(repository.save(admin));
+        // TODO: no funciona aun
+        return ResponseEntity.ok(repository.save(Admin.fromDTO(admin)).toDTO());
     }
 
     @DeleteMapping("/admin/{id}")
-    public ResponseEntity<Void>  deleteAdmin(@PathVariable String id) {
+    public ResponseEntity<Void>  deleteAdmin(@PathVariable AdminDTO id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
+        if (repository.existsById(id.getDni())) {
+            repository.deleteById(id.getDni());
             return ResponseEntity.ok().build();
         }
         else {
@@ -46,11 +48,12 @@ public class AdminController {
     }
 
     @PutMapping("/admin")
-    public ResponseEntity<Admin>  updateAdmin(@RequestBody Admin admin) {
+    public ResponseEntity<AdminDTO>  updateAdmin(@RequestBody AdminDTO admin) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
+        //TODO: Esto no funciona aun
         if (repository.existsById(admin.getDni())) {
-            return ResponseEntity.ok(repository.save(admin));
+            return ResponseEntity.ok(repository.save(Admin.fromDTO(admin)).toDTO());
         }
         else {
             return ResponseEntity.notFound().build();
@@ -58,12 +61,12 @@ public class AdminController {
     }
 
     @GetMapping("/admin/login/")
-    public ResponseEntity<Void> login(@RequestParam String ID, @RequestParam String password) {
+    public ResponseEntity<Void> login(@RequestParam AdminDTO adminDto) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(ID)) {
-            Admin admin = repository.getReferenceById(ID);
-            if (admin.getPassword().equals(password))
+        if (repository.existsById(adminDto.getDni())) {
+            Admin admin = repository.getReferenceById(adminDto.getDni());
+            if (admin.getPassword().equals(adminDto.getPassword()))
             {
                 return ResponseEntity.accepted().build();
             }

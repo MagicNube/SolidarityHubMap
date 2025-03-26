@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
+import org.pinguweb.backend.DTO.ZoneDTO;
 import org.pinguweb.backend.model.enums.EmergencyLevel;
 
 import java.util.ArrayList;
@@ -63,5 +64,14 @@ public class Zone {
     }
     public void addCatastrophe(Catastrophe catastrophe) {
         this.catastrophes.add(catastrophe);
+    }
+
+    public ZoneDTO toDTO() {
+        return new ZoneDTO(this);
+    }
+
+    public static Zone fromDTO(ZoneDTO dto) {
+        Zone zone = new Zone();
+        return zone;
     }
 }

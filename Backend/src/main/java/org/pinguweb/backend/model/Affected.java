@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.pinguweb.backend.DTO.AffectedDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,5 +40,13 @@ public class Affected extends Person {
         this.needs.add(need);
     }
 
+    public AffectedDTO toDTO() {
+        return new AffectedDTO(this);
+    }
+
+    public static Affected fromDTO(AffectedDTO dto) {
+        Affected affected = new Affected();
+        return affected;
+    }
 }
 

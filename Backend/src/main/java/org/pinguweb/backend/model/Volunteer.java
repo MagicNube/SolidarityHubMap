@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.pinguweb.backend.DTO.VolunteerDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,5 +60,14 @@ public class Volunteer extends Person {
         for (ScheduleAvailability s : this.scheduleAvailabilities) {
             s.setVolunteer(this);
         }
+    }
+
+    public VolunteerDTO toDTO() {
+        return new VolunteerDTO(this);
+    }
+
+    public static Volunteer fromDTO(VolunteerDTO dto) {
+        Volunteer volunteer = new Volunteer();
+        return volunteer;
     }
 }

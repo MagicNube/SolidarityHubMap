@@ -1,5 +1,7 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.backend.DTO.CatastropheDTO;
+import org.pinguweb.backend.DTO.ZoneDTO;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Catastrophe;
 import org.pinguweb.backend.model.Zone;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -17,19 +20,19 @@ public class CatastropheController {
     CatastropheRepository repository;
 
     @GetMapping("/catastrophe")
-    public ResponseEntity<List<Catastrophe>> getAll(){
+    public ResponseEntity<List<CatastropheDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<Catastrophe> catastrophes = repository.findAll();
+        List<CatastropheDTO> catastrophes = repository.findAll().stream().map(CatastropheDTO::new).collect(Collectors.toList());
         return ResponseEntity.ok(catastrophes);
     }
 
     @GetMapping("/catastrophe/{id}")
-    public ResponseEntity<Catastrophe> getCatastrophe(@PathVariable Integer id) {
+    public ResponseEntity<CatastropheDTO> getCatastrophe(@PathVariable Integer id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id));
+            return ResponseEntity.ok(repository.getReferenceById(id).toDTO());
         }
         else {
             return ResponseEntity.notFound().build();
@@ -37,11 +40,11 @@ public class CatastropheController {
     }
 
     @GetMapping("/catastrophe/{id}/zones")
-    public ResponseEntity<List<Zone>> getCatastropheZones(@PathVariable Integer id) {
+    public ResponseEntity<List<ZoneDTO>> getCatastropheZones(@PathVariable Integer id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id).getZones());
+            return ResponseEntity.ok(repository.getReferenceById(id).getZones().stream().map(ZoneDTO::new).collect(Collectors.toList()));
         }
         else {
             return ResponseEntity.notFound().build();
@@ -49,18 +52,19 @@ public class CatastropheController {
     }
 
     @PostMapping("/catastrophe")
-    public ResponseEntity<Catastrophe> addCatastrophe(@RequestBody Catastrophe catastrophe) {
+    public ResponseEntity<CatastropheDTO> addCatastrophe(@RequestBody CatastropheDTO catastrophe) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        return ResponseEntity.ok(repository.save(catastrophe));
+        // TODO: Esto no funciona
+        return ResponseEntity.ok(repository.save(Catastrophe.fromDTO(catastrophe)).toDTO());
     }
 
     @DeleteMapping("/catastrophe/{id}")
-    public ResponseEntity<Void>  deleteCatastrophe(@PathVariable Integer id) {
+    public ResponseEntity<Void>  deleteCatastrophe(@PathVariable CatastropheDTO id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
+        if (repository.existsById(id.getId())) {
+            repository.deleteById(id.getId());
             return ResponseEntity.ok().build();
         }
         else {
@@ -69,11 +73,11 @@ public class CatastropheController {
     }
 
     @PutMapping("/catastrophe")
-    public ResponseEntity<Catastrophe>  updateCatastrophe(@RequestBody Catastrophe catastrophe) {
+    public ResponseEntity<CatastropheDTO>  updateCatastrophe(@RequestBody CatastropheDTO catastrophe) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(catastrophe.getID())) {
-            return ResponseEntity.ok(repository.save(catastrophe));
+        if (repository.existsById(catastrophe.getId())) {
+            return ResponseEntity.ok(repository.save(Catastrophe.fromDTO(catastrophe)).toDTO());
         }
         else {
             return ResponseEntity.notFound().build();

@@ -8,6 +8,8 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.pinguweb.backend.DTO.AdminDTO;
+import org.pinguweb.backend.DTO.TaskDTO;
 
 @Getter
 @Entity
@@ -27,5 +29,16 @@ public class Admin {
     public Admin(String dni, String password) {
         this.dni = dni;
         this.password = password;
+    }
+
+    public AdminDTO toDTO() {
+        return new AdminDTO(this);
+    }
+
+    public static Admin fromDTO(AdminDTO dto) {
+        Admin admin = new Admin();
+        admin.dni = dto.getDni();
+        admin.password = dto.getPassword();
+        return admin;
     }
 }

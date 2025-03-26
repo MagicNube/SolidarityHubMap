@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.pinguweb.backend.DTO.SkillDTO;
 
 @Getter
 @Entity
@@ -21,6 +22,16 @@ public class Skill {
 
     public Skill(String name) {
         this.name = name;
+    }
+
+    public SkillDTO toDTO() {
+        return new SkillDTO(this);
+    }
+
+    public static Skill fromDTO(SkillDTO dto) {
+        Skill skill = new Skill();
+        skill.name = dto.getName();
+        return skill;
     }
 }
 

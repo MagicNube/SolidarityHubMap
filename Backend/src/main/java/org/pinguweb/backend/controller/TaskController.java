@@ -1,5 +1,6 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.backend.DTO.TaskDTO;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Task;
 import org.pinguweb.backend.repository.TaskRepository;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -17,19 +19,19 @@ public class TaskController {
     TaskRepository repository;
 
     @GetMapping("/task")
-    public ResponseEntity<List<Task>> getAll(){
+    public ResponseEntity<List<TaskDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<Task> tasks = repository.findAll();
+        List<TaskDTO> tasks = repository.findAll().stream().map(TaskDTO::new).collect(Collectors.toList());
         return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/task/{id}")
-    public ResponseEntity<Task> getTask(@PathVariable Integer id) {
+    public ResponseEntity<TaskDTO> getTask(@PathVariable Integer id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id));
+            return ResponseEntity.ok(repository.getReferenceById(id).toDTO());
         }
         else {
             return ResponseEntity.notFound().build();
@@ -37,18 +39,19 @@ public class TaskController {
     }
 
     @PostMapping("/task")
-    public ResponseEntity<Task> addTask(@RequestBody Task task) {
+    public ResponseEntity<TaskDTO> addTask(@RequestBody TaskDTO task) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        return ResponseEntity.ok(repository.save(task));
+        //TODO: Los posts no funcionan muy bien
+        return ResponseEntity.ok(repository.save(new Task().fromDTO(task)).toDTO());
     }
 
     @DeleteMapping("/task/{id}")
-    public ResponseEntity<Void>  deleteTask(@PathVariable Integer id) {
+    public ResponseEntity<Void>  deleteTask(@PathVariable TaskDTO id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
+        if (repository.existsById(id.getId())) {
+            repository.deleteById(id.getId());
             return ResponseEntity.ok().build();
         }
         else {
@@ -57,11 +60,12 @@ public class TaskController {
     }
 
     @PutMapping("/task")
-    public ResponseEntity<Task>  updateTask(@RequestBody Task task) {
+    public ResponseEntity<TaskDTO>  updateTask(@RequestBody TaskDTO task) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
+        //TODO: Los posts no funcionan muy bien
         if (repository.existsById(task.getId())) {
-            return ResponseEntity.ok(repository.save(task));
+            return ResponseEntity.ok(repository.save(Task.fromDTO(task)).toDTO());
         }
         else {
             return ResponseEntity.notFound().build();

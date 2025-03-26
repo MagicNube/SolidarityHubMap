@@ -1,5 +1,0 @@
-package org.pinguweb.frontend.objects.enums;
-
-public enum WeekDay {
-    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
-}

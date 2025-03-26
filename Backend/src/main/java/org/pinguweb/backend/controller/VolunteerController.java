@@ -1,5 +1,6 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.backend.DTO.VolunteerDTO;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Volunteer;
 import org.pinguweb.backend.repository.VolunteerRepository;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -16,19 +18,19 @@ public class VolunteerController {
     VolunteerRepository repository;
 
     @GetMapping("/volunteer")
-    public ResponseEntity<List<Volunteer>> getAll(){
+    public ResponseEntity<List<VolunteerDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<Volunteer> volunteers = repository.findAll();
+        List<VolunteerDTO> volunteers = repository.findAll().stream().map(Volunteer::toDTO).collect(Collectors.toList());
         return ResponseEntity.ok(volunteers);
     }
 
     @GetMapping("/volunteer/{id}")
-    public ResponseEntity<Volunteer> getVolunteer(@PathVariable String id) {
+    public ResponseEntity<VolunteerDTO> getVolunteer(@PathVariable VolunteerDTO id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id));
+        if (repository.existsById(id.getDni())) {
+            return ResponseEntity.ok(repository.getReferenceById(id.getDni()).toDTO());
         }
         else {
             return ResponseEntity.notFound().build();
@@ -36,18 +38,19 @@ public class VolunteerController {
     }
 
     @PostMapping("/volunteer")
-    public ResponseEntity<Volunteer> addVolunteer(@RequestBody Volunteer volunteer) {
+    public ResponseEntity<VolunteerDTO> addVolunteer(@RequestBody VolunteerDTO volunteer) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        return ResponseEntity.ok(repository.save(volunteer));
+        // TODO: Esto aun no funciona
+        return ResponseEntity.ok(repository.save(Volunteer.fromDTO(volunteer)).toDTO());
     }
 
     @DeleteMapping("/volunteer/{id}")
-    public ResponseEntity<Void>  deleteVolunteer(@PathVariable String id) {
+    public ResponseEntity<Void>  deleteVolunteer(@PathVariable VolunteerDTO id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
+        if (repository.existsById(id.getDni())) {
+            repository.deleteById(id.getDni());
             return ResponseEntity.ok().build();
         }
         else {
@@ -56,11 +59,11 @@ public class VolunteerController {
     }
 
     @PutMapping("/volunteer")
-    public ResponseEntity<Volunteer>  updateVolunteer(@RequestBody Volunteer volunteer) {
+    public ResponseEntity<VolunteerDTO>  updateVolunteer(@RequestBody VolunteerDTO volunteer) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(volunteer.getDNI())) {
-            return ResponseEntity.ok(repository.save(volunteer));
+        if (repository.existsById(volunteer.getDni())) {
+            return ResponseEntity.ok(repository.save(Volunteer.fromDTO(volunteer)).toDTO());
         }
         else {
             return ResponseEntity.notFound().build();

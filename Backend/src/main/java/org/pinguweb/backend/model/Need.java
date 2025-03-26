@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.pinguweb.backend.DTO.NeedDTO;
 import org.pinguweb.backend.model.enums.NeedType;
 import org.pinguweb.backend.model.enums.UrgencyLevel;
 
@@ -64,5 +65,14 @@ public class Need {
         this.location = location;
         this.affected.addNeed(this);
         this.catastrophe = catastrophe;
+    }
+    
+    public NeedDTO toDTO() {
+        return new NeedDTO(this);
+    }
+
+    public static Need fromDTO(NeedDTO dto) {
+        Need need = new Need();
+        return need;
     }
 }

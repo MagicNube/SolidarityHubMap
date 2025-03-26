@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
+import org.pinguweb.backend.DTO.CatastropheDTO;
 import org.pinguweb.backend.model.enums.EmergencyLevel;
 
 import java.time.LocalDate;
@@ -66,5 +67,14 @@ public class Catastrophe {
         this.location = location;
         this.startDate = startDate;
         this.emergencyLevel = emergencyLevel;
+    }
+
+    public CatastropheDTO toDTO() {
+        return new CatastropheDTO(this);
+    }
+
+    public static Catastrophe fromDTO(CatastropheDTO dto) {
+        Catastrophe catastrophe = new Catastrophe();
+        return catastrophe;
     }
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.pinguweb.backend.DTO.TaskDTO;
 import org.pinguweb.backend.model.enums.NeedType;
 import org.pinguweb.backend.model.enums.Priority;
 import org.pinguweb.backend.model.enums.Status;
@@ -77,5 +78,15 @@ public class Task {
         this.volunteers= List.of(volunteer);
         volunteer.getTasks().add(this);
         this.type = need.getNeedType();
+    }
+
+    public TaskDTO toDTO() {
+        return new TaskDTO(this);
+    }
+
+    public static Task fromDTO(TaskDTO dto) {
+        Task task = new Task();
+        task.setTaskName(dto.getTaskName());
+        return task;
     }
 }

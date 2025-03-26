@@ -1,5 +1,7 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.backend.DTO.TaskDTO;
+import org.pinguweb.backend.DTO.ZoneDTO;
 import org.pinguweb.backend.model.GPSCoordinates;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Task;
@@ -21,19 +23,19 @@ public class ZoneController {
     TaskController taskController;
 
     @GetMapping("/zone")
-    public ResponseEntity<List<Zone>> getAll(){
+    public ResponseEntity<List<ZoneDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<Zone> zones = repository.findAll();
+        List<ZoneDTO> zones = repository.findAll().stream().map(ZoneDTO::new).collect(Collectors.toList());
         return ResponseEntity.ok(zones);
     }
 
     @GetMapping("/zone/{id}")
-    public ResponseEntity<Zone> getZone(@PathVariable Integer id) {
+    public ResponseEntity<ZoneDTO> getZone(@PathVariable ZoneDTO id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id));
+        if (repository.existsById(id.getId())) {
+            return ResponseEntity.ok(repository.getReferenceById(id.getId()).toDTO());
         }
         else {
             return ResponseEntity.notFound().build();
@@ -41,16 +43,16 @@ public class ZoneController {
     }
 
     @GetMapping("/zone/{id}/tasks")
-    public ResponseEntity<List<Task>> getZoneTasks(@PathVariable Integer id) {
+    public ResponseEntity<List<TaskDTO>> getZoneTasks(@PathVariable ZoneDTO id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id)) {
-            List<Task> tasks = taskController.getAll().getBody();
-            Zone zone = repository.getReferenceById(id);
+        if (repository.existsById(id.getId())) {
+            List<TaskDTO> tasks = taskController.getAll().getBody();
+            Zone zone = repository.getReferenceById(id.getId());
 
             if (tasks != null) {
-                List<Task> tasksInZone = tasks.stream()
-                                              .filter(task -> task.getZone() == zone)
+                List<TaskDTO> tasksInZone = tasks.stream()
+                                              .filter(task -> task.getZone() == zone.getId())
                                               .collect(Collectors.toList());
                 return ResponseEntity.ok(tasksInZone);
             }
@@ -59,11 +61,11 @@ public class ZoneController {
     }
 
     @GetMapping("/zone/{id}/points")
-    public ResponseEntity<List<GPSCoordinates>> getZonePoints(@PathVariable Integer id) {
+    public ResponseEntity<List<GPSCoordinates>> getZonePoints(@PathVariable ZoneDTO id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id).getPoints());
+        if (repository.existsById(id.getId())) {
+            return ResponseEntity.ok(repository.getReferenceById(id.getId()).getPoints());
         }
         else {
             return ResponseEntity.notFound().build();
@@ -71,18 +73,20 @@ public class ZoneController {
     }
 
     @PostMapping("/zone")
-    public ResponseEntity<Zone> addZone(@RequestBody Zone zone) {
+    public ResponseEntity<ZoneDTO> addZone(@RequestBody ZoneDTO zone) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        return ResponseEntity.ok(repository.save(zone));
+        // TODO: Esto no funciona aun
+
+        return ResponseEntity.ok(repository.save(Zone.fromDTO(zone)).toDTO());
     }
 
     @DeleteMapping("/zone/{id}")
-    public ResponseEntity<Void>  deleteZone(@PathVariable Integer id) {
+    public ResponseEntity<Void>  deleteZone(@PathVariable ZoneDTO id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
+        if (repository.existsById(id.getId())) {
+            repository.deleteById(id.getId());
             return ResponseEntity.ok().build();
         }
         else {
@@ -91,11 +95,13 @@ public class ZoneController {
     }
 
     @PutMapping("/zone")
-    public ResponseEntity<Zone>  updateZone(@RequestBody Zone zone) {
+    public ResponseEntity<ZoneDTO>  updateZone(@RequestBody ZoneDTO zone) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
+        // TODO: Esto no funciona aun
+
         if (repository.existsById(zone.getId())) {
-            return ResponseEntity.ok(repository.save(zone));
+            return ResponseEntity.ok(repository.save(Zone.fromDTO(zone)).toDTO());
         }
         else {
             return ResponseEntity.notFound().build();
