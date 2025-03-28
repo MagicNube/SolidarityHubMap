@@ -25,8 +25,7 @@ public class VolunteerDTO implements DTO{
     private List<Integer> certificates;
     private List<Integer> notifications;
 
-
-    protected VolunteerDTO(Volunteer volunteer) {
+    public VolunteerDTO(Volunteer volunteer) {
         dni = volunteer.getDNI();
         firstName = volunteer.getFirstName();
         lastName = volunteer.getLastName();

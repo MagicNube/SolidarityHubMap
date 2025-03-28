@@ -23,7 +23,7 @@ public class AffectedDTO implements DTO{
     private boolean disability;
     private List<Integer> needs;
 
-    protected AffectedDTO(Affected afectado) {
+    public AffectedDTO(Affected afectado) {
         dni = afectado.getDNI();
         firstName = afectado.getFirstName();
         lastName = afectado.getLastName();
@@ -35,7 +35,7 @@ public class AffectedDTO implements DTO{
         disability = afectado.isDisability();
 
         if (afectado.getGpsCoordinates() != null) {
-            gpsCoordinates = afectado.getGpsCoordinates().getId();
+            System.out.println(afectado.getGpsCoordinates());
         }
         if (afectado.getNeeds() != null) {
             needs = afectado.getNeeds().stream().map(Need::getId).collect(Collectors.toList());

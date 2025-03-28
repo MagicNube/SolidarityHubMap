@@ -16,7 +16,7 @@ public class NeedDTO implements DTO{
     private int catastrophe;
     private int task;
 
-    protected NeedDTO(Need need) {
+    public NeedDTO(Need need) {
         id = need.getId();
         description = need.getDescription();
 

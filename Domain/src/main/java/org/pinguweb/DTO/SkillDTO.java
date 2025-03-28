@@ -9,7 +9,7 @@ import org.pinguweb.model.Skill;
 public class SkillDTO implements DTO{
     private String name;
 
-    protected SkillDTO(Skill skill) {
+    public SkillDTO(Skill skill) {
         this.name = skill.getName();
     }
 }

@@ -65,10 +65,6 @@ public class Task {
     @OneToOne(cascade = CascadeType.ALL)
     private Notification notification;
 
-    @Setter
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private GPSCoordinates gpsCoordinates;
-
     public Task(Need need, String taskName, String taskDescription, LocalDateTime startTimeDate,
                 LocalDateTime estimatedEndTimeDate, Priority priority, Status status, Volunteer volunteer, GPSCoordinates gpsCoordinates) {
         this.need = List.of(need);
@@ -81,7 +77,6 @@ public class Task {
         this.volunteers= List.of(volunteer);
         volunteer.getTasks().add(this);
         this.type = need.getNeedType();
-        this.gpsCoordinates = gpsCoordinates;
     }
 
     public static Task fromDTO(TaskDTO dto) {

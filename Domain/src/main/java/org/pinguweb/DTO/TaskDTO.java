@@ -25,7 +25,7 @@ public class TaskDTO implements DTO{
     private Integer zone;
     private Tuple<Double, Double> coordinates;
 
-    protected TaskDTO(Task task) {
+    public TaskDTO(Task task) {
         this.taskName = task.getTaskName();
         this.taskDescription = task.getTaskDescription();
         this.startTimeDate = task.getStartTimeDate();
@@ -42,9 +42,6 @@ public class TaskDTO implements DTO{
         }
         if (task.getType() != null) {
             this.type = task.getType().name();
-        }
-        if (task.getGpsCoordinates() != null) {
-            this.coordinates = new Tuple<>(task.getGpsCoordinates().getLatitude(), task.getGpsCoordinates().getLongitude());
         }
         if (task.getZone() != null) {
             this.zone = task.getZone().getId();

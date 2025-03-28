@@ -22,7 +22,7 @@ public class CatastropheDTO implements DTO{
     private List<Integer> needs;
     private List<Integer> zones;
 
-    protected CatastropheDTO(Catastrophe catastrophe) {
+    public CatastropheDTO(Catastrophe catastrophe) {
         id = catastrophe.getID();
         name = catastrophe.getName();
         description = catastrophe.getDescription();

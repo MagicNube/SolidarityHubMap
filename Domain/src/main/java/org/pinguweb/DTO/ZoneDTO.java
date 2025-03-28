@@ -21,7 +21,7 @@ public class ZoneDTO implements DTO{
     private List<Integer> storages;
     private List<Integer> points;
 
-    protected ZoneDTO(Zone zone) {
+    public ZoneDTO(Zone zone) {
         this.id = zone.getId();
         this.name = zone.getName();
         this.description = zone.getDescription();
