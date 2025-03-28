@@ -1,10 +1,9 @@
 package org.pinguweb.backend.controller;
 
 import org.pinguweb.DTO.AdminDTO;
-import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.repository.AdminRepository;
-import org.pinguweb.model.Admin;
+import org.pinguweb.backend.model.Admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,7 @@ public class AdminController {
 
         try {
             if (repository.existsById(id)) {
-                return ResponseEntity.ok(DTOFactory.createDTO(AdminDTO.class, repository.getReferenceById(id)));
+                return ResponseEntity.ok(AdminDTOFactory.createDTO(AdminDTO.class, repository.getReferenceById(id)));
             } else {
                 return ResponseEntity.notFound().build();
             }

@@ -1,6 +1,6 @@
 package org.pinguweb.backend.service;
 
-import org.pinguweb.model.Zone;
+import org.pinguweb.backend.model.Zone;
 import org.pinguweb.backend.repository.ZoneRepository;
 import org.springframework.stereotype.Service;
 

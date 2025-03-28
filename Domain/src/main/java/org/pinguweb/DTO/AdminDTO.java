@@ -1,17 +1,13 @@
 package org.pinguweb.DTO;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.pinguweb.model.Admin;
 
 @NoArgsConstructor
 @Data
+@AllArgsConstructor
 public class AdminDTO implements DTO{
     private String dni;
     private String password;
-
-    public AdminDTO(Admin admin) {
-        dni = admin.getDni();
-        password = admin.getPassword();
-    }
 }

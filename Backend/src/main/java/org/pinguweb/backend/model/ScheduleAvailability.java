@@ -1,4 +1,4 @@
-package org.pinguweb.model;
+package org.pinguweb.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.pinguweb.model.enums.DayMoment;
-import org.pinguweb.model.enums.WeekDay;
+import org.pinguweb.backend.model.enums.DayMoment;
+import org.pinguweb.backend.model.enums.WeekDay;
 
 @Getter
 @Entity

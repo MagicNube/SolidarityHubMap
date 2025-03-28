@@ -1,11 +1,8 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.DTO.AffectedDTO;
 import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.NeedDTO;
-import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.model.Need;
 import org.pinguweb.backend.repository.NeedRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

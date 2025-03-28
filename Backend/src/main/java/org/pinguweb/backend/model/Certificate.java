@@ -1,4 +1,4 @@
-package org.pinguweb.model;
+package org.pinguweb.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -6,40 +6,32 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
-@Getter
-@ToString
-@NoArgsConstructor
 @Entity
+@Getter
+@NoArgsConstructor
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id"
 )
-public class Resource {
+public class Certificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Setter
-    @Column(nullable = false)
-    private String type;
-
-    private double quantity;
+    private String title;
+    @Setter
+    private String description;
 
     @Setter
     @ManyToOne
-    @JoinColumn(name = "donation_id")
-    private Donation donation;
+    @JoinColumn(name = "volunteer_dni")
+    private Volunteer volunteer;
 
-    @Setter
-    @ManyToOne
-    @JoinColumn(name = "storage_id")
-    private Storage storage;
-
-    public Resource(String type,double quantity) {
-        this.type = type;
-        this.quantity = quantity;
+    public Certificate(String title, String description, Volunteer volunteer){
+        this.title = title;
+        this.description = description;
+        this.volunteer = volunteer;
     }
-
 }

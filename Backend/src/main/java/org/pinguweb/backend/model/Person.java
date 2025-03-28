@@ -1,4 +1,4 @@
-package org.pinguweb.model;
+package org.pinguweb.backend.model;
 
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.Column;

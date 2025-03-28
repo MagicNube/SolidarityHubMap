@@ -1,7 +1,7 @@
 package org.pinguweb.backend.service;
 
 
-import org.pinguweb.model.Preference;
+import org.pinguweb.backend.model.Preference;
 import org.springframework.stereotype.Service;
 import org.pinguweb.backend.repository.PreferenceRepository;
 

@@ -35,15 +35,15 @@ public class MapView extends HorizontalLayout {
     private final String ID = "mapa";
     private final LMap map;
     private LComponentManagementRegistry reg;
-    private MapContainer mapContainer;
+    private final MapContainer mapContainer;
     private final Object lock = new Object();
     private UI ui;
     private final Button tarea = new Button("Tarea");
     private final Button zona = new Button("Zona");
-    private HashMap<Tuple<Double, Double>, LMarker> zoneMarkers = new HashMap<>();
-    private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
+    private final HashMap<Tuple<Double, Double>, LMarker> zoneMarkers = new HashMap<>();
+    private final List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
     private Tuple<Double, Double> zoneMarkerStartingPoint;
-    private String clickFuncReference;
+    private final String clickFuncReference;
 
     public MapView() {
         this.setId(ID);

@@ -1,6 +1,6 @@
 package org.pinguweb.backend.service;
 
-import org.pinguweb.model.Admin;
+import org.pinguweb.backend.model.Admin;
 import org.pinguweb.backend.repository.AdminRepository;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,6 @@
 package org.pinguweb.backend.service;
 
-import org.pinguweb.model.Task;
+import org.pinguweb.backend.model.Task;
 import org.pinguweb.backend.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 

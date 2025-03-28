@@ -4,8 +4,6 @@ import org.pinguweb.DTO.CatastropheDTO;
 import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.model.Catastrophe;
-import org.pinguweb.model.Zone;
 import org.pinguweb.backend.repository.CatastropheRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

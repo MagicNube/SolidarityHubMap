@@ -1,4 +1,4 @@
-package org.pinguweb.model;
+package org.pinguweb.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -7,9 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.pinguweb.DTO.TaskDTO;
-import org.pinguweb.model.enums.NeedType;
-import org.pinguweb.model.enums.Priority;
-import org.pinguweb.model.enums.Status;
+import org.pinguweb.backend.model.enums.NeedType;
+import org.pinguweb.backend.model.enums.Priority;
+import org.pinguweb.backend.model.enums.Status;
 
 import java.time.LocalDateTime;
 import java.util.List;

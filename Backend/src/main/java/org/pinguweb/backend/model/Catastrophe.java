@@ -1,4 +1,4 @@
-package org.pinguweb.model;
+package org.pinguweb.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import org.pinguweb.DTO.CatastropheDTO;
-import org.pinguweb.model.enums.EmergencyLevel;
+import org.pinguweb.backend.model.enums.EmergencyLevel;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

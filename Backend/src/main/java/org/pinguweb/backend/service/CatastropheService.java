@@ -1,6 +1,6 @@
 package org.pinguweb.backend.service;
 
-import org.pinguweb.model.Catastrophe;
+import org.pinguweb.backend.model.Catastrophe;
 import org.pinguweb.backend.repository.CatastropheRepository;
 import org.springframework.stereotype.Service;
 

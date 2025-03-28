@@ -2,7 +2,7 @@ package org.pinguweb.backend.service;
 
 import org.springframework.stereotype.Service;
 import org.pinguweb.backend.repository.AffectedRepository;
-import org.pinguweb.model.Affected;
+import org.pinguweb.backend.model.Affected;
 
 @Service
 public class AffectedService {

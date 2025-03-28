@@ -1,4 +1,4 @@
-package org.pinguweb.model;
+package org.pinguweb.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -7,36 +7,34 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
+import java.util.List;
+
 @Entity
+@Getter
 @NoArgsConstructor
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id"
 )
-public class Notification {
+public class Donation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Setter
-    private String title;
-    @Setter
-    private String body;
 
-    @Setter
-    @OneToOne
-    @JoinColumn(name = "task_id")
-    private Task task;
-
-    @Setter
     @ManyToOne
+    @Setter
     @JoinColumn(name = "volunteer_dni")
     private Volunteer volunteer;
 
-    public Notification(String title, String body, Task task, Volunteer volunteer) {
-        this.title = title;
-        this.body = body;
-        this.task = task;
+    @OneToMany(mappedBy = "donation")
+    private List<Resource> resources;
+
+    public Donation(Volunteer volunteer, Resource resource) {
         this.volunteer = volunteer;
+        this.resources = List.of(resource);
+    }
+
+    public void addResource(Resource resource) {
+        this.resources.add(resource);
     }
 }

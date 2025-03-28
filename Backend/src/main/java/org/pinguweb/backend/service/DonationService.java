@@ -1,6 +1,6 @@
 package org.pinguweb.backend.service;
 
-import org.pinguweb.model.Donation;
+import org.pinguweb.backend.model.Donation;
 import org.springframework.stereotype.Service;
 import org.pinguweb.backend.repository.DonationRepository;
 

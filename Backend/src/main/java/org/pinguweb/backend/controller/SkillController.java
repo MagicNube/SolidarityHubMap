@@ -1,10 +1,8 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.DTO.AffectedDTO;
 import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.SkillDTO;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.model.Skill;
 import org.pinguweb.backend.repository.SkillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

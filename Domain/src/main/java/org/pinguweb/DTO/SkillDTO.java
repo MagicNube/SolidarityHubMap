@@ -1,15 +1,12 @@
 package org.pinguweb.DTO;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.pinguweb.model.Skill;
 
 @NoArgsConstructor
 @Data
+@AllArgsConstructor
 public class SkillDTO implements DTO{
     private String name;
-
-    public SkillDTO(Skill skill) {
-        this.name = skill.getName();
-    }
 }

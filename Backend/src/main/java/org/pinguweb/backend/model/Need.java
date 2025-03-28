@@ -1,4 +1,4 @@
-package org.pinguweb.model;
+package org.pinguweb.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,8 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.pinguweb.DTO.NeedDTO;
-import org.pinguweb.model.enums.NeedType;
-import org.pinguweb.model.enums.UrgencyLevel;
+import org.pinguweb.backend.model.enums.NeedType;
+import org.pinguweb.backend.model.enums.UrgencyLevel;
 
 @Getter
 @Entity
