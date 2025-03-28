@@ -1,7 +1,10 @@
 package org.pinguweb.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
+import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.backend.model.enums.EmergencyLevel;
 
 import java.util.ArrayList;
@@ -11,6 +14,10 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @ToString
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 public class Zone {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,5 +64,10 @@ public class Zone {
     }
     public void addCatastrophe(Catastrophe catastrophe) {
         this.catastrophes.add(catastrophe);
+    }
+
+    public static Zone fromDTO(ZoneDTO dto) {
+        Zone zone = new Zone();
+        return zone;
     }
 }

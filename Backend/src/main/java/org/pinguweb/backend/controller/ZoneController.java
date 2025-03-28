@@ -1,105 +1,132 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.DTO.TaskDTO;
+import org.pinguweb.DTO.ZoneDTO;
+import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.model.GPSCoordinates;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Task;
 import org.pinguweb.backend.model.Zone;
 import org.pinguweb.backend.repository.ZoneRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
 public class ZoneController {
-
+    @Autowired
     ZoneRepository repository;
-
+    @Autowired
     TaskController taskController;
 
+    @Async
     @GetMapping("/zone")
-    public ResponseEntity<List<Zone>> getAll(){
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+    public CompletableFuture<ResponseEntity<List<ZoneDTO>>> getAll(){
+        if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        List<Zone> zones = repository.findAll();
-        return ResponseEntity.ok(zones);
+        BackendDTOFactory factory = new BackendDTOFactory();
+
+        List<ZoneDTO> zones = repository.findAll().stream().map(factory::createZoneDTO).collect(Collectors.toList());
+        return CompletableFuture.completedFuture(ResponseEntity.ok(zones));
     }
 
+    @Async
     @GetMapping("/zone/{id}")
-    public ResponseEntity<Zone> getZone(@PathVariable Integer id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+    public CompletableFuture<ResponseEntity<ZoneDTO>> getZone(@PathVariable int id) {
+        if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
+        BackendDTOFactory factory = new BackendDTOFactory();
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createZoneDTO(repository.getReferenceById(id))));
         }
         else {
-            return ResponseEntity.notFound().build();
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
     }
 
+    @Async
     @GetMapping("/zone/{id}/tasks")
-    public ResponseEntity<List<Task>> getZoneTasks(@PathVariable Integer id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+    public CompletableFuture<ResponseEntity<List<TaskDTO>>> getZoneTasks(@PathVariable int id) {
+        if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        if (repository.existsById(id)) {
-            List<Task> tasks = taskController.getAll().getBody();
-            Zone zone = repository.getReferenceById(id);
+        try {
+            if (repository.existsById(id)) {
+                List<TaskDTO> tasks = taskController.getAll().get().getBody();
+                Zone zone = repository.getReferenceById(id);
 
-            if (tasks != null) {
-                List<Task> tasksInZone = tasks.stream()
-                                              .filter(task -> task.getZone() == zone)
-                                              .collect(Collectors.toList());
-                return ResponseEntity.ok(tasksInZone);
+                if (tasks != null) {
+                    List<TaskDTO> tasksInZone = tasks.stream()
+                            .filter(task -> task.getZone() == zone.getId())
+                            .collect(Collectors.toList());
+                    return CompletableFuture.completedFuture(ResponseEntity.ok(tasksInZone));
+                }
             }
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
-        return ResponseEntity.notFound().build();
+        catch (ExecutionException | InterruptedException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
+    // TODO: Esto no va
+    @Async
     @GetMapping("/zone/{id}/points")
-    public ResponseEntity<List<GPSCoordinates>> getZonePoints(@PathVariable Integer id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+    public CompletableFuture<ResponseEntity<List<GPSCoordinates>>> getZonePoints(@PathVariable ZoneDTO id) {
+        if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id).getPoints());
+        if (repository.existsById(id.getId())) {
+            return CompletableFuture.completedFuture(ResponseEntity.ok(repository.getReferenceById(id.getId()).getPoints()));
         }
         else {
-            return ResponseEntity.notFound().build();
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
     }
 
+    @Async
     @PostMapping("/zone")
-    public ResponseEntity<Zone> addZone(@RequestBody Zone zone) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+    public CompletableFuture<ResponseEntity<ZoneDTO>> addZone(@RequestBody ZoneDTO zone) {
+        if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        return ResponseEntity.ok(repository.save(zone));
+        // TODO: Esto no funciona aun
+
+        //return ResponseEntity.ok(repository.save(Zone.fromDTO(zone)).toDTO());
+        return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
     }
 
+    @Async
     @DeleteMapping("/zone/{id}")
-    public ResponseEntity<Void>  deleteZone(@PathVariable Integer id) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+    public CompletableFuture<ResponseEntity<Void>> deleteZone(@PathVariable int id) {
+        if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         if (repository.existsById(id)) {
             repository.deleteById(id);
-            return ResponseEntity.ok().build();
+            return CompletableFuture.completedFuture(ResponseEntity.ok().build());
         }
         else {
-            return ResponseEntity.notFound().build();
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
     }
 
+    @Async
     @PutMapping("/zone")
-    public ResponseEntity<Zone>  updateZone(@RequestBody Zone zone) {
-        if (!ServerException.isServerConnected(repository)){return ResponseEntity.internalServerError().build();}
+    public CompletableFuture<ResponseEntity<ZoneDTO>> updateZone(@RequestBody ZoneDTO zone) {
+        if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
+
+        // TODO: Esto no funciona aun
 
         if (repository.existsById(zone.getId())) {
-            return ResponseEntity.ok(repository.save(zone));
+            //return ResponseEntity.ok(repository.save(Zone.fromDTO(zone)).toDTO());
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
         else {
-            return ResponseEntity.notFound().build();
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
     }
 

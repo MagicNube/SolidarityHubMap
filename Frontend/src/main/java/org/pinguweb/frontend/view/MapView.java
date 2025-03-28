@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.pinguweb.frontend.services.map.MapTypes.TAREA;
+import static org.pinguweb.frontend.services.map.MapTypes.ZONA;
 
 @Route("map")
 @PageTitle("Visor del mapa")
@@ -34,15 +35,15 @@ public class MapView extends HorizontalLayout {
     private final String ID = "mapa";
     private final LMap map;
     private LComponentManagementRegistry reg;
-    private MapContainer mapContainer;
+    private final MapContainer mapContainer;
     private final Object lock = new Object();
     private UI ui;
     private final Button tarea = new Button("Tarea");
     private final Button zona = new Button("Zona");
-    private HashMap<Tuple<Double, Double>, LMarker> zoneMarkers = new HashMap<>();
-    private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
+    private final HashMap<Tuple<Double, Double>, LMarker> zoneMarkers = new HashMap<>();
+    private final List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
     private Tuple<Double, Double> zoneMarkerStartingPoint;
-    private String clickFuncReference;
+    private final String clickFuncReference;
 
     public MapView() {
         this.setId(ID);
@@ -73,9 +74,10 @@ public class MapView extends HorizontalLayout {
         this.controller.setReg(reg);
         this.controller.setMap(map);
         this.controller.setID(ID);
+        this.controller.load();
 
         tarea.addClickListener(e -> click(TAREA, tarea));
-        zona.addClickListener(e -> click(MapTypes.ZONA, zona));
+        zona.addClickListener(e -> click(ZONA, zona));
 
     }
 
@@ -83,6 +85,7 @@ public class MapView extends HorizontalLayout {
         switch (Action) {
             case TAREA:
                 this.mapContainer.addClassName("map_action");
+                this.controller.crearDialogoTarea();
                 this.map.once("click", "e => document.getElementById('" + ID + "').$server.mapTarea(e.latlng)");
 
                 ui = UI.getCurrent();
@@ -107,6 +110,7 @@ public class MapView extends HorizontalLayout {
             case ZONA:
                 this.mapContainer.addClassName("map_action");
                 if (!this.controller.isZone()){
+                    this.controller.createDialogZona();
                     System.out.println("Registrando puntos para la zona");
                     map.on("click", clickFuncReference);
                     button.setEnabled(false);
@@ -138,7 +142,7 @@ public class MapView extends HorizontalLayout {
             return;
         }
 
-        controller.createTask(obj.getNumber("lat"), obj.getNumber("lng"));
+        controller.createNeed(obj.getNumber("lat"), obj.getNumber("lng"));
 
         synchronized (lock) {
             lock.notify();

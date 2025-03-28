@@ -1,11 +1,13 @@
 package org.pinguweb.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.backend.model.enums.NeedType;
 import org.pinguweb.backend.model.enums.UrgencyLevel;
 
@@ -19,6 +21,7 @@ import org.pinguweb.backend.model.enums.UrgencyLevel;
 public class Need {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
     private int id;
 
     @ManyToOne
@@ -62,5 +65,10 @@ public class Need {
         this.location = location;
         this.affected.addNeed(this);
         this.catastrophe = catastrophe;
+    }
+
+    public static Need fromDTO(NeedDTO dto) {
+        Need need = new Need();
+        return need;
     }
 }
