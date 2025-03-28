@@ -74,6 +74,7 @@ public class MapView extends HorizontalLayout {
         this.controller.setReg(reg);
         this.controller.setMap(map);
         this.controller.setID(ID);
+        this.controller.load();
 
         tarea.addClickListener(e -> click(TAREA, tarea));
         zona.addClickListener(e -> click(ZONA, zona));

@@ -27,9 +27,16 @@ public class BackendDTOFactory{
         affectedDTO.setHomeAddress(afectado.getHomeAddress());
         affectedDTO.setPassword(afectado.getPassword());
         affectedDTO.setAffectedAddress(afectado.getAffectedAddress());
-        affectedDTO.setGpsCoordinates(new Tuple<>(afectado.getGpsCoordinates().getLatitude(), afectado.getGpsCoordinates().getLongitude()));
         affectedDTO.setDisability(afectado.isDisability());
-        affectedDTO.setNeeds(afectado.getNeeds().stream().map(Need::getId).collect(Collectors.toList()));
+        affectedDTO.setDisability(afectado.isDisability());
+
+        if (afectado.getGpsCoordinates() != null) {
+            affectedDTO.setLatitude(afectado.getGpsCoordinates().getLatitude());
+            affectedDTO.setLongitude(afectado.getGpsCoordinates().getLongitude());
+        }
+        if (afectado.getNeeds() != null) {
+            affectedDTO.setNeeds(afectado.getNeeds().stream().map(Need::getId).collect(Collectors.toList()));
+        }
         return affectedDTO;
     }
 
@@ -38,24 +45,46 @@ public class BackendDTOFactory{
         catastropheDTO.setId(catastrophe.getID());
         catastropheDTO.setName(catastrophe.getName());
         catastropheDTO.setDescription(catastrophe.getDescription());
-        catastropheDTO.setLocation(new Tuple<>(catastrophe.getLocation().getLatitude(), catastrophe.getLocation().getLongitude()));
         catastropheDTO.setStartDate(catastrophe.getStartDate());
         catastropheDTO.setEmergencyLevel(catastrophe.getEmergencyLevel().name());
-        catastropheDTO.setNeeds(catastrophe.getNeeds().stream().map(Need::getId).collect(Collectors.toList()));
-        catastropheDTO.setZones(catastrophe.getZones().stream().map(Zone::getId).collect(Collectors.toList()));
+        catastropheDTO.setLatitude(catastrophe.getLocation().getLatitude());
+        catastropheDTO.setLongitude(catastrophe.getLocation().getLongitude());
+
+        if (catastrophe.getNeeds() != null) {
+            catastropheDTO.setNeeds(catastrophe.getNeeds().stream().map(Need::getId).collect(Collectors.toList()));
+        }
+        if (catastrophe.getZones() != null) {
+            catastropheDTO.setZones(catastrophe.getZones().stream().map(Zone::getId).collect(Collectors.toList()));
+        }
+
         return catastropheDTO;
     }
 
     public NeedDTO createNeedDTO(Need need) {
         NeedDTO needDTO = new NeedDTO();
         needDTO.setId(need.getId());
-        needDTO.setAffected(need.getAffected().getDNI());
         needDTO.setDescription(need.getDescription());
-        needDTO.setUrgency(need.getUrgency().name());
-        needDTO.setNeedType(need.getNeedType().name());
-        needDTO.setLocation(new Tuple<>(need.getLocation().getLatitude(), need.getLocation().getLongitude()));
-        needDTO.setCatastrophe(need.getCatastrophe().getID());
-        needDTO.setTask(need.getTask().getId());
+
+        if (need.getNeedType() != null) {
+            needDTO.setNeedType(need.getNeedType().name());
+        }
+        if (need.getLocation() != null) {
+            needDTO.setLatitude(need.getLocation().getLatitude());
+            needDTO.setLongitude(need.getLocation().getLongitude());
+        }
+        if (need.getAffected() != null) {
+            needDTO.setAffected(need.getAffected().getDNI());
+        }
+        if (need.getUrgency() != null) {
+            needDTO.setUrgency(need.getUrgency().name());
+        }
+        if (need.getCatastrophe() != null) {
+            needDTO.setCatastrophe(need.getCatastrophe().getID());
+        }
+        if (need.getTask() != null) {
+            needDTO.setTask(need.getTask().getId());
+        }
+
         return needDTO;
     }
 
@@ -67,14 +96,27 @@ public class BackendDTOFactory{
 
     public TaskDTO createTaskDTO(Task task) {
         TaskDTO taskDTO = new TaskDTO();
-        taskDTO.setNeed(task.getNeed().stream().map(Need::getId).collect(Collectors.toList()));
         taskDTO.setTaskName(task.getTaskName());
         taskDTO.setTaskDescription(task.getTaskDescription());
         taskDTO.setStartTimeDate(task.getStartTimeDate());
         taskDTO.setEstimatedEndTimeDate(task.getEstimatedEndTimeDate());
-        taskDTO.setPriority(task.getPriority().name());
-        taskDTO.setStatus(task.getStatus().name());
-        taskDTO.setType(task.getType().name());
+
+        if (task.getNeed() != null) {
+            taskDTO.setNeed(task.getNeed().stream().map(Need::getId).collect(Collectors.toList()));
+        }
+        if (task.getZone() != null) {
+            taskDTO.setZone(task.getZone().getId());
+        }
+        if (task.getPriority() != null) {
+            taskDTO.setPriority(task.getPriority().name());
+        }
+        if (task.getStatus() != null) {
+            taskDTO.setStatus(task.getStatus().name());
+        }
+        if (task.getType() != null) {
+            taskDTO.setType(task.getType().name());
+        }
+
         return taskDTO;
     }
 
@@ -87,13 +129,31 @@ public class BackendDTOFactory{
         volunteerDTO.setPhone(volunteer.getPhone());
         volunteerDTO.setHomeAddress(volunteer.getHomeAddress());
         volunteerDTO.setPassword(volunteer.getPassword());
-        volunteerDTO.setSkills(volunteer.getSkills().stream().map(Skill::getName).collect(Collectors.toList()));
-        volunteerDTO.setScheduleAvailabilities(volunteer.getScheduleAvailabilities().stream().map(ScheduleAvailability::getId).collect(Collectors.toList()));
-        volunteerDTO.setPreferences(volunteer.getPreferences().stream().map(Preference::getName).collect(Collectors.toList()));
-        volunteerDTO.setTasks(volunteer.getTasks().stream().map(Task::getId).collect(Collectors.toList()));
-        volunteerDTO.setDonations(volunteer.getDonations().stream().map(Donation::getId).collect(Collectors.toList()));
-        volunteerDTO.setCertificates(volunteer.getCertificates().stream().map(Certificate::getId).collect(Collectors.toList()));
-        volunteerDTO.setNotifications(volunteer.getNotifications().stream().map(Notification::getId).collect(Collectors.toList()));
+
+        if (volunteer.getSkills() != null) {
+            volunteerDTO.setSkills(volunteer.getSkills().stream().map(Skill::getName).collect(Collectors.toList()));
+        }
+        if (volunteer.getScheduleAvailabilities() != null) {
+            volunteerDTO.setScheduleAvailabilities(volunteer.getScheduleAvailabilities().stream().map(ScheduleAvailability::getId).collect(Collectors.toList()));
+        }
+        if (volunteer.getPreferences() != null) {
+            volunteerDTO.setPreferences(volunteer.getPreferences().stream().map(Preference::getName).collect(Collectors.toList()));
+        }
+        if (volunteer.getTasks() != null) {
+            volunteerDTO.setTasks(volunteer.getTasks().stream().map(Task::getId).collect(Collectors.toList()));
+        }
+        if (volunteer.getDonations() != null) {
+            volunteerDTO.setDonations(volunteer.getDonations().stream().map(Donation::getId).collect(Collectors.toList()));
+        }
+        if (volunteer.getCertificates() != null) {
+            volunteerDTO.setCertificates(volunteer.getCertificates().stream().map(Certificate::getId).collect(Collectors.toList()));
+        }
+        if (volunteer.getNotifications() != null) {
+            volunteerDTO.setNotifications(volunteer.getNotifications().stream().map(Notification::getId).collect(Collectors.toList()));
+        }
+
+
+
         return volunteerDTO;
     }
 
@@ -102,10 +162,20 @@ public class BackendDTOFactory{
         zoneDTO.setId(zone.getId());
         zoneDTO.setName(zone.getName());
         zoneDTO.setDescription(zone.getDescription());
-        zoneDTO.setEmergencyLevel(zone.getEmergencyLevel().name());
-        zoneDTO.setCatastrophes(zone.getCatastrophes().stream().map(Catastrophe::getID).collect(Collectors.toList()));
-        zoneDTO.setStorages(zone.getStorages().stream().map(Storage::getId).collect(Collectors.toList()));
-        zoneDTO.setPoints(zone.getPoints().stream().map(x -> new Tuple<>(x.getLatitude(), x.getLongitude())).collect(Collectors.toList()));
+
+        zoneDTO.setLatitudes(zone.getPoints().stream().map(GPSCoordinates::getLatitude).collect(Collectors.toList()));
+        zoneDTO.setLongitudes(zone.getPoints().stream().map(GPSCoordinates::getLongitude).collect(Collectors.toList()));
+
+        if (zone.getEmergencyLevel() != null) {
+            zoneDTO.setEmergencyLevel(zone.getEmergencyLevel().name());
+        }
+        if (zone.getCatastrophes() != null) {
+            zoneDTO.setCatastrophes(zone.getCatastrophes().stream().map(Catastrophe::getID).collect(Collectors.toList()));
+        }
+        if (zone.getStorages() != null) {
+            zoneDTO.setStorages(zone.getStorages().stream().map(Storage::getId).collect(Collectors.toList()));
+        }
+
         return zoneDTO;
     }
 }

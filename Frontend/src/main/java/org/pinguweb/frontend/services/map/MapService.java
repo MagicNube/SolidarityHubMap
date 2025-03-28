@@ -13,8 +13,11 @@ import com.vaadin.flow.component.textfield.TextArea;
 import lombok.Getter;
 import lombok.Setter;
 import org.pinguweb.DTO.NeedDTO;
+import org.pinguweb.frontend.services.backend.BackendObject;
+import org.pinguweb.frontend.services.backend.BackendService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -29,6 +32,8 @@ import software.xdev.vaadin.maps.leaflet.layer.ui.LMarkerOptions;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,28 +51,16 @@ public class MapService {
     private String ID;
 
     public MapService() {
-        load();
     }
 
     public void load() {
-        RestTemplate restTemplate = new RestTemplate();
+        BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need",
+                new ParameterizedTypeReference<List<NeedDTO>>() {});
 
-        try {
-            ResponseEntity<List<NeedDTO>> claimResponse = restTemplate.exchange(
-                    "http://localhost:8081/api/need",
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<List<NeedDTO>>() {});
-            if(claimResponse != null && claimResponse.hasBody()){
-                List<NeedDTO> needs = claimResponse.getBody();
-                if (needs != null) {
-                    needs.forEach(need -> createNeed(need.getLocation()._1(), need.getLocation()._2()));
-                    System.out.println(Arrays.toString(needs.toArray()));
-                }
+        if (needs.getStatusCode() == HttpStatus.OK) {
+            for (NeedDTO need : needs.getData()) {
+                    createNeed(need.getLatitude(), need.getLongitude());
             }
-        } catch (RestClientException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
   

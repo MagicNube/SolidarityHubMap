@@ -2,7 +2,6 @@ package org.pinguweb.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.yaml.snakeyaml.util.Tuple;
 
 @NoArgsConstructor
 @Data
@@ -13,7 +12,8 @@ public class NeedDTO implements DTO{
     private String description;
     private String urgency;
     private String needType;
-    private Tuple<Double, Double> location;
+    private Double latitude;
+    private Double longitude;
     private int catastrophe;
     private int task;
 }

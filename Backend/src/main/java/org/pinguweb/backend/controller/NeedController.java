@@ -6,6 +6,7 @@ import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.repository.NeedRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 public class NeedController {
 
+    @Autowired
     NeedRepository repository;
 
     @GetMapping("/need")
