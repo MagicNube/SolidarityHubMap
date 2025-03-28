@@ -1,14 +1,16 @@
 package org.pinguweb.DTO;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.pinguweb.model.Affected;
 import org.pinguweb.model.Need;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor
 @Data
-public class AffectedDTO {
+public class AffectedDTO implements DTO{
     private String dni;
     private String firstName;
     private String lastName;

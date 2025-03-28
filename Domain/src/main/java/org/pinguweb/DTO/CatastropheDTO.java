@@ -1,6 +1,7 @@
 package org.pinguweb.DTO;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.pinguweb.model.Catastrophe;
 import org.pinguweb.model.Need;
 import org.pinguweb.model.Zone;
@@ -9,8 +10,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor
 @Data
-public class CatastropheDTO {
+public class CatastropheDTO implements DTO{
     private int id;
     private String name;
     private String description;

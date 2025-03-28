@@ -1,10 +1,12 @@
 package org.pinguweb.DTO;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.pinguweb.model.Admin;
 
+@NoArgsConstructor
 @Data
-public class AdminDTO {
+public class AdminDTO implements DTO{
     private String dni;
     private String password;
 

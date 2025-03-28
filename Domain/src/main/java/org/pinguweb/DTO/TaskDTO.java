@@ -1,6 +1,7 @@
 package org.pinguweb.DTO;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.pinguweb.model.Need;
 import org.pinguweb.model.Task;
 import org.yaml.snakeyaml.util.Tuple;
@@ -9,8 +10,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor
 @Data
-public class TaskDTO {
+public class TaskDTO implements DTO{
     private int id;
     private List<Integer> need;
     private String taskName;

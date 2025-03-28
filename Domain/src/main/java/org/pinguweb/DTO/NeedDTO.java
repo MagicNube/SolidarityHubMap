@@ -1,10 +1,12 @@
 package org.pinguweb.DTO;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.pinguweb.model.Need;
 import org.yaml.snakeyaml.util.Tuple;
 
+@NoArgsConstructor
 @Data
-public class NeedDTO {
+public class NeedDTO implements DTO{
     private int id;
     private String affected;
     private String description;
