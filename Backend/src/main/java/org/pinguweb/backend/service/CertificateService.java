@@ -1,6 +1,6 @@
 package org.pinguweb.backend.service;
 
-import org.pinguweb.backend.model.Certificate;
+import org.pinguweb.model.Certificate;
 import org.pinguweb.backend.repository.CertificateRepository;
 import org.springframework.stereotype.Service;
 

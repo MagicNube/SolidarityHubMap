@@ -1,11 +1,11 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.backend.DTO.TaskDTO;
-import org.pinguweb.backend.DTO.ZoneDTO;
-import org.pinguweb.backend.model.GPSCoordinates;
+import org.pinguweb.DTO.TaskDTO;
+import org.pinguweb.DTO.ZoneDTO;
+import org.pinguweb.model.GPSCoordinates;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Task;
-import org.pinguweb.backend.model.Zone;
+import org.pinguweb.model.Task;
+import org.pinguweb.model.Zone;
 import org.pinguweb.backend.repository.ZoneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

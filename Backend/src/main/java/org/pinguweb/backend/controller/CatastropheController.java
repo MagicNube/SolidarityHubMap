@@ -1,10 +1,10 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.backend.DTO.CatastropheDTO;
-import org.pinguweb.backend.DTO.ZoneDTO;
+import org.pinguweb.DTO.CatastropheDTO;
+import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Catastrophe;
-import org.pinguweb.backend.model.Zone;
+import org.pinguweb.model.Catastrophe;
+import org.pinguweb.model.Zone;
 import org.pinguweb.backend.repository.CatastropheRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

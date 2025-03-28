@@ -1,6 +1,6 @@
 package org.pinguweb.backend.service;
 
-import org.pinguweb.backend.model.Resource;
+import org.pinguweb.model.Resource;
 import org.pinguweb.backend.repository.ResourceRepository;
 import org.springframework.stereotype.Service;
 

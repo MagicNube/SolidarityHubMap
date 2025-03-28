@@ -1,6 +1,6 @@
 package org.pinguweb.backend.service;
 
-import org.pinguweb.backend.model.Person;
+import org.pinguweb.model.Person;
 import org.springframework.stereotype.Service;
 import org.pinguweb.backend.repository.PersonRepository;
 

@@ -1,7 +1,5 @@
 package org.pinguweb.frontend.services.map;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -13,10 +11,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
-import org.pinguweb.frontend.objects.Task;
-import org.pinguweb.frontend.objects.Zone;
+import org.pinguweb.DTO.NeedDTO;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -33,25 +29,20 @@ import software.xdev.vaadin.maps.leaflet.layer.ui.LMarkerOptions;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Setter
 @Service
 public class MapService {
-    @Setter
     private LComponentManagementRegistry reg;
 
-    @Setter
     private LMap map;
 
-    @Setter
     @Getter
     private boolean zone = false;
 
-    @Setter
     private String ID;
 
     public MapService() {
@@ -62,14 +53,17 @@ public class MapService {
         RestTemplate restTemplate = new RestTemplate();
 
         try {
-            ResponseEntity<List<Task>> claimResponse = restTemplate.exchange(
-                    "http://localhost:8081/api/task",
+            ResponseEntity<List<NeedDTO>> claimResponse = restTemplate.exchange(
+                    "http://localhost:8081/api/need",
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<List<Task>>() {});
+                    new ParameterizedTypeReference<List<NeedDTO>>() {});
             if(claimResponse != null && claimResponse.hasBody()){
-                List<Task> tasks = claimResponse.getBody();
-                System.out.println(Arrays.toString(tasks.toArray()));
+                List<NeedDTO> needs = claimResponse.getBody();
+                if (needs != null) {
+                    needs.forEach(need -> createNeed(need.getLocation()._1(), need.getLocation()._2()));
+                    System.out.println(Arrays.toString(needs.toArray()));
+                }
             }
         } catch (RestClientException e) {
             // TODO Auto-generated catch block
@@ -77,7 +71,7 @@ public class MapService {
         }
     }
   
-    public void createTask(double lat, double lng) {
+    public void createNeed(double lat, double lng) {
         LLatLng coords = new LLatLng(this.reg, lat, lng);
 
         new LMarker(reg, coords).addTo(map);

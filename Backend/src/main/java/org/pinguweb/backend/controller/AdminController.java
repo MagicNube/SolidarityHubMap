@@ -1,9 +1,9 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.backend.DTO.AdminDTO;
+import org.pinguweb.DTO.AdminDTO;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Admin;
 import org.pinguweb.backend.repository.AdminRepository;
+import org.pinguweb.model.Admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

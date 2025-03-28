@@ -141,7 +141,7 @@ public class MapView extends HorizontalLayout {
             return;
         }
 
-        controller.createTask(obj.getNumber("lat"), obj.getNumber("lng"));
+        controller.createNeed(obj.getNumber("lat"), obj.getNumber("lng"));
 
         synchronized (lock) {
             lock.notify();

@@ -1,10 +1,9 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.backend.DTO.AffectedDTO;
+import org.pinguweb.DTO.AffectedDTO;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Affected;
-import org.pinguweb.backend.model.Catastrophe;
 import org.pinguweb.backend.repository.AffectedRepository;
+import org.pinguweb.model.Affected;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,8 +1,8 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.backend.DTO.NeedDTO;
+import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Need;
+import org.pinguweb.model.Need;
 import org.pinguweb.backend.repository.NeedRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
