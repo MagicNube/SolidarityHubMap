@@ -19,6 +19,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.yaml.snakeyaml.util.Tuple;
@@ -50,9 +51,9 @@ public class MapService {
 
     private String ID;
 
-    public MapService() {
-    }
+    public MapService() {}
 
+    @Async
     public void load() {
         BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need",
                 new ParameterizedTypeReference<List<NeedDTO>>() {});
