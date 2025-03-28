@@ -1,6 +1,7 @@
 package org.pinguweb.backend.controller;
 
 import org.pinguweb.DTO.CatastropheDTO;
+import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.model.Catastrophe;
@@ -23,7 +24,8 @@ public class CatastropheController {
     public ResponseEntity<List<CatastropheDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<CatastropheDTO> catastrophes = repository.findAll().stream().map(CatastropheDTO::new).collect(Collectors.toList());
+        List<CatastropheDTO> catastrophes = repository.findAll().stream()
+                .map(x-> DTOFactory.createDTO(CatastropheDTO.class, x)).collect(Collectors.toList());
         return ResponseEntity.ok(catastrophes);
     }
 
@@ -32,7 +34,7 @@ public class CatastropheController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id).toDTO());
+            return ResponseEntity.ok(DTOFactory.createDTO(CatastropheDTO.class, repository.findById(id)));
         }
         else {
             return ResponseEntity.notFound().build();
@@ -44,7 +46,7 @@ public class CatastropheController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id).getZones().stream().map(ZoneDTO::new).collect(Collectors.toList()));
+            return ResponseEntity.ok(repository.getReferenceById(id).getZones().stream().map(x -> DTOFactory.createDTO(ZoneDTO.class, x)).collect(Collectors.toList()));
         }
         else {
             return ResponseEntity.notFound().build();

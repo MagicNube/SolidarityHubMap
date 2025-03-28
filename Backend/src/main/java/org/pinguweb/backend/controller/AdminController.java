@@ -1,6 +1,7 @@
 package org.pinguweb.backend.controller;
 
 import org.pinguweb.DTO.AdminDTO;
+import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.repository.AdminRepository;
 import org.pinguweb.model.Admin;
@@ -18,11 +19,15 @@ public class AdminController {
     public ResponseEntity<AdminDTO> getAdmin(@PathVariable String id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id).toDTO());
+        try {
+            if (repository.existsById(id)) {
+                return ResponseEntity.ok(DTOFactory.createDTO(AdminDTO.class, repository.getReferenceById(id)));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         }
-        else {
-            return ResponseEntity.notFound().build();
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -65,7 +70,7 @@ public class AdminController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(adminDto.getDni())) {
-            Admin admin = repository.getReferenceById(adminDto.getDni());
+            Admin admin = repository.findById(adminDto.getDni()).get();
             if (admin.getPassword().equals(adminDto.getPassword()))
             {
                 return ResponseEntity.accepted().build();

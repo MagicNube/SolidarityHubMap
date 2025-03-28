@@ -26,10 +26,15 @@ public class CatastropheDTO implements DTO{
         id = catastrophe.getID();
         name = catastrophe.getName();
         description = catastrophe.getDescription();
-        location = catastrophe.getLocation().getId();
         startDate = catastrophe.getStartDate();
         emergencyLevel = catastrophe.getEmergencyLevel().name();
-        needs = catastrophe.getNeeds().stream().map(Need::getId).collect(Collectors.toList());
-        zones = catastrophe.getZones().stream().map(Zone::getId).collect(Collectors.toList());
+        location = catastrophe.getLocation().getId();
+
+        if (catastrophe.getNeeds() != null) {
+            needs = catastrophe.getNeeds().stream().map(Need::getId).collect(Collectors.toList());
+        }
+        if (catastrophe.getZones() != null) {
+            zones = catastrophe.getZones().stream().map(Zone::getId).collect(Collectors.toList());
+        }
     }
 }

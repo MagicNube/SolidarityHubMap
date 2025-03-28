@@ -1,6 +1,9 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.DTO.AffectedDTO;
+import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.NeedDTO;
+import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.model.Need;
 import org.pinguweb.backend.repository.NeedRepository;
@@ -20,7 +23,7 @@ public class NeedController {
     public ResponseEntity<List<NeedDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<NeedDTO> needs = repository.findAll().stream().map(NeedDTO::new).collect(Collectors.toList());
+        List<NeedDTO> needs = repository.findAll().stream().map(x -> DTOFactory.createDTO(NeedDTO.class, x)).collect(Collectors.toList());
         return ResponseEntity.ok(needs);
     }
 
@@ -29,7 +32,7 @@ public class NeedController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id).toDTO());
+            return ResponseEntity.ok(DTOFactory.createDTO(NeedDTO.class, repository.findById(id)));
         }
         else {
             return ResponseEntity.notFound().build();

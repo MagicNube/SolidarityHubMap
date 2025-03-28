@@ -18,12 +18,25 @@ public class NeedDTO implements DTO{
 
     public NeedDTO(Need need) {
         id = need.getId();
-        affected = need.getAffected().getDNI();
         description = need.getDescription();
-        urgency = need.getUrgency().name();
-        needType = need.getNeedType().name();
-        location = new Tuple<>(need.getLocation().getLatitude(), need.getLocation().getLongitude());
-        catastrophe = need.getCatastrophe().getID();
-        task = need.getTask().getId();
+
+        if ( need.getAffected() != null) {
+            affected = need.getAffected().getDNI();
+        }
+        if (need.getUrgency() != null) {
+            urgency = need.getUrgency().name();
+        }
+        if (need.getNeedType() != null) {
+            needType = need.getNeedType().name();
+        }
+        if (need.getLocation() != null) {
+            location = new Tuple<>(need.getLocation().getLatitude(), need.getLocation().getLongitude());
+        }
+        if (need.getCatastrophe() != null) {
+            catastrophe = need.getCatastrophe().getID();
+        }
+        if (need.getTask() != null) {
+            task = need.getTask().getId();
+        }
     }
 }

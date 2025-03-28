@@ -26,14 +26,28 @@ public class TaskDTO implements DTO{
     private Tuple<Double, Double> coordinates;
 
     public TaskDTO(Task task) {
-        this.need = task.getNeed().stream().map(Need::getId).collect(Collectors.toList());
         this.taskName = task.getTaskName();
         this.taskDescription = task.getTaskDescription();
         this.startTimeDate = task.getStartTimeDate();
         this.estimatedEndTimeDate = task.getEstimatedEndTimeDate();
-        this.priority = task.getPriority().name();
-        this.status = task.getStatus().name();
-        this.type = task.getType().name();
-        this.coordinates = new Tuple<>(task.getGpsCoordinates().getLatitude(), task.getGpsCoordinates().getLongitude());
+
+        if (task.getNeed() != null) {
+            this.need = task.getNeed().stream().map(Need::getId).collect(Collectors.toList());
+        }
+        if (task.getPriority() != null) {
+            this.priority = task.getPriority().name();
+        }
+        if (task.getStatus() != null) {
+            this.status = task.getStatus().name();
+        }
+        if (task.getType() != null) {
+            this.type = task.getType().name();
+        }
+        if (task.getGpsCoordinates() != null) {
+            this.coordinates = new Tuple<>(task.getGpsCoordinates().getLatitude(), task.getGpsCoordinates().getLongitude());
+        }
+        if (task.getZone() != null) {
+            this.zone = task.getZone().getId();
+        }
     }
 }

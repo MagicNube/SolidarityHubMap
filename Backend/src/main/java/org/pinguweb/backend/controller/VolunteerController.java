@@ -1,5 +1,7 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.DTO.AffectedDTO;
+import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.VolunteerDTO;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.model.Volunteer;
@@ -21,16 +23,16 @@ public class VolunteerController {
     public ResponseEntity<List<VolunteerDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<VolunteerDTO> volunteers = repository.findAll().stream().map(Volunteer::toDTO).collect(Collectors.toList());
+        List<VolunteerDTO> volunteers = repository.findAll().stream().map(x -> DTOFactory.createDTO(VolunteerDTO.class, x)).collect(Collectors.toList());
         return ResponseEntity.ok(volunteers);
     }
 
     @GetMapping("/volunteer/{id}")
-    public ResponseEntity<VolunteerDTO> getVolunteer(@PathVariable VolunteerDTO id) {
+    public ResponseEntity<VolunteerDTO> getVolunteer(@PathVariable String id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id.getDni())) {
-            return ResponseEntity.ok(repository.getReferenceById(id.getDni()).toDTO());
+        if (repository.existsById(id)) {
+            return ResponseEntity.ok(DTOFactory.createDTO(VolunteerDTO.class, repository.findById(id)));
         }
         else {
             return ResponseEntity.notFound().build();

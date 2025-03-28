@@ -26,8 +26,13 @@ public class ZoneDTO implements DTO{
         this.name = zone.getName();
         this.description = zone.getDescription();
         this.emergencyLevel = zone.getEmergencyLevel().name();
-        this.catastrophes = zone.getCatastrophes().stream().map(Catastrophe::getID).collect(Collectors.toList());
-        storages = zone.getStorages().stream().map(Storage::getId).collect(Collectors.toList());
         points = zone.getPoints().stream().map(GPSCoordinates::getId).collect(Collectors.toList());
+
+        if (zone.getCatastrophes() != null) {
+            this.catastrophes = zone.getCatastrophes().stream().map(Catastrophe::getID).collect(Collectors.toList());
+        }
+        if (zone.getStorages() != null) {
+            this.storages = zone.getStorages().stream().map(Storage::getId).collect(Collectors.toList());
+        }
     }
 }

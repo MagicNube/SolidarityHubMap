@@ -1,5 +1,7 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.DTO.AffectedDTO;
+import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.TaskDTO;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.model.Task;
@@ -22,7 +24,7 @@ public class TaskController {
     public ResponseEntity<List<TaskDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<TaskDTO> tasks = repository.findAll().stream().map(TaskDTO::new).collect(Collectors.toList());
+        List<TaskDTO> tasks = repository.findAll().stream().map(x -> DTOFactory.createDTO(TaskDTO.class, x)).collect(Collectors.toList());
         return ResponseEntity.ok(tasks);
     }
 
@@ -31,7 +33,7 @@ public class TaskController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id).toDTO());
+            return ResponseEntity.ok(DTOFactory.createDTO(TaskDTO.class, repository.findById(id)));
         }
         else {
             return ResponseEntity.notFound().build();

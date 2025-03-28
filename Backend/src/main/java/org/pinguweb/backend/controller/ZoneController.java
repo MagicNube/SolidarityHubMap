@@ -1,5 +1,7 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.DTO.AffectedDTO;
+import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.TaskDTO;
 import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.model.GPSCoordinates;
@@ -26,16 +28,16 @@ public class ZoneController {
     public ResponseEntity<List<ZoneDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<ZoneDTO> zones = repository.findAll().stream().map(ZoneDTO::new).collect(Collectors.toList());
+        List<ZoneDTO> zones = repository.findAll().stream().map(x -> DTOFactory.createDTO(ZoneDTO.class, x)).collect(Collectors.toList());
         return ResponseEntity.ok(zones);
     }
 
     @GetMapping("/zone/{id}")
-    public ResponseEntity<ZoneDTO> getZone(@PathVariable ZoneDTO id) {
+    public ResponseEntity<ZoneDTO> getZone(@PathVariable int id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id.getId())) {
-            return ResponseEntity.ok(repository.getReferenceById(id.getId()).toDTO());
+        if (repository.existsById(id)) {
+            return ResponseEntity.ok(DTOFactory.createDTO(ZoneDTO.class, repository.findById(id)));
         }
         else {
             return ResponseEntity.notFound().build();
@@ -43,12 +45,12 @@ public class ZoneController {
     }
 
     @GetMapping("/zone/{id}/tasks")
-    public ResponseEntity<List<TaskDTO>> getZoneTasks(@PathVariable ZoneDTO id) {
+    public ResponseEntity<List<TaskDTO>> getZoneTasks(@PathVariable int id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        if (repository.existsById(id.getId())) {
+        if (repository.existsById(id)) {
             List<TaskDTO> tasks = taskController.getAll().getBody();
-            Zone zone = repository.getReferenceById(id.getId());
+            Zone zone = repository.getReferenceById(id);
 
             if (tasks != null) {
                 List<TaskDTO> tasksInZone = tasks.stream()
@@ -60,6 +62,7 @@ public class ZoneController {
         return ResponseEntity.notFound().build();
     }
 
+    // TODO: Esto no va
     @GetMapping("/zone/{id}/points")
     public ResponseEntity<List<GPSCoordinates>> getZonePoints(@PathVariable ZoneDTO id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}

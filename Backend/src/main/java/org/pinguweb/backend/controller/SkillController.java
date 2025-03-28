@@ -1,5 +1,7 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.DTO.AffectedDTO;
+import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.SkillDTO;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.model.Skill;
@@ -21,7 +23,7 @@ public class SkillController {
     public ResponseEntity<List<SkillDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<SkillDTO> skills = repository.findAll().stream().map(SkillDTO::new).collect(Collectors.toList());
+        List<SkillDTO> skills = repository.findAll().stream().map(x -> DTOFactory.createDTO(SkillDTO.class, x)).collect(Collectors.toList());
         return ResponseEntity.ok(skills);
     }
 
@@ -31,7 +33,7 @@ public class SkillController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(repository.getReferenceById(id).toDTO());
+            return ResponseEntity.ok(DTOFactory.createDTO(SkillDTO.class, repository.findById(id)));
         }
         else {
             return ResponseEntity.notFound().build();

@@ -32,8 +32,13 @@ public class AffectedDTO implements DTO{
         homeAddress = afectado.getHomeAddress();
         password = afectado.getPassword();
         affectedAddress = afectado.getAffectedAddress();
-        gpsCoordinates = afectado.getGpsCoordinates().getId();
         disability = afectado.isDisability();
-        needs = afectado.getNeeds().stream().map(Need::getId).collect(Collectors.toList());
+
+        if (afectado.getGpsCoordinates() != null) {
+            gpsCoordinates = afectado.getGpsCoordinates().getId();
+        }
+        if (afectado.getNeeds() != null) {
+            needs = afectado.getNeeds().stream().map(Need::getId).collect(Collectors.toList());
+        }
     }
 }

@@ -35,11 +35,24 @@ public class VolunteerDTO implements DTO{
         homeAddress = volunteer.getHomeAddress();
         password = volunteer.getPassword();
         skills = volunteer.getSkills().stream().map(Skill::getName).collect(Collectors.toList());
-        scheduleAvailabilities = volunteer.getScheduleAvailabilities().stream().map(ScheduleAvailability::getId).collect(Collectors.toList());
-        preferences = volunteer.getPreferences().stream().map(Preference::getName).collect(Collectors.toList());
-        tasks = volunteer.getTasks().stream().map(Task::getId).collect(Collectors.toList());
-        donations = volunteer.getDonations().stream().map(Donation::getId).collect(Collectors.toList());
-        certificates = volunteer.getCertificates().stream().map(Certificate::getId).collect(Collectors.toList());
-        notifications = volunteer.getNotifications().stream().map(Notification::getId).collect(Collectors.toList());
+
+        if (volunteer.getScheduleAvailabilities() != null) {
+            scheduleAvailabilities = volunteer.getScheduleAvailabilities().stream().map(ScheduleAvailability::getId).collect(Collectors.toList());
+        }
+        if (volunteer.getPreferences() != null) {
+            preferences = volunteer.getPreferences().stream().map(Preference::getName).collect(Collectors.toList());
+        }
+        if (volunteer.getTasks() != null) {
+            tasks = volunteer.getTasks().stream().map(Task::getId).collect(Collectors.toList());
+        }
+        if (volunteer.getDonations() != null) {
+            donations = volunteer.getDonations().stream().map(Donation::getId).collect(Collectors.toList());
+        }
+        if (volunteer.getCertificates() != null) {
+            certificates = volunteer.getCertificates().stream().map(Certificate::getId).collect(Collectors.toList());
+        }
+        if (volunteer.getNotifications() != null) {
+            notifications = volunteer.getNotifications().stream().map(Notification::getId).collect(Collectors.toList());
+        }
     }
 }
