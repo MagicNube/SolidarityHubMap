@@ -1,8 +1,10 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.DTO.AffectedDTO;
 import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.TaskDTO;
 import org.pinguweb.DTO.ZoneDTO;
+import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.model.GPSCoordinates;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Zone;
@@ -26,7 +28,9 @@ public class ZoneController {
     public ResponseEntity<List<ZoneDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
-        List<ZoneDTO> zones = repository.findAll().stream().map(x -> DTOFactory.createDTO(ZoneDTO.class, x)).collect(Collectors.toList());
+        BackendDTOFactory factory = new BackendDTOFactory();
+
+        List<ZoneDTO> zones = repository.findAll().stream().map(factory::createZoneDTO).collect(Collectors.toList());
         return ResponseEntity.ok(zones);
     }
 
@@ -34,8 +38,9 @@ public class ZoneController {
     public ResponseEntity<ZoneDTO> getZone(@PathVariable int id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
+        BackendDTOFactory factory = new BackendDTOFactory();
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(DTOFactory.createDTO(ZoneDTO.class, repository.findById(id)));
+            return ResponseEntity.ok(factory.createZoneDTO(repository.getReferenceById(id)));
         }
         else {
             return ResponseEntity.notFound().build();

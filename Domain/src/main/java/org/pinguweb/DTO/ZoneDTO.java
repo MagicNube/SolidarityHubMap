@@ -3,6 +3,8 @@ package org.pinguweb.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.yaml.snakeyaml.util.Tuple;
+
 import java.util.List;
 
 @NoArgsConstructor
@@ -15,5 +17,5 @@ public class ZoneDTO implements DTO{
     private String emergencyLevel;
     private List<Integer> catastrophes;
     private List<Integer> storages;
-    private List<Integer> points;
+    private List<Tuple<Double, Double>> points;
 }

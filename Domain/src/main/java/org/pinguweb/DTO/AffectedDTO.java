@@ -3,6 +3,8 @@ package org.pinguweb.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.yaml.snakeyaml.util.Tuple;
+
 import java.util.List;
 
 @NoArgsConstructor
@@ -17,7 +19,7 @@ public class AffectedDTO implements DTO{
     private String homeAddress;
     private String password;
     private String affectedAddress;
-    private int gpsCoordinates;
+    private Tuple<Double, Double> gpsCoordinates;
     private boolean disability;
     private List<Integer> needs;
 }

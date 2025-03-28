@@ -1,7 +1,9 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.DTO.AffectedDTO;
 import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.SkillDTO;
+import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.repository.SkillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +22,9 @@ public class SkillController {
     @GetMapping("/skill")
     public ResponseEntity<List<SkillDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
+        BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<SkillDTO> skills = repository.findAll().stream().map(x -> DTOFactory.createDTO(SkillDTO.class, x)).collect(Collectors.toList());
+        List<SkillDTO> skills = repository.findAll().stream().map(factory::createSkillDTO).collect(Collectors.toList());
         return ResponseEntity.ok(skills);
     }
 
@@ -30,8 +33,9 @@ public class SkillController {
     public ResponseEntity<SkillDTO> getSkill(@PathVariable String id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
+        BackendDTOFactory factory = new BackendDTOFactory();
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(DTOFactory.createDTO(SkillDTO.class, repository.findById(id)));
+            return ResponseEntity.ok(factory.createSkillDTO(repository.getReferenceById(id)));
         }
         else {
             return ResponseEntity.notFound().build();

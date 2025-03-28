@@ -1,7 +1,9 @@
 package org.pinguweb.backend.controller;
 
+import org.pinguweb.DTO.AffectedDTO;
 import org.pinguweb.DTO.DTOFactory;
 import org.pinguweb.DTO.NeedDTO;
+import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.repository.NeedRepository;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,10 @@ public class NeedController {
     @GetMapping("/need")
     public ResponseEntity<List<NeedDTO>> getAll(){
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
+        BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<NeedDTO> needs = repository.findAll().stream().map(x -> DTOFactory.createDTO(NeedDTO.class, x)).collect(Collectors.toList());
+        List<NeedDTO> needs = repository.findAll().stream().map(factory::createNeedDTO).collect(Collectors.toList());
+
         return ResponseEntity.ok(needs);
     }
 
@@ -28,8 +32,9 @@ public class NeedController {
     public ResponseEntity<NeedDTO> getNeed(@PathVariable Integer id) {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
+        BackendDTOFactory factory = new BackendDTOFactory();
         if (repository.existsById(id)) {
-            return ResponseEntity.ok(DTOFactory.createDTO(NeedDTO.class, repository.findById(id)));
+            return ResponseEntity.ok(factory.createNeedDTO(repository.getReferenceById(id)));
         }
         else {
             return ResponseEntity.notFound().build();
