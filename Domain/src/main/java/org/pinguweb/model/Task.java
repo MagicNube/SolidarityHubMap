@@ -84,10 +84,6 @@ public class Task {
         this.gpsCoordinates = gpsCoordinates;
     }
 
-    public TaskDTO toDTO() {
-        return new TaskDTO(this);
-    }
-
     public static Task fromDTO(TaskDTO dto) {
         Task task = new Task();
         task.setTaskName(dto.getTaskName());

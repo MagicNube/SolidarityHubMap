@@ -81,7 +81,8 @@ public class ZoneController {
 
         // TODO: Esto no funciona aun
 
-        return ResponseEntity.ok(repository.save(Zone.fromDTO(zone)).toDTO());
+        //return ResponseEntity.ok(repository.save(Zone.fromDTO(zone)).toDTO());
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/zone/{id}")
@@ -104,7 +105,8 @@ public class ZoneController {
         // TODO: Esto no funciona aun
 
         if (repository.existsById(zone.getId())) {
-            return ResponseEntity.ok(repository.save(Zone.fromDTO(zone)).toDTO());
+            //return ResponseEntity.ok(repository.save(Zone.fromDTO(zone)).toDTO());
+            return ResponseEntity.notFound().build();
         }
         else {
             return ResponseEntity.notFound().build();

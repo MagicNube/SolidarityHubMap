@@ -30,10 +30,6 @@ public class Admin {
         this.password = password;
     }
 
-    public AdminDTO toDTO() {
-        return new AdminDTO(this);
-    }
-
     public static Admin fromDTO(AdminDTO dto) {
         Admin admin = new Admin();
         admin.dni = dto.getDni();

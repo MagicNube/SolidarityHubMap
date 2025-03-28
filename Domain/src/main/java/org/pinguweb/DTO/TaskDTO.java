@@ -25,7 +25,7 @@ public class TaskDTO implements DTO{
     private Integer zone;
     private Tuple<Double, Double> coordinates;
 
-    public TaskDTO(Task task) {
+    protected TaskDTO(Task task) {
         this.taskName = task.getTaskName();
         this.taskDescription = task.getTaskDescription();
         this.startTimeDate = task.getStartTimeDate();

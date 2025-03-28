@@ -62,10 +62,6 @@ public class Volunteer extends Person {
         }
     }
 
-    public VolunteerDTO toDTO() {
-        return new VolunteerDTO(this);
-    }
-
     public static Volunteer fromDTO(VolunteerDTO dto) {
         Volunteer volunteer = new Volunteer();
         return volunteer;

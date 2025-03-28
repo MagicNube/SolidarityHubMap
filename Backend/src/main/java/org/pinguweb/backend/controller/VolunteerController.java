@@ -44,7 +44,8 @@ public class VolunteerController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         // TODO: Esto aun no funciona
-        return ResponseEntity.ok(repository.save(Volunteer.fromDTO(volunteer)).toDTO());
+        //return ResponseEntity.ok(repository.save(Volunteer.fromDTO(volunteer)).toDTO());
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/volunteer/{id}")
@@ -65,7 +66,8 @@ public class VolunteerController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(volunteer.getDni())) {
-            return ResponseEntity.ok(repository.save(Volunteer.fromDTO(volunteer)).toDTO());
+            //return ResponseEntity.ok(repository.save(Volunteer.fromDTO(volunteer)).toDTO());
+            return ResponseEntity.notFound().build();
         }
         else {
             return ResponseEntity.notFound().build();

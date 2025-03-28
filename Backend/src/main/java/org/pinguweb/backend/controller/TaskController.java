@@ -45,7 +45,8 @@ public class TaskController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         //TODO: Los posts no funcionan muy bien
-        return ResponseEntity.ok(repository.save(Task.fromDTO(task)).toDTO());
+        //return ResponseEntity.ok(repository.save(Task.fromDTO(task)).toDTO());
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/task/{id}")
@@ -67,7 +68,8 @@ public class TaskController {
 
         //TODO: Los posts no funcionan muy bien
         if (repository.existsById(task.getId())) {
-            return ResponseEntity.ok(repository.save(Task.fromDTO(task)).toDTO());
+            //return ResponseEntity.ok(repository.save(Task.fromDTO(task)).toDTO());
+            return ResponseEntity.notFound().build();
         }
         else {
             return ResponseEntity.notFound().build();

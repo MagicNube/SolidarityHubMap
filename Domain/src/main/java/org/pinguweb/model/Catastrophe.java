@@ -69,10 +69,6 @@ public class Catastrophe {
         this.emergencyLevel = emergencyLevel;
     }
 
-    public CatastropheDTO toDTO() {
-        return new CatastropheDTO(this);
-    }
-
     public static Catastrophe fromDTO(CatastropheDTO dto) {
         // obtener
 

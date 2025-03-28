@@ -24,10 +24,6 @@ public class Skill {
         this.name = name;
     }
 
-    public SkillDTO toDTO() {
-        return new SkillDTO(this);
-    }
-
     public static Skill fromDTO(SkillDTO dto) {
         Skill skill = new Skill();
         skill.name = dto.getName();

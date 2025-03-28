@@ -58,7 +58,8 @@ public class CatastropheController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         // TODO: Esto no funciona
-        return ResponseEntity.ok(repository.save(Catastrophe.fromDTO(catastrophe)).toDTO());
+        //return ResponseEntity.ok(repository.save(Catastrophe.fromDTO(catastrophe)).toDTO());
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/catastrophe/{id}")
@@ -79,7 +80,8 @@ public class CatastropheController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(catastrophe.getId())) {
-            return ResponseEntity.ok(repository.save(Catastrophe.fromDTO(catastrophe)).toDTO());
+            //return ResponseEntity.ok(repository.save(Catastrophe.fromDTO(catastrophe)).toDTO());
+            return ResponseEntity.notFound().build();
         }
         else {
             return ResponseEntity.notFound().build();

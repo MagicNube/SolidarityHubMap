@@ -40,10 +40,6 @@ public class Affected extends Person {
         this.needs.add(need);
     }
 
-    public AffectedDTO toDTO() {
-        return new AffectedDTO(this);
-    }
-
     public static Affected fromDTO(AffectedDTO dto) {
         return new Affected(
                 dto.getDni(),

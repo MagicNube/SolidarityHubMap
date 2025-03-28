@@ -66,10 +66,6 @@ public class Zone {
         this.catastrophes.add(catastrophe);
     }
 
-    public ZoneDTO toDTO() {
-        return new ZoneDTO(this);
-    }
-
     public static Zone fromDTO(ZoneDTO dto) {
         Zone zone = new Zone();
         return zone;

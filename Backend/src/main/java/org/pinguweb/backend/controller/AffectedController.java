@@ -44,7 +44,9 @@ public class AffectedController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         // TODO: Esto no funciona
-        return ResponseEntity.ok(repository.save(Affected.fromDTO(affected)).toDTO());
+        //return ResponseEntity.ok(repository.save(Affected.fromDTO(affected)).toDTO());
+
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/affected/{id}")
@@ -66,7 +68,8 @@ public class AffectedController {
 
         // TODO: Esto aun no funciona
         if (repository.existsById(affected.getDni())) {
-            return ResponseEntity.ok(repository.save(Affected.fromDTO(affected)).toDTO());
+            //return ResponseEntity.ok(repository.save(Affected.fromDTO(affected)).toDTO());
+            return ResponseEntity.notFound().build();
         }
         else {
             return ResponseEntity.notFound().build();

@@ -23,7 +23,7 @@ public class AffectedDTO implements DTO{
     private boolean disability;
     private List<Integer> needs;
 
-    public AffectedDTO(Affected afectado) {
+    protected AffectedDTO(Affected afectado) {
         dni = afectado.getDNI();
         firstName = afectado.getFirstName();
         lastName = afectado.getLastName();

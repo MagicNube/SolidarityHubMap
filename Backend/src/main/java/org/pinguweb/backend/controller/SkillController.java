@@ -45,7 +45,8 @@ public class SkillController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         // TODO: No funciona aun
-        return ResponseEntity.ok(repository.save(Skill.fromDTO(skill)).toDTO());
+        //return ResponseEntity.ok(repository.save(Skill.fromDTO(skill)).toDTO());
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/skill/{id}")
@@ -66,7 +67,8 @@ public class SkillController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         if (repository.existsById(skill.getName())) {
-            return ResponseEntity.ok(repository.save(Skill.fromDTO(skill)).toDTO());
+            //return ResponseEntity.ok(repository.save(Skill.fromDTO(skill)).toDTO());
+            return ResponseEntity.notFound().build();
         }
         else {
             return ResponseEntity.notFound().build();

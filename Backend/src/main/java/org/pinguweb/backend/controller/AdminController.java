@@ -36,7 +36,9 @@ public class AdminController {
         if (ServerException.isServerClosed(repository)){return ResponseEntity.internalServerError().build();}
 
         // TODO: no funciona aun
-        return ResponseEntity.ok(repository.save(Admin.fromDTO(admin)).toDTO());
+        //return ResponseEntity.ok(repository.save(Admin.fromDTO(admin)).toDTO());
+
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/admin/{id}")
@@ -58,11 +60,11 @@ public class AdminController {
 
         //TODO: Esto no funciona aun
         if (repository.existsById(admin.getDni())) {
-            return ResponseEntity.ok(repository.save(Admin.fromDTO(admin)).toDTO());
+            //return ResponseEntity.ok(repository.save(Admin.fromDTO(admin)).toDTO());
         }
         else {
-            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/admin/login/")
@@ -75,6 +77,8 @@ public class AdminController {
             {
                 return ResponseEntity.accepted().build();
             }
+
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.badRequest().build();
     }

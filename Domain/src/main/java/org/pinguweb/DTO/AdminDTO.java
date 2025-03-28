@@ -10,7 +10,7 @@ public class AdminDTO implements DTO{
     private String dni;
     private String password;
 
-    public AdminDTO(Admin admin) {
+    protected AdminDTO(Admin admin) {
         dni = admin.getDni();
         password = admin.getPassword();
     }
