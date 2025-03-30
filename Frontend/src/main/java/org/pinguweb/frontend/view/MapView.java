@@ -9,10 +9,16 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+import lombok.Getter;
 import org.pinguweb.frontend.services.map.MapService;
 import org.pinguweb.frontend.services.map.MapTypes;
 import org.yaml.snakeyaml.util.Tuple;
+import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
+import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
+import software.xdev.vaadin.maps.leaflet.controls.LControlScale;
+import software.xdev.vaadin.maps.leaflet.controls.LControlScaleOptions;
 import software.xdev.vaadin.maps.leaflet.layer.LLayer;
+import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
@@ -24,6 +30,7 @@ import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementReg
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static org.pinguweb.frontend.services.map.MapTypes.TAREA;
@@ -37,12 +44,18 @@ public class MapView extends HorizontalLayout {
     private final String ID = "mapa";
     private final LMap map;
     private LComponentManagementRegistry reg;
+
     private LLayer layer;
+    @Getter
+    private static LLayerGroup lLayerGroupZones;
+    @Getter
+    private static LLayerGroup lLayerGroupNeeds;
+
     private MapContainer mapContainer;
     private final Object lock = new Object();
     private UI ui;
 
-    private final Button tarea = new Button("Tarea");
+    private final Button necesidad = new Button("Necesidad");
     private final Button zona = new Button("Zona");
     private final Button borrar = new Button("Borrar");
 
@@ -69,6 +82,17 @@ public class MapView extends HorizontalLayout {
         this.map = mapContainer.getlMap();
         layer = LTileLayer.createDefaultForOpenStreetMapTileServer(reg);
         this.map.addLayer(layer);
+
+        lLayerGroupZones = new LLayerGroup(reg);
+        lLayerGroupNeeds = new LLayerGroup(reg);
+        this.addControls(lLayerGroupZones, lLayerGroupNeeds);
+
+        this.map.addLayer(lLayerGroupZones).addLayer(lLayerGroupNeeds);
+
+        this.map.on("overlayadd", "e => document.getElementById('" + ID + "').$server.overlay('activo')");
+        this.map.on("overlayremove", "e => document.getElementById('" + ID + "').$server.overlay('inactivo')");
+
+
         clickFuncReferenceCreateZone = map.clientComponentJsAccessor() + ".myCoolClickFunc";
         clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myCoolClickFuncDeleteZone";
         reg.execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + ID + "').$server.removePolygon(e.target._leaflet_id) && e.target.remove()");
@@ -79,15 +103,15 @@ public class MapView extends HorizontalLayout {
 
         MapVerticalLayout.add(mapContainer);
         MapVerticalLayout.add(ButtonLayout);
-        tarea.isDisableOnClick();
-        ButtonLayout.add(tarea, zona, borrar);
+        necesidad.isDisableOnClick();
+        ButtonLayout.add(necesidad, zona, borrar);
 
         this.controller = new MapService();
         this.controller.setReg(reg);
         this.controller.setMap(map);
         this.controller.setID(ID);
 
-        tarea.addClickListener(e -> click(TAREA, tarea));
+        necesidad.addClickListener(e -> click(TAREA, necesidad));
         zona.addClickListener(e -> click(ZONA, zona));
         borrar.addClickListener(e -> clickBorrar(borrar));
 
@@ -121,21 +145,21 @@ public class MapView extends HorizontalLayout {
                 break;
             case ZONA:
                 this.mapContainer.addClassName("map_action");
-                if (!this.controller.isZone()) {
+                if (!this.controller.isZoneBool()) {
                     this.controller.createDialogZona();
                     System.out.println("Registrando puntos para la zona");
                     reg.execJs(clickFuncReferenceCreateZone + "=e => document.getElementById('" + ID + "').$server.mapZona(e.latlng)");
                     map.on("click", clickFuncReferenceCreateZone);
                     button.setEnabled(false);
                     button.setText("Terminar zona");
-                    this.controller.setZone(true);
+                    this.controller.setZoneBool(true);
                 } else {
                     this.map.off("click", clickFuncReferenceCreateZone);
                     System.out.println("Zona terminada");
                     button.setText("Zona");
                     button.setEnabled(true);
                     this.controller.createZone(this.zoneMarkerPoints);
-                    this.controller.setZone(false);
+                    this.controller.setZoneBool(false);
                     this.mapContainer.removeClassName("map_action");
 
                     for (LMarker marker : zoneMarkers.values()) {
@@ -150,8 +174,8 @@ public class MapView extends HorizontalLayout {
     }
 
     public void clickBorrar(Button button) {
-        if (!this.controller.isDelete()) {
-            this.controller.setDelete(true);
+        if (!this.controller.isDeleteBool()) {
+            this.controller.setDeleteBool(true);
             button.setText("Detener borrado");
             this.mapContainer.removeClassName("map_action");
             for (LMarker marker : this.controller.getMarkers()) {
@@ -163,7 +187,7 @@ public class MapView extends HorizontalLayout {
                 polygon.on("click", clickFuncReferenceDeleteZone);
             }
         } else {
-            this.controller.setDelete(false);
+            this.controller.setDeleteBool(false);
             button.setText("Borrar");
             for (LMarker marker : this.controller.getMarkers()) {
                 marker.off("click", clickFuncReferenceDeleteMarker);
@@ -176,13 +200,37 @@ public class MapView extends HorizontalLayout {
         }
     }
 
+    private void addControls(
+            final LLayerGroup lLayerGroupZones,
+            final LLayerGroup lLayerGroupNeeds
+
+    )
+    {
+        // Use LinkedHashMap for order
+        final LinkedHashMap<String, LLayer<?>> baseLayers = new LinkedHashMap<>();
+        final LControlLayers lControlLayers = new LControlLayers(
+                this.reg,
+                baseLayers,
+                new LControlLayersOptions().withCollapsed(false))
+                .addOverlay(lLayerGroupNeeds , "Necesidades")
+                .addOverlay(lLayerGroupZones, "Zonas")
+                .addTo(this.map);
+
+        this.map.on(
+                "resize",
+                lControlLayers.clientComponentJsAccessor() + "._expandIfNotCollapsed",
+                lControlLayers.clientComponentJsAccessor());
+
+        new LControlScale(this.reg, new LControlScaleOptions()).addTo(this.map);
+    }
+
     @ClientCallable
     public void mapTarea(final JsonValue input) {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
 
-        controller.createTask(obj.getNumber("lat"), obj.getNumber("lng"));
+        controller.createNeed(obj.getNumber("lat"), obj.getNumber("lng"));
 
         synchronized (lock) {
             lock.notify();
@@ -255,6 +303,10 @@ public class MapView extends HorizontalLayout {
         System.out.println("removePolygon: " + id);
     }
 
+    @ClientCallable
+    public void overlay(String status) {
+        System.out.println("overlay: " + status);
+    }
 
 
 }

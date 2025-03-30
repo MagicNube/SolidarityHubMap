@@ -13,8 +13,10 @@ import com.vaadin.flow.component.textfield.TextArea;
 import lombok.Getter;
 import lombok.Setter;
 import org.pinguweb.DTO.NeedDTO;
+import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
+import org.pinguweb.frontend.view.MapView;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -31,6 +33,7 @@ import software.xdev.vaadin.maps.leaflet.basictypes.LPoint;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarkerOptions;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
+import software.xdev.vaadin.maps.leaflet.layer.vector.LPolylineOptions;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
@@ -50,14 +53,11 @@ public class MapService {
 
     @Setter
     @Getter
-    private boolean zone = false;
-
-    @Setter
-    private String ID;
+    private boolean zoneBool = false;
 
     @Setter
     @Getter
-    private boolean delete = false;
+    private boolean deleteBool = false;
 
     @Setter
     private String ID;
@@ -69,6 +69,12 @@ public class MapService {
 
     @Getter
     private ArrayList<LPolygon> polygons = new ArrayList<>();
+
+    @Getter
+    private NeedDTO need;
+
+    @Getter
+    private ZoneDTO zone;
 
 
     public MapService() {}
@@ -94,7 +100,8 @@ public class MapService {
         marker.addTo(this.map);
 
         markers.add(marker);
-        UI.getCurrent();
+        MapView.getLLayerGroupNeeds().addLayer(marker);
+        this.map.addLayer(MapView.getLLayerGroupNeeds());
     }
 
     public void createZone(List<Tuple<Double, Double>> markers) {
@@ -115,6 +122,9 @@ public class MapService {
         polygon.addTo(this.map);
 
         polygons.add(polygon);
+        MapView.getLLayerGroupZones().addLayer(polygon);
+        this.map.addLayer(MapView.getLLayerGroupZones());
+
         points.clear();
     }
 
@@ -200,5 +210,13 @@ public class MapService {
         dialog.open();
 
         icoClose.addClickListener(iev -> dialog.close());
+    }
+
+    public void setZone(){
+
+    }
+
+    public void setNeed(){
+
     }
 }
