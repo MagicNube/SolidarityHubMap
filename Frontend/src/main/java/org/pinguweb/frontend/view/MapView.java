@@ -3,8 +3,14 @@ package org.pinguweb.frontend.view;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
@@ -111,17 +117,18 @@ public class MapView extends HorizontalLayout {
         this.controller.setMap(map);
         this.controller.setID(ID);
 
-        necesidad.addClickListener(e -> click(TAREA, necesidad));
-        zona.addClickListener(e -> click(ZONA, zona));
+        necesidad.addClickListener(e -> crearDialogoTarea(controller));
+        zona.addClickListener(e -> createDialogZona(controller));
         borrar.addClickListener(e -> clickBorrar(borrar));
 
     }
+
+
 
     public void click(MapTypes Action, Button button) {
         switch (Action) {
             case TAREA:
                 this.mapContainer.addClassName("map_action");
-                this.controller.crearDialogoTarea();
                 this.map.once("click", "e => document.getElementById('" + ID + "').$server.mapTarea(e.latlng)");
 
                 ui = UI.getCurrent();
@@ -146,7 +153,6 @@ public class MapView extends HorizontalLayout {
             case ZONA:
                 this.mapContainer.addClassName("map_action");
                 if (!this.controller.isZoneBool()) {
-                    this.controller.createDialogZona();
                     System.out.println("Registrando puntos para la zona");
                     reg.execJs(clickFuncReferenceCreateZone + "=e => document.getElementById('" + ID + "').$server.mapZona(e.latlng)");
                     map.on("click", clickFuncReferenceCreateZone);
@@ -307,6 +313,75 @@ public class MapView extends HorizontalLayout {
     public void overlay(String status) {
         System.out.println("overlay: " + status);
     }
+
+    public void createDialogZona(MapService controller) {
+        final Icon icoClose = VaadinIcon.CLOSE.create();
+        final Dialog dialog = new Dialog(icoClose);
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setWidth("70vw");
+        dialog.setHeight("70vh");
+
+        H3 title = new H3("Crear zona");
+
+        ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
+        severityComboBox.setItems("Baja", "Media", "Alta");
+
+        TextArea descriptionTextArea = new TextArea();
+        descriptionTextArea.setPlaceholder("descripcion");
+        descriptionTextArea.setWidthFull();
+        descriptionTextArea.setHeight("50vh");
+
+        Button cancelButton = new Button("Cancelar", event -> dialog.close());
+        Button acceptButton = new Button("Aceptar", event -> {controller.setZone(descriptionTextArea.getValue(), "zona", severityComboBox.getValue());
+            dialog.close();});
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
+
+        VerticalLayout dialogLayout = new VerticalLayout(title, severityComboBox, descriptionTextArea, buttonLayout);
+        dialog.add(dialogLayout);
+
+        dialog.open();
+
+        icoClose.addClickListener(iev -> dialog.close());
+    }
+
+    public void crearDialogoTarea(MapService controller) {
+        final Icon icoClose = VaadinIcon.CLOSE.create();
+        final Dialog dialog = new Dialog(icoClose);
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setWidth("70vw");
+        dialog.setHeight("70vh");
+
+        H3 title = new H3("Crear tarea");
+
+        ComboBox<String> typesComboBox = new ComboBox<>("Tipo");
+        typesComboBox.setItems("Mantenimiento", "Reparación", "Limpieza");
+
+        ComboBox<String> severityComboBox = new ComboBox<>("Tipo");
+        severityComboBox.setItems("Mantenimiento", "Reparación", "Limpieza");
+
+        TextArea descriptionTextArea = new TextArea();
+        descriptionTextArea.setPlaceholder("descripcion");
+        descriptionTextArea.setWidthFull();
+        descriptionTextArea.setHeight("50vh");
+
+        Button cancelButton = new Button("Cancelar", event -> dialog.close());
+        Button acceptButton = new Button("Aceptar", event -> {
+            controller.setNeed(descriptionTextArea.getValue(), typesComboBox.getValue(), "zona", severityComboBox.getValue(), 0, 0);
+        });
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
+
+        VerticalLayout dialogLayout = new VerticalLayout(title, severityComboBox, descriptionTextArea, buttonLayout);
+        dialog.add(dialogLayout);
+
+        dialog.open();
+
+        icoClose.addClickListener(iev -> dialog.close());
+    }
+
 
 
 }

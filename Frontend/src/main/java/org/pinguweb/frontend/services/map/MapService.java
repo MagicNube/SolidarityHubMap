@@ -48,6 +48,9 @@ public class MapService {
     @Setter
     private LComponentManagementRegistry reg;
 
+    private int tempIdNeed = 0;
+    private int tempIdZone = 0;
+
     @Setter
     private LMap map;
 
@@ -150,73 +153,40 @@ public class MapService {
     }
 
 
-    public void createDialogZona() {
-        final Icon icoClose = VaadinIcon.CLOSE.create();
-        final Dialog dialog = new Dialog(icoClose);
-        dialog.setDraggable(true);
-        dialog.setResizable(true);
-        dialog.setWidth("70vw");
-        dialog.setHeight("70vh");
 
-        H3 title = new H3("Crear zona");
 
-        ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
-        severityComboBox.setItems("Baja", "Media", "Alta");
 
-        TextArea descriptionTextArea = new TextArea();
-        descriptionTextArea.setPlaceholder("descripcion");
-        descriptionTextArea.setWidthFull();
-        descriptionTextArea.setHeight("50vh");
 
-        Button cancelButton = new Button("Cancelar", event -> dialog.close());
-        Button acceptButton = new Button("Aceptar", event -> {dialog.close();});
+    public void setZone(String description, String mame, String severity) {
+        this.zone = new ZoneDTO();
+        this.zone.setId(tempIdZone);
+        this.zone.setDescription(description);
+        this.zone.setName(mame);
+        //TODO: asignar latitudes y longitudes y cambiar
+        this.zone.setLatitudes(new ArrayList<>());
+        this.zone.setLongitudes(new ArrayList<>());
+        this.zone.setCatastrophes(new ArrayList<>());
+        this.zone.setEmergencyLevel(severity);
+        this.zone.setStorages(new ArrayList<>());
 
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
-
-        VerticalLayout dialogLayout = new VerticalLayout(title, severityComboBox, descriptionTextArea, buttonLayout);
-        dialog.add(dialogLayout);
-
-        dialog.open();
-
-        icoClose.addClickListener(iev -> dialog.close());
-    }
-
-    public void crearDialogoTarea() {
-        final Icon icoClose = VaadinIcon.CLOSE.create();
-        final Dialog dialog = new Dialog(icoClose);
-        dialog.setDraggable(true);
-        dialog.setResizable(true);
-        dialog.setWidth("70vw");
-        dialog.setHeight("70vh");
-
-        H3 title = new H3("Crear tarea");
-
-        ComboBox<String> severityComboBox = new ComboBox<>("Tipo");
-        severityComboBox.setItems("Mantenimiento", "Reparación", "Limpieza");
-
-        TextArea descriptionTextArea = new TextArea();
-        descriptionTextArea.setPlaceholder("descripcion");
-        descriptionTextArea.setWidthFull();
-        descriptionTextArea.setHeight("50vh");
-
-        Button cancelButton = new Button("Cancelar", event -> dialog.close());
-        Button acceptButton = new Button("Aceptar", event -> {dialog.close();});
-
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
-
-        VerticalLayout dialogLayout = new VerticalLayout(title, severityComboBox, descriptionTextArea, buttonLayout);
-        dialog.add(dialogLayout);
-
-        dialog.open();
-
-        icoClose.addClickListener(iev -> dialog.close());
-    }
-
-    public void setZone(){
+        this.tempIdZone++;
 
     }
 
-    public void setNeed(){
+    public void setNeed(String description, String type, String affected, String urgency, int task, int catastrophe) {
+        this.need = new NeedDTO();
+        this.need.setId(tempIdNeed);
+        this.need.setDescription(description);
+        this.need.setNeedType(type);
+        this.need.setAffected(affected);
+        this.need.setLatitude(0.0);
+        this.need.setLongitude(0.0);
+        this.need.setCatastrophe(catastrophe);
+        this.need.setUrgency(urgency);
+        this.need.setTask(task);
+
+        this.tempIdNeed++;
+
 
     }
 }
