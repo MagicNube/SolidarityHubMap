@@ -20,6 +20,7 @@ import org.pinguweb.frontend.view.MapView;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -152,11 +153,6 @@ public class MapService {
         return marker;
     }
 
-
-
-
-
-
     public void setZone(String description, String mame, String severity) {
         this.zone = new ZoneDTO();
         this.zone.setId(tempIdZone);
@@ -186,7 +182,31 @@ public class MapService {
         this.need.setTask(task);
 
         this.tempIdNeed++;
+    }
 
+    public void deleteZone(ZoneDTO dto){
+        String url = "/api/zone/" + dto.getId();
+        try{
+            HttpStatusCode status = BackendService.deleteFromBackend(url);
+            if (status == HttpStatus.OK){
+                //TODO: Eliminar del mapa
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
+    public void deleteNeed(NeedDTO dto){
+        String url = "/api/need/" + dto.getId();
+        try{
+            HttpStatusCode status = BackendService.deleteFromBackend(url);
+            if (status == HttpStatus.OK){
+                //TODO: Eliminar del mapa
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
