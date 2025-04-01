@@ -54,7 +54,7 @@ public class Needs extends HorizontalLayout {
         chartLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
         CategoryData labels = new CategoryData("TasksCr", "TasksCo", "NeedsCr", "NeedsCo");
-        Data needsData = new Data(25, 40, getNeedsCR(), getNeedsCO());
+        Data needsData = new Data(25, 40, getNeedsCR(), getNeedsCO()) ;
 
 
         //PieChart
