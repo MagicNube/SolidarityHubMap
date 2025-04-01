@@ -6,11 +6,13 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
 import com.vaadin.flow.component.button.Button;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 import java.util.List;
@@ -54,18 +56,18 @@ public class Needs extends HorizontalLayout {
         chartLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
         CategoryData labels = new CategoryData("TasksCr", "TasksCo", "NeedsCr", "NeedsCo");
-        Data needsData = new Data(25, 40, getNeedsCR(), getNeedsCO()) ;
+        //Data needsData = new Data(25, 40, getNeedsCR(), getNeedsCO()) ;
 
 
         //PieChart
         SOChart pieChart = new SOChart();
         pieChart.setSize("400px", "400px");
-        PieChart needspc = new PieChart(labels, needsData);
+        /*PieChart needspc = new PieChart(labels, needsData);
         needspc.setName("Needs");
 
         //Legend
         Legend legend = new Legend();
-        pieChart.add(needspc, legend);
+        pieChart.add(needspc, legend);*/
 
         //BarChart
         SOChart barChart = new SOChart();
@@ -99,14 +101,14 @@ public class Needs extends HorizontalLayout {
         //LineChart
         SOChart lineChart = new SOChart();
         lineChart.setSize("400px", "400px");
-        LineChart lc = new LineChart(labels, needsData);
+        /*LineChart lc = new LineChart(labels, needsData);
         RectangularCoordinate rc2 = new RectangularCoordinate(new XAxis(DataType.CATEGORY), new YAxis(DataType.NUMBER));
         lc.plotOn(rc2);
         lineChart.add(lc);
 
         chartLayout.add(pieChart, barChart, lineChart);
         chartsContainer.add(chartLayout);
-        this.add(navBarLayout, chartsContainer);
+        this.add(navBarLayout, chartsContainer);*/
 
         filterButton.addClickListener(e -> {
             {
@@ -116,8 +118,8 @@ public class Needs extends HorizontalLayout {
 
     }
 
-    public int getNeedsCR() {
-        if (needs.getStatusCode() == HttpStatusCode.OK) {
+    /*public int getNeedsCR() {
+        if (needs.getStatusCode() == HttpStatus.OK) {
             int count = 0;
             for (NeedDTO need : needs.getData()) {
                 if (!need.getID()) {
@@ -138,6 +140,6 @@ public class Needs extends HorizontalLayout {
             }
             return count;
         } else return 0;
-    }
+    }*/
 
 }
