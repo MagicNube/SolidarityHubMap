@@ -7,6 +7,7 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
@@ -54,8 +55,8 @@ public class Needs extends HorizontalLayout {
         chartLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
         CategoryData labels = new CategoryData("TasksCr", "TasksCo", "NeedsCr", "NeedsCo");
-        Data needsData = new Data(25, 40, getNeedsCR(), getNeedsCO()) ;
-
+        //Data needsData = new Data(25, 40, getNeedsCR(), getNeedsCO()) ;
+        Data needsData = new Data();
 
         //PieChart
         SOChart pieChart = new SOChart();
@@ -115,7 +116,7 @@ public class Needs extends HorizontalLayout {
         });
 
     }
-
+/*
     public int getNeedsCR() {
         if (needs.getStatusCode() == HttpStatusCode.OK) {
             int count = 0;
@@ -138,6 +139,6 @@ public class Needs extends HorizontalLayout {
             }
             return count;
         } else return 0;
-    }
+    }*/
 
 }
