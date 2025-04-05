@@ -16,16 +16,12 @@ import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIcon;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIconOptions;
-import org.springframework.web.client.RestTemplate;
 import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
 import software.xdev.vaadin.maps.leaflet.basictypes.LPoint;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
@@ -34,9 +30,7 @@ import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Setter
