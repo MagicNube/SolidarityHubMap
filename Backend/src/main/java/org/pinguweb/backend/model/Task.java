@@ -78,10 +78,4 @@ public class Task {
         volunteer.getTasks().add(this);
         this.type = need.getNeedType();
     }
-
-    public static Task fromDTO(TaskDTO dto) {
-        Task task = new Task();
-        task.setTaskName(dto.getTaskName());
-        return task;
-    }
 }

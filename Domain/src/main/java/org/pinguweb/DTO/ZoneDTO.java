@@ -14,7 +14,7 @@ public class ZoneDTO implements DTO{
     private String name;
     private String description;
     private String emergencyLevel;
-    private List<Integer> catastrophes;
+    private Integer catastrophe;
     private List<Integer> storages;
     private List<Double> latitudes;
     private List<Double> longitudes;

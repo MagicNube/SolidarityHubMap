@@ -66,9 +66,4 @@ public class Need {
         this.affected.addNeed(this);
         this.catastrophe = catastrophe;
     }
-
-    public static Need fromDTO(NeedDTO dto) {
-        Need need = new Need();
-        return need;
-    }
 }

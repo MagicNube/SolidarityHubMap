@@ -68,10 +68,4 @@ public class Catastrophe {
         this.startDate = startDate;
         this.emergencyLevel = emergencyLevel;
     }
-
-    public static Catastrophe fromDTO(CatastropheDTO dto) {
-        // obtener
-
-        return new Catastrophe();
-    }
 }
