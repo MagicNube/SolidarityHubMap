@@ -10,6 +10,7 @@ import org.pinguweb.DTO.TaskDTO;
 import org.pinguweb.backend.model.enums.NeedType;
 import org.pinguweb.backend.model.enums.Priority;
 import org.pinguweb.backend.model.enums.Status;
+import org.pinguweb.backend.model.enums.TaskType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,7 +44,7 @@ public class Task {
     private LocalDateTime estimatedEndTimeDate;
 
     @Setter
-    private NeedType type;
+    private TaskType type;
 
     @Setter
     @Enumerated(EnumType.STRING)
@@ -76,6 +77,6 @@ public class Task {
         this.status = status;
         this.volunteers= List.of(volunteer);
         volunteer.getTasks().add(this);
-        this.type = need.getNeedType();
+        this.type = need.getTaskType();
     }
 }

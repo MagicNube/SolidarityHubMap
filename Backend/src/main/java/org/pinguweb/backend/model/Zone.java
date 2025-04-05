@@ -33,11 +33,23 @@ public class Zone {
     @Enumerated(EnumType.STRING)
     private EmergencyLevel emergencyLevel;
 
+    @Setter
+    @ManyToOne
+    @JoinTable(name = "catastrophic_zones",
+            joinColumns = @JoinColumn(name = "zone_id"),
+            inverseJoinColumns = @JoinColumn(name = "catastrophe_id"))
+    private Catastrophe catastrophe;
+
+    @Setter
+    @OneToMany(mappedBy = "zone")
+    private List<Storage> storages;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "location_id")
     @Setter
     @NonNull
     private List<GPSCoordinates> points;
+
 
     public Zone(String name, String description, EmergencyLevel emergencyLevel) {
         this.name = name;
