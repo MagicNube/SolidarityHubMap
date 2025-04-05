@@ -9,4 +9,5 @@ public class AdminService {
     private final AdminRepository adminRepository;
     public AdminService(AdminRepository adminRepository) {this.adminRepository = adminRepository;}
     public Admin saveAdmin(Admin admin) {return adminRepository.save(admin);}
+    public Admin findByDni(String dni) {return adminRepository.findByDni(dni);}
 }

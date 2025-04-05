@@ -2,9 +2,7 @@ package org.pinguweb.backend.controller;
 
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Need;
-import org.pinguweb.backend.model.Need;
 import org.pinguweb.backend.repository.NeedRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

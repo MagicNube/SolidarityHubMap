@@ -1,15 +1,13 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.backend.model.GPSCoordinates;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.pinguweb.backend.controller.common.ServerException;
+import org.pinguweb.backend.model.GPSCoordinates;
 import org.pinguweb.backend.model.Task;
 import org.pinguweb.backend.model.Zone;
 import org.pinguweb.backend.repository.ZoneRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
