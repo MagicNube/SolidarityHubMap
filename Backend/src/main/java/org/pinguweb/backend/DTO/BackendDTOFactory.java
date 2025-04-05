@@ -66,8 +66,8 @@ public class BackendDTOFactory{
         needDTO.setId(need.getId());
         needDTO.setDescription(need.getDescription());
 
-        if (need.getNeedType() != null) {
-            needDTO.setNeedType(need.getNeedType().name());
+        if (need.getTaskType() != null) {
+            needDTO.setNeedType(need.getTaskType().name());
         }
         if (need.getLocation() != null) {
             needDTO.setLatitude(need.getLocation().getLatitude());
