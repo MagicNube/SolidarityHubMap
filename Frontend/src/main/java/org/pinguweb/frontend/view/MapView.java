@@ -20,8 +20,6 @@ import org.pinguweb.frontend.services.map.MapService;
 import org.pinguweb.frontend.services.map.MapTypes;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
-import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
-import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
 import software.xdev.vaadin.maps.leaflet.controls.LControlScale;
@@ -31,8 +29,6 @@ import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
-import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
-import software.xdev.vaadin.maps.leaflet.MapContainer;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
@@ -42,9 +38,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import static org.pinguweb.frontend.services.map.MapTypes.TAREA;
-import static org.pinguweb.frontend.services.map.MapTypes.ZONA;
 
 @Route("map")
 @PageTitle("Visor del mapa")
@@ -126,8 +119,6 @@ public class MapView extends HorizontalLayout {
         borrar.addClickListener(e -> clickBorrar(borrar));
 
     }
-
-
 
     public void click(MapTypes Action, Button button) {
         switch (Action) {
