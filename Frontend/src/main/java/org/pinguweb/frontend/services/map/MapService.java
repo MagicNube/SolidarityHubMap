@@ -13,10 +13,14 @@ import com.vaadin.flow.component.textfield.TextArea;
 import lombok.Getter;
 import lombok.Setter;
 import org.pinguweb.DTO.NeedDTO;
+import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
+import org.pinguweb.frontend.view.MapView;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
@@ -27,6 +31,7 @@ import software.xdev.vaadin.maps.leaflet.basictypes.LPoint;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarkerOptions;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
+import software.xdev.vaadin.maps.leaflet.layer.vector.LPolylineOptions;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
@@ -36,16 +41,43 @@ import java.util.List;
 @Setter
 @Service
 public class MapService {
+    @Setter
     private LComponentManagementRegistry reg;
 
+    private int tempIdNeed = 0;
+    private int tempIdZone = 0;
+
+    @Setter
     private LMap map;
 
+    @Setter
     @Getter
-    private boolean zone = false;
+    private boolean zoneBool = false;
 
+    @Setter
+    @Getter
+    private boolean deleteBool = false;
+
+    @Setter
     private String ID;
 
+    private String clickFuncReference;
+
+    @Getter
+    private ArrayList<LMarker> markers = new ArrayList<>();
+
+    @Getter
+    private ArrayList<LPolygon> polygons = new ArrayList<>();
+
+    @Getter
+    private NeedDTO need;
+
+    @Getter
+    private ZoneDTO zone;
+
+
     public MapService() {}
+
 
     @Async
     public void load() {
@@ -54,16 +86,21 @@ public class MapService {
 
         if (needs.getStatusCode() == HttpStatus.OK) {
             for (NeedDTO need : needs.getData()) {
-                    createNeed(need.getLatitude(), need.getLongitude());
+                createNeed(need.getLatitude(), need.getLongitude());
             }
         }
     }
-  
+
+    // TODO: Texto para el el marcador de tarea
     public void createNeed(double lat, double lng) {
         LLatLng coords = new LLatLng(this.reg, lat, lng);
 
-        new LMarker(reg, coords).addTo(map);
-        UI.getCurrent();
+        LMarker marker = new LMarker(this.reg, coords);
+        marker.addTo(this.map);
+
+        markers.add(marker);
+        MapView.getLLayerGroupNeeds().addLayer(marker);
+        this.map.addLayer(MapView.getLLayerGroupNeeds());
     }
 
     public void createZone(List<Tuple<Double, Double>> markers) {
@@ -74,7 +111,19 @@ public class MapService {
             points.add(new LLatLng(this.reg, marker._1(), marker._2()));
         }
 
-        new LPolygon(reg, points).addTo(map);
+        LPolygon polygon = new LPolygon(this.reg, points, new LPolylineOptions().withColor("red").withFillColor("blue"));
+
+        clickFuncReference = map.clientComponentJsAccessor() + ".myCoolClickFunc";
+        reg.execJs(clickFuncReference + "=e => document.getElementById('" + ID + "').$server.clickOnZone(e.latlng)");
+
+        polygon.on("click", clickFuncReference);
+
+        polygon.addTo(this.map);
+
+        polygons.add(polygon);
+        MapView.getLLayerGroupZones().addLayer(polygon);
+        this.map.addLayer(MapView.getLLayerGroupZones());
+
         points.clear();
     }
 
@@ -99,66 +148,60 @@ public class MapService {
         return marker;
     }
 
+    public void setZone(String description, String mame, String severity) {
+        this.zone = new ZoneDTO();
+        this.zone.setId(tempIdZone);
+        this.zone.setDescription(description);
+        this.zone.setName(mame);
+        //TODO: asignar latitudes y longitudes y cambiar
+        this.zone.setLatitudes(new ArrayList<>());
+        this.zone.setLongitudes(new ArrayList<>());
+        this.zone.setCatastrophes(new ArrayList<>());
+        this.zone.setEmergencyLevel(severity);
+        this.zone.setStorages(new ArrayList<>());
 
-    public void createDialogZona() {
-        final Icon icoClose = VaadinIcon.CLOSE.create();
-        final Dialog dialog = new Dialog(icoClose);
-        dialog.setDraggable(true);
-        dialog.setResizable(true);
-        dialog.setWidth("70vw");
-        dialog.setHeight("70vh");
+        this.tempIdZone++;
 
-        H3 title = new H3("Crear zona");
-
-        ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
-        severityComboBox.setItems("Baja", "Media", "Alta");
-
-        TextArea descriptionTextArea = new TextArea();
-        descriptionTextArea.setPlaceholder("descripcion");
-        descriptionTextArea.setWidthFull();
-        descriptionTextArea.setHeight("50vh");
-
-        Button cancelButton = new Button("Cancelar", event -> dialog.close());
-        Button acceptButton = new Button("Aceptar", event -> {dialog.close();});
-
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
-
-        VerticalLayout dialogLayout = new VerticalLayout(title, severityComboBox, descriptionTextArea, buttonLayout);
-        dialog.add(dialogLayout);
-
-        dialog.open();
-
-        icoClose.addClickListener(iev -> dialog.close());
     }
 
-    public void crearDialogoTarea() {
-        final Icon icoClose = VaadinIcon.CLOSE.create();
-        final Dialog dialog = new Dialog(icoClose);
-        dialog.setDraggable(true);
-        dialog.setResizable(true);
-        dialog.setWidth("70vw");
-        dialog.setHeight("70vh");
+    public void setNeed(String description, String type, String affected, String urgency, int task, int catastrophe) {
+        this.need = new NeedDTO();
+        this.need.setId(tempIdNeed);
+        this.need.setDescription(description);
+        this.need.setNeedType(type);
+        this.need.setAffected(affected);
+        this.need.setLatitude(0.0);
+        this.need.setLongitude(0.0);
+        this.need.setCatastrophe(catastrophe);
+        this.need.setUrgency(urgency);
+        this.need.setTask(task);
 
-        H3 title = new H3("Crear tarea");
+        this.tempIdNeed++;
+    }
 
-        ComboBox<String> severityComboBox = new ComboBox<>("Tipo");
-        severityComboBox.setItems("Mantenimiento", "Reparación", "Limpieza");
+    public void deleteZone(ZoneDTO dto){
+        String url = "/api/zone/" + dto.getId();
+        try{
+            HttpStatusCode status = BackendService.deleteFromBackend(url);
+            if (status == HttpStatus.OK){
+                //TODO: Eliminar del mapa
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
-        TextArea descriptionTextArea = new TextArea();
-        descriptionTextArea.setPlaceholder("descripcion");
-        descriptionTextArea.setWidthFull();
-        descriptionTextArea.setHeight("50vh");
-
-        Button cancelButton = new Button("Cancelar", event -> dialog.close());
-        Button acceptButton = new Button("Aceptar", event -> {dialog.close();});
-
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
-
-        VerticalLayout dialogLayout = new VerticalLayout(title, severityComboBox, descriptionTextArea, buttonLayout);
-        dialog.add(dialogLayout);
-
-        dialog.open();
-
-        icoClose.addClickListener(iev -> dialog.close());
+    public void deleteNeed(NeedDTO dto){
+        String url = "/api/need/" + dto.getId();
+        try{
+            HttpStatusCode status = BackendService.deleteFromBackend(url);
+            if (status == HttpStatus.OK){
+                //TODO: Eliminar del mapa
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

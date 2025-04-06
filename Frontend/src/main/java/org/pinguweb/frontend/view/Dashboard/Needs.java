@@ -12,6 +12,7 @@ import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 import java.util.List;
@@ -61,12 +62,12 @@ public class Needs extends HorizontalLayout {
         //PieChart
         SOChart pieChart = new SOChart();
         pieChart.setSize("400px", "400px");
-        PieChart needspc = new PieChart(labels, needsData);
+        /*PieChart needspc = new PieChart(labels, needsData);
         needspc.setName("Needs");
 
         //Legend
         Legend legend = new Legend();
-        pieChart.add(needspc, legend);
+        pieChart.add(needspc, legend);*/
 
         //BarChart
         SOChart barChart = new SOChart();
@@ -100,14 +101,14 @@ public class Needs extends HorizontalLayout {
         //LineChart
         SOChart lineChart = new SOChart();
         lineChart.setSize("400px", "400px");
-        LineChart lc = new LineChart(labels, needsData);
+        /*LineChart lc = new LineChart(labels, needsData);
         RectangularCoordinate rc2 = new RectangularCoordinate(new XAxis(DataType.CATEGORY), new YAxis(DataType.NUMBER));
         lc.plotOn(rc2);
         lineChart.add(lc);
 
         chartLayout.add(pieChart, barChart, lineChart);
         chartsContainer.add(chartLayout);
-        this.add(navBarLayout, chartsContainer);
+        this.add(navBarLayout, chartsContainer);*/
 
         filterButton.addClickListener(e -> {
             {
