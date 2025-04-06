@@ -12,12 +12,12 @@ public class NavigationBar {
                 MainView.class, VaadinIcon.HOME.create());
         SideNavItem mapLink = new SideNavItem("Mapa",
                 MapView.class, VaadinIcon.MAP_MARKER.create());
-        SideNavItem taskLink = new SideNavItem("Tareas", "tareas",
+        SideNavItem taskLink = new SideNavItem("Tareas", "http://localhost:8082/tareas",
                 VaadinIcon.BELL.create());
         SideNavItem dashboardLink = new SideNavItem("Dashboard",
                 DashboardView.class, VaadinIcon.DASHBOARD.create());
         SideNavItem resourcesLink = new SideNavItem("Recursos",
-                "recursos", VaadinIcon.TOOLBOX.create());
+                "http://localhost:8082/recursos", VaadinIcon.TOOLBOX.create());
         SideNavItem contactLink = new SideNavItem("Contacto",
                 ContactView.class, VaadinIcon.PHONE.create());
 
