@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.pinguweb.DTO.NeedDTO;
-import org.pinguweb.backend.model.enums.NeedType;
+import org.pinguweb.backend.model.enums.TaskType;
 import org.pinguweb.backend.model.enums.UrgencyLevel;
 
 @Getter
@@ -24,6 +24,7 @@ public class Need {
     @JsonProperty("id")
     private int id;
 
+    @Setter
     @ManyToOne
     @JoinColumn(name = "affected_dni")
     private Affected affected;
@@ -39,7 +40,7 @@ public class Need {
     @Setter
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private NeedType needType;
+    private TaskType taskType;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "location_id")
@@ -57,18 +58,13 @@ public class Need {
     private Task task;
 
 
-    public Need(Affected affected, String description, UrgencyLevel urgency, NeedType needType, GPSCoordinates location, Catastrophe catastrophe) {
+    public Need(Affected affected, String description, UrgencyLevel urgency, TaskType needType, GPSCoordinates location, Catastrophe catastrophe) {
         this.affected = affected;
         this.description = description;
         this.urgency = urgency;
-        this.needType = needType;
+        this.taskType = needType;
         this.location = location;
         this.affected.addNeed(this);
         this.catastrophe = catastrophe;
-    }
-
-    public static Need fromDTO(NeedDTO dto) {
-        Need need = new Need();
-        return need;
     }
 }

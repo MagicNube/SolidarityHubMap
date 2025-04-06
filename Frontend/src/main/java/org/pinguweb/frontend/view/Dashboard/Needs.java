@@ -1,6 +1,7 @@
 package org.pinguweb.frontend.view.Dashboard;
 
 import com.storedobject.chart.*;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -10,7 +11,6 @@ import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
-import com.vaadin.flow.component.button.Button;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -57,7 +57,7 @@ public class Needs extends HorizontalLayout {
 
         CategoryData labels = new CategoryData("TasksCr", "TasksCo", "NeedsCr", "NeedsCo");
         //Data needsData = new Data(25, 40, getNeedsCR(), getNeedsCO()) ;
-
+        Data needsData = new Data();
 
         //PieChart
         SOChart pieChart = new SOChart();
@@ -117,9 +117,9 @@ public class Needs extends HorizontalLayout {
         });
 
     }
-
-    /*public int getNeedsCR() {
-        if (needs.getStatusCode() == HttpStatus.OK) {
+/*
+    public int getNeedsCR() {
+        if (needs.getStatusCode() == HttpStatusCode.OK) {
             int count = 0;
             for (NeedDTO need : needs.getData()) {
                 if (!need.getID()) {

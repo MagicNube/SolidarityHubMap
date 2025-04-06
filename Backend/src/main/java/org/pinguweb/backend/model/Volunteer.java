@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.pinguweb.DTO.VolunteerDTO;
+import org.pinguweb.backend.model.enums.TaskType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,20 +16,12 @@ import java.util.List;
 @NoArgsConstructor
 public class Volunteer extends Person {
 
-    @ManyToMany
-    @JoinTable(name = "volunteer_skills",
-            joinColumns = @JoinColumn(name = "volunteer_dni"),
-            inverseJoinColumns = @JoinColumn(name = "skill_name"))
-    private List<Skill> skills;
-
     @OneToMany(mappedBy = "volunteer", cascade = CascadeType.ALL)
     private List<ScheduleAvailability> scheduleAvailabilities;
 
-    @ManyToMany
-    @JoinTable(name = "volunteer_preferences",
-            joinColumns = @JoinColumn(name = "volunteer_dni"),
-            inverseJoinColumns = @JoinColumn(name = "preference_name"))
-    private List<Preference> preferences;
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
+    private List<TaskType> taskTypes;
 
     @ManyToMany
     @JoinTable(name = "volunteer_tasks",
@@ -45,23 +38,20 @@ public class Volunteer extends Person {
     @OneToMany(mappedBy = "volunteer")
     private List<Notification> notifications;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    private GPSCoordinates location;
+
     public Volunteer(String dNI, String firstName, String lastName, String email,
-                     int phone, String address, String password, List<Skill> skills,
-                     List<ScheduleAvailability> scheduleAvailabilities, List<Preference> preferences) {
+                     int phone, String address, String password, List<ScheduleAvailability> scheduleAvailabilities,
+                     List<TaskType> taskTypes) {
         super(dNI, firstName, lastName, email, phone, address, password);
         this.tasks = new ArrayList<>();
         this.donations = new ArrayList<>();
         this.certificates = new ArrayList<>();
-        this.skills = skills;
         this.scheduleAvailabilities = scheduleAvailabilities;
-        this.preferences = preferences;
+        this.taskTypes = taskTypes;
         for (ScheduleAvailability s : this.scheduleAvailabilities) {
             s.setVolunteer(this);
         }
-    }
-
-    public static Volunteer fromDTO(VolunteerDTO dto) {
-        Volunteer volunteer = new Volunteer();
-        return volunteer;
     }
 }

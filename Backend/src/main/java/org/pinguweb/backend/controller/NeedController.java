@@ -2,6 +2,7 @@ package org.pinguweb.backend.controller;
 
 import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
+import org.pinguweb.backend.DTO.ModelDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.repository.NeedRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +51,10 @@ public class NeedController {
     public CompletableFuture<ResponseEntity<NeedDTO>> addNeed(@RequestBody NeedDTO need) {
         if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        // TODO: Esto aun no funciona
-        //return ResponseEntity.ok(repository.save(Need.fromDTO(need)).toDTO());
-        return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
+        ModelDTOFactory factory = new ModelDTOFactory();
+        BackendDTOFactory dtoFactory = new BackendDTOFactory();
+
+        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createNeedDTO(repository.save(factory.createFromDTO(need)))));
     }
 
     @Async
@@ -74,10 +76,11 @@ public class NeedController {
     public CompletableFuture<ResponseEntity<NeedDTO>> updateNeed(@RequestBody NeedDTO need) {
         if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        //TODO: Esto no funciona
         if (repository.existsById(need.getId())) {
-            //return ResponseEntity.ok(repository.save(Need.fromDTO(need)).toDTO());
-            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
+            ModelDTOFactory factory = new ModelDTOFactory();
+            BackendDTOFactory dtoFactory = new BackendDTOFactory();
+
+            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createNeedDTO(repository.save(factory.createFromDTO(need)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
