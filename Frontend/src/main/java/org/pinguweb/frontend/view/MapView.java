@@ -16,6 +16,7 @@ import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
+import org.pinguweb.frontend.factory.Marker;
 import org.pinguweb.frontend.services.map.MapService;
 import org.pinguweb.frontend.services.map.MapTypes;
 import org.yaml.snakeyaml.util.Tuple;
@@ -62,7 +63,7 @@ public class MapView extends HorizontalLayout {
     private final Button zona = new Button("Zona");
     private final Button borrar = new Button("Borrar");
 
-    private HashMap<Tuple<Double, Double>, LMarker> zoneMarkers = new HashMap<>();
+    private HashMap<Tuple<Double, Double>, Marker> zoneMarkers = new HashMap<>();
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
     private Tuple<Double, Double> zoneMarkerStartingPoint;
     private String clickFuncReferenceCreateZone;
@@ -163,8 +164,8 @@ public class MapView extends HorizontalLayout {
                     this.controller.setZoneBool(false);
                     this.mapContainer.removeClassName("map_action");
 
-                    for (LMarker marker : zoneMarkers.values()) {
-                        marker.removeFrom(this.map);
+                    for (Marker marker : zoneMarkers.values()) {
+                        marker.removeFromMap(this.map);
                     }
 
                     zoneMarkers.clear();
@@ -245,7 +246,7 @@ public class MapView extends HorizontalLayout {
             return;
         }
 
-        LMarker marker = this.controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
+        Marker marker = this.controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
 
         zoneMarkerPoints.add(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
         zoneMarkers.put(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")), marker);

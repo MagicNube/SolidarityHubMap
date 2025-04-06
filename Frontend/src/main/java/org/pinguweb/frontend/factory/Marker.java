@@ -49,6 +49,10 @@ public class Marker extends MapObject{
         this.getMarkerObj().addTo(map);
     }
 
+    public void removeFromMap(LMap map){
+        this.getMarkerObj().removeFrom(map);
+    }
+
     @Override
     public void pushToServer(String url, DTO dto){
         NeedDTO needDTO = (NeedDTO) dto;

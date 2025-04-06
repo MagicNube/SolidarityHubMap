@@ -126,7 +126,7 @@ public class MapService {
         this.map.addLayer(MapView.getLLayerGroupNeeds());
     }
 
-    public LMarker createZoneMarker(double lat, double lng) {
+    public Marker createZoneMarker(double lat, double lng) {
         Marker marker = (Marker) markerFactory.createMapObject(reg, lat, lng);
         marker = marker.convertToZoneMarker(reg);
 
@@ -134,7 +134,7 @@ public class MapService {
         marker.getMarkerObj().on("dragend", "e => document.getElementById('" + ID + "').$server.zoneMarkerEnd(e.target.getLatLng())");
         marker.addToMap(this.map);
 
-        return marker.getMarkerObj();
+        return marker;
     }
 
     public void createZone(List<Tuple<Double, Double>> markers) {
