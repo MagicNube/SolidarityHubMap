@@ -3,6 +3,7 @@ package org.pinguweb.backend.DTO;
 import lombok.NoArgsConstructor;
 import org.pinguweb.DTO.*;
 import org.pinguweb.backend.model.*;
+import org.pinguweb.backend.model.enums.TaskType;
 import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.stream.Collectors;
@@ -65,8 +66,8 @@ public class BackendDTOFactory{
         needDTO.setId(need.getId());
         needDTO.setDescription(need.getDescription());
 
-        if (need.getNeedType() != null) {
-            needDTO.setNeedType(need.getNeedType().name());
+        if (need.getTaskType() != null) {
+            needDTO.setNeedType(need.getTaskType().name());
         }
         if (need.getLocation() != null) {
             needDTO.setLatitude(need.getLocation().getLatitude());
@@ -86,12 +87,6 @@ public class BackendDTOFactory{
         }
 
         return needDTO;
-    }
-
-    public SkillDTO createSkillDTO(Skill skill) {
-        SkillDTO skillDTO = new SkillDTO();
-        skillDTO.setName(skill.getName());
-        return skillDTO;
     }
 
     public TaskDTO createTaskDTO(Task task) {
@@ -130,14 +125,11 @@ public class BackendDTOFactory{
         volunteerDTO.setHomeAddress(volunteer.getHomeAddress());
         volunteerDTO.setPassword(volunteer.getPassword());
 
-        if (volunteer.getSkills() != null) {
-            volunteerDTO.setSkills(volunteer.getSkills().stream().map(Skill::getName).collect(Collectors.toList()));
+        if (volunteer.getTaskTypes() != null) {
+            volunteerDTO.setTaskPreferences(volunteer.getTaskTypes().stream().map(TaskType::name).collect(Collectors.toList()));
         }
         if (volunteer.getScheduleAvailabilities() != null) {
             volunteerDTO.setScheduleAvailabilities(volunteer.getScheduleAvailabilities().stream().map(ScheduleAvailability::getId).collect(Collectors.toList()));
-        }
-        if (volunteer.getPreferences() != null) {
-            volunteerDTO.setPreferences(volunteer.getPreferences().stream().map(Preference::getName).collect(Collectors.toList()));
         }
         if (volunteer.getTasks() != null) {
             volunteerDTO.setTasks(volunteer.getTasks().stream().map(Task::getId).collect(Collectors.toList()));
@@ -151,9 +143,6 @@ public class BackendDTOFactory{
         if (volunteer.getNotifications() != null) {
             volunteerDTO.setNotifications(volunteer.getNotifications().stream().map(Notification::getId).collect(Collectors.toList()));
         }
-
-
-
         return volunteerDTO;
     }
 
@@ -169,13 +158,6 @@ public class BackendDTOFactory{
         if (zone.getEmergencyLevel() != null) {
             zoneDTO.setEmergencyLevel(zone.getEmergencyLevel().name());
         }
-        if (zone.getCatastrophes() != null) {
-            zoneDTO.setCatastrophes(zone.getCatastrophes().stream().map(Catastrophe::getID).collect(Collectors.toList()));
-        }
-        if (zone.getStorages() != null) {
-            zoneDTO.setStorages(zone.getStorages().stream().map(Storage::getId).collect(Collectors.toList()));
-        }
-
         return zoneDTO;
     }
 }

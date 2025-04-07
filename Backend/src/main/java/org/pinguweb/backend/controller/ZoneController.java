@@ -3,6 +3,7 @@ package org.pinguweb.backend.controller;
 import org.pinguweb.DTO.TaskDTO;
 import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
+import org.pinguweb.backend.DTO.ModelDTOFactory;
 import org.pinguweb.backend.model.GPSCoordinates;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Zone;
@@ -75,29 +76,15 @@ public class ZoneController {
         return null;
     }
 
-    // TODO: Esto no va
-    @Async
-    @GetMapping("/zone/{id}/points")
-    public CompletableFuture<ResponseEntity<List<GPSCoordinates>>> getZonePoints(@PathVariable ZoneDTO id) {
-        if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-
-        if (repository.existsById(id.getId())) {
-            return CompletableFuture.completedFuture(ResponseEntity.ok(repository.getReferenceById(id.getId()).getPoints()));
-        }
-        else {
-            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
-        }
-    }
-
     @Async
     @PostMapping("/zone")
     public CompletableFuture<ResponseEntity<ZoneDTO>> addZone(@RequestBody ZoneDTO zone) {
         if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        // TODO: Esto no funciona aun
+        ModelDTOFactory factory = new ModelDTOFactory();
+        BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-        //return ResponseEntity.ok(repository.save(Zone.fromDTO(zone)).toDTO());
-        return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
+        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createZoneDTO(repository.save(factory.createFromDTO(zone)))));
     }
 
     @Async
@@ -119,11 +106,12 @@ public class ZoneController {
     public CompletableFuture<ResponseEntity<ZoneDTO>> updateZone(@RequestBody ZoneDTO zone) {
         if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        // TODO: Esto no funciona aun
-
         if (repository.existsById(zone.getId())) {
-            //return ResponseEntity.ok(repository.save(Zone.fromDTO(zone)).toDTO());
-            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
+
+            ModelDTOFactory factory = new ModelDTOFactory();
+            BackendDTOFactory dtoFactory = new BackendDTOFactory();
+
+            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createZoneDTO(repository.save(factory.createFromDTO(zone)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

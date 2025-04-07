@@ -1,6 +1,7 @@
 package org.pinguweb.frontend.view.Dashboard;
 
 import com.storedobject.chart.*;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -11,9 +12,9 @@ import org.pinguweb.DTO.TaskDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
-import com.vaadin.flow.component.button.Button;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -59,7 +60,6 @@ public class Needs extends HorizontalLayout {
         chartLayout.setWidthFull();
         chartLayout.setAlignItems(Alignment.CENTER);
         chartLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-
 
         chartLayout.add(createPieChart( getTaskCR(),getTaskCO(),50,20), createBarChart(10,24,50,20), createLineChart(10,24,50,20));
         chartsContainer.add(chartLayout);
@@ -162,7 +162,8 @@ public class Needs extends HorizontalLayout {
 
         return lineChart;
     }
-    public int getTaskCR() {
+  
+   public int getTaskCR() {
         if (tasks.getStatusCode() == HttpStatus.OK) {
             int count = 0;
             for (TaskDTO task : tasks.getData()) {
