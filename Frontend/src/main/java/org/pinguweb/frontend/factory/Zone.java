@@ -16,6 +16,7 @@ import software.xdev.vaadin.maps.leaflet.layer.vector.LPolylineOptions;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -26,9 +27,12 @@ public class Zone extends MapObject{
 
     LPolygon polygon;
 
+    ZoneDTO zoneDTO;
+
     public Zone(Double latitude, Double longitude){
         this.setLatitude(latitude);
         this.setLongitude(longitude);
+        this.points = new ArrayList<LLatLng>();
     }
 
     public void addPoint(LComponentManagementRegistry reg, Tuple<Double, Double> coord){
@@ -42,6 +46,10 @@ public class Zone extends MapObject{
 
     public void addToMap(LMap map){
         this.getPolygon().addTo(map);
+    }
+
+    public void removeFromMap(LMap map){
+        this.getPolygon().removeFrom(map);
     }
 
     @Override

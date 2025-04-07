@@ -16,11 +16,14 @@ import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
+import org.pinguweb.DTO.NeedDTO;
+import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.frontend.factory.Marker;
+import org.pinguweb.frontend.factory.Zone;
 import org.pinguweb.frontend.services.map.MapService;
-import org.pinguweb.frontend.services.map.MapTypes;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
+import software.xdev.vaadin.maps.leaflet.base.LEvented;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
 import software.xdev.vaadin.maps.leaflet.controls.LControlScale;
@@ -28,8 +31,6 @@ import software.xdev.vaadin.maps.leaflet.controls.LControlScaleOptions;
 import software.xdev.vaadin.maps.leaflet.layer.LLayer;
 import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
-import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
-import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
@@ -67,8 +68,9 @@ public class MapView extends HorizontalLayout {
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
     private Tuple<Double, Double> zoneMarkerStartingPoint;
     private String clickFuncReferenceCreateZone;
-    private String clickFuncReferenceDeleteZone;
-    private String clickFuncReferenceDeleteMarker;
+
+    private NeedDTO tempNeedDTO;
+    private ZoneDTO tempZoneDTO;
 
     public MapView() {
         this.setId(ID);
@@ -97,11 +99,7 @@ public class MapView extends HorizontalLayout {
         this.map.on("overlayremove", "e => document.getElementById('" + ID + "').$server.overlay('inactivo')");
 
 
-        clickFuncReferenceCreateZone = map.clientComponentJsAccessor() + ".myCoolClickFunc";
-        clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myCoolClickFuncDeleteZone";
-        reg.execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + ID + "').$server.removePolygon(e.target._leaflet_id) && e.target.remove()");
-        clickFuncReferenceDeleteMarker = map.clientComponentJsAccessor() + ".myCoolClickFuncDeleteMarker";
-        reg.execJs(clickFuncReferenceDeleteMarker + "=e => document.getElementById('" + ID + "').$server.removeMarker(e.target._leaflet_id) && e.target.remove()");
+        clickFuncReferenceCreateZone = map.clientComponentJsAccessor() + ".myClickFuncCreateZone";
 
         this.map.locate(new LMapLocateOptions().withSetView(true));
 
@@ -115,92 +113,99 @@ public class MapView extends HorizontalLayout {
         this.controller.setMap(map);
         this.controller.setID(ID);
 
-        necesidad.addClickListener(e -> crearDialogoTarea(controller));
-        zona.addClickListener(e -> createDialogZona(controller));
-        borrar.addClickListener(e -> clickBorrar(borrar));
+        necesidad.addClickListener(e -> crearDialogoTarea());
+        zona.addClickListener(e -> createDialogZona());
+        borrar.addClickListener(e -> clickBorrar());
 
     }
 
-    public void click(MapTypes Action, Button button) {
-        switch (Action) {
-            case TAREA:
-                this.mapContainer.addClassName("map_action");
-                this.map.once("click", "e => document.getElementById('" + ID + "').$server.mapTarea(e.latlng)");
 
-                ui = UI.getCurrent();
+    public void clickNeed(NeedDTO needDTO) {
+        this.mapContainer.addClassName("map_action");
+        this.tempNeedDTO = needDTO;
+        this.map.once("click", "e => document.getElementById('" + ID + "').$server.mapNeed(e.latlng)");
+        ui = UI.getCurrent();
 
-                new Thread(() -> {
-
-                    synchronized (lock) {
-                        try {
-                            System.out.println("Esperando clic en el mapa...");
-                            lock.wait();
-                        } catch (InterruptedException e) {
-                            System.out.println("Error esperando clic en el mapa" + e);
-                            return;
-                        }
-                    }
-                    if (ui != null) {
-                        ui.access(() -> this.mapContainer.removeClassName("map_action"));
-                    }
-                }).start();
-
-                break;
-            case ZONA:
-                this.mapContainer.addClassName("map_action");
-                if (!this.controller.isZoneBool()) {
-                    System.out.println("Registrando puntos para la zona");
-                    reg.execJs(clickFuncReferenceCreateZone + "=e => document.getElementById('" + ID + "').$server.mapZona(e.latlng)");
-                    map.on("click", clickFuncReferenceCreateZone);
-                    button.setEnabled(false);
-                    button.setText("Terminar zona");
-                    this.controller.setZoneBool(true);
-                } else {
-                    this.map.off("click", clickFuncReferenceCreateZone);
-                    System.out.println("Zona terminada");
-                    button.setText("Zona");
-                    button.setEnabled(true);
-                    this.controller.createZone(this.zoneMarkerPoints);
-                    this.controller.setZoneBool(false);
-                    this.mapContainer.removeClassName("map_action");
-
-                    for (Marker marker : zoneMarkers.values()) {
-                        marker.removeFromMap(this.map);
-                    }
-
-                    zoneMarkers.clear();
-                    zoneMarkerPoints.clear();
+        new Thread(() -> {
+            synchronized (lock) {
+                try {
+                    System.out.println("Esperando clic en el mapa...");
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    System.out.println("Error esperando clic en el mapa" + e);
+                    return;
                 }
-                break;
-        }
+            }
+            if (ui != null) {
+                ui.access(() -> this.mapContainer.removeClassName("map_action"));
+            }
+        }).start();
     }
 
-    public void clickBorrar(Button button) {
+    public void initializeZone(ZoneDTO zoneDTO) {
+        this.mapContainer.addClassName("map_action");
+        this.tempZoneDTO = zoneDTO;
+        System.out.println("Registrando puntos para la zona");
+        reg.execJs(clickFuncReferenceCreateZone + "=e => document.getElementById('" + ID + "').$server.mapZona(e.latlng)");
+        map.on("click", clickFuncReferenceCreateZone);
+        this.zona.setEnabled(false);
+        this.zona.setText("Terminar zona");
+        this.controller.setZoneBool(true);
+    }
+
+    public void terminateZone(){
+        this.map.off("click", clickFuncReferenceCreateZone);
+        System.out.println("Zona terminada");
+        this.zona.setText("Zona");
+        this.zona.setEnabled(true);
+        this.controller.createZone(this.zoneMarkerPoints, this.tempZoneDTO);
+        this.controller.setZoneBool(false);
+        this.mapContainer.removeClassName("map_action");
+
+        for (Marker marker : zoneMarkers.values()) {
+            marker.removeFromMap(this.map);
+        }
+
+        zoneMarkers.clear();
+        zoneMarkerPoints.clear();
+
+    }
+
+
+
+    public void clickBorrar() {
         if (!this.controller.isDeleteBool()) {
             this.controller.setDeleteBool(true);
-            button.setText("Detener borrado");
+            this.borrar.setText("Detener borrado");
             this.mapContainer.removeClassName("map_action");
-            for (LMarker marker : this.controller.getMarkers()) {
+            for (Marker marker : this.controller.getMarkers()) {
                 System.out.println("Registrando marcadores para borrar");
-                marker.on("click", clickFuncReferenceDeleteMarker);
+                String clickFuncReferenceDeleteMarker = map.clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + marker.getNeedDTO().getId();
+                reg.execJs(clickFuncReferenceDeleteMarker + "=e => document.getElementById('" + ID + "').$server.removeMarker('" + marker.getNeedDTO().getId() + "')");
+                marker.getMarkerObj().on("click", clickFuncReferenceDeleteMarker);
             }
-            for (LPolygon polygon : this.controller.getPolygons()) {
+            for (Zone zone : this.controller.getZones()) {
                 System.out.println("Registrando zonas para borrar");
-                polygon.on("click", clickFuncReferenceDeleteZone);
+                String clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getZoneDTO().getId();
+                reg.execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + ID + "').$server.removePolygon('" + zone.getZoneDTO().getId() + "') ");
+                zone.getPolygon().on("click", clickFuncReferenceDeleteZone);
             }
         } else {
             this.controller.setDeleteBool(false);
-            button.setText("Borrar");
-            for (LMarker marker : this.controller.getMarkers()) {
-                marker.off("click", clickFuncReferenceDeleteMarker);
+            this.borrar.setText("Borrar");
+            for (Marker marker : this.controller.getMarkers()) {
+                String clickFuncReferenceDeleteMarker = map.clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + marker.getNeedDTO().getId();
+                marker.getMarkerObj().off("click", clickFuncReferenceDeleteMarker);
             }
-            for (LPolygon polygon : this.controller.getPolygons()) {
-                polygon.off("click", clickFuncReferenceDeleteZone);
+            for (Zone zone : this.controller.getZones()) {
+                String clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getZoneDTO().getId();
+                zone.getPolygon().off("click", clickFuncReferenceDeleteZone);
             }
 
             this.mapContainer.removeClassName("map_action");
         }
     }
+
 
     private void addControls(
             final LLayerGroup lLayerGroupZones,
@@ -226,13 +231,16 @@ public class MapView extends HorizontalLayout {
         new LControlScale(this.reg, new LControlScaleOptions()).addTo(this.map);
     }
 
+
+
+
     @ClientCallable
-    public void mapTarea(final JsonValue input) {
+    public void mapNeed(final JsonValue input) {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
 
-        controller.createNeed(obj.getNumber("lat"), obj.getNumber("lng"));
+        controller.createNeed(obj.getNumber("lat"), obj.getNumber("lng"), this.tempNeedDTO);
 
         synchronized (lock) {
             lock.notify();
@@ -287,6 +295,11 @@ public class MapView extends HorizontalLayout {
         zoneMarkerPoints.set(index, point);
     }
 
+
+
+
+
+
     @ClientCallable
     public void clickOnZone(final JsonValue input) {
         if (!(input instanceof final JsonObject obj)) {
@@ -295,54 +308,116 @@ public class MapView extends HorizontalLayout {
         System.out.println("clickOnZone: " + obj.getNumber("lat") + ", " + obj.getNumber("lng"));
     }
 
+
+
     @ClientCallable
     public void removeMarker(String id) {
         System.out.println("removeMarker: " + id);
+        this.controller.deleteNeed(Integer.parseInt(id));
     }
 
     @ClientCallable
     public void removePolygon(String id) {
         System.out.println("removePolygon: " + id);
+        this.controller.deleteZone(Integer.parseInt(id));
     }
+
+
+
 
     @ClientCallable
     public void overlay(String status) {
         System.out.println("overlay: " + status);
     }
 
-    public void createDialogZona(MapService controller) {
-        final Icon icoClose = VaadinIcon.CLOSE.create();
-        final Dialog dialog = new Dialog(icoClose);
-        dialog.setDraggable(true);
-        dialog.setResizable(true);
-        dialog.setWidth("70vw");
-        dialog.setHeight("70vh");
 
-        H3 title = new H3("Crear zona");
 
-        ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
-        severityComboBox.setItems("Baja", "Media", "Alta");
 
-        TextArea descriptionTextArea = new TextArea();
-        descriptionTextArea.setPlaceholder("descripcion");
-        descriptionTextArea.setWidthFull();
-        descriptionTextArea.setHeight("50vh");
 
-        Button cancelButton = new Button("Cancelar", event -> dialog.close());
-        Button acceptButton = new Button("Aceptar", event -> {controller.setZone(descriptionTextArea.getValue(), "zona", severityComboBox.getValue());
-            dialog.close();});
 
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
 
-        VerticalLayout dialogLayout = new VerticalLayout(title, severityComboBox, descriptionTextArea, buttonLayout);
-        dialog.add(dialogLayout);
 
-        dialog.open();
 
-        icoClose.addClickListener(iev -> dialog.close());
+
+
+
+
+
+
+
+
+
+    public void createDialogZona() {
+        if (!this.controller.isZoneBool()) {
+            final Icon icoClose = VaadinIcon.CLOSE.create();
+            final Dialog dialog = new Dialog(icoClose);
+            dialog.setDraggable(true);
+            dialog.setResizable(true);
+            dialog.setWidth("70vw");
+            dialog.setHeight("70vh");
+
+            H3 title = new H3("Crear zona");
+
+            TextArea nameTextArea = new TextArea();
+            nameTextArea.setPlaceholder("nombre");
+            nameTextArea.setWidth("50vw");
+            nameTextArea.setHeight("3vh");
+
+            ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
+            severityComboBox.setItems("Baja", "Media", "Alta");
+
+            TextArea descriptionTextArea = new TextArea();
+            descriptionTextArea.setPlaceholder("descripcion");
+            descriptionTextArea.setWidthFull();
+            descriptionTextArea.setHeight("50vh");
+
+            ZoneDTO zoneDTO = new ZoneDTO();
+            //TODO: Mirar cambiar como se asigna el id
+            zoneDTO.setId(controller.getTempIdZone());
+            controller.setTempIdZone(controller.getTempIdZone() + 1);
+            zoneDTO.setDescription(descriptionTextArea.getValue());
+            zoneDTO.setName(nameTextArea.getValue());
+            //TODO: Mirar como funcionan las catastrofes
+            zoneDTO.setCatastrophe(null);
+            zoneDTO.setEmergencyLevel(severityComboBox.getValue());
+            zoneDTO.setLatitudes(new ArrayList<>());
+            zoneDTO.setLongitudes(new ArrayList<>());
+            //TODO: Mirar como asignar storages
+            zoneDTO.setStorages(new ArrayList<>());
+
+            Button cancelButton = new Button("Cancelar", event -> dialog.close());
+            Button acceptButton = new Button("Aceptar", event -> {
+                this.initializeZone(zoneDTO);
+                dialog.close();
+            });
+            acceptButton.setEnabled(false);
+
+            nameTextArea.addValueChangeListener(event -> {
+                acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !descriptionTextArea.getValue().isEmpty());
+            });
+
+            descriptionTextArea.addValueChangeListener(event -> {
+                acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !nameTextArea.getValue().isEmpty());
+            });
+
+            severityComboBox.addValueChangeListener(event -> {
+                acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !nameTextArea.getValue().isEmpty());
+            });
+
+            HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
+
+            VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, severityComboBox, descriptionTextArea, buttonLayout);
+            dialog.add(dialogLayout);
+
+            dialog.open();
+
+            icoClose.addClickListener(iev -> dialog.close());
+        } else {
+            this.terminateZone();
+        }
     }
 
-    public void crearDialogoTarea(MapService controller) {
+    public void crearDialogoTarea() {
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setDraggable(true);
@@ -355,22 +430,49 @@ public class MapView extends HorizontalLayout {
         ComboBox<String> typesComboBox = new ComboBox<>("Tipo");
         typesComboBox.setItems("Mantenimiento", "Reparación", "Limpieza");
 
-        ComboBox<String> severityComboBox = new ComboBox<>("Tipo");
-        severityComboBox.setItems("Mantenimiento", "Reparación", "Limpieza");
+        ComboBox<String> severityComboBox = new ComboBox<>("Urgencia");
+        severityComboBox.setItems("Baja", "Media", "Alta");
 
         TextArea descriptionTextArea = new TextArea();
         descriptionTextArea.setPlaceholder("descripcion");
         descriptionTextArea.setWidthFull();
         descriptionTextArea.setHeight("50vh");
 
+        NeedDTO needDTO = new NeedDTO();
+        //TODO: Mirar cambiar como se asigna el id
+        needDTO.setId(controller.getTempIdMarker());
+        controller.setTempIdMarker(controller.getTempIdMarker() + 1);
+        needDTO.setDescription(descriptionTextArea.getValue());
+        needDTO.setNeedType(typesComboBox.getValue());
+        needDTO.setAffected("zona");
+        needDTO.setLatitude(0.0);
+        needDTO.setLongitude(0.0);
+        needDTO.setTask(0);
+        needDTO.setCatastrophe(0);
+        needDTO.setUrgency(severityComboBox.getValue());
+
         Button cancelButton = new Button("Cancelar", event -> dialog.close());
-        Button acceptButton = new Button("Aceptar", event -> {
-            controller.setNeed(descriptionTextArea.getValue(), typesComboBox.getValue(), "zona", severityComboBox.getValue(), 0, 0);
+        Button acceptButton = new Button("Aceptar", event -> {this.clickNeed(needDTO);
+            dialog.close();
+        });
+
+        acceptButton.setEnabled(false);
+
+        typesComboBox.addValueChangeListener(event -> {
+            acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && typesComboBox.getValue() != null);
+        });
+
+        descriptionTextArea.addValueChangeListener(event -> {
+            acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && typesComboBox.getValue() != null);
+        });
+
+        severityComboBox.addValueChangeListener(event -> {
+            acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && typesComboBox.getValue() != null);
         });
 
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
 
-        VerticalLayout dialogLayout = new VerticalLayout(title, severityComboBox, descriptionTextArea, buttonLayout);
+        VerticalLayout dialogLayout = new VerticalLayout(title, typesComboBox, severityComboBox, descriptionTextArea, buttonLayout);
         dialog.add(dialogLayout);
 
         dialog.open();

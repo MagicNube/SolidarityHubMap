@@ -22,6 +22,7 @@ import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 public class Marker extends MapObject{
 
     LMarker markerObj;
+    NeedDTO needDTO;
 
     public Marker(LComponentManagementRegistry reg, Double latitude, Double longitude){
         this.setLatitude(latitude);
@@ -44,6 +45,7 @@ public class Marker extends MapObject{
         this.markerObj = new LMarker(reg, new LLatLng(reg, this.getLatitude(), this.getLongitude()), options);
         return this;
     }
+
 
     public void addToMap(LMap map){
         this.getMarkerObj().addTo(map);
