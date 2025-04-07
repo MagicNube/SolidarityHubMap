@@ -156,7 +156,7 @@ public class MapService {
         //TODO: asignar latitudes y longitudes y cambiar
         this.zone.setLatitudes(new ArrayList<>());
         this.zone.setLongitudes(new ArrayList<>());
-        this.zone.setCatastrophes(new ArrayList<>());
+        this.zone.setCatastrophe(null);
         this.zone.setEmergencyLevel(severity);
         this.zone.setStorages(new ArrayList<>());
 
