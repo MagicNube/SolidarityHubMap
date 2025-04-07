@@ -90,7 +90,7 @@ public class Needs extends HorizontalLayout {
             TaskDTO tarea = null;
             for (NeedDTO need : needs.getData()) {
                 for ( TaskDTO t : tasks.getData()){
-                    if ( need.getTask() == t.getId()){break}
+                    if ( need.getTask() == t.getId()){tarea = t; break;}
                 }
                 if ((startDate == null || (tarea.getStartTimeDate().toString()).compareTo(startDate) >= 0) &&
                         (endDate == null || tarea.getEstimatedEndTimeDate().toString().compareTo(endDate) <= 0) &&
@@ -190,18 +190,16 @@ public class Needs extends HorizontalLayout {
     }
 /*
     public int getNeedsCR() {
-        if (needs.getStatusCode().is2xxSuccessful()) {
+        if (needs.getStatusCode() == HttpStatus.OK) {
             int count = 0;
+            TaskDTO tarea = null;
             for (NeedDTO need : needs.getData()) {
-                if (need.getID() == null) {
-                    count++;
+                for ( TaskDTO t : tasks.getData()){
+                    if ( need.getTask() == t.getId()){tarea = t; break;}
                 }
+                return count;
             }
-            return count;
-        } else {
-            return 0;
         }
-    }
 
     public int getNeedsCO() {
         if (needs.getStatusCode() == HttpStatus.OK) {
