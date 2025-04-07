@@ -1,42 +1,77 @@
 package org.pinguweb.frontend.view.Dashboard;
 
-import com.vaadin.flow.component.charts.Chart;
-import com.vaadin.flow.component.charts.model.ChartType;
-import com.vaadin.flow.component.charts.model.Configuration;
-import com.vaadin.flow.component.charts.model.DataSeries;
-import com.vaadin.flow.component.charts.model.DataSeriesItem;
+import com.storedobject.chart.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import org.pinguweb.DTO.SkillDTO;
+import org.pinguweb.DTO.VolunteerDTO;
+import org.pinguweb.frontend.services.backend.BackendObject;
+import org.pinguweb.frontend.services.backend.BackendService;
+import org.springframework.core.ParameterizedTypeReference;
+
+import java.util.List;
 
 @Route("dashboard/volunteer-skills")
-public class VolunteerSkills extends VerticalLayout{
-    public VolunteerSkills(){
+public class VolunteerSkills extends VerticalLayout {
+
+    private List<VolunteerDTO> volunteers;
+    private List<SkillDTO> skills;
+
+    public VolunteerSkills() {
         this.setSizeFull();
 
-        Chart pieChart = new Chart(ChartType.PIE);
-        Configuration pieConf = pieChart.getConfiguration();
-        pieConf.setTitle("Needs Distribution");
+        BackendObject<List<VolunteerDTO>> volunteerResponse = BackendService.getListFromBackend(BackendService.BACKEND + "/api/volunteers",
+                new ParameterizedTypeReference<List<VolunteerDTO>>() {
+                });
+        BackendObject<List<SkillDTO>> skillResponse = BackendService.getListFromBackend(BackendService.BACKEND + "/api/skills",
+                new ParameterizedTypeReference<List<SkillDTO>>() {
+                });
 
-        DataSeries pieSeries = new DataSeries();
-        //TODO: Aqui tengo que extraer de la base de datos para rellenar la tarta
-        pieSeries.add(new DataSeriesItem("Skill 1", 10));
-        pieSeries.add(new DataSeriesItem("Skill 2", 20));
-        pieSeries.add(new DataSeriesItem("Skill 3", 30));
-        pieSeries.add(new DataSeriesItem("Skill 4", 40));
-        pieConf.setSeries(pieSeries);
+        this.volunteers = volunteerResponse.getData();
+        this.skills = skillResponse.getData();
 
-        Chart barChart = new Chart(ChartType.BAR);
-        Configuration barConfig = barChart.getConfiguration();
-        barConfig.setTitle("Skill Distribution");
+        SOChart barChart = createVolunteerSkillsBarChart();
+        this.add(barChart);
+    }
 
-        DataSeries barSeries = new DataSeries();
-        //TODO: Aqui tengo que extraer de la base de datos para rellenar la barra
-        barSeries.add(new DataSeriesItem("Skill 1", 10));
-        barSeries.add(new DataSeriesItem("Skill 2", 20));
-        barSeries.add(new DataSeriesItem("Skill 3", 30));
-        barSeries.add(new DataSeriesItem("Skill 4", 40));
-        barConfig.setSeries(barSeries);
+    public SOChart createVolunteerSkillsBarChart() {
+        SOChart barChart = new SOChart();
+        barChart.setSize("400px", "400px");
+        String[] labels = null;
+        RectangularCoordinate rc = new RectangularCoordinate(new XAxis(DataType.CATEGORY), new YAxis(DataType.NUMBER));
 
-        this.add(pieChart, barChart);
+        if (skills != null) {
+             labels = skills.stream()
+                    .filter(skill -> skill != null && skill.getName() != null)
+                    .map(SkillDTO::getName)
+                    .toArray(String[]::new);
+        } else {
+
+             labels = new String[0];
+            System.out.println("no hay datos");
+        }
+        int[] data = new int[skills.size()];
+
+        for (VolunteerDTO volunteer : volunteers) {
+            for ( String skill: volunteer.getSkills()) {
+                int index = skills.indexOf(skill);
+                if (index >= 0) {
+                    data[index]++;
+                }
+            }
+        }
+
+        for (int i = 0; i < labels.length; i++) {
+            BarChart bar = new BarChart(new CategoryData(labels[i]), new Data(data[i]));
+            bar.setName(labels[i]);
+            bar.setColors(new Color((int)(Math.random() * 256), (int)(Math.random() * 256), (int)(Math.random() * 256)));
+            bar.plotOn(rc);
+            barChart.add(bar);
+        }
+
+        return barChart;
     }
 }
+
+
+
