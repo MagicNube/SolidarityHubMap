@@ -21,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIcon;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIconOptions;
@@ -64,7 +63,7 @@ public class MapService {
             }
         }
     }
-  
+
     public void createNeed(double lat, double lng) {
         LLatLng coords = new LLatLng(this.reg, lat, lng);
 
@@ -84,7 +83,7 @@ public class MapService {
         points.clear();
     }
 
-    public LMarker createZoneMarker(double lat, double lng) {
+    public LMarker createZoneMarker(double lat, double lng){
         LIcon icon = new LIcon(this.reg, new LIconOptions()
                 .withIconUrl("https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png")
                 .withShadowUrl("https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png")

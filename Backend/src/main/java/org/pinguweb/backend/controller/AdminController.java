@@ -75,21 +75,4 @@ public class AdminController {
         }
         return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
     }
-
-    @Async
-    @GetMapping("/admin/login/")
-    public CompletableFuture<ResponseEntity<Void>> login(@RequestBody AdminDTO adminDto) {
-        if (ServerException.isServerClosed(repository)){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-
-        if (repository.existsById(adminDto.getDni())) {
-            Admin admin = repository.getReferenceById(adminDto.getDni());
-            if (admin.getPassword().equals(adminDto.getPassword()))
-            {
-                return CompletableFuture.completedFuture(ResponseEntity.accepted().build());
-            }
-
-            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
-        }
-        return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
-    }
 }

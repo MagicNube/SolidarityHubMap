@@ -11,6 +11,7 @@ import lombok.Setter;
 import org.pinguweb.DTO.AdminDTO;
 
 @Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @JsonIdentityInfo(
@@ -21,7 +22,6 @@ public class Admin {
     @Id
     private String dni;
 
-    @Setter
     @Column(nullable = false)
     private String password;
 
