@@ -22,7 +22,7 @@ import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 public class Marker extends MapObject{
 
     LMarker markerObj;
-    NeedDTO needDTO;
+    Integer ID;
 
     public Marker(LComponentManagementRegistry reg, Double latitude, Double longitude){
         this.setLatitude(latitude);
@@ -56,9 +56,12 @@ public class Marker extends MapObject{
     }
 
     @Override
-    public void pushToServer(String url, DTO dto){
-        NeedDTO needDTO = (NeedDTO) dto;
-        String finurl = "/api/need/" + needDTO.getId();
+    public void pushToServer(){
+        NeedDTO needDTO = new NeedDTO();
+
+        // TODO: AGREGAR LO QUE QUIERAS GUARDAR
+
+        String finurl = "/api/need";
         try{
             BackendObject<NeedDTO> status = BackendService.postToBackend(finurl, needDTO, NeedDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
@@ -71,9 +74,8 @@ public class Marker extends MapObject{
     }
 
     @Override
-    public void deleteFromServer(String url, DTO dto) {
-        NeedDTO needDTO = (NeedDTO) dto;
-        String finurl = "/api/need/" + needDTO.getId();
+    public void deleteFromServer() {
+        String finurl = "/api/zone/" + this.ID;
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
             if (status == HttpStatus.OK){

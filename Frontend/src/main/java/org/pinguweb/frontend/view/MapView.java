@@ -23,7 +23,6 @@ import org.pinguweb.frontend.factory.Zone;
 import org.pinguweb.frontend.services.map.MapService;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
-import software.xdev.vaadin.maps.leaflet.base.LEvented;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
 import software.xdev.vaadin.maps.leaflet.controls.LControlScale;
@@ -99,7 +98,6 @@ public class MapView extends HorizontalLayout {
         this.map.on("overlayadd", "e => document.getElementById('" + ID + "').$server.overlay('activo')");
         this.map.on("overlayremove", "e => document.getElementById('" + ID + "').$server.overlay('inactivo')");
 
-
         clickFuncReferenceCreateZone = map.clientComponentJsAccessor() + ".myClickFuncCreateZone";
 
         this.map.locate(new LMapLocateOptions().withSetView(true));
@@ -119,7 +117,6 @@ public class MapView extends HorizontalLayout {
         borrar.addClickListener(e -> clickBorrar());
 
     }
-
 
     public void clickNeed(NeedDTO needDTO) {
         this.mapContainer.addClassName("map_action");
@@ -144,7 +141,7 @@ public class MapView extends HorizontalLayout {
         }).start();
     }
 
-    public void initializeZone(ZoneDTO zoneDTO) {
+    public void startZoneConstruction(ZoneDTO zoneDTO) {
         this.mapContainer.addClassName("map_action");
         this.tempZoneDTO = zoneDTO;
         System.out.println("Registrando puntos para la zona");
@@ -155,12 +152,14 @@ public class MapView extends HorizontalLayout {
         this.controller.setZoneBool(true);
     }
 
-    public void terminateZone(){
+    public void endZoneConstruction(){
         this.map.off("click", clickFuncReferenceCreateZone);
         System.out.println("Zona terminada");
         this.zona.setText("Zona");
         this.zona.setEnabled(true);
-        this.controller.createZone(this.zoneMarkerPoints, this.tempZoneDTO);
+        Zone zona = this.controller.createZone(this.tempZoneDTO);
+        zona.pushToServer();
+
         this.controller.setZoneBool(false);
         this.mapContainer.removeClassName("map_action");
 
@@ -173,8 +172,6 @@ public class MapView extends HorizontalLayout {
 
     }
 
-
-
     public void clickBorrar() {
         if (!this.controller.isDeleteBool()) {
             this.controller.setDeleteBool(true);
@@ -182,25 +179,25 @@ public class MapView extends HorizontalLayout {
             this.mapContainer.removeClassName("map_action");
             for (Marker marker : this.controller.getMarkers()) {
                 System.out.println("Registrando marcadores para borrar");
-                String clickFuncReferenceDeleteMarker = map.clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + marker.getNeedDTO().getId();
-                reg.execJs(clickFuncReferenceDeleteMarker + "=e => document.getElementById('" + ID + "').$server.removeMarker('" + marker.getNeedDTO().getId() + "')");
+                String clickFuncReferenceDeleteMarker = map.clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + marker.getID();
+                reg.execJs(clickFuncReferenceDeleteMarker + "=e => document.getElementById('" + ID + "').$server.removeMarker('" + marker.getID() + "')");
                 marker.getMarkerObj().on("click", clickFuncReferenceDeleteMarker);
             }
             for (Zone zone : this.controller.getZones()) {
                 System.out.println("Registrando zonas para borrar");
-                String clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getZoneDTO().getId();
-                reg.execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + ID + "').$server.removePolygon('" + zone.getZoneDTO().getId() + "') ");
+                String clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
+                reg.execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + ID + "').$server.removePolygon('" + zone.getID()+ "') ");
                 zone.getPolygon().on("click", clickFuncReferenceDeleteZone);
             }
         } else {
             this.controller.setDeleteBool(false);
             this.borrar.setText("Borrar");
             for (Marker marker : this.controller.getMarkers()) {
-                String clickFuncReferenceDeleteMarker = map.clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + marker.getNeedDTO().getId();
+                String clickFuncReferenceDeleteMarker = map.clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + marker.getID();
                 marker.getMarkerObj().off("click", clickFuncReferenceDeleteMarker);
             }
             for (Zone zone : this.controller.getZones()) {
-                String clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getZoneDTO().getId();
+                String clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
                 zone.getPolygon().off("click", clickFuncReferenceDeleteZone);
             }
 
@@ -208,11 +205,9 @@ public class MapView extends HorizontalLayout {
         }
     }
 
-
     private void addControls(
             final LLayerGroup lLayerGroupZones,
             final LLayerGroup lLayerGroupNeeds
-
     )
     {
         // Use LinkedHashMap for order
@@ -233,9 +228,6 @@ public class MapView extends HorizontalLayout {
         new LControlScale(this.reg, new LControlScaleOptions()).addTo(this.map);
     }
 
-
-
-
     @ClientCallable
     public void mapNeed(final JsonValue input) {
         if (!(input instanceof final JsonObject obj)) {
@@ -245,8 +237,8 @@ public class MapView extends HorizontalLayout {
         double lng = obj.getNumber("lng");
 
         if (controller.getPointInZone()) {
-            controller.createNeed(lat, lng, this.tempNeedDTO);
-
+            Marker marker = controller.createNeed(this.tempNeedDTO);
+            marker.pushToServer();
             synchronized (lock) {
                 lock.notify();
             }
@@ -305,11 +297,6 @@ public class MapView extends HorizontalLayout {
         zoneMarkerPoints.set(index, point);
     }
 
-
-
-
-
-
     @ClientCallable
     public void clickOnZone(final JsonValue input) {
         if (!(input instanceof final JsonObject obj)) {
@@ -324,8 +311,6 @@ public class MapView extends HorizontalLayout {
         }
     }
 
-
-
     @ClientCallable
     public void removeMarker(String id) {
         System.out.println("removeMarker: " + id);
@@ -337,9 +322,6 @@ public class MapView extends HorizontalLayout {
         System.out.println("removePolygon: " + id);
         this.controller.deleteZone(Integer.parseInt(id));
     }
-
-
-
 
     @ClientCallable
     public void overlay(String status) {
@@ -403,7 +385,7 @@ public class MapView extends HorizontalLayout {
 
             Button cancelButton = new Button("Cancelar", event -> dialog.close());
             Button acceptButton = new Button("Aceptar", event -> {
-                this.initializeZone(zoneDTO);
+                this.startZoneConstruction(zoneDTO);
                 dialog.close();
             });
             acceptButton.setEnabled(false);
@@ -429,7 +411,7 @@ public class MapView extends HorizontalLayout {
 
             icoClose.addClickListener(iev -> dialog.close());
         } else {
-            this.terminateZone();
+            this.endZoneConstruction();
         }
     }
 

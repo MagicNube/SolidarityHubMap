@@ -24,10 +24,8 @@ import java.util.List;
 public class Zone extends MapObject{
 
     List<LLatLng> points;
-
     LPolygon polygon;
-
-    ZoneDTO zoneDTO;
+    Integer ID;
 
     public Zone(Double latitude, Double longitude){
         this.setLatitude(latitude);
@@ -53,9 +51,12 @@ public class Zone extends MapObject{
     }
 
     @Override
-    public void pushToServer(String url, DTO dto){
-        ZoneDTO zoneDTO = (ZoneDTO) dto;
-        String finurl = "/api/zone/" + zoneDTO.getId();
+    public void pushToServer(){
+        ZoneDTO zoneDTO = new ZoneDTO();
+
+        // TODO: AGREGAR LO QUE QUIERAS GUARDAR
+
+        String finurl = "/api/zone";
         try{
             BackendObject<ZoneDTO> status = BackendService.postToBackend(finurl, zoneDTO, ZoneDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
@@ -68,9 +69,8 @@ public class Zone extends MapObject{
     }
 
     @Override
-    public void deleteFromServer(String url, DTO dto) {
-        ZoneDTO zoneDTO = (ZoneDTO) dto;
-        String finurl = "/api/zone/" + zoneDTO.getId();
+    public void deleteFromServer() {
+        String finurl = "/api/zone/" + this.ID;
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
             if (status == HttpStatus.OK){

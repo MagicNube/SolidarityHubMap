@@ -83,17 +83,18 @@ public class MapService {
     public MapService() {
         this.markerFactory = new MarkerFactory();
         this.zoneFactory = new ZoneFactory();
+        load();
     }
 
 
     @Async
-    /*public void load() {
+    public void load() {
         BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need",
                 new ParameterizedTypeReference<>() {});
 
         if (needs.getStatusCode() == HttpStatus.OK) {
             for (NeedDTO need : needs.getData()) {
-                createNeed(need.getLatitude(), need.getLongitude());
+                createNeed(need);
             }
         }
 
@@ -102,22 +103,18 @@ public class MapService {
 
         if (zonas.getStatusCode() == HttpStatus.OK) {
             for (ZoneDTO zone : zonas.getData()) {
-                List<Tuple<Double, Double>> points = new ArrayList<>();
-
-                for(int i = 0; i < zone.getLatitudes().size(); i++){
-                    points.add(new Tuple<>(zone.getLatitudes().get(i), zone.getLongitudes().get(i)));
-                }
-
-                createZone(points);
+                createZone(zone);
             }
         }
-    }*/
+    }
 
     // TODO: Texto para el el marcador de tarea
-    public void createNeed(double lat, double lng, NeedDTO needDTO) {
+    public Marker createNeed(NeedDTO needDTO) {
+        double lat = needDTO.getLatitude();
+        double lng = needDTO.getLongitude();
         Marker marker = (Marker) markerFactory.createMapObject(reg, lat, lng);
         marker = marker.convertToZoneMarker(reg);
-        marker.setNeedDTO(needDTO);
+        marker.setID(needDTO.getId());
         marker.addToMap(this.map);
 
         markers.add(marker);
@@ -125,25 +122,26 @@ public class MapService {
         this.map.addLayer(MapView.getLLayerGroupNeeds());
 
         for (Marker m : markers) {
-            System.out.println("ID: " + m.getNeedDTO().getId() + m );
+            System.out.println("ID: " + m.getID() + m );
         }
         System.out.println("Fin");
+
+        return marker;
     }
 
     public void deleteNeed(int id) {
         Marker marker = markers.stream()
-                .filter(m -> m.getNeedDTO().getId() == id)
+                .filter(m -> m.getID() == id)
                 .findFirst()
                 .orElse(null);
         if (marker != null) {
             marker.removeFromMap(this.map);
+            marker.deleteFromServer();
             markers.remove(marker);
             MapView.getLLayerGroupNeeds().removeLayer(marker.getMarkerObj());
             this.map.addLayer(MapView.getLLayerGroupNeeds());
         }
     }
-
-
 
     public Marker createZoneMarker(double lat, double lng) {
         Marker marker = (Marker) markerFactory.createMapObject(reg, lat, lng);
@@ -157,28 +155,38 @@ public class MapService {
     }
 
 
-    public void createZone(List<Tuple<Double, Double>> markers, ZoneDTO zoneDTO) {
+    public Zone createZone(ZoneDTO zoneDTO) {
+        List<Tuple<Double, Double>> points = new ArrayList<>();
+
+        for(int i = 0; i < zoneDTO.getLatitudes().size(); i++){
+            points.add(new Tuple<>(zone.getLatitudes().get(i), zone.getLongitudes().get(i)));
+        }
+
         Zone zone = (Zone) zoneFactory.createMapObject(reg, 0.0, zoneDTO.getId()+0.0);
-        for (Tuple<Double, Double> marker : markers) {
+        for (Tuple<Double, Double> marker : points) {
             zone.addPoint(reg, marker);
         }
+
         zone.generatePolygon(reg, "red", "blue");
-        zone.setZoneDTO(zoneDTO);
+        zone.setID(zoneDTO.getId());
         zone.addToMap(this.map);
         zone.getPolygon().on("click", "e => document.getElementById('" + ID + "').$server.clickOnZone(e.latlng)");
 
         zones.add(zone);
         MapView.getLLayerGroupZones().addLayer(zone.getPolygon());
         this.map.addLayer(MapView.getLLayerGroupZones());
+
+        return zone;
     }
 
     public void deleteZone(int id) {
         Zone zone = zones.stream()
-                .filter(z -> z.getZoneDTO().getId() == id)
+                .filter(z -> z.getID() == id)
                 .findFirst()
                 .orElse(null);
         if (zone != null) {
             zone.removeFromMap(this.map);
+            zone.deleteFromServer();
             zones.remove(zone);
             MapView.getLLayerGroupZones().removeLayer(zone.getPolygon());
             this.map.addLayer(MapView.getLLayerGroupZones());
