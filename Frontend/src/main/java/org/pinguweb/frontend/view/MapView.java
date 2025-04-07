@@ -58,6 +58,7 @@ public class MapView extends HorizontalLayout {
 
     private MapContainer mapContainer;
     private final Object lock = new Object();
+    private final Object lock2 = new Object();
     private UI ui;
 
     private final Button necesidad = new Button("Necesidad");
@@ -123,6 +124,7 @@ public class MapView extends HorizontalLayout {
     public void clickNeed(NeedDTO needDTO) {
         this.mapContainer.addClassName("map_action");
         this.tempNeedDTO = needDTO;
+        controller.setCreatingNeed(true);
         this.map.once("click", "e => document.getElementById('" + ID + "').$server.mapNeed(e.latlng)");
         ui = UI.getCurrent();
 
@@ -239,13 +241,21 @@ public class MapView extends HorizontalLayout {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
+        double lat = obj.getNumber("lat");
+        double lng = obj.getNumber("lng");
 
-        controller.createNeed(obj.getNumber("lat"), obj.getNumber("lng"), this.tempNeedDTO);
+        if (controller.getPointInZone()) {
+            controller.createNeed(lat, lng, this.tempNeedDTO);
 
-        synchronized (lock) {
-            lock.notify();
+            synchronized (lock) {
+                lock.notify();
+            }
+            ui.push();
+            controller.setPointInZone(false);
+            controller.setCreatingNeed(false);
+        } else {
+            System.out.println("El clic no está dentro de ninguna zona.");
         }
-        ui.push();
     }
 
     @ClientCallable
@@ -305,7 +315,13 @@ public class MapView extends HorizontalLayout {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
-        System.out.println("clickOnZone: " + obj.getNumber("lat") + ", " + obj.getNumber("lng"));
+        double lat = obj.getNumber("lat");
+        double lng = obj.getNumber("lng");
+        if (controller.isCreatingNeed()) {
+            controller.setPointInZone(true);
+        } else {
+            System.out.println("Click en zona pero no se está creando una necesidad");
+        }
     }
 
 

@@ -39,6 +39,13 @@ public class MapService {
     @Getter
     int tempIdMarker = 0;
 
+    @Setter
+    @Getter
+    private Boolean pointInZone = false;
+
+    @Setter
+    @Getter
+    private boolean creatingNeed = false;
 
     @Setter
     private LComponentManagementRegistry reg;
