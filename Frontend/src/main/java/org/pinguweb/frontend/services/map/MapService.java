@@ -48,6 +48,10 @@ public class MapService {
     private boolean creatingNeed = false;
 
     @Setter
+    @Getter
+    private boolean editing = false;
+
+    @Setter
     private LComponentManagementRegistry reg;
 
     @Setter
@@ -69,12 +73,6 @@ public class MapService {
 
     @Getter
     private HashSet<Zone> zones = new HashSet<>();
-
-    @Getter
-    private NeedDTO need;
-
-    @Getter
-    private ZoneDTO zone;
 
 
     private MarkerFactory markerFactory;
@@ -116,6 +114,7 @@ public class MapService {
         marker = marker.convertToZoneMarker(reg);
         marker.setID(needDTO.getId());
         marker.addToMap(this.map);
+        marker.getMarkerObj().on("click", "e => document.getElementById('" + ID + "').$server.clickOnNeed(e.latlng, " + marker.getID() + ")");
 
         markers.add(marker);
         MapView.getLLayerGroupNeeds().addLayer(marker.getMarkerObj());
@@ -159,7 +158,7 @@ public class MapService {
         List<Tuple<Double, Double>> points = new ArrayList<>();
 
         for(int i = 0; i < zoneDTO.getLatitudes().size(); i++){
-            points.add(new Tuple<>(zone.getLatitudes().get(i), zone.getLongitudes().get(i)));
+            points.add(new Tuple<>(zoneDTO.getLatitudes().get(i), zoneDTO.getLongitudes().get(i)));
         }
 
         Zone zone = (Zone) zoneFactory.createMapObject(reg, 0.0, zoneDTO.getId()+0.0);
@@ -170,7 +169,7 @@ public class MapService {
         zone.generatePolygon(reg, "red", "blue");
         zone.setID(zoneDTO.getId());
         zone.addToMap(this.map);
-        zone.getPolygon().on("click", "e => document.getElementById('" + ID + "').$server.clickOnZone(e.latlng)");
+        zone.getPolygon().on("click", "e => document.getElementById('" + ID + "').$server.clickOnZone(e.latlng, " + zone.getID() + ")");
 
         zones.add(zone);
         MapView.getLLayerGroupZones().addLayer(zone.getPolygon());

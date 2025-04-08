@@ -63,6 +63,7 @@ public class MapView extends HorizontalLayout {
     private final Button necesidad = new Button("Necesidad");
     private final Button zona = new Button("Zona");
     private final Button borrar = new Button("Borrar");
+    private final Button editar = new Button("Editar");
 
     private HashMap<Tuple<Double, Double>, Marker> zoneMarkers = new HashMap<>();
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
@@ -105,7 +106,7 @@ public class MapView extends HorizontalLayout {
         MapVerticalLayout.add(mapContainer);
         MapVerticalLayout.add(ButtonLayout);
         necesidad.isDisableOnClick();
-        ButtonLayout.add(necesidad, zona, borrar);
+        ButtonLayout.add(necesidad, zona, borrar, editar);
 
         this.controller = new MapService();
         this.controller.setReg(reg);
@@ -115,6 +116,7 @@ public class MapView extends HorizontalLayout {
         necesidad.addClickListener(e -> crearDialogoTarea());
         zona.addClickListener(e -> createDialogZona());
         borrar.addClickListener(e -> clickBorrar());
+        editar.addClickListener(e -> editar());
 
     }
 
@@ -205,6 +207,30 @@ public class MapView extends HorizontalLayout {
         }
     }
 
+
+    public void editar() {
+        if (!controller.isEditing()){
+            this.controller.setEditing(true);
+            this.editar.setText("Detener edicion");
+        }else {
+            this.controller.setEditing(false);
+            this.editar.setText("Editar");
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     private void addControls(
             final LLayerGroup lLayerGroupZones,
             final LLayerGroup lLayerGroupNeeds
@@ -233,10 +259,10 @@ public class MapView extends HorizontalLayout {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
-        double lat = obj.getNumber("lat");
-        double lng = obj.getNumber("lng");
 
         if (controller.getPointInZone()) {
+            this.tempNeedDTO.setLatitude(obj.getNumber("lat"));
+            this.tempNeedDTO.setLongitude(obj.getNumber("lng"));
             Marker marker = controller.createNeed(this.tempNeedDTO);
             marker.pushToServer();
             synchronized (lock) {
@@ -257,6 +283,8 @@ public class MapView extends HorizontalLayout {
         }
 
         Marker marker = this.controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
+        tempZoneDTO.getLatitudes().add(obj.getNumber("lat"));
+        tempZoneDTO.getLongitudes().add(obj.getNumber("lng"));
 
         zoneMarkerPoints.add(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
         zoneMarkers.put(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")), marker);
@@ -298,17 +326,30 @@ public class MapView extends HorizontalLayout {
     }
 
     @ClientCallable
-    public void clickOnZone(final JsonValue input) {
+    public void clickOnZone(final JsonValue input, String id) {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
-        double lat = obj.getNumber("lat");
-        double lng = obj.getNumber("lng");
         if (controller.isCreatingNeed()) {
             controller.setPointInZone(true);
-        } else {
-            System.out.println("Click en zona pero no se está creando una necesidad");
+        } else if (controller.isEditing()) {
+
+        }else {
+            System.out.println("No se esta ni creando ni editando la zona "+ id);
         }
+    }
+
+    @ClientCallable
+    public void clickOnNeed(final JsonValue input, String id) {
+        if (!(input instanceof final JsonObject obj)) {
+            return;
+        }
+        if (controller.isEditing()){
+
+        } else {
+            System.out.println("No se esta editando la necesidad "+id);
+        }
+
     }
 
     @ClientCallable
