@@ -1,8 +1,8 @@
 package org.pinguweb.backend.service;
 
-import org.springframework.stereotype.Service;
-import org.pinguweb.backend.repository.AffectedRepository;
 import org.pinguweb.backend.model.Affected;
+import org.pinguweb.backend.repository.AffectedRepository;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AffectedService {

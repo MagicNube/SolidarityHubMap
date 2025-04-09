@@ -153,6 +153,17 @@ public class MapService {
         return marker;
     }
 
+    public LMarker createZoneMarker(double lat, double lng){
+        LIcon icon = new LIcon(this.reg, new LIconOptions()
+                .withIconUrl("https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png")
+                .withShadowUrl("https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png")
+                .withIconSize(new LPoint(this.reg, 25, 41))
+                .withIconAnchor(new LPoint(this.reg, 12, 41))
+                .withPopupAnchor(new LPoint(this.reg, 1, -34))
+                .withShadowSize(new LPoint(this.reg, 41, 41))
+        );
+
+        LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
 
     public Zone createZone(ZoneDTO zoneDTO) {
         List<Tuple<Double, Double>> points = new ArrayList<>();

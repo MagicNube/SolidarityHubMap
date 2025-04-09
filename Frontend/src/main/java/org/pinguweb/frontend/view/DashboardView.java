@@ -1,16 +1,18 @@
 package org.pinguweb.frontend.view;
 
-
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import org.pinguweb.frontend.utils.AuthUtils;
 
 @Route("dashboard")
 public class DashboardView extends VerticalLayout {
 
     public DashboardView() {
+        AuthUtils.checkAuthentication();
+
         this.setSizeFull();
 
         VerticalLayout dashboardLayout = new VerticalLayout();
@@ -20,19 +22,19 @@ public class DashboardView extends VerticalLayout {
         buttonLayout.setWidthFull();
         this.add(NavigationBar.createNavBar());
 
-
         this.add(buttonLayout);
 
         FlexLayout cardL = new FlexLayout();
         cardL.setFlexWrap(FlexLayout.FlexWrap.WRAP);
         cardL.setJustifyContentMode(FlexLayout.JustifyContentMode.CENTER);
         cardL.setWidthFull();
-        String[] cards = {"volunteer-skills", "users-affected", "Configuración","PendingTaskView", "needs", "Proyectos"};
-        for (int i = 0; i < 6; i++) {
+
+        String[] cards = {"volunteer-skills", "users-affected", "Configuración", "PendingTaskView", "needs", "Proyectos"};
+        for (int i = 0; i < cards.length; i++) {
             Div card = createCard(cards[i], "Description " + i);
             int finalI = i;
             card.addClickListener(e -> {
-                switch (finalI){
+                switch (finalI) {
                     case 0:
                         getUI().ifPresent(ui -> ui.navigate("dashboard/volunteer-skills"));
                         break;
