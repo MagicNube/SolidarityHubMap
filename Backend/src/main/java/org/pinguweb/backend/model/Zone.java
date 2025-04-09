@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
-import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.backend.model.enums.EmergencyLevel;
 
 import java.util.ArrayList;

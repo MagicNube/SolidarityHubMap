@@ -1,22 +1,20 @@
 package org.pinguweb.frontend.view.Dashboard;
 
 import com.storedobject.chart.*;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.pinguweb.DTO.AffectedDTO;
-import org.pinguweb.DTO.NeedDTO;
-import org.pinguweb.DTO.TaskDTO;
 import org.pinguweb.DTO.VolunteerDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
-import com.vaadin.flow.component.button.Button;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
-import java.util.ArrayList;
+
 import java.util.List;
 
 @Route("dashboard/users-affected")
