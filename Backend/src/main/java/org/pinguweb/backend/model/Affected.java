@@ -37,17 +37,5 @@ public class Affected extends Person {
     public void addNeed(Need need) {
         this.needs.add(need);
     }
-
-    public static Affected fromDTO(AffectedDTO dto) {
-        return new Affected(
-                dto.getDni(),
-                dto.getFirstName(),
-                dto.getLastName(),
-                dto.getEmail(),
-                dto.getPhone(),
-                dto.getAffectedAddress(),
-                dto.getPassword(),
-                dto.isDisability());
-    }
 }
 

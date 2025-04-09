@@ -34,11 +34,11 @@ public class Zone {
     private EmergencyLevel emergencyLevel;
 
     @Setter
-    @ManyToMany
+    @ManyToOne
     @JoinTable(name = "catastrophic_zones",
             joinColumns = @JoinColumn(name = "zone_id"),
             inverseJoinColumns = @JoinColumn(name = "catastrophe_id"))
-    private List<Catastrophe> catastrophes;
+    private Catastrophe catastrophe;
 
     @Setter
     @OneToMany(mappedBy = "zone")
@@ -50,24 +50,11 @@ public class Zone {
     @NonNull
     private List<GPSCoordinates> points;
 
+
     public Zone(String name, String description, EmergencyLevel emergencyLevel) {
-        this.catastrophes = new ArrayList<>();
-        this.storages = new ArrayList<>();
         this.name = name;
         this.description = description;
         this.emergencyLevel = emergencyLevel;
         points = new ArrayList<>();
-    }
-
-    public void addStorage(Storage storage) {
-        this.storages.add(storage);
-    }
-    public void addCatastrophe(Catastrophe catastrophe) {
-        this.catastrophes.add(catastrophe);
-    }
-
-    public static Zone fromDTO(ZoneDTO dto) {
-        Zone zone = new Zone();
-        return zone;
     }
 }
