@@ -42,6 +42,7 @@ public class Task {
     private LocalDateTime estimatedEndTimeDate;
 
     @Setter
+    @Enumerated(EnumType.STRING)
     private TaskType type;
 
     @Setter
