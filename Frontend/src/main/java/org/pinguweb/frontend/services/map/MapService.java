@@ -3,12 +3,12 @@ package org.pinguweb.frontend.services.map;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.pinguweb.DTO.NeedDTO;
+import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.frontend.factory.Marker;
 import org.pinguweb.frontend.factory.MarkerFactory;
 import org.pinguweb.frontend.factory.Zone;
 import org.pinguweb.frontend.factory.ZoneFactory;
-import org.pinguweb.DTO.NeedDTO;
-import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.MapView;
@@ -17,14 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
-import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
-import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
-import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
-import software.xdev.vaadin.maps.leaflet.layer.vector.LPolylineOptions;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 

@@ -6,8 +6,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.pinguweb.DTO.TaskDTO;
-import org.pinguweb.backend.model.enums.NeedType;
 import org.pinguweb.backend.model.enums.Priority;
 import org.pinguweb.backend.model.enums.Status;
 import org.pinguweb.backend.model.enums.TaskType;

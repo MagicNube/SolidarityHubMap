@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
-import org.pinguweb.DTO.CatastropheDTO;
 import org.pinguweb.backend.model.enums.EmergencyLevel;
 
 import java.time.LocalDate;
