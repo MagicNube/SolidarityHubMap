@@ -20,10 +20,10 @@ import java.util.List;
 @Route("dashboard/users-affected")
 public class Users extends HorizontalLayout {
 
-    BackendObject<List<VolunteerDTO>> volunteer = BackendService.getListFromBackend(BackendService.BACKEND + "/api/Volunteer",
+    BackendObject<List<VolunteerDTO>> volunteer = BackendService.getListFromBackend(BackendService.BACKEND + "/api/volunteer",
             new ParameterizedTypeReference<List<VolunteerDTO>>() {
             });
-    BackendObject<List<AffectedDTO>> affected = BackendService.getListFromBackend(BackendService.BACKEND + "/api/Affected",
+    BackendObject<List<AffectedDTO>> affected = BackendService.getListFromBackend(BackendService.BACKEND + "/api/affected",
             new ParameterizedTypeReference<List<AffectedDTO>>() {
             });
 
