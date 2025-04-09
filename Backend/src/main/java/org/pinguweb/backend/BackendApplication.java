@@ -29,3 +29,4 @@ public class BackendApplication implements CommandLineRunner {
         System.out.println("Admin guardado correctamente");
 
     }
+}
