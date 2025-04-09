@@ -1,17 +1,12 @@
 package org.pinguweb.frontend.services.map;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
+
 import lombok.Getter;
 import lombok.Setter;
+import org.pinguweb.frontend.factory.Marker;
+import org.pinguweb.frontend.factory.MarkerFactory;
+import org.pinguweb.frontend.factory.Zone;
+import org.pinguweb.frontend.factory.ZoneFactory;
 import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
@@ -19,33 +14,45 @@ import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.MapView;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
-import software.xdev.vaadin.maps.leaflet.basictypes.LIcon;
-import software.xdev.vaadin.maps.leaflet.basictypes.LIconOptions;
 import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
-import software.xdev.vaadin.maps.leaflet.basictypes.LPoint;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
-import software.xdev.vaadin.maps.leaflet.layer.ui.LMarkerOptions;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LPolygon;
 import software.xdev.vaadin.maps.leaflet.layer.vector.LPolylineOptions;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
-
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 @Setter
 @Service
 public class MapService {
     @Setter
-    private LComponentManagementRegistry reg;
+    @Getter
+    int tempIdZone = 0;
 
-    private int tempIdNeed = 0;
-    private int tempIdZone = 0;
+    @Setter
+    @Getter
+    int tempIdMarker = 0;
+
+    @Setter
+    @Getter
+    private Boolean pointInZone = false;
+
+    @Setter
+    @Getter
+    private boolean creatingNeed = false;
+
+    @Setter
+    @Getter
+    private boolean editing = false;
+
+    @Setter
+    private LComponentManagementRegistry reg;
 
     @Setter
     private LMap map;
@@ -61,70 +68,89 @@ public class MapService {
     @Setter
     private String ID;
 
-    private String clickFuncReference;
+    @Getter
+    private HashSet<Marker> markers = new HashSet<>();
 
     @Getter
-    private ArrayList<LMarker> markers = new ArrayList<>();
-
-    @Getter
-    private ArrayList<LPolygon> polygons = new ArrayList<>();
-
-    @Getter
-    private NeedDTO need;
-
-    @Getter
-    private ZoneDTO zone;
+    private HashSet<Zone> zones = new HashSet<>();
 
 
-    public MapService() {}
+    private MarkerFactory markerFactory;
+    private ZoneFactory zoneFactory;
+
+    public MapService() {
+        this.markerFactory = new MarkerFactory();
+        this.zoneFactory = new ZoneFactory();
+        load();
+    }
 
 
     @Async
     public void load() {
         BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need",
-                new ParameterizedTypeReference<List<NeedDTO>>() {});
+                new ParameterizedTypeReference<>() {});
 
         if (needs.getStatusCode() == HttpStatus.OK) {
             for (NeedDTO need : needs.getData()) {
-                createNeed(need.getLatitude(), need.getLongitude());
+                createNeed(need);
+            }
+        }
+
+        BackendObject<List<ZoneDTO>> zonas = BackendService.getListFromBackend(BackendService.BACKEND + "/api/zone",
+                new ParameterizedTypeReference<>() {});
+
+        if (zonas.getStatusCode() == HttpStatus.OK) {
+            for (ZoneDTO zone : zonas.getData()) {
+                createZone(zone);
             }
         }
     }
 
     // TODO: Texto para el el marcador de tarea
-    public void createNeed(double lat, double lng) {
-        LLatLng coords = new LLatLng(this.reg, lat, lng);
-
-        LMarker marker = new LMarker(this.reg, coords);
-        marker.addTo(this.map);
+    public Marker createNeed(NeedDTO needDTO) {
+        double lat = needDTO.getLatitude();
+        double lng = needDTO.getLongitude();
+        Marker marker = (Marker) markerFactory.createMapObject(reg, lat, lng);
+        marker = marker.convertToZoneMarker(reg);
+        marker.setID(needDTO.getId());
+        marker.addToMap(this.map);
+        marker.getMarkerObj().on("click", "e => document.getElementById('" + ID + "').$server.clickOnNeed(e.latlng, " + marker.getID() + ")");
 
         markers.add(marker);
-        MapView.getLLayerGroupNeeds().addLayer(marker);
+        MapView.getLLayerGroupNeeds().addLayer(marker.getMarkerObj());
         this.map.addLayer(MapView.getLLayerGroupNeeds());
+
+        for (Marker m : markers) {
+            System.out.println("ID: " + m.getID() + m );
+        }
+        System.out.println("Fin");
+
+        return marker;
     }
 
-    public void createZone(List<Tuple<Double, Double>> markers) {
-
-        List<LLatLng> points = new ArrayList<>();
-
-        for (Tuple<Double, Double> marker : markers) {
-            points.add(new LLatLng(this.reg, marker._1(), marker._2()));
+    public void deleteNeed(int id) {
+        Marker marker = markers.stream()
+                .filter(m -> m.getID() == id)
+                .findFirst()
+                .orElse(null);
+        if (marker != null) {
+            marker.removeFromMap(this.map);
+            marker.deleteFromServer();
+            markers.remove(marker);
+            MapView.getLLayerGroupNeeds().removeLayer(marker.getMarkerObj());
+            this.map.addLayer(MapView.getLLayerGroupNeeds());
         }
+    }
 
-        LPolygon polygon = new LPolygon(this.reg, points, new LPolylineOptions().withColor("red").withFillColor("blue"));
+    public Marker createZoneMarker(double lat, double lng) {
+        Marker marker = (Marker) markerFactory.createMapObject(reg, lat, lng);
+        marker = marker.convertToZoneMarker(reg);
 
-        clickFuncReference = map.clientComponentJsAccessor() + ".myCoolClickFunc";
-        reg.execJs(clickFuncReference + "=e => document.getElementById('" + ID + "').$server.clickOnZone(e.latlng)");
+        marker.getMarkerObj().on("dragstart", "e => document.getElementById('" + ID + "').$server.zoneMarkerStart(e.target.getLatLng())");
+        marker.getMarkerObj().on("dragend", "e => document.getElementById('" + ID + "').$server.zoneMarkerEnd(e.target.getLatLng())");
+        marker.addToMap(this.map);
 
-        polygon.on("click", clickFuncReference);
-
-        polygon.addTo(this.map);
-
-        polygons.add(polygon);
-        MapView.getLLayerGroupZones().addLayer(polygon);
-        this.map.addLayer(MapView.getLLayerGroupZones());
-
-        points.clear();
+        return marker;
     }
 
     public LMarker createZoneMarker(double lat, double lng){
@@ -139,14 +165,12 @@ public class MapService {
 
         LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
 
-        LMarker marker = new LMarker(this.reg, new LLatLng(this.reg, lat, lng), options);
+    public Zone createZone(ZoneDTO zoneDTO) {
+        List<Tuple<Double, Double>> points = new ArrayList<>();
 
-        marker.on("dragstart", "e => document.getElementById('" + ID + "').$server.zoneMarkerStart(e.target.getLatLng())");
-        marker.on("dragend", "e => document.getElementById('" + ID + "').$server.zoneMarkerEnd(e.target.getLatLng())");
-
-        marker.addTo(this.map);
-        return marker;
-    }
+        for(int i = 0; i < zoneDTO.getLatitudes().size(); i++){
+            points.add(new Tuple<>(zoneDTO.getLatitudes().get(i), zoneDTO.getLongitudes().get(i)));
+        }
 
     public void setZone(String description, String mame, String severity) {
         this.zone = new ZoneDTO();
@@ -156,52 +180,38 @@ public class MapService {
         //TODO: asignar latitudes y longitudes y cambiar
         this.zone.setLatitudes(new ArrayList<>());
         this.zone.setLongitudes(new ArrayList<>());
-        this.zone.setCatastrophes(new ArrayList<>());
+        this.zone.setCatastrophe(null);
         this.zone.setEmergencyLevel(severity);
         this.zone.setStorages(new ArrayList<>());
-
-        this.tempIdZone++;
-
-    }
-
-    public void setNeed(String description, String type, String affected, String urgency, int task, int catastrophe) {
-        this.need = new NeedDTO();
-        this.need.setId(tempIdNeed);
-        this.need.setDescription(description);
-        this.need.setNeedType(type);
-        this.need.setAffected(affected);
-        this.need.setLatitude(0.0);
-        this.need.setLongitude(0.0);
-        this.need.setCatastrophe(catastrophe);
-        this.need.setUrgency(urgency);
-        this.need.setTask(task);
-
-        this.tempIdNeed++;
-    }
-
-    public void deleteZone(ZoneDTO dto){
-        String url = "/api/zone/" + dto.getId();
-        try{
-            HttpStatusCode status = BackendService.deleteFromBackend(url);
-            if (status == HttpStatus.OK){
-                //TODO: Eliminar del mapa
-            }
+        Zone zone = (Zone) zoneFactory.createMapObject(reg, 0.0, zoneDTO.getId()+0.0);
+        for (Tuple<Double, Double> marker : points) {
+            zone.addPoint(reg, marker);
         }
-        catch (Exception e){
-            e.printStackTrace();
+
+        zone.generatePolygon(reg, "red", "blue");
+        zone.setID(zoneDTO.getId());
+        zone.addToMap(this.map);
+        zone.getPolygon().on("click", "e => document.getElementById('" + ID + "').$server.clickOnZone(e.latlng, " + zone.getID() + ")");
+
+        zones.add(zone);
+        MapView.getLLayerGroupZones().addLayer(zone.getPolygon());
+        this.map.addLayer(MapView.getLLayerGroupZones());
+
+        return zone;
+    }
+
+    public void deleteZone(int id) {
+        Zone zone = zones.stream()
+                .filter(z -> z.getID() == id)
+                .findFirst()
+                .orElse(null);
+        if (zone != null) {
+            zone.removeFromMap(this.map);
+            zone.deleteFromServer();
+            zones.remove(zone);
+            MapView.getLLayerGroupZones().removeLayer(zone.getPolygon());
+            this.map.addLayer(MapView.getLLayerGroupZones());
         }
     }
 
-    public void deleteNeed(NeedDTO dto){
-        String url = "/api/need/" + dto.getId();
-        try{
-            HttpStatusCode status = BackendService.deleteFromBackend(url);
-            if (status == HttpStatus.OK){
-                //TODO: Eliminar del mapa
-            }
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 }
