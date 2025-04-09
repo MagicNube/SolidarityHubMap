@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
-import org.pinguweb.DTO.CatastropheDTO;
 import org.pinguweb.backend.model.enums.EmergencyLevel;
 
 import java.time.LocalDate;
@@ -56,7 +55,7 @@ public class Catastrophe {
     private List<Need> needs;
 
     @Setter
-    @ManyToMany(mappedBy = "catastrophes")
+    @OneToMany
     private List<Zone> zones;
 
     public Catastrophe(@NonNull String name, @NonNull String description, @NonNull GPSCoordinates location, LocalDate startDate , @NonNull EmergencyLevel emergencyLevel) {

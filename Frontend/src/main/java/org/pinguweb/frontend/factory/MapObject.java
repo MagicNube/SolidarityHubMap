@@ -1,7 +1,6 @@
 package org.pinguweb.frontend.factory;
 
 import lombok.Data;
-import org.pinguweb.DTO.DTO;
 
 @Data
 public abstract class MapObject {

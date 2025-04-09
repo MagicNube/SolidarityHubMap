@@ -2,7 +2,6 @@ package org.pinguweb.frontend.factory;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.pinguweb.DTO.DTO;
 import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
