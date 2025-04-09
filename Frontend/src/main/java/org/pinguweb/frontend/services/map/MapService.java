@@ -161,6 +161,17 @@ public class MapService {
             points.add(new Tuple<>(zoneDTO.getLatitudes().get(i), zoneDTO.getLongitudes().get(i)));
         }
 
+    public void setZone(String description, String mame, String severity) {
+        this.zone = new ZoneDTO();
+        this.zone.setId(tempIdZone);
+        this.zone.setDescription(description);
+        this.zone.setName(mame);
+        //TODO: asignar latitudes y longitudes y cambiar
+        this.zone.setLatitudes(new ArrayList<>());
+        this.zone.setLongitudes(new ArrayList<>());
+        this.zone.setCatastrophe(null);
+        this.zone.setEmergencyLevel(severity);
+        this.zone.setStorages(new ArrayList<>());
         Zone zone = (Zone) zoneFactory.createMapObject(reg, 0.0, zoneDTO.getId()+0.0);
         for (Tuple<Double, Double> marker : points) {
             zone.addPoint(reg, marker);
