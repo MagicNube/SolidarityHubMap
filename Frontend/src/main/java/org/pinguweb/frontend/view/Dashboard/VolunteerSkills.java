@@ -5,17 +5,19 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.pinguweb.DTO.SkillDTO;
 import org.pinguweb.DTO.VolunteerDTO;
+import org.pinguweb.enums.TaskType;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.springframework.core.ParameterizedTypeReference;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Route("dashboard/volunteer-skills")
 public class VolunteerSkills extends VerticalLayout {
 
     private List<VolunteerDTO> volunteers;
-    private List<SkillDTO> skills;
+    ArrayList<TaskType> skills =  new ArrayList<TaskType>();
 
     public VolunteerSkills() {
         this.setSizeFull();
@@ -23,12 +25,13 @@ public class VolunteerSkills extends VerticalLayout {
         BackendObject<List<VolunteerDTO>> volunteerResponse = BackendService.getListFromBackend(BackendService.BACKEND + "/api/volunteers",
                 new ParameterizedTypeReference<List<VolunteerDTO>>() {
                 });
-        BackendObject<List<SkillDTO>> skillResponse = BackendService.getListFromBackend(BackendService.BACKEND + "/api/skills",
-                new ParameterizedTypeReference<List<SkillDTO>>() {
-                });
+
 
         this.volunteers = volunteerResponse.getData();
-        this.skills = skillResponse.getData();
+
+        for (TaskType taskType : TaskType.values()) {
+            skills.add(taskType);
+        }
 
         SOChart barChart = createVolunteerSkillsBarChart();
         this.add(barChart);
@@ -42,21 +45,27 @@ public class VolunteerSkills extends VerticalLayout {
 
         if (skills != null) {
              labels = skills.stream()
-                    .filter(skill -> skill != null && skill.getName() != null)
-                    .map(SkillDTO::getName)
+                    .filter(skill -> skill != null )
+                    .map(TaskType::name)
                     .toArray(String[]::new);
         } else {
 
              labels = new String[0];
-            System.out.println("no hay datos");
+
         }
         int[] data = new int[skills.size()];
 
         for (VolunteerDTO volunteer : volunteers) {
-            for ( String skill: volunteer.getTaskPreferences()) {
-                int index = skills.indexOf(skill);
-                if (index >= 0) {
-                    data[index]++;
+            for (String skill : volunteer.getTaskPreferences()) {
+                try {
+                    TaskType taskType = TaskType.valueOf(skill);
+                    int index = skills.indexOf(taskType);
+                    if (index >= 0) {
+                        data[index]++;
+                    }
+                } catch (IllegalArgumentException e) {
+                    // El string no coincide con ningún valor de TaskType. Puedes loguear o ignorar este caso.
+                    System.err.println("Skill desconocida: " + skill);
                 }
             }
         }
