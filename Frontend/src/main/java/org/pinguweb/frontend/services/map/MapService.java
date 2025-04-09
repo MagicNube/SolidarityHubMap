@@ -153,18 +153,6 @@ public class MapService {
         return marker;
     }
 
-    public LMarker createZoneMarker(double lat, double lng){
-        LIcon icon = new LIcon(this.reg, new LIconOptions()
-                .withIconUrl("https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png")
-                .withShadowUrl("https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png")
-                .withIconSize(new LPoint(this.reg, 25, 41))
-                .withIconAnchor(new LPoint(this.reg, 12, 41))
-                .withPopupAnchor(new LPoint(this.reg, 1, -34))
-                .withShadowSize(new LPoint(this.reg, 41, 41))
-        );
-
-        LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
-
     public Zone createZone(ZoneDTO zoneDTO) {
         List<Tuple<Double, Double>> points = new ArrayList<>();
 
@@ -172,17 +160,6 @@ public class MapService {
             points.add(new Tuple<>(zoneDTO.getLatitudes().get(i), zoneDTO.getLongitudes().get(i)));
         }
 
-    public void setZone(String description, String mame, String severity) {
-        this.zone = new ZoneDTO();
-        this.zone.setId(tempIdZone);
-        this.zone.setDescription(description);
-        this.zone.setName(mame);
-        //TODO: asignar latitudes y longitudes y cambiar
-        this.zone.setLatitudes(new ArrayList<>());
-        this.zone.setLongitudes(new ArrayList<>());
-        this.zone.setCatastrophe(null);
-        this.zone.setEmergencyLevel(severity);
-        this.zone.setStorages(new ArrayList<>());
         Zone zone = (Zone) zoneFactory.createMapObject(reg, 0.0, zoneDTO.getId()+0.0);
         for (Tuple<Double, Double> marker : points) {
             zone.addPoint(reg, marker);

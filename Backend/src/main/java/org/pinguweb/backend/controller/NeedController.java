@@ -7,6 +7,7 @@ import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Need;
 import org.pinguweb.backend.model.Need;
 import org.pinguweb.backend.repository.NeedRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;

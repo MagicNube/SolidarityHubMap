@@ -53,7 +53,7 @@ public class VolunteerSkills extends VerticalLayout {
         int[] data = new int[skills.size()];
 
         for (VolunteerDTO volunteer : volunteers) {
-            for ( String skill: volunteer.getSkills()) {
+            for ( String skill: volunteer.getTaskPreferences()) {
                 int index = skills.indexOf(skill);
                 if (index >= 0) {
                     data[index]++;
