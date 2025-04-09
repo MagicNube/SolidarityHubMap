@@ -16,9 +16,8 @@ public class VolunteerDTO implements DTO{
     private int phone;
     private String homeAddress;
     private String password;
-    private List<String> skills;
     private List<Long> scheduleAvailabilities;
-    private List<String> preferences;
+    private List<String> taskPreferences;
     private List<Integer> tasks;
     private List<Integer> donations;
     private List<Integer> certificates;

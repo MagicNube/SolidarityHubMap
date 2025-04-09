@@ -29,11 +29,4 @@ public class Admin {
         this.dni = dni;
         this.password = password;
     }
-
-    public static Admin fromDTO(AdminDTO dto) {
-        Admin admin = new Admin();
-        admin.dni = dto.getDni();
-        admin.password = dto.getPassword();
-        return admin;
-    }
 }
