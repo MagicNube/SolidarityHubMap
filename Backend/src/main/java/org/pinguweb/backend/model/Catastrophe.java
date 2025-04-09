@@ -55,7 +55,7 @@ public class Catastrophe {
     private List<Need> needs;
 
     @Setter
-    @ManyToMany(mappedBy = "catastrophes")
+    @OneToMany
     private List<Zone> zones;
 
     public Catastrophe(@NonNull String name, @NonNull String description, @NonNull GPSCoordinates location, LocalDate startDate , @NonNull EmergencyLevel emergencyLevel) {
