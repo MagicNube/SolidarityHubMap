@@ -1,4 +1,4 @@
-package org.pinguweb.backend.model.enums;
+package org.pinguweb.enums;
 
 public enum TaskType {
     MEDICAL, SEARCH, SAFETY, LOGISTICS, COMMUNICATION, PSYCHOLOGICAL, FEED, MOBILITY, REFUGE, OTHER, PEOPLEMANAGEMENT, CLOTHING, BUILDING, CLEANING,
