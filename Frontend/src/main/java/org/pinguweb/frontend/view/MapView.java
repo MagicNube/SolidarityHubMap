@@ -62,13 +62,16 @@ public class MapView extends HorizontalLayout {
 
     private final Button necesidad = new Button("Necesidad");
     private final Button zona = new Button("Zona");
-    private final Button borrar = new Button("Borrar");
+    private final Button ruta = new Button("Ruta Segura");
     private final Button editar = new Button("Editar");
+    private final Button borrar = new Button("Borrar");
 
     private HashMap<Tuple<Double, Double>, Marker> zoneMarkers = new HashMap<>();
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
     private Tuple<Double, Double> zoneMarkerStartingPoint;
+
     private String clickFuncReferenceCreateZone;
+    private String clickFuncReferenceCreateNeed;
 
     private NeedDTO tempNeedDTO;
     private ZoneDTO tempZoneDTO;
@@ -100,13 +103,15 @@ public class MapView extends HorizontalLayout {
         this.map.on("overlayremove", "e => document.getElementById('" + ID + "').$server.overlay('inactivo')");
 
         clickFuncReferenceCreateZone = map.clientComponentJsAccessor() + ".myClickFuncCreateZone";
+        clickFuncReferenceCreateNeed = map.clientComponentJsAccessor() + ".myClickFuncCreateNeed";
+
 
         this.map.locate(new LMapLocateOptions().withSetView(true));
 
         MapVerticalLayout.add(mapContainer);
         MapVerticalLayout.add(ButtonLayout);
         necesidad.isDisableOnClick();
-        ButtonLayout.add(necesidad, zona, borrar, editar);
+        ButtonLayout.add(necesidad, zona, ruta, editar, borrar);
 
         this.controller = new MapService();
         this.controller.setReg(reg);
@@ -124,7 +129,8 @@ public class MapView extends HorizontalLayout {
         this.mapContainer.addClassName("map_action");
         this.tempNeedDTO = needDTO;
         controller.setCreatingNeed(true);
-        this.map.once("click", "e => document.getElementById('" + ID + "').$server.mapNeed(e.latlng)");
+        reg.execJs(clickFuncReferenceCreateNeed + "=e => document.getElementById('" + ID + "').$server.mapNeed(e.latlng)");
+        this.map.on("click", clickFuncReferenceCreateNeed);
         ui = UI.getCurrent();
 
         new Thread(() -> {
@@ -268,6 +274,7 @@ public class MapView extends HorizontalLayout {
             synchronized (lock) {
                 lock.notify();
             }
+            this.map.off("click", clickFuncReferenceCreateNeed);
             ui.push();
             controller.setPointInZone(false);
             controller.setCreatingNeed(false);
@@ -400,7 +407,7 @@ public class MapView extends HorizontalLayout {
             TextArea nameTextArea = new TextArea();
             nameTextArea.setPlaceholder("nombre");
             nameTextArea.setWidth("50vw");
-            nameTextArea.setHeight("3vh");
+            nameTextArea.setHeight("5vh");
 
             ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
             severityComboBox.setItems("Baja", "Media", "Alta");
