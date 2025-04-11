@@ -14,6 +14,7 @@ public class NeedDTO implements DTO{
     private String needType;
     private Double latitude;
     private Double longitude;
+    private String status;
     private int catastrophe;
     private int task;
 }

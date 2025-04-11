@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.pinguweb.backend.model.enums.Status;
 import org.pinguweb.backend.model.enums.TaskType;
 import org.pinguweb.backend.model.enums.UrgencyLevel;
 
@@ -50,6 +51,10 @@ public class Need {
     @JoinColumn(name = "catastrophe_id")
     @Setter
     private Catastrophe catastrophe;
+
+    @Setter
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @Setter
     @ManyToOne
