@@ -5,6 +5,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.pinguweb.DTO.SkillDTO;
 import org.pinguweb.DTO.VolunteerDTO;
+import org.pinguweb.enums.TaskType;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,6 +17,7 @@ public class VolunteerSkills extends VerticalLayout {
 
     private List<VolunteerDTO> volunteers;
     private List<SkillDTO> skills;
+    private TaskType[] tasks = TaskType.values();
 
     public VolunteerSkills() {
         this.setSizeFull();
