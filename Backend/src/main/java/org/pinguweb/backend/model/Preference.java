@@ -3,7 +3,7 @@ package org.pinguweb.backend.model;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.Entity;
-import jakarta.persistence.ID;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
         property = "name"
 )
 public class Preference {
-    @ID
+    @Id
     private String name;
 
     public Preference(String name) {

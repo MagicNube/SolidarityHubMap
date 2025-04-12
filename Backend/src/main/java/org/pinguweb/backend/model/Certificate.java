@@ -15,7 +15,7 @@ import lombok.Setter;
         property = "ID"
 )
 public class Certificate {
-    @ID
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int ID;
 

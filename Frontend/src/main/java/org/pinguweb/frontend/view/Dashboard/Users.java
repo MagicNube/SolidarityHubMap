@@ -88,7 +88,7 @@ public class Users extends HorizontalLayout {
             TaskDTO tarea = null;
             for (NeedDTO need : needs.getData()) {
                 for ( TaskDTO t : tasks.getData()){
-                    if ( need.getTask() == t.getId()){break}
+                    if ( need.getTask() == t.getID()){break}
                 }
                 if ((startDate == null || (tarea.getStartTimeDate().toString()).compareTo(startDate) >= 0) &&
                         (endDate == null || tarea.getEstimatedEndTimeDate().toString().compareTo(endDate) <= 0) &&
@@ -102,8 +102,8 @@ public class Users extends HorizontalLayout {
             // Update the charts with the filtered data
             int taskCR = (int) filteredTasks.stream().filter(task -> task.getStatus().equals("IN_PROGRESS")).count();
             int taskCO = (int) filteredTasks.stream().filter(task -> task.getStatus().equals("FINISHED")).count();
-            int needsCR = (int) filteredNeeds.stream().filter(need -> need.getId() != 0).count();
-            int needsCO = (int) filteredNeeds.stream().filter(need -> need.getId() == 0).count();
+            int needsCR = (int) filteredNeeds.stream().filter(need -> need.getID() != 0).count();
+            int needsCO = (int) filteredNeeds.stream().filter(need -> need.getID() == 0).count();
 
             chartLayout.removeAll();
             chartLayout.add(createPieChart(taskCR, taskCO, needsCR, needsCO), createBarChart(taskCR, taskCO, needsCR, needsCO), createLineChart(taskCR, taskCO, needsCR, needsCO));

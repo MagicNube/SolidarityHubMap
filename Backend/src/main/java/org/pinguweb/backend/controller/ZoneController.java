@@ -67,7 +67,7 @@ public class ZoneController {
 
                 if (tasks != null) {
                     List<Task> tasksInZone = tasks.stream()
-                            .filter(task -> task.getZone().getId() == zone.getId())
+                            .filter(task -> task.getZone().getID() == zone.getID())
                             .collect(Collectors.toList());
                     return CompletableFuture.completedFuture(ResponseEntity.ok(tasksInZone.stream().map(factory::createTaskDTO).toList()));
                 }
@@ -111,7 +111,7 @@ public class ZoneController {
     public CompletableFuture<ResponseEntity<ZoneDTO>> updateZone(@RequestBody ZoneDTO zone) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        Optional<Zone> res = service.findByID(zone.getId());
+        Optional<Zone> res = service.findByID(zone.getID());
         if (res.isPresent()) {
             ModelDTOFactory factory = new ModelDTOFactory();
             BackendDTOFactory dtoFactory = new BackendDTOFactory();

@@ -80,7 +80,7 @@ public class NeedController {
     public CompletableFuture<ResponseEntity<NeedDTO>> updateNeed(@RequestBody NeedDTO need) {
         if (ServerException.isServerClosed(service.getNeedRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        Optional<Need> res = service.findByID(need.getId());
+        Optional<Need> res = service.findByID(need.getID());
         if (res.isPresent()) {
             ModelDTOFactory factory = new ModelDTOFactory();
             BackendDTOFactory dtoFactory = new BackendDTOFactory();

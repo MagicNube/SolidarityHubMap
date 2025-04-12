@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
-import org.pinguweb.model.enums.EmergencyLevel;
 
+import org.pinguweb.enums.RouteType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,12 +17,13 @@ import java.util.List;
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "ID"
 )
-public class Zone {
+public class Route {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int ID;
 
     @Setter
+    @NonNull
     private String name;
 
     @Setter
@@ -30,30 +31,25 @@ public class Zone {
 
     @Setter
     @Enumerated(EnumType.STRING)
-    private EmergencyLevel emergencyLevel;
+    @NonNull
+    private RouteType routeType;
 
     @Setter
     @ManyToOne
-    @JoinTable(name = "catastrophic_zones",
-            joinColumns = @JoinColumn(name = "zone_id"),
-            inverseJoinColumns = @JoinColumn(name = "catastrophe_id"))
+    @NonNull
     private Catastrophe catastrophe;
 
-    @Setter
-    @OneToMany(mappedBy = "zone")
-    private List<Storage> storages;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "location_id")
+    @JoinColumn(name = "points")
     @Setter
     @NonNull
-    private List<GPSCoordinates> points;
+    private List<RoutePoint> points;
 
-
-    public Zone(String name, String description, EmergencyLevel emergencyLevel) {
+    public Route(@NonNull String name, String description, @NonNull RouteType routeType, @NonNull Catastrophe catastrophe) {
+        this.catastrophe = catastrophe;
         this.name = name;
         this.description = description;
-        this.emergencyLevel = emergencyLevel;
+        this.routeType = routeType;
         points = new ArrayList<>();
     }
 }

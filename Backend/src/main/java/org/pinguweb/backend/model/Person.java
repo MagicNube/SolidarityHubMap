@@ -2,7 +2,7 @@ package org.pinguweb.backend.model;
 
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.Column;
-import jakarta.persistence.ID;
+import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,13 +15,13 @@ import lombok.Setter;
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "dni"
 )
-@JsonTypeInfo(use = JsonTypeInfo.ID.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Volunteer.class, name = "Volunteer"),
         @JsonSubTypes.Type(value = Affected.class, name = "Affected")
 })
 public abstract class Person {
-    @ID
+    @Id
     @JsonProperty("dni")
     private String dNI;
 

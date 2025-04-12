@@ -20,6 +20,7 @@ import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.Zone;
+import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.pinguweb.frontend.services.map.MapService;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
@@ -65,7 +66,7 @@ public class MapView extends HorizontalLayout {
     private final Button borrar = new Button("Borrar");
     private final Button editar = new Button("Editar");
 
-    private HashMap<Tuple<Double, Double>, Need> zoneMarkers = new HashMap<>();
+    private HashMap<Tuple<Double, Double>, ZoneMarker> zoneMarkers = new HashMap<>();
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
     private Tuple<Double, Double> zoneMarkerStartingPoint;
     private String clickFuncReferenceCreateZone;
@@ -165,8 +166,8 @@ public class MapView extends HorizontalLayout {
         this.controller.setZoneBool(false);
         this.mapContainer.removeClassName("map_action");
 
-        for (Need need : zoneMarkers.values()) {
-            need.removeFromMap(this.map);
+        for (ZoneMarker zoneMarker : zoneMarkers.values()) {
+            zoneMarker.removeFromMap(this.map);
         }
 
         zoneMarkers.clear();
@@ -282,12 +283,12 @@ public class MapView extends HorizontalLayout {
             return;
         }
 
-        Need need = this.controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
+        ZoneMarker zoneMarker = this.controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
         tempZoneDTO.getLatitudes().add(obj.getNumber("lat"));
         tempZoneDTO.getLongitudes().add(obj.getNumber("lng"));
 
         zoneMarkerPoints.add(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
-        zoneMarkers.put(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")), need);
+        zoneMarkers.put(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")), zoneMarker);
 
         if (zoneMarkerPoints.size() > 2) {
             zona.setEnabled(true);
@@ -412,7 +413,7 @@ public class MapView extends HorizontalLayout {
 
             ZoneDTO zoneDTO = new ZoneDTO();
             //TODO: Mirar cambiar como se asigna el ID
-            zoneDTO.setId(controller.getTempIdZone());
+            zoneDTO.setID(controller.getTempIdZone());
             controller.setTempIdZone(controller.getTempIdZone() + 1);
             zoneDTO.setDescription(descriptionTextArea.getValue());
             zoneDTO.setName(nameTextArea.getValue());
@@ -479,7 +480,7 @@ public class MapView extends HorizontalLayout {
 
         NeedDTO needDTO = new NeedDTO();
         //TODO: Mirar cambiar como se asigna el ID
-        needDTO.setId(controller.getTempIdMarker());
+        needDTO.setID(controller.getTempIdMarker());
         controller.setTempIdMarker(controller.getTempIdMarker() + 1);
         needDTO.setDescription(descriptionTextArea.getValue());
         needDTO.setNeedType(typesComboBox.getValue());

@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
-import org.pinguweb.backend.model.enums.EmergencyLevel;
+import org.pinguweb.model.enums.EmergencyLevel;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.List;
         property = "ID"
 )
 public class Catastrophe {
-    @ID
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int ID;
 

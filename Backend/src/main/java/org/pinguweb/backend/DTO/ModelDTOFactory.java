@@ -1,14 +1,14 @@
 package org.pinguweb.backend.DTO;
 
-import org.pinguweb.DTO.NeedDTO;
-import org.pinguweb.DTO.StorageDTO;
-import org.pinguweb.DTO.ZoneDTO;
+import org.pinguweb.DTO.*;
 import org.pinguweb.backend.model.*;
-import org.pinguweb.backend.model.enums.EmergencyLevel;
-import org.pinguweb.backend.model.enums.Status;
-import org.pinguweb.backend.model.enums.TaskType;
-import org.pinguweb.backend.model.enums.UrgencyLevel;
 import org.pinguweb.backend.service.*;
+import org.pinguweb.enums.RoutePointType;
+import org.pinguweb.enums.RouteType;
+import org.pinguweb.enums.TaskType;
+import org.pinguweb.model.enums.EmergencyLevel;
+import org.pinguweb.model.enums.Status;
+import org.pinguweb.model.enums.UrgencyLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +26,10 @@ public class ModelDTOFactory {
     AffectedService affectedService;
     @Autowired
     ZoneService zoneService;
+    @Autowired
+    private RoutePointService routePointService;
+    @Autowired
+    private RouteService routeService;
 
     public Zone createFromDTO(ZoneDTO dto){
         Zone zona = new Zone();
@@ -99,5 +103,33 @@ public class ModelDTOFactory {
 
 
         return storage;
+    }
+
+    public Route createFromDTO(RouteDTO dto){
+        Route route = new Route();
+        route.setName(dto.getName());
+        route.setRouteType(RouteType.valueOf(dto.getRouteType()));
+        Optional<Catastrophe> routeCatastrophe = catastropheService.findByID(dto.getCatastrophe());
+        if (routeCatastrophe.isPresent()) {
+            route.setCatastrophe(routeCatastrophe.get());
+        }
+
+        for (Integer i : dto.getPoints()){
+            Optional<RoutePoint> point = routePointService.findByID(i);
+            if (point.isPresent()){
+                route.getPoints().add(point.get());
+            }
+        }
+
+        return route;
+    }
+
+    public RoutePoint createFromDTO(RoutePointDTO dto){
+        RoutePoint point = new RoutePoint();
+        GPSCoordinates coordinates = new GPSCoordinates(dto.getLatitude(), dto.getLongitude());
+        point.setLocation(coordinates);
+        point.setRoutePointType(RoutePointType.valueOf(dto.getRouteType()));
+        point.setRoute(routeService.findByID(dto.getID()).get());
+        return point;
     }
 }

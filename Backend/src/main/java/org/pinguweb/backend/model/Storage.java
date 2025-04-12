@@ -18,7 +18,7 @@ import java.util.List;
         property = "ID"
 )
 public class Storage {
-    @ID
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int ID;
 

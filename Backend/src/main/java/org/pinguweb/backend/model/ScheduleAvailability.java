@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.pinguweb.backend.model.enums.DayMoment;
-import org.pinguweb.backend.model.enums.WeekDay;
+import org.pinguweb.model.enums.DayMoment;
+import org.pinguweb.model.enums.WeekDay;
 
 @Getter
 @Entity
@@ -18,7 +18,7 @@ import org.pinguweb.backend.model.enums.WeekDay;
 )
 public class ScheduleAvailability {
 
-    @ID
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ID;
 

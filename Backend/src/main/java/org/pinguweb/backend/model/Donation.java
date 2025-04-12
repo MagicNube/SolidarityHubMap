@@ -17,7 +17,7 @@ import java.util.List;
         property = "ID"
 )
 public class Donation {
-    @ID
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int ID;
 

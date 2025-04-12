@@ -7,8 +7,10 @@ import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.Zone;
+import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.pinguweb.frontend.mapObjects.factories.NeedFactory;
 import org.pinguweb.frontend.mapObjects.factories.ZoneFactory;
+import org.pinguweb.frontend.mapObjects.factories.ZoneMarkerFactory;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.MapView;
@@ -73,10 +75,12 @@ public class MapService {
 
     private NeedFactory needFactory;
     private ZoneFactory zoneFactory;
+    private ZoneMarkerFactory zoneMarkerFactory;
 
     public MapService() {
         this.needFactory = new NeedFactory();
         this.zoneFactory = new ZoneFactory();
+        this.zoneMarkerFactory = new ZoneMarkerFactory();
         load();
     }
 
@@ -106,8 +110,8 @@ public class MapService {
     public Need createNeed(NeedDTO needDTO) {
         double lat = needDTO.getLatitude();
         double lng = needDTO.getLongitude();
-        Need need = (Need) needFactory.createZoneMapObject(reg, lat, lng);
-        need.setID(needDTO.getId());
+        Need need = (Need) needFactory.createMapObject(reg, lat, lng);
+        need.setID(needDTO.getID());
         need.addToMap(this.map);
         need.getMarkerObj().on("click", "e => document.getElementById('" + ID + "').$server.clickOnNeed(e.latlng, " + need.getID() + ")");
 
@@ -137,14 +141,14 @@ public class MapService {
         }
     }
 
-    public Need createZoneMarker(double lat, double lng) {
-        Need need = (Need) needFactory.createZoneMapObject(reg, lat, lng);
+    public ZoneMarker createZoneMarker(double lat, double lng) {
+        ZoneMarker zoneMarker = (ZoneMarker) zoneMarkerFactory.createMapObject(reg, lat, lng);
 
-        need.getMarkerObj().on("dragstart", "e => document.getElementById('" + ID + "').$server.zoneMarkerStart(e.target.getLatLng())");
-        need.getMarkerObj().on("dragend", "e => document.getElementById('" + ID + "').$server.zoneMarkerEnd(e.target.getLatLng())");
-        need.addToMap(this.map);
+        zoneMarker.getMarkerObj().on("dragstart", "e => document.getElementById('" + ID + "').$server.zoneMarkerStart(e.target.getLatLng())");
+        zoneMarker.getMarkerObj().on("dragend", "e => document.getElementById('" + ID + "').$server.zoneMarkerEnd(e.target.getLatLng())");
+        zoneMarker.addToMap(this.map);
 
-        return need;
+        return zoneMarker;
     }
 
     public Zone createZone(ZoneDTO zoneDTO) {
@@ -154,13 +158,13 @@ public class MapService {
             points.add(new Tuple<>(zoneDTO.getLatitudes().get(i), zoneDTO.getLongitudes().get(i)));
         }
 
-        Zone zone = (Zone) zoneFactory.createMapObject(reg, 0.0, zoneDTO.getId()+0.0);
+        Zone zone = (Zone) zoneFactory.createMapObject(reg, 0.0, zoneDTO.getID()+0.0);
         for (Tuple<Double, Double> marker : points) {
             zone.addPoint(reg, marker);
         }
 
         zone.generatePolygon(reg, "red", "blue");
-        zone.setID(zoneDTO.getId());
+        zone.setID(zoneDTO.getID());
         zone.addToMap(this.map);
         zone.getPolygon().on("click", "e => document.getElementById('" + ID + "').$server.clickOnZone(e.latlng, " + zone.getID() + ")");
 

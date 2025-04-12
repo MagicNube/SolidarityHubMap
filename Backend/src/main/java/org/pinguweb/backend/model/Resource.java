@@ -17,7 +17,7 @@ import lombok.ToString;
         property = "ID"
 )
 public class Resource {
-    @ID
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int ID;
 

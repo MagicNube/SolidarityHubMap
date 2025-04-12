@@ -3,7 +3,7 @@ package org.pinguweb.backend.DTO;
 import lombok.NoArgsConstructor;
 import org.pinguweb.DTO.*;
 import org.pinguweb.backend.model.*;
-import org.pinguweb.backend.model.enums.TaskType;
+import org.pinguweb.enums.TaskType;
 
 import java.util.stream.Collectors;
 
@@ -35,14 +35,14 @@ public class BackendDTOFactory{
             affectedDTO.setLongitude(afectado.getGpsCoordinates().getLongitude());
         }
         if (afectado.getNeeds() != null) {
-            affectedDTO.setNeeds(afectado.getNeeds().stream().map(Need::getId).collect(Collectors.toList()));
+            affectedDTO.setNeeds(afectado.getNeeds().stream().map(Need::getID).collect(Collectors.toList()));
         }
         return affectedDTO;
     }
 
     public CatastropheDTO createCatastropheDTO(Catastrophe catastrophe) {
         CatastropheDTO catastropheDTO = new CatastropheDTO();
-        catastropheDTO.setId(catastrophe.getID());
+        catastropheDTO.setID(catastrophe.getID());
         catastropheDTO.setName(catastrophe.getName());
         catastropheDTO.setDescription(catastrophe.getDescription());
         catastropheDTO.setStartDate(catastrophe.getStartDate());
@@ -51,10 +51,10 @@ public class BackendDTOFactory{
         catastropheDTO.setLongitude(catastrophe.getLocation().getLongitude());
 
         if (catastrophe.getNeeds() != null) {
-            catastropheDTO.setNeeds(catastrophe.getNeeds().stream().map(Need::getId).collect(Collectors.toList()));
+            catastropheDTO.setNeeds(catastrophe.getNeeds().stream().map(Need::getID).collect(Collectors.toList()));
         }
         if (catastrophe.getZones() != null) {
-            catastropheDTO.setZones(catastrophe.getZones().stream().map(Zone::getId).collect(Collectors.toList()));
+            catastropheDTO.setZones(catastrophe.getZones().stream().map(Zone::getID).collect(Collectors.toList()));
         }
 
         return catastropheDTO;
@@ -62,7 +62,7 @@ public class BackendDTOFactory{
 
     public NeedDTO createNeedDTO(Need need) {
         NeedDTO needDTO = new NeedDTO();
-        needDTO.setId(need.getId());
+        needDTO.setID(need.getID());
         needDTO.setDescription(need.getDescription());
 
         if (need.getTaskType() != null) {
@@ -85,7 +85,7 @@ public class BackendDTOFactory{
             needDTO.setCatastrophe(need.getCatastrophe().getID());
         }
         if (need.getTask() != null) {
-            needDTO.setTask(need.getTask().getId());
+            needDTO.setTask(need.getTask().getID());
         }
 
         return needDTO;
@@ -99,10 +99,10 @@ public class BackendDTOFactory{
         taskDTO.setEstimatedEndTimeDate(task.getEstimatedEndTimeDate());
 
         if (task.getNeed() != null) {
-            taskDTO.setNeed(task.getNeed().stream().map(Need::getId).collect(Collectors.toList()));
+            taskDTO.setNeed(task.getNeed().stream().map(Need::getID).collect(Collectors.toList()));
         }
         if (task.getZone() != null) {
-            taskDTO.setZone(task.getZone().getId());
+            taskDTO.setZone(task.getZone().getID());
         }
         if (task.getPriority() != null) {
             taskDTO.setPriority(task.getPriority().name());
@@ -131,26 +131,26 @@ public class BackendDTOFactory{
             volunteerDTO.setTaskPreferences(volunteer.getTaskTypes().stream().map(TaskType::name).collect(Collectors.toList()));
         }
         if (volunteer.getScheduleAvailabilities() != null) {
-            volunteerDTO.setScheduleAvailabilities(volunteer.getScheduleAvailabilities().stream().map(ScheduleAvailability::getId).collect(Collectors.toList()));
+            volunteerDTO.setScheduleAvailabilities(volunteer.getScheduleAvailabilities().stream().map(ScheduleAvailability::getID).collect(Collectors.toList()));
         }
         if (volunteer.getTasks() != null) {
-            volunteerDTO.setTasks(volunteer.getTasks().stream().map(Task::getId).collect(Collectors.toList()));
+            volunteerDTO.setTasks(volunteer.getTasks().stream().map(Task::getID).collect(Collectors.toList()));
         }
         if (volunteer.getDonations() != null) {
-            volunteerDTO.setDonations(volunteer.getDonations().stream().map(Donation::getId).collect(Collectors.toList()));
+            volunteerDTO.setDonations(volunteer.getDonations().stream().map(Donation::getID).collect(Collectors.toList()));
         }
         if (volunteer.getCertificates() != null) {
-            volunteerDTO.setCertificates(volunteer.getCertificates().stream().map(Certificate::getId).collect(Collectors.toList()));
+            volunteerDTO.setCertificates(volunteer.getCertificates().stream().map(Certificate::getID).collect(Collectors.toList()));
         }
         if (volunteer.getNotifications() != null) {
-            volunteerDTO.setNotifications(volunteer.getNotifications().stream().map(Notification::getId).collect(Collectors.toList()));
+            volunteerDTO.setNotifications(volunteer.getNotifications().stream().map(Notification::getID).collect(Collectors.toList()));
         }
         return volunteerDTO;
     }
 
     public ZoneDTO createZoneDTO(Zone zone) {
         ZoneDTO zoneDTO = new ZoneDTO();
-        zoneDTO.setId(zone.getId());
+        zoneDTO.setID(zone.getID());
         zoneDTO.setName(zone.getName());
         zoneDTO.setDescription(zone.getDescription());
 
@@ -165,19 +165,39 @@ public class BackendDTOFactory{
 
     public StorageDTO createStorageDTO(Storage storage){
         StorageDTO storageDTO = new StorageDTO();
-        storageDTO.setID(storage.getId());
+        storageDTO.setID(storage.getID());
         storageDTO.setName(storage.getName());
         storageDTO.setLatitude(storage.getGpsCoordinates().getLatitude());
         storageDTO.setLatitude(storage.getGpsCoordinates().getLongitude());
         storageDTO.setFull(storage.isFull());
 
         if (storage.getResources() != null){
-            storageDTO.setResources(storage.getResources().stream().map(Resource::getId).toList());
+            storageDTO.setResources(storage.getResources().stream().map(Resource::getID).toList());
         }
         if (storage.getZone() != null) {
-            storageDTO.setZone(storage.getZone().getId());
+            storageDTO.setZone(storage.getZone().getID());
         }
 
         return storageDTO;
+    }
+
+    public RouteDTO createRouteDTO(Route route){
+        RouteDTO routeDTO = new RouteDTO();
+        routeDTO.setID(route.getID());
+        routeDTO.setName(route.getName());
+        routeDTO.setRouteType(route.getRouteType().name());
+        routeDTO.setCatastrophe(route.getCatastrophe().getID());
+        routeDTO.setPoints(route.getPoints().stream().map(RoutePoint::getID).toList());
+        return routeDTO;
+    }
+
+    public RoutePointDTO createRoutePointDTO(RoutePoint routePoint){
+        RoutePointDTO routePointDTO = new RoutePointDTO();
+        routePointDTO.setID(routePoint.getID());
+        routePointDTO.setLatitude(routePoint.getLocation().getLatitude());
+        routePointDTO.setLongitude(routePoint.getLocation().getLongitude());
+        routePointDTO.setRouteType(routePoint.getRoutePointType().name());
+        routePointDTO.setRoute(routePoint.getRoute().getID());
+        return routePointDTO;
     }
 }
