@@ -21,7 +21,6 @@ import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 public class Marker extends MapObject{
 
     LMarker markerObj;
-    Integer ID;
 
     public Marker(LComponentManagementRegistry reg, Double latitude, Double longitude){
         this.setLatitude(latitude);
@@ -45,11 +44,12 @@ public class Marker extends MapObject{
         return this;
     }
 
-
+    @Override
     public void addToMap(LMap map){
         this.getMarkerObj().addTo(map);
     }
 
+    @Override
     public void removeFromMap(LMap map){
         this.getMarkerObj().removeFrom(map);
     }
@@ -74,7 +74,7 @@ public class Marker extends MapObject{
 
     @Override
     public void deleteFromServer() {
-        String finurl = "/api/zone/" + this.ID;
+        String finurl = "/api/zone/" + this.getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
             if (status == HttpStatus.OK){

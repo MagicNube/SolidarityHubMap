@@ -23,12 +23,11 @@ public class Zone extends MapObject{
 
     List<LLatLng> points;
     LPolygon polygon;
-    Integer ID;
 
     public Zone(Double latitude, Double longitude){
         this.setLatitude(latitude);
         this.setLongitude(longitude);
-        this.points = new ArrayList<LLatLng>();
+        this.points = new ArrayList<>();
     }
 
     public void addPoint(LComponentManagementRegistry reg, Tuple<Double, Double> coord){
@@ -40,10 +39,12 @@ public class Zone extends MapObject{
         return this.polygon;
     }
 
+    @Override
     public void addToMap(LMap map){
         this.getPolygon().addTo(map);
     }
 
+    @Override
     public void removeFromMap(LMap map){
         this.getPolygon().removeFrom(map);
     }
@@ -68,7 +69,7 @@ public class Zone extends MapObject{
 
     @Override
     public void deleteFromServer() {
-        String finurl = "/api/zone/" + this.ID;
+        String finurl = "/api/zone/" + this.getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
             if (status == HttpStatus.OK){
