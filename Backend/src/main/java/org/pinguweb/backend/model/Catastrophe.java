@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
-import org.pinguweb.backend.model.enums.EmergencyLevel;
+import org.pinguweb.model.enums.EmergencyLevel;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,12 +18,12 @@ import java.util.List;
 @NoArgsConstructor
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
+        property = "ID"
 )
 public class Catastrophe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int iD;
+    private int ID;
 
     @Setter
     @Column(nullable = false)

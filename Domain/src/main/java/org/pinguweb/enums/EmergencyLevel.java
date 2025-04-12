@@ -1,4 +1,4 @@
-package org.pinguweb.backend.model.enums;
+package org.pinguweb.enums;
 
 public enum EmergencyLevel {
     LOW, MEDIUM, HIGH, VERYHIGH

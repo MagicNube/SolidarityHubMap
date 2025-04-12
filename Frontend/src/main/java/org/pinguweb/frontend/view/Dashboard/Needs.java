@@ -21,7 +21,7 @@ import java.util.List;
 @Route("dashboard/needs")
 public class Needs extends HorizontalLayout {
 
-    BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need/(id)",
+    BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need/(ID)",
             new ParameterizedTypeReference<List<NeedDTO>>() {
             });
     BackendObject<List<TaskDTO>> tasks = BackendService.getListFromBackend(BackendService.BACKEND + "/api/task",
@@ -88,7 +88,7 @@ public class Needs extends HorizontalLayout {
             TaskDTO tarea = null;
             for (NeedDTO need : needs.getData()) {
                 for ( TaskDTO t : tasks.getData()){
-                    if ( need.getTask() == t.getId()){tarea = t; break;}
+                    if ( need.getTask() == t.getID()){tarea = t; break;}
                 }
                 if ((startDate == null || (tarea.getStartTimeDate().toString()).compareTo(startDate) >= 0) &&
                         (endDate == null || tarea.getEstimatedEndTimeDate().toString().compareTo(endDate) <= 0) &&
@@ -102,8 +102,8 @@ public class Needs extends HorizontalLayout {
             // Update the charts with the filtered data
             int taskCR = (int) filteredTasks.stream().filter(task -> task.getStatus().equals("IN_PROGRESS")).count();
             int taskCO = (int) filteredTasks.stream().filter(task -> task.getStatus().equals("FINISHED")).count();
-           int needsCR = (int) filteredNeeds.stream().filter(need -> need.getId() != 0).count();
-           int needsCO = (int) filteredNeeds.stream().filter(need -> need.getId() == 0).count();
+           int needsCR = (int) filteredNeeds.stream().filter(need -> need.getID() != 0).count();
+           int needsCO = (int) filteredNeeds.stream().filter(need -> need.getID() == 0).count();
 
             chartLayout.removeAll();
             chartLayout.add(createPieChart(taskCR, taskCO, needsCR, needsCO), createBarChart(taskCR, taskCO, needsCR, needsCO), createLineChart(taskCR, taskCO, needsCR, needsCO));
@@ -194,7 +194,7 @@ public class Needs extends HorizontalLayout {
             TaskDTO tarea = null;
             for (NeedDTO need : needs.getData()) {
                 for ( TaskDTO t : tasks.getData()){
-                    if ( need.getTask() == t.getId()){tarea = t; break;}
+                    if ( need.getTask() == t.getID()){tarea = t; break;}
                 }
                 return count;
             }

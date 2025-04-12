@@ -1,8 +1,8 @@
-package org.pinguweb.frontend.factory;
+package org.pinguweb.frontend.mapObjects;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.pinguweb.DTO.NeedDTO;
+import org.pinguweb.DTO.RoutePointDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.springframework.http.HttpStatus;
@@ -18,20 +18,16 @@ import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
 @Setter
 @Getter
-public class Marker extends MapObject{
+public class RoutePoint extends MapObject {
 
     LMarker markerObj;
-    Integer ID;
 
-    public Marker(LComponentManagementRegistry reg, Double latitude, Double longitude){
+    public RoutePoint(LComponentManagementRegistry reg, Double latitude, Double longitude) {
         this.setLatitude(latitude);
         this.setLongitude(longitude);
-        this.markerObj = new LMarker(reg, new LLatLng(reg, latitude, longitude));
-    }
 
-    protected Marker convertToZoneMarker(LComponentManagementRegistry reg){
         LIcon icon = new LIcon(reg, new LIconOptions()
-                .withIconUrl("https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png")
+                .withIconUrl("https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png")
                 .withShadowUrl("https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png")
                 .withIconSize(new LPoint(reg, 25, 41))
                 .withIconAnchor(new LPoint(reg, 12, 41))
@@ -42,46 +38,44 @@ public class Marker extends MapObject{
         LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
 
         this.markerObj = new LMarker(reg, new LLatLng(reg, this.getLatitude(), this.getLongitude()), options);
-        return this;
     }
 
-
-    public void addToMap(LMap map){
+    @Override
+    public void addToMap(LMap map) {
         this.getMarkerObj().addTo(map);
     }
 
-    public void removeFromMap(LMap map){
+    @Override
+    public void removeFromMap(LMap map) {
         this.getMarkerObj().removeFrom(map);
     }
 
     @Override
-    public void pushToServer(){
-        NeedDTO needDTO = new NeedDTO();
+    public void pushToServer() {
+        RoutePointDTO routePointDTO = new RoutePointDTO();
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
 
-        String finurl = "/api/need";
-        try{
-            BackendObject<NeedDTO> status = BackendService.postToBackend(finurl, needDTO, NeedDTO.class);
-            if (status.getStatusCode() == HttpStatus.OK){
+        String finurl = "/api/routepoint";
+        try {
+            BackendObject<RoutePointDTO> status = BackendService.postToBackend(finurl, routePointDTO, RoutePointDTO.class);
+            if (status.getStatusCode() == HttpStatus.OK) {
                 //TODO: Se añadio exitosamente
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public void deleteFromServer() {
-        String finurl = "/api/zone/" + this.ID;
-        try{
+        String finurl = "/api/routepoint/" + this.getID();
+        try {
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
-            if (status == HttpStatus.OK){
+            if (status == HttpStatus.OK) {
                 //TODO: Eliminar del mapa
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

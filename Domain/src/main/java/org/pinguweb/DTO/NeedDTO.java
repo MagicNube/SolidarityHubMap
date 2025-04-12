@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 public class NeedDTO implements DTO{
-    private int id;
+    private int ID;
     private String affected;
     private String description;
     private String urgency;
