@@ -2,7 +2,6 @@ package org.pinguweb.backend.service;
 
 import org.pinguweb.backend.model.Resource;
 import org.pinguweb.backend.repository.ResourceRepository;
-import org.pinguweb.backend.repository.RoutePointService;
 import org.springframework.stereotype.Service;
 
 @Service

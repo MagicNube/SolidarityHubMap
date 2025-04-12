@@ -1,7 +1,6 @@
 package org.pinguweb.backend.service;
 
 import lombok.Getter;
-import org.pinguweb.backend.model.Route;
 import org.pinguweb.backend.model.RoutePoint;
 import org.pinguweb.backend.repository.RoutePointRepository;
 import org.springframework.stereotype.Service;
