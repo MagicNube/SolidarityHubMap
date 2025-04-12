@@ -162,4 +162,22 @@ public class BackendDTOFactory{
         }
         return zoneDTO;
     }
+
+    public StorageDTO createStorageDTO(Storage storage){
+        StorageDTO storageDTO = new StorageDTO();
+        storageDTO.setID(storage.getId());
+        storageDTO.setName(storage.getName());
+        storageDTO.setLatitude(storage.getGpsCoordinates().getLatitude());
+        storageDTO.setLatitude(storage.getGpsCoordinates().getLongitude());
+        storageDTO.setFull(storage.isFull());
+
+        if (storage.getResources() != null){
+            storageDTO.setResources(storage.getResources().stream().map(Resource::getId).toList());
+        }
+        if (storage.getZone() != null) {
+            storageDTO.setZone(storage.getZone().getId());
+        }
+
+        return storageDTO;
+    }
 }

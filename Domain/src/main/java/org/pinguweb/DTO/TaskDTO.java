@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class TaskDTO implements DTO{
-    private int id;
+    private int ID;
     private List<Integer> need;
     private String taskName;
     private String taskDescription;

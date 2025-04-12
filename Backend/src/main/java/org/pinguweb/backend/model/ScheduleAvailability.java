@@ -14,13 +14,13 @@ import org.pinguweb.backend.model.enums.WeekDay;
 @NoArgsConstructor
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
+        property = "ID"
 )
 public class ScheduleAvailability {
 
-    @Id
+    @ID
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long ID;
 
     @ManyToOne
     @JoinColumn(name = "volunteer_dni")

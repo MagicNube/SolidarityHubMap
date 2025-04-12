@@ -7,7 +7,6 @@ import org.pinguweb.backend.DTO.ModelDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Task;
 import org.pinguweb.backend.model.Zone;
-import org.pinguweb.backend.repository.ZoneRepository;
 import org.pinguweb.backend.service.TaskService;
 import org.pinguweb.backend.service.ZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @RestController
@@ -41,12 +39,12 @@ public class ZoneController {
     }
 
     @Async
-    @GetMapping("/zone/{id}")
-    public CompletableFuture<ResponseEntity<ZoneDTO>> getZone(@PathVariable int id) {
+    @GetMapping("/zone/{ID}")
+    public CompletableFuture<ResponseEntity<ZoneDTO>> getZone(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         BackendDTOFactory factory = new BackendDTOFactory();
-        Optional<Zone> res = service.findByID(id);
+        Optional<Zone> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createZoneDTO(res.get())));
         }
@@ -56,13 +54,13 @@ public class ZoneController {
     }
 
     @Async
-    @GetMapping("/zone/{id}/tasks")
-    public CompletableFuture<ResponseEntity<List<TaskDTO>>> getZoneTasks(@PathVariable int id) {
+    @GetMapping("/zone/{ID}/tasks")
+    public CompletableFuture<ResponseEntity<List<TaskDTO>>> getZoneTasks(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         BackendDTOFactory factory = new BackendDTOFactory();
         try {
-            Optional<Zone> res = service.findByID(id);
+            Optional<Zone> res = service.findByID(ID);
             if (res.isPresent()) {
                 List<Task> tasks = taskService.findAll();
                 Zone zone = res.get();
@@ -94,11 +92,11 @@ public class ZoneController {
     }
 
     @Async
-    @DeleteMapping("/zone/{id}")
-    public CompletableFuture<ResponseEntity<Void>> deleteZone(@PathVariable int id) {
+    @DeleteMapping("/zone/{ID}")
+    public CompletableFuture<ResponseEntity<Void>> deleteZone(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        Optional<Zone> res = service.findByID(id);
+        Optional<Zone> res = service.findByID(ID);
         if (res.isPresent()) {
             service.delete(res.get());
             return CompletableFuture.completedFuture(ResponseEntity.ok().build());

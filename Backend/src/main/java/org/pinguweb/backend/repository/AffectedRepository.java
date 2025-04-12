@@ -1,6 +1,5 @@
 package org.pinguweb.backend.repository;
 
-import org.pinguweb.backend.model.Admin;
 import org.pinguweb.backend.model.Affected;
 import org.springframework.data.jpa.repository.JpaRepository;
 

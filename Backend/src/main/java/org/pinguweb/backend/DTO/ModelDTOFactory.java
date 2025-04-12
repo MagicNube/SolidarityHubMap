@@ -1,32 +1,31 @@
 package org.pinguweb.backend.DTO;
 
 import org.pinguweb.DTO.NeedDTO;
+import org.pinguweb.DTO.StorageDTO;
 import org.pinguweb.DTO.ZoneDTO;
-import org.pinguweb.backend.model.GPSCoordinates;
-import org.pinguweb.backend.model.Need;
-import org.pinguweb.backend.model.Zone;
+import org.pinguweb.backend.model.*;
 import org.pinguweb.backend.model.enums.EmergencyLevel;
 import org.pinguweb.backend.model.enums.Status;
 import org.pinguweb.backend.model.enums.TaskType;
 import org.pinguweb.backend.model.enums.UrgencyLevel;
-import org.pinguweb.backend.repository.AffectedRepository;
-import org.pinguweb.backend.repository.CatastropheRepository;
-import org.pinguweb.backend.repository.StorageRepository;
-import org.pinguweb.backend.repository.TaskRepository;
+import org.pinguweb.backend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class ModelDTOFactory {
     @Autowired
-    CatastropheRepository catastropheRepository;
-
+    CatastropheService catastropheService;
     @Autowired
-    StorageRepository storageRepository;
+    StorageService storageService;
     @Autowired
-    private TaskRepository taskRepository;
+    TaskService taskService;
     @Autowired
-    private AffectedRepository affectedRepository;
+    AffectedService affectedService;
+    @Autowired
+    ZoneService zoneService;
 
     public Zone createFromDTO(ZoneDTO dto){
         Zone zona = new Zone();
@@ -34,10 +33,16 @@ public class ModelDTOFactory {
         zona.setDescription(dto.getDescription());
         zona.setEmergencyLevel(EmergencyLevel.valueOf(dto.getEmergencyLevel()));
 
-        zona.setCatastrophe(catastropheRepository.getReferenceById(dto.getCatastrophe()));
+        Optional<Catastrophe> zoneCatastrophe = catastropheService.findByID(dto.getCatastrophe());
+        if (zoneCatastrophe.isPresent()) {
+            zona.setCatastrophe(zoneCatastrophe.get());
+        }
 
-        for (int id : dto.getStorages()){
-            zona.getStorages().add(storageRepository.getReferenceById(id));
+        for (int ID : dto.getStorages()){
+            Optional<Storage> zoneStorage = storageService.findByID(ID);
+            if (zoneStorage.isPresent()) {
+                zona.getStorages().add(zoneStorage.get());
+            }
         }
 
         for (int i = 0; i < dto.getLatitudes().size(); i++){
@@ -58,11 +63,41 @@ public class ModelDTOFactory {
         GPSCoordinates coord = new GPSCoordinates(dto.getLatitude(), dto.getLongitude());
         need.setLocation(coord);
 
-        need.setCatastrophe(catastropheRepository.getReferenceById(dto.getCatastrophe()));
-        need.setTask(taskRepository.getReferenceById(dto.getTask()));
-        need.setAffected(affectedRepository.getReferenceById(dto.getAffected()));
+        Optional<Catastrophe> needCatastrophe = catastropheService.findByID(dto.getCatastrophe());
+        if (needCatastrophe.isPresent()) {
+            need.setCatastrophe(needCatastrophe.get());
+        }
+
+        Optional<Affected> needAffected = affectedService.findByDni(dto.getAffected());
+        if (needAffected.isPresent()) {
+            need.setAffected(needAffected.get());
+        }
+
+        Optional<Task> needTask = taskService.findByID(dto.getCatastrophe());
+        if (needTask.isPresent()) {
+            need.setTask(needTask.get());
+        }
+
         need.setStatus(Status.valueOf(dto.getStatus()));
 
         return need;
+    }
+
+    public Storage createFromDTO(StorageDTO dto){
+        Storage storage = new Storage();
+
+        storage.setName(dto.getName());
+        storage.setFull(dto.isFull());
+
+        Optional<Zone> storageZone = zoneService.findByID(dto.getZone());
+        if (storageZone.isPresent()) {
+            storage.setZone(storageZone.get());
+        }
+
+        GPSCoordinates coord = new GPSCoordinates(dto.getLatitude(), dto.getLongitude());
+        storage.setGpsCoordinates(coord);
+
+
+        return storage;
     }
 }

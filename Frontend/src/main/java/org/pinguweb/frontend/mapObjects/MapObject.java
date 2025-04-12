@@ -1,4 +1,4 @@
-package org.pinguweb.frontend.factory;
+package org.pinguweb.frontend.mapObjects;
 
 import lombok.Data;
 import software.xdev.vaadin.maps.leaflet.map.LMap;

@@ -4,12 +4,14 @@ import org.pinguweb.DTO.TaskDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Task;
-import org.pinguweb.backend.repository.TaskRepository;
 import org.pinguweb.backend.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,12 +37,12 @@ public class TaskController {
     }
 
     @Async
-    @GetMapping("/task/{id}")
-    public CompletableFuture<ResponseEntity<TaskDTO>> getTask(@PathVariable Integer id) {
+    @GetMapping("/task/{ID}")
+    public CompletableFuture<ResponseEntity<TaskDTO>> getTask(@PathVariable Integer ID) {
         if (ServerException.isServerClosed(service.getTaskRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         BackendDTOFactory factory = new BackendDTOFactory();
-        Optional<Task> res = service.findByID(id);
+        Optional<Task> res = service.findByID(ID);
 
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createTaskDTO(res.get())));

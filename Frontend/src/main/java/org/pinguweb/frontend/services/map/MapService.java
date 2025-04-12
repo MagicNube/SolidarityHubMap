@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.DTO.ZoneDTO;
-import org.pinguweb.frontend.factory.Marker;
-import org.pinguweb.frontend.factory.MarkerFactory;
-import org.pinguweb.frontend.factory.Zone;
-import org.pinguweb.frontend.factory.ZoneFactory;
+import org.pinguweb.frontend.mapObjects.Need;
+import org.pinguweb.frontend.mapObjects.Zone;
+import org.pinguweb.frontend.mapObjects.factories.NeedFactory;
+import org.pinguweb.frontend.mapObjects.factories.ZoneFactory;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.MapView;
@@ -65,17 +65,17 @@ public class MapService {
     private String ID;
 
     @Getter
-    private HashSet<Marker> markers = new HashSet<>();
+    private HashSet<Need> needs = new HashSet<>();
 
     @Getter
     private HashSet<Zone> zones = new HashSet<>();
 
 
-    private MarkerFactory markerFactory;
+    private NeedFactory needFactory;
     private ZoneFactory zoneFactory;
 
     public MapService() {
-        this.markerFactory = new MarkerFactory();
+        this.needFactory = new NeedFactory();
         this.zoneFactory = new ZoneFactory();
         load();
     }
@@ -103,48 +103,48 @@ public class MapService {
     }
 
     // TODO: Texto para el el marcador de tarea
-    public Marker createNeed(NeedDTO needDTO) {
+    public Need createNeed(NeedDTO needDTO) {
         double lat = needDTO.getLatitude();
         double lng = needDTO.getLongitude();
-        Marker marker = (Marker) markerFactory.createZoneMapObject(reg, lat, lng);
-        marker.setID(needDTO.getId());
-        marker.addToMap(this.map);
-        marker.getMarkerObj().on("click", "e => document.getElementById('" + ID + "').$server.clickOnNeed(e.latlng, " + marker.getID() + ")");
+        Need need = (Need) needFactory.createZoneMapObject(reg, lat, lng);
+        need.setID(needDTO.getId());
+        need.addToMap(this.map);
+        need.getMarkerObj().on("click", "e => document.getElementById('" + ID + "').$server.clickOnNeed(e.latlng, " + need.getID() + ")");
 
-        markers.add(marker);
-        MapView.getLLayerGroupNeeds().addLayer(marker.getMarkerObj());
+        needs.add(need);
+        MapView.getLLayerGroupNeeds().addLayer(need.getMarkerObj());
         this.map.addLayer(MapView.getLLayerGroupNeeds());
 
-        for (Marker m : markers) {
+        for (Need m : needs) {
             System.out.println("ID: " + m.getID() + m );
         }
         System.out.println("Fin");
 
-        return marker;
+        return need;
     }
 
-    public void deleteNeed(int id) {
-        Marker marker = markers.stream()
-                .filter(m -> m.getID() == id)
+    public void deleteNeed(int ID) {
+        Need need = needs.stream()
+                .filter(m -> m.getID() == ID)
                 .findFirst()
                 .orElse(null);
-        if (marker != null) {
-            marker.removeFromMap(this.map);
-            marker.deleteFromServer();
-            markers.remove(marker);
-            MapView.getLLayerGroupNeeds().removeLayer(marker.getMarkerObj());
+        if (need != null) {
+            need.removeFromMap(this.map);
+            need.deleteFromServer();
+            needs.remove(need);
+            MapView.getLLayerGroupNeeds().removeLayer(need.getMarkerObj());
             this.map.addLayer(MapView.getLLayerGroupNeeds());
         }
     }
 
-    public Marker createZoneMarker(double lat, double lng) {
-        Marker marker = (Marker) markerFactory.createZoneMapObject(reg, lat, lng);
+    public Need createZoneMarker(double lat, double lng) {
+        Need need = (Need) needFactory.createZoneMapObject(reg, lat, lng);
 
-        marker.getMarkerObj().on("dragstart", "e => document.getElementById('" + ID + "').$server.zoneMarkerStart(e.target.getLatLng())");
-        marker.getMarkerObj().on("dragend", "e => document.getElementById('" + ID + "').$server.zoneMarkerEnd(e.target.getLatLng())");
-        marker.addToMap(this.map);
+        need.getMarkerObj().on("dragstart", "e => document.getElementById('" + ID + "').$server.zoneMarkerStart(e.target.getLatLng())");
+        need.getMarkerObj().on("dragend", "e => document.getElementById('" + ID + "').$server.zoneMarkerEnd(e.target.getLatLng())");
+        need.addToMap(this.map);
 
-        return marker;
+        return need;
     }
 
     public Zone createZone(ZoneDTO zoneDTO) {
@@ -171,9 +171,9 @@ public class MapService {
         return zone;
     }
 
-    public void deleteZone(int id) {
+    public void deleteZone(int ID) {
         Zone zone = zones.stream()
-                .filter(z -> z.getID() == id)
+                .filter(z -> z.getID() == ID)
                 .findFirst()
                 .orElse(null);
         if (zone != null) {

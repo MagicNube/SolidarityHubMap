@@ -1,4 +1,4 @@
-package org.pinguweb.frontend.factory;
+package org.pinguweb.frontend.mapObjects;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,9 +24,7 @@ public class Zone extends MapObject{
     List<LLatLng> points;
     LPolygon polygon;
 
-    public Zone(Double latitude, Double longitude){
-        this.setLatitude(latitude);
-        this.setLongitude(longitude);
+    public Zone(){
         this.points = new ArrayList<>();
     }
 
@@ -34,9 +32,8 @@ public class Zone extends MapObject{
         this.points.add(new LLatLng(reg, coord._1(), coord._2()));
     }
 
-    public LPolygon generatePolygon(LComponentManagementRegistry reg, String lineColor, String fillColor){
+    public void generatePolygon(LComponentManagementRegistry reg, String lineColor, String fillColor){
         this.polygon = new LPolygon(reg, points, new LPolylineOptions().withColor(lineColor).withFillColor(fillColor));
-        return this.polygon;
     }
 
     @Override

@@ -5,7 +5,6 @@ import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.DTO.ModelDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Need;
-import org.pinguweb.backend.repository.NeedRepository;
 import org.pinguweb.backend.service.NeedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,12 +35,12 @@ public class NeedController {
     }
 
     @Async
-    @GetMapping("/need/{id}")
-    public CompletableFuture<ResponseEntity<NeedDTO>> getNeed(@PathVariable Integer id) {
+    @GetMapping("/need/{ID}")
+    public CompletableFuture<ResponseEntity<NeedDTO>> getNeed(@PathVariable Integer ID) {
         if (ServerException.isServerClosed(service.getNeedRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         BackendDTOFactory factory = new BackendDTOFactory();
-        Optional<Need> res = service.findByID(id);
+        Optional<Need> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createNeedDTO(res.get())));
         }
@@ -62,11 +61,11 @@ public class NeedController {
     }
 
     @Async
-    @DeleteMapping("/need/{id}")
-    public CompletableFuture<ResponseEntity<Void>> deleteNeed(@PathVariable int id) {
+    @DeleteMapping("/need/{ID}")
+    public CompletableFuture<ResponseEntity<Void>> deleteNeed(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getNeedRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        Optional<Need> res = service.findByID(id);
+        Optional<Need> res = service.findByID(ID);
         if (res.isPresent()) {
             service.deleteNeed(res.get());
             return CompletableFuture.completedFuture(ResponseEntity.ok().build());

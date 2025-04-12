@@ -18,12 +18,12 @@ import java.util.List;
 @NoArgsConstructor
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
+        property = "ID"
 )
 public class Catastrophe {
-    @Id
+    @ID
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int iD;
+    private int ID;
 
     @Setter
     @Column(nullable = false)

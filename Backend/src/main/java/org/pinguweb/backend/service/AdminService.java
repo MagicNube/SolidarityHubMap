@@ -5,7 +5,6 @@ import org.pinguweb.backend.model.Admin;
 import org.pinguweb.backend.repository.AdminRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service

@@ -4,12 +4,14 @@ import org.pinguweb.DTO.VolunteerDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Volunteer;
-import org.pinguweb.backend.repository.VolunteerRepository;
 import org.pinguweb.backend.service.VolunteerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,12 +35,12 @@ public class VolunteerController {
     }
 
     @Async
-    @GetMapping("/volunteer/{id}")
-    public CompletableFuture<ResponseEntity<VolunteerDTO>> getVolunteer(@PathVariable String id) {
+    @GetMapping("/volunteer/{ID}")
+    public CompletableFuture<ResponseEntity<VolunteerDTO>> getVolunteer(@PathVariable String ID) {
         if (ServerException.isServerClosed(service.getVolunteerRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         BackendDTOFactory factory = new BackendDTOFactory();
-        Optional<Volunteer> res = service.findByID(id);
+        Optional<Volunteer> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createVolunteerDTO(res.get())));
         }

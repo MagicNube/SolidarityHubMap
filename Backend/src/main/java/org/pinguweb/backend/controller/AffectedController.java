@@ -4,12 +4,14 @@ import org.pinguweb.DTO.AffectedDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Affected;
-import org.pinguweb.backend.repository.AffectedRepository;
 import org.pinguweb.backend.service.AffectedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,12 +36,12 @@ public class AffectedController {
     }
 
     @Async
-    @GetMapping("/affected/{id}")
-    public CompletableFuture<ResponseEntity<AffectedDTO>> getAffected(@PathVariable String id) {
+    @GetMapping("/affected/{ID}")
+    public CompletableFuture<ResponseEntity<AffectedDTO>> getAffected(@PathVariable String ID) {
         if (ServerException.isServerClosed(service.getAffectedRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         BackendDTOFactory factory = new BackendDTOFactory();
-        Optional<Affected> res = service.findByDni(id);
+        Optional<Affected> res = service.findByDni(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createAffectedDTO(res.get())));
         }

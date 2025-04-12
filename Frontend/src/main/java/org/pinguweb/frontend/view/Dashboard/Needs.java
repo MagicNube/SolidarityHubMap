@@ -21,7 +21,7 @@ import java.util.List;
 @Route("dashboard/needs")
 public class Needs extends HorizontalLayout {
 
-    BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need/(id)",
+    BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need/(ID)",
             new ParameterizedTypeReference<List<NeedDTO>>() {
             });
     BackendObject<List<TaskDTO>> tasks = BackendService.getListFromBackend(BackendService.BACKEND + "/api/task",

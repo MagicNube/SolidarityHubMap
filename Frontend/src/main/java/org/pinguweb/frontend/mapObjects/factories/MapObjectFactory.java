@@ -1,5 +1,6 @@
-package org.pinguweb.frontend.factory;
+package org.pinguweb.frontend.mapObjects.factories;
 
+import org.pinguweb.frontend.mapObjects.MapObject;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
 public abstract class MapObjectFactory {

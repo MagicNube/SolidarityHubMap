@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class CatastropheDTO implements DTO{
-    private int id;
+    private int ID;
     private String name;
     private String description;
     private Double latitude;

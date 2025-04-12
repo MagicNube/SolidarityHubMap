@@ -16,13 +16,13 @@ import org.pinguweb.backend.model.enums.UrgencyLevel;
 @NoArgsConstructor
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
+        property = "ID"
 )
 public class Need {
-    @Id
+    @ID
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonProperty("id")
-    private int id;
+    @JsonProperty("ID")
+    private int ID;
 
     @Setter
     @ManyToOne
