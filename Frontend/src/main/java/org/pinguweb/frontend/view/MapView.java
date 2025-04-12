@@ -18,8 +18,9 @@ import elemental.json.JsonValue;
 import lombok.Getter;
 import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.DTO.ZoneDTO;
-import org.pinguweb.frontend.factory.Marker;
-import org.pinguweb.frontend.factory.Zone;
+import org.pinguweb.frontend.mapObjects.Need;
+import org.pinguweb.frontend.mapObjects.Zone;
+import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.pinguweb.frontend.services.map.MapService;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
@@ -66,7 +67,7 @@ public class MapView extends HorizontalLayout {
     private final Button editar = new Button("Editar");
     private final Button borrar = new Button("Borrar");
 
-    private HashMap<Tuple<Double, Double>, Marker> zoneMarkers = new HashMap<>();
+    private HashMap<Tuple<Double, Double>, ZoneMarker> zoneMarkers = new HashMap<>();
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
     private Tuple<Double, Double> zoneMarkerStartingPoint;
 
@@ -171,8 +172,8 @@ public class MapView extends HorizontalLayout {
         this.controller.setZoneBool(false);
         this.mapContainer.removeClassName("map_action");
 
-        for (Marker marker : zoneMarkers.values()) {
-            marker.removeFromMap(this.map);
+        for (ZoneMarker zoneMarker : zoneMarkers.values()) {
+            zoneMarker.removeFromMap(this.map);
         }
 
         zoneMarkers.clear();
@@ -185,11 +186,11 @@ public class MapView extends HorizontalLayout {
             this.controller.setDeleteBool(true);
             this.borrar.setText("Detener borrado");
             this.mapContainer.removeClassName("map_action");
-            for (Marker marker : this.controller.getMarkers()) {
+            for (Need need : this.controller.getNeeds()) {
                 System.out.println("Registrando marcadores para borrar");
-                String clickFuncReferenceDeleteMarker = map.clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + marker.getID();
-                reg.execJs(clickFuncReferenceDeleteMarker + "=e => document.getElementById('" + ID + "').$server.removeMarker('" + marker.getID() + "')");
-                marker.getMarkerObj().on("click", clickFuncReferenceDeleteMarker);
+                String clickFuncReferenceDeleteMarker = map.clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + need.getID();
+                reg.execJs(clickFuncReferenceDeleteMarker + "=e => document.getElementById('" + ID + "').$server.removeMarker('" + need.getID() + "')");
+                need.getMarkerObj().on("click", clickFuncReferenceDeleteMarker);
             }
             for (Zone zone : this.controller.getZones()) {
                 System.out.println("Registrando zonas para borrar");
@@ -200,9 +201,9 @@ public class MapView extends HorizontalLayout {
         } else {
             this.controller.setDeleteBool(false);
             this.borrar.setText("Borrar");
-            for (Marker marker : this.controller.getMarkers()) {
-                String clickFuncReferenceDeleteMarker = map.clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + marker.getID();
-                marker.getMarkerObj().off("click", clickFuncReferenceDeleteMarker);
+            for (Need need : this.controller.getNeeds()) {
+                String clickFuncReferenceDeleteMarker = map.clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + need.getID();
+                need.getMarkerObj().off("click", clickFuncReferenceDeleteMarker);
             }
             for (Zone zone : this.controller.getZones()) {
                 String clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
@@ -269,8 +270,8 @@ public class MapView extends HorizontalLayout {
         if (controller.getPointInZone()) {
             this.tempNeedDTO.setLatitude(obj.getNumber("lat"));
             this.tempNeedDTO.setLongitude(obj.getNumber("lng"));
-            Marker marker = controller.createNeed(this.tempNeedDTO);
-            marker.pushToServer();
+            Need need = controller.createNeed(this.tempNeedDTO);
+            need.pushToServer();
             synchronized (lock) {
                 lock.notify();
             }
@@ -289,12 +290,12 @@ public class MapView extends HorizontalLayout {
             return;
         }
 
-        Marker marker = this.controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
+        ZoneMarker zoneMarker = this.controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
         tempZoneDTO.getLatitudes().add(obj.getNumber("lat"));
         tempZoneDTO.getLongitudes().add(obj.getNumber("lng"));
 
         zoneMarkerPoints.add(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
-        zoneMarkers.put(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")), marker);
+        zoneMarkers.put(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")), zoneMarker);
 
         if (zoneMarkerPoints.size() > 2) {
             zona.setEnabled(true);
@@ -333,7 +334,7 @@ public class MapView extends HorizontalLayout {
     }
 
     @ClientCallable
-    public void clickOnZone(final JsonValue input, String id) {
+    public void clickOnZone(final JsonValue input, String ID) {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
@@ -342,33 +343,33 @@ public class MapView extends HorizontalLayout {
         } else if (controller.isEditing()) {
 
         }else {
-            System.out.println("No se esta ni creando ni editando la zona "+ id);
+            System.out.println("No se esta ni creando ni editando la zona "+ ID);
         }
     }
 
     @ClientCallable
-    public void clickOnNeed(final JsonValue input, String id) {
+    public void clickOnNeed(final JsonValue input, String ID) {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
         if (controller.isEditing()){
 
         } else {
-            System.out.println("No se esta editando la necesidad "+id);
+            System.out.println("No se esta editando la necesidad "+ID);
         }
 
     }
 
     @ClientCallable
-    public void removeMarker(String id) {
-        System.out.println("removeMarker: " + id);
-        this.controller.deleteNeed(Integer.parseInt(id));
+    public void removeMarker(String ID) {
+        System.out.println("removeMarker: " + ID);
+        this.controller.deleteNeed(Integer.parseInt(ID));
     }
 
     @ClientCallable
-    public void removePolygon(String id) {
-        System.out.println("removePolygon: " + id);
-        this.controller.deleteZone(Integer.parseInt(id));
+    public void removePolygon(String ID) {
+        System.out.println("removePolygon: " + ID);
+        this.controller.deleteZone(Integer.parseInt(ID));
     }
 
     @ClientCallable
@@ -418,8 +419,8 @@ public class MapView extends HorizontalLayout {
             descriptionTextArea.setHeight("50vh");
 
             ZoneDTO zoneDTO = new ZoneDTO();
-            //TODO: Mirar cambiar como se asigna el id
-            zoneDTO.setId(controller.getTempIdZone());
+            //TODO: Mirar cambiar como se asigna el ID
+            zoneDTO.setID(controller.getTempIdZone());
             controller.setTempIdZone(controller.getTempIdZone() + 1);
             zoneDTO.setDescription(descriptionTextArea.getValue());
             zoneDTO.setName(nameTextArea.getValue());
@@ -485,8 +486,8 @@ public class MapView extends HorizontalLayout {
         descriptionTextArea.setHeight("50vh");
 
         NeedDTO needDTO = new NeedDTO();
-        //TODO: Mirar cambiar como se asigna el id
-        needDTO.setId(controller.getTempIdMarker());
+        //TODO: Mirar cambiar como se asigna el ID
+        needDTO.setID(controller.getTempIdMarker());
         controller.setTempIdMarker(controller.getTempIdMarker() + 1);
         needDTO.setDescription(descriptionTextArea.getValue());
         needDTO.setNeedType(typesComboBox.getValue());

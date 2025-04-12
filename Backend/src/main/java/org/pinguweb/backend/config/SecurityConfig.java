@@ -20,7 +20,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/api/auth/login").permitAll() // Rutas públicas
+                        // TODO: permitir acceder a swagger y a las APIs logeados, si no, bloquear (no redirigir)
+                        .requestMatchers("/**").permitAll() // Rutas públicas
                         .anyRequest().authenticated() // Protege todas las demás rutas
                 )
                 .formLogin(form -> form
@@ -42,7 +43,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:8080")); // Origen del frontend
+        config.setAllowedOrigins(List.of("http://localhost:8080", "127.0.0.1")); // Origen del frontend
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
