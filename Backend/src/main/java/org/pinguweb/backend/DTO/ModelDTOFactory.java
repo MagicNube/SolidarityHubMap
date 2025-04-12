@@ -6,6 +6,7 @@ import org.pinguweb.backend.model.GPSCoordinates;
 import org.pinguweb.backend.model.Need;
 import org.pinguweb.backend.model.Zone;
 import org.pinguweb.backend.model.enums.EmergencyLevel;
+import org.pinguweb.backend.model.enums.Status;
 import org.pinguweb.backend.model.enums.TaskType;
 import org.pinguweb.backend.model.enums.UrgencyLevel;
 import org.pinguweb.backend.repository.AffectedRepository;
@@ -60,6 +61,7 @@ public class ModelDTOFactory {
         need.setCatastrophe(catastropheRepository.getReferenceById(dto.getCatastrophe()));
         need.setTask(taskRepository.getReferenceById(dto.getTask()));
         need.setAffected(affectedRepository.getReferenceById(dto.getAffected()));
+        need.setStatus(Status.valueOf(dto.getStatus()));
 
         return need;
     }
