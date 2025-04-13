@@ -3,21 +3,21 @@ package org.pinguweb.frontend.view.Dashboard;
 import com.storedobject.chart.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import org.pinguweb.DTO.SkillDTO;
 import org.pinguweb.DTO.VolunteerDTO;
 import org.pinguweb.enums.TaskType;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Slice;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Route("dashboard/volunteer-skills")
 public class VolunteerSkills extends VerticalLayout {
 
     private List<VolunteerDTO> volunteers;
-    ArrayList<TaskType> skills =  new ArrayList<TaskType>();
+    private TaskType[] tasks = TaskType.values();
 
     public VolunteerSkills() {
         this.setSizeFull();
@@ -26,12 +26,7 @@ public class VolunteerSkills extends VerticalLayout {
                 new ParameterizedTypeReference<List<VolunteerDTO>>() {
                 });
 
-
         this.volunteers = volunteerResponse.getData();
-
-        for (TaskType taskType : TaskType.values()) {
-            skills.add(taskType);
-        }
 
         SOChart barChart = createVolunteerSkillsBarChart();
         this.add(barChart);
@@ -40,36 +35,19 @@ public class VolunteerSkills extends VerticalLayout {
     public SOChart createVolunteerSkillsBarChart() {
         SOChart barChart = new SOChart();
         barChart.setSize("400px", "400px");
-        String[] labels = null;
+        String[] labels = Arrays.stream(tasks).map(TaskType::name).toArray(String[]::new);
         RectangularCoordinate rc = new RectangularCoordinate(new XAxis(DataType.CATEGORY), new YAxis(DataType.NUMBER));
-
-        if (skills != null) {
-             labels = skills.stream()
-                    .filter(skill -> skill != null )
-                    .map(TaskType::name)
-                    .toArray(String[]::new);
-        } else {
-
-             labels = new String[0];
-
-        }
-        int[] data = new int[skills.size()];
-
-        for (VolunteerDTO volunteer : volunteers) {
-            for (String skill : volunteer.getTaskPreferences()) {
-                try {
-                    TaskType taskType = TaskType.valueOf(skill);
-                    int index = skills.indexOf(taskType);
+        int[] data = new int[tasks.length];
+        if (tasks != null) {
+            for (VolunteerDTO volunteer : volunteers) {
+                for ( String task: volunteer.getTaskPreferences()){
+                    int index = Arrays.asList(labels).indexOf(task);
                     if (index >= 0) {
                         data[index]++;
                     }
-                } catch (IllegalArgumentException e) {
-                    // El string no coincide con ningún valor de TaskType. Puedes loguear o ignorar este caso.
-                    System.err.println("Skill desconocida: " + skill);
                 }
             }
-        }
-
+        } else {labels = new String[0];System.out.println("no hay datos");}
         for (int i = 0; i < labels.length; i++) {
             BarChart bar = new BarChart(new CategoryData(labels[i]), new Data(data[i]));
             bar.setName(labels[i]);
@@ -80,7 +58,56 @@ public class VolunteerSkills extends VerticalLayout {
 
         return barChart;
     }
+    public SOChart createPieChart() {
+        SOChart pieChart = new SOChart();
+        pieChart.setSize("400px", "400px");
+
+        String[] labels = Arrays.stream(tasks).map(TaskType::name).toArray(String[]::new);
+        int[] data = new int[tasks.length];
+        for (VolunteerDTO volunteer : volunteers) {
+            for (String task : volunteer.getTaskPreferences()) {
+                int index = Arrays.asList(labels).indexOf(task);
+                if (index >= 0) {
+                    data[index]++;
+                }
+            }
+        }
+        for ( int i = 0; i < labels.length; i++) {
+            PieChart pie = new PieChart(new CategoryData(labels[i]), new Data(data[i]));
+            pie.setName(labels[i]);
+            pie.setColors(new Color((int)(Math.random() * 256), (int)(Math.random() * 256), (int)(Math.random() * 256)));
+            pieChart.add(pie);
+        }
+
+        Legend legend = new Legend();
+        pieChart.add(legend);
+        return pieChart;
+    }
+    public SOChart createLineChart() {
+        SOChart lineChart = new SOChart();
+        lineChart.setSize("400px", "400px");
+
+        String[] labels = Arrays.stream(tasks).map(TaskType::name).toArray(String[]::new);
+        int[] data = new int[tasks.length];
+        for (VolunteerDTO volunteer : volunteers) {
+            for (String task : volunteer.getTaskPreferences()) {
+                int index = Arrays.asList(labels).indexOf(task);
+                if (index >= 0) {
+                    data[index]++;
+                }
+            }
+        }
+        for ( int i = 0; i < labels.length; i++) {
+            LineChart line = new LineChart(new CategoryData(labels[i]), new Data(data[i]));
+            line.setName(labels[i]);
+            line.setColors(new Color((int)(Math.random() * 256), (int)(Math.random() * 256), (int)(Math.random() * 256)));
+            lineChart.add(line);
+            RectangularCoordinate rc = new RectangularCoordinate(new XAxis(DataType.CATEGORY), new YAxis(DataType.NUMBER));
+            line.plotOn(rc);
+            lineChart.add(line);
+        }
+
+
+        return lineChart;
+    }
 }
-
-
-
