@@ -1,4 +1,4 @@
-package org.pinguweb.backend.model.enums;
+package org.pinguweb.enums;
 
 public enum WeekDay {
     MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
