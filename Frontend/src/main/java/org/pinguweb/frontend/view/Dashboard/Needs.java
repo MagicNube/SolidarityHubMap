@@ -15,6 +15,7 @@ import org.pinguweb.frontend.view.NavigationBar;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,13 +60,14 @@ public class Needs extends HorizontalLayout {
         chartLayout.setAlignItems(Alignment.CENTER);
         chartLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
-        chartLayout.add(createPieChart( getTaskCR(),getTaskCO(),50,20), createBarChart(10,24,50,20), createLineChart(10,24,50,20));
+        chartLayout.add(createPieChart( 10,4,50,20), createBarChart(10,4,50,20), createLineChart(10,4,50,20));
         chartsContainer.add(chartLayout);
         this.add(navBarLayout, chartsContainer);
 
 
         //Listeners
         filterButton.addClickListener(e -> {
+            /*
             String startDate = startDatePicker.getValue() != null ? startDatePicker.getValue().toString() : null;
             String endDate = endDatePicker.getValue() != null ? endDatePicker.getValue().toString() : null;
             String priority = priorityBox.getValue() != null ? priorityBox.getValue().toString() : null;
@@ -106,7 +108,14 @@ public class Needs extends HorizontalLayout {
            int needsCO = (int) filteredNeeds.stream().filter(need -> need.getId() == 0).count();
 
             chartLayout.removeAll();
-            chartLayout.add(createPieChart(taskCR, taskCO, needsCR, needsCO), createBarChart(taskCR, taskCO, needsCR, needsCO), createLineChart(taskCR, taskCO, needsCR, needsCO));
+           if(priorityBox.getValue() == "Low" ){chartLayout.add(createPieChart(5,2,25,10), createBarChart(5,2,25,10), createLineChart(5,2,25,10));}
+           if(priorityBox.getValue() == "Medium" ){chartLayout.add(createPieChart(3,1,15,5), createBarChart(3,1,15,5), createLineChart(3,1,15,5));}
+            chartLayout.add(createPieChart(6,3,30,15), createBarChart(6,3,30,15), createLineChart(6,3,30,15));
+*/
+
+            String prioritys = priorityBox.getValue() != null ? priorityBox.getValue().toString() : null;
+            updateChartsBasedOnPriority(prioritys, chartLayout);
+
         });
 
     }
@@ -187,30 +196,44 @@ public class Needs extends HorizontalLayout {
             return 0;
         }
     }
-/*
-    public int getNeedsCR() {
+    private void updateChartsBasedOnPriority(String priority, HorizontalLayout chartLayout) {
+        chartLayout.removeAll();
+
+        switch (priority) {
+            case "Low":
+                chartLayout.add(createPieChart(5, 2, 25, 10), createBarChart(5, 2, 25, 10), createLineChart(5, 2, 25, 10));
+                break;
+            case "Medium":
+                chartLayout.add(createPieChart(10, 1, 15, 5), createBarChart(3, 1, 15, 5), createLineChart(3, 1, 15, 5));
+                break;
+            case "High":
+                chartLayout.add(createPieChart(8, 4, 20, 20), createBarChart(8, 4, 40, 20), createLineChart(8, 4, 40, 20));
+                break;
+            default:
+                chartLayout.add(createPieChart(6, 3, 30, 15), createBarChart(6, 3, 30, 15), createLineChart(6, 3, 30, 15));
+                break;
+        }
+    }
+
+   /* public int getNeedsCR(LocalDateTime startTimeDate, LocalDateTime endTimeDate) {
         if (needs.getStatusCode() == HttpStatus.OK) {
             int count = 0;
-            TaskDTO tarea = null;
             for (NeedDTO need : needs.getData()) {
-                for ( TaskDTO t : tasks.getData()){
-                    if ( need.getTask() == t.getId()){tarea = t; break;}
+               // if( need.getStartTime().compareTo(startTimeDate)<1 && need.getEndTime().compareTo(endTimeDate)<1 ) {
+                    count++;
                 }
                 return count;
             }
         }
 
-    public int getNeedsCO() {
-        if (needs.getStatusCode() == HttpStatus.OK) {
-            int count = 0;
-            for (NeedDTO need : needs.getData()) {
-                if (need.getID() == null) {
-                    count++;
+        public int getNeedsCo(LocalDateTime endTimeDate) {
+            if (needs.getStatusCode() == HttpStatus.OK) {
+                int count = 0;
+                for (NeedDTO need : needs.getData()) {
+                    if(need.getStartTimeDate() > endTimeDate) {
+                        count++;
+                    }
+                    return count;
                 }
-            }
-            return count;
-        } else {
-            return 0;
-        }
-    }*/
+            }*/
 }

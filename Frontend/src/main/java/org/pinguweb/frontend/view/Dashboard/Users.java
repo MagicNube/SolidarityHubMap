@@ -38,20 +38,6 @@ public class Users extends HorizontalLayout {
         VerticalLayout chartsContainer = new VerticalLayout();
         chartsContainer.setSizeFull();
 
-        //Filtros
-        HorizontalLayout filtersLayout = new HorizontalLayout();
-        DatePicker startDatePicker = new DatePicker("Start Date");
-        DatePicker endDatePicker = new DatePicker("End Date");
-        ComboBox<String> priorityBox = new ComboBox<>("Priority");
-        priorityBox.setItems("Low", "Medium", "High");
-        ComboBox<String> categoryBox = new ComboBox<>("Category");
-        categoryBox.setItems("Category 1", "Category 2", "Category 3");
-        ComboBox<String> responsibleBox = new ComboBox<>("Responsible");
-        responsibleBox.setItems("User 1", "User 2", "User 3");
-        Button filterButton = new Button("Apply Filters");
-
-        filtersLayout.add(startDatePicker, endDatePicker, priorityBox, categoryBox, responsibleBox, filterButton);
-        chartsContainer.add(filtersLayout);
 
         HorizontalLayout chartLayout = new HorizontalLayout();
         chartLayout.setWidthFull();
@@ -59,7 +45,7 @@ public class Users extends HorizontalLayout {
         chartLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
 
-        chartLayout.add(createPieChart( volunteer.getData().size(),affected.getData().size()), createBarChart(volunteer.getData().size(),affected.getData().size()), createLineChart(volunteer.getData().size(),affected.getData().size()));
+        chartLayout.add(createPieChart( 10,5), createBarChart(10,5), createLineChart(10,5));
         chartsContainer.add(chartLayout);
         this.add(navBarLayout, chartsContainer);
 
@@ -145,6 +131,24 @@ public class Users extends HorizontalLayout {
         }
         return numberOfAffected;
 
+    }
+    private void updateChartsBasedOnPriority(String priority, HorizontalLayout chartLayout) {
+        chartLayout.removeAll();
+
+        switch (priority) {
+            case "Low":
+                chartLayout.add(createPieChart(1, 2), createBarChart(5, 2), createLineChart(5, 2));
+                break;
+            case "Medium":
+                chartLayout.add(createPieChart(2, 1), createBarChart(2, 1), createLineChart(2, 1));
+                break;
+            case "High":
+                chartLayout.add(createPieChart(1,1), createBarChart(1,1), createLineChart(1,1));
+                break;
+            default:
+                chartLayout.add(createPieChart(1,1), createBarChart(1,1), createLineChart(1,1));
+                break;
+        }
     }
 
 }
