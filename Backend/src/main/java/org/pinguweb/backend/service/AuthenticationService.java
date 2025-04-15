@@ -4,6 +4,9 @@ import org.pinguweb.backend.model.Admin;
 import org.pinguweb.backend.repository.AdminRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
 @Service
 public class AuthenticationService {
 
@@ -17,10 +20,9 @@ public class AuthenticationService {
     }
 
     public boolean authenticate(String dni, String password) {
-        Admin admin = adminRepository.findByDni(dni);
-        System.out.println("Admin: " + admin);
-        if (admin != null) {
-            return passwordEncoder.matches(password, admin.getPassword());
+        Optional<Admin> admin = adminRepository.findByDni(dni);
+        if (admin.isPresent()) {
+            return passwordEncoder.matches(password, admin.get().getPassword());
         }
         return false;
     }

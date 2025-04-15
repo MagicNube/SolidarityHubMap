@@ -14,12 +14,12 @@ import lombok.ToString;
 @Entity
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
+        property = "ID"
 )
 public class Resource {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int ID;
 
     @Setter
     @Column(nullable = false)

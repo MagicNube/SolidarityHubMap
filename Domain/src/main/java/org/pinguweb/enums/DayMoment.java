@@ -1,4 +1,4 @@
-package org.pinguweb.backend.model.enums;
+package org.pinguweb.enums;
 
 public enum DayMoment {
     MORNING, AFTERNOON, ALLDAY
