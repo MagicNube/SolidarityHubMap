@@ -4,6 +4,7 @@ import com.storedobject.chart.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
@@ -112,7 +113,9 @@ public class Needs extends HorizontalLayout {
            if(priorityBox.getValue() == "Medium" ){chartLayout.add(createPieChart(3,1,15,5), createBarChart(3,1,15,5), createLineChart(3,1,15,5));}
             chartLayout.add(createPieChart(6,3,30,15), createBarChart(6,3,30,15), createLineChart(6,3,30,15));
 */
-
+            if( priorityBox.getValue() == null || startDatePicker.getValue() == null || endDatePicker.getValue() == null || categoryBox.getValue() == null || responsibleBox.getValue() == null ) {
+                Notification.show("Please fill in all fields to display the data.", 3000, Notification.Position.MIDDLE);
+                return;}
             String prioritys = priorityBox.getValue() != null ? priorityBox.getValue().toString() : null;
             updateChartsBasedOnPriority(prioritys, chartLayout);
 
