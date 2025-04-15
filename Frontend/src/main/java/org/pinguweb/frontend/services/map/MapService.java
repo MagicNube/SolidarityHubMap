@@ -4,8 +4,10 @@ package org.pinguweb.frontend.services.map;
 import lombok.Getter;
 import lombok.Setter;
 import org.pinguweb.DTO.NeedDTO;
+import org.pinguweb.DTO.RouteDTO;
 import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.Need;
+import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.pinguweb.frontend.mapObjects.factories.NeedFactory;
@@ -39,11 +41,19 @@ public class MapService {
 
     @Setter
     @Getter
+    int tempIdRoute = 0;
+
+    @Setter
+    @Getter
     private Boolean pointInZone = false;
 
     @Setter
     @Getter
     private boolean creatingNeed = false;
+
+    @Setter
+    @Getter
+    private boolean creatingRoute = false;
 
     @Setter
     @Getter
@@ -173,6 +183,17 @@ public class MapService {
         this.map.addLayer(MapView.getLLayerGroupZones());
 
         return zone;
+    }
+
+    public Route createRoute(RouteDTO routeDTO) {
+        Route route = new Route();
+        route.setID(routeDTO.getID());
+        route.addToMap(this.map);
+        for (int i = 0; i < routeDTO.getPoints().size(); i++) {
+            //route.addPoint(reg, new Tuple<>(routeDTO.getLatitudes().get(i), routeDTO.getLongitudes().get(i)));
+        }
+
+        return route;
     }
 
     public void deleteZone(int ID) {

@@ -8,6 +8,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -17,6 +18,7 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
 import org.pinguweb.DTO.NeedDTO;
+import org.pinguweb.DTO.RouteDTO;
 import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.Zone;
@@ -76,6 +78,7 @@ public class MapView extends HorizontalLayout {
 
     private NeedDTO tempNeedDTO;
     private ZoneDTO tempZoneDTO;
+    private RouteDTO tempRouteDTO;
 
     public MapView() {
         this.setId(ID);
@@ -119,8 +122,12 @@ public class MapView extends HorizontalLayout {
         this.controller.setMap(map);
         this.controller.setID(ID);
 
+        if (this.controller.getZones().isEmpty()) {
+            this.necesidad.setEnabled(false);
+        }
         necesidad.addClickListener(e -> crearDialogoTarea());
         zona.addClickListener(e -> createDialogZona());
+        ruta.addClickListener(e -> createDialogRuta());
         borrar.addClickListener(e -> clickBorrar());
         editar.addClickListener(e -> editar());
 
@@ -178,7 +185,35 @@ public class MapView extends HorizontalLayout {
 
         zoneMarkers.clear();
         zoneMarkerPoints.clear();
+        necesidad.setEnabled(true);
+    }
 
+    public void startRouteConstruction(RouteDTO routeDTO) {
+        this.mapContainer.addClassName("map_action");
+        this.tempRouteDTO = routeDTO;
+        System.out.println("Registrando puntos para la ruta");
+        reg.execJs(clickFuncReferenceCreateZone + "=e => document.getElementById('" + ID + "').$server.mapZona(e.latlng)");
+        map.on("click", clickFuncReferenceCreateZone);
+        this.ruta.setEnabled(false);
+        this.ruta.setText("Terminar ruta");
+        this.controller.setCreatingRoute(true);
+    }
+
+    public void endRouteConstruction(){
+        this.map.off("click", clickFuncReferenceCreateZone);
+        System.out.println("Ruta terminada");
+        this.ruta.setText("Ruta");
+        this.ruta.setEnabled(true);
+        this.controller.createRoute(this.tempRouteDTO);
+        this.controller.setCreatingRoute(false);
+        this.mapContainer.removeClassName("map_action");
+
+        for (ZoneMarker zoneMarker : zoneMarkers.values()) {
+            zoneMarker.removeFromMap(this.map);
+        }
+
+        zoneMarkers.clear();
+        zoneMarkerPoints.clear();
     }
 
     public void clickBorrar() {
@@ -280,7 +315,7 @@ public class MapView extends HorizontalLayout {
             controller.setPointInZone(false);
             controller.setCreatingNeed(false);
         } else {
-            System.out.println("El clic no está dentro de ninguna zona.");
+            Notification.show("Debes crear las necesidades dentro de una zona", 3000, Notification.Position.TOP_CENTER);
         }
     }
 
@@ -525,6 +560,55 @@ public class MapView extends HorizontalLayout {
         dialog.open();
 
         icoClose.addClickListener(iev -> dialog.close());
+    }
+
+    public void createDialogRuta(){
+        if (!this.controller.isCreatingRoute()) {
+            final Icon icoClose = VaadinIcon.CLOSE.create();
+            final Dialog dialog = new Dialog(icoClose);
+            dialog.setDraggable(true);
+            dialog.setResizable(true);
+            dialog.setWidth("70vw");
+            dialog.setHeight("40vh");
+            H3 title = new H3("Crear ruta");
+            TextArea nameTextArea = new TextArea();
+            nameTextArea.setPlaceholder("nombre");
+            nameTextArea.setWidth("50vw");
+            nameTextArea.setHeight("5vh");
+            ComboBox<String> routeTypeComboBox = new ComboBox<>("Tipo de ruta");
+            routeTypeComboBox.setItems("Ruta Segura", "Ruta de Evacuación", "Ruta de Emergencia");
+
+            RouteDTO routeDTO = new RouteDTO();
+            routeDTO.setName(nameTextArea.getValue());
+            routeDTO.setCatastrophe(0);
+            routeDTO.setPoints(new ArrayList<>());
+            routeDTO.setID(controller.getTempIdRoute());
+            controller.setTempIdRoute(controller.getTempIdRoute() + 1);
+            routeDTO.setRouteType(routeTypeComboBox.getValue());
+
+            Button cancelButton = new Button("Cancelar", event -> dialog.close());
+            Button acceptButton = new Button("Aceptar", event -> {
+                startRouteConstruction(routeDTO);
+                dialog.close();
+            });
+
+            acceptButton.setEnabled(false);
+            nameTextArea.addValueChangeListener(event -> {
+                acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null);
+            });
+
+            routeTypeComboBox.addValueChangeListener(event -> {
+                acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null);
+            });
+
+            HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
+            VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, routeTypeComboBox, buttonLayout);
+            dialog.add(dialogLayout);
+            dialog.open();
+            icoClose.addClickListener(iev -> dialog.close());
+        }else{
+            endRouteConstruction();
+        }
     }
 
 
