@@ -3,6 +3,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @Data
 @AllArgsConstructor
@@ -17,4 +19,7 @@ public class NeedDTO implements DTO{
     private String status;
     private int catastrophe;
     private int task;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
 }
