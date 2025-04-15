@@ -77,28 +77,39 @@ public class MapService {
     public MapService() {
         this.markerFactory = new MarkerFactory();
         this.zoneFactory = new ZoneFactory();
-        load();
     }
 
 
     @Async
     public void load() {
-        BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need",
-                new ParameterizedTypeReference<>() {});
+        try {
+            BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need",
+                    new ParameterizedTypeReference<>() {
+                    });
 
-        if (needs.getStatusCode() == HttpStatus.OK) {
-            for (NeedDTO need : needs.getData()) {
-                createNeed(need);
+            if (needs.getStatusCode() == HttpStatus.OK && needs.getData() != null) {
+                for (NeedDTO need : needs.getData()) {
+                    System.out.println(need.toString());
+                    if (need.getLatitude() != null && need.getLongitude() != null) {
+                        createNeed(need);
+                    }
+                }
+            }
+
+            BackendObject<List<ZoneDTO>> zonas = BackendService.getListFromBackend(BackendService.BACKEND + "/api/zone",
+                    new ParameterizedTypeReference<>() {
+                    });
+
+            if (zonas.getStatusCode() == HttpStatus.OK  && needs.getData() != null) {
+                for (ZoneDTO zone : zonas.getData()) {
+                    if (!zone.getLatitudes().isEmpty() && !zone.getLongitudes().isEmpty()) {
+                        createZone(zone);
+                    }
+                }
             }
         }
-
-        BackendObject<List<ZoneDTO>> zonas = BackendService.getListFromBackend(BackendService.BACKEND + "/api/zone",
-                new ParameterizedTypeReference<>() {});
-
-        if (zonas.getStatusCode() == HttpStatus.OK) {
-            for (ZoneDTO zone : zonas.getData()) {
-                createZone(zone);
-            }
+        catch (Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -107,7 +118,6 @@ public class MapService {
         double lat = needDTO.getLatitude();
         double lng = needDTO.getLongitude();
         Marker marker = (Marker) markerFactory.createMapObject(reg, lat, lng);
-        marker = marker.convertToZoneMarker(reg);
         marker.setID(needDTO.getId());
         marker.addToMap(this.map);
         marker.getMarkerObj().on("click", "e => document.getElementById('" + ID + "').$server.clickOnNeed(e.latlng, " + marker.getID() + ")");
