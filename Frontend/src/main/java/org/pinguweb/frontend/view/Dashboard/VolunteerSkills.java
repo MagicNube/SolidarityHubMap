@@ -9,6 +9,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.DTO.TaskDTO;
+import org.pinguweb.DTO.SkillDTO;
+import org.pinguweb.DTO.VolunteerDTO;
+import org.pinguweb.enums.TaskType;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
@@ -28,7 +31,6 @@ public class VolunteerSkills extends HorizontalLayout {
     BackendObject<List<TaskDTO>> tasks = BackendService.getListFromBackend(BackendService.BACKEND + "/api/task",
             new ParameterizedTypeReference<List<TaskDTO>>() {
             });
-
 
     public VolunteerSkills() {
         this.setSizeFull();

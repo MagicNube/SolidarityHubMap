@@ -6,21 +6,21 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.pinguweb.backend.model.enums.DayMoment;
-import org.pinguweb.backend.model.enums.WeekDay;
+import org.pinguweb.model.enums.DayMoment;
+import org.pinguweb.model.enums.WeekDay;
 
 @Getter
 @Entity
 @NoArgsConstructor
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
+        property = "ID"
 )
 public class ScheduleAvailability {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long ID;
 
     @ManyToOne
     @JoinColumn(name = "volunteer_dni")

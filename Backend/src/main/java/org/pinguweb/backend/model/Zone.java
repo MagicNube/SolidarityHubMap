@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
-import org.pinguweb.backend.model.enums.EmergencyLevel;
+import org.pinguweb.model.enums.EmergencyLevel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,12 +15,12 @@ import java.util.List;
 @ToString
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
+        property = "ID"
 )
 public class Zone {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int ID;
 
     @Setter
     private String name;

@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ZoneDTO implements DTO{
-    private int id;
+    private int ID;
     private String name;
     private String description;
     private String emergencyLevel;

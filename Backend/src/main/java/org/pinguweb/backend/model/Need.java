@@ -7,21 +7,22 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.pinguweb.backend.model.enums.TaskType;
-import org.pinguweb.backend.model.enums.UrgencyLevel;
+import org.pinguweb.enums.TaskType;
+import org.pinguweb.model.enums.Status;
+import org.pinguweb.model.enums.UrgencyLevel;
 
 @Getter
 @Entity
 @NoArgsConstructor
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
+        property = "ID"
 )
 public class Need {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonProperty("id")
-    private int id;
+    @JsonProperty("ID")
+    private int ID;
 
     @Setter
     @ManyToOne
@@ -50,6 +51,10 @@ public class Need {
     @JoinColumn(name = "catastrophe_id")
     @Setter
     private Catastrophe catastrophe;
+
+    @Setter
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @Setter
     @ManyToOne

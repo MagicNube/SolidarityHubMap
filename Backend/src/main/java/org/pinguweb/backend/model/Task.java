@@ -6,9 +6,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.pinguweb.backend.model.enums.Priority;
-import org.pinguweb.backend.model.enums.Status;
-import org.pinguweb.backend.model.enums.TaskType;
+import org.pinguweb.enums.TaskType;
+import org.pinguweb.model.enums.Priority;
+import org.pinguweb.model.enums.Status;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,12 +18,12 @@ import java.util.List;
 @NoArgsConstructor
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
+        property = "ID"
 )
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int ID;
 
     @Setter
     @OneToMany(mappedBy = "task")

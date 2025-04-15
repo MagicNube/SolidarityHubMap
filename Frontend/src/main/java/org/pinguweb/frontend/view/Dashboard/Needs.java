@@ -22,7 +22,7 @@ import java.util.List;
 @Route("dashboard/needs")
 public class Needs extends HorizontalLayout {
 
-    BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need/(id)",
+    BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need/(ID)",
             new ParameterizedTypeReference<List<NeedDTO>>() {
             });
     BackendObject<List<TaskDTO>> tasks = BackendService.getListFromBackend(BackendService.BACKEND + "/api/task",
@@ -90,7 +90,7 @@ public class Needs extends HorizontalLayout {
             TaskDTO tarea = null;
             for (NeedDTO need : needs.getData()) {
                 for ( TaskDTO t : tasks.getData()){
-                    if ( need.getTask() == t.getId()){tarea = t; break;}
+                    if ( need.getTask() == t.getID()){tarea = t; break;}
                 }
                 if ((startDate == null || (tarea.getStartTimeDate().toString()).compareTo(startDate) >= 0) &&
                         (endDate == null || tarea.getEstimatedEndTimeDate().toString().compareTo(endDate) <= 0) &&
@@ -104,8 +104,8 @@ public class Needs extends HorizontalLayout {
             // Update the charts with the filtered data
             int taskCR = (int) filteredTasks.stream().filter(task -> task.getStatus().equals("IN_PROGRESS")).count();
             int taskCO = (int) filteredTasks.stream().filter(task -> task.getStatus().equals("FINISHED")).count();
-           int needsCR = (int) filteredNeeds.stream().filter(need -> need.getId() != 0).count();
-           int needsCO = (int) filteredNeeds.stream().filter(need -> need.getId() == 0).count();
+           int needsCR = (int) filteredNeeds.stream().filter(need -> need.getID() != 0).count();
+           int needsCO = (int) filteredNeeds.stream().filter(need -> need.getID() == 0).count();
 
             chartLayout.removeAll();
            if(priorityBox.getValue() == "Low" ){chartLayout.add(createPieChart(5,2,25,10), createBarChart(5,2,25,10), createLineChart(5,2,25,10));}
@@ -196,6 +196,7 @@ public class Needs extends HorizontalLayout {
             return 0;
         }
     }
+  
     private void updateChartsBasedOnPriority(String priority, HorizontalLayout chartLayout) {
         chartLayout.removeAll();
 
@@ -212,6 +213,17 @@ public class Needs extends HorizontalLayout {
             default:
                 chartLayout.add(createPieChart(6, 3, 30, 15), createBarChart(6, 3, 30, 15), createLineChart(6, 3, 30, 15));
                 break;
+/*
+    public int getNeedsCR() {
+        if (needs.getStatusCode() == HttpStatus.OK) {
+            int count = 0;
+            TaskDTO tarea = null;
+            for (NeedDTO need : needs.getData()) {
+                for ( TaskDTO t : tasks.getData()){
+                    if ( need.getTask() == t.getID()){tarea = t; break;}
+                }
+                return count;
+            }
         }
     }
 

@@ -48,10 +48,8 @@ public class Users extends HorizontalLayout {
         chartLayout.add(createPieChart( 10,5), createBarChart(10,5), createLineChart(10,5));
         chartsContainer.add(chartLayout);
         this.add(navBarLayout, chartsContainer);
-
-
-
     }
+  
     public SOChart createBarChart(int VolunteerData, int AffectedData) {
         SOChart barChart = new SOChart();
         barChart.setSize("400px", "400px");
