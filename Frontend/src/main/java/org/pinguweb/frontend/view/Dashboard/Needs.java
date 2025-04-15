@@ -61,7 +61,7 @@ public class Needs extends HorizontalLayout {
         chartLayout.setAlignItems(Alignment.CENTER);
         chartLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
-        chartLayout.add(createPieChart( 10,4,50,20), createBarChart(10,4,50,20), createLineChart(10,4,50,20));
+        chartLayout.add(createPieChart(10, 4, 50, 20), createBarChart(10, 4, 50, 20), createLineChart(10, 4, 50, 20));
         chartsContainer.add(chartLayout);
         this.add(navBarLayout, chartsContainer);
 
@@ -113,15 +113,17 @@ public class Needs extends HorizontalLayout {
            if(priorityBox.getValue() == "Medium" ){chartLayout.add(createPieChart(3,1,15,5), createBarChart(3,1,15,5), createLineChart(3,1,15,5));}
             chartLayout.add(createPieChart(6,3,30,15), createBarChart(6,3,30,15), createLineChart(6,3,30,15));
 */
-            if( priorityBox.getValue() == null || startDatePicker.getValue() == null || endDatePicker.getValue() == null || categoryBox.getValue() == null || responsibleBox.getValue() == null ) {
+            if (priorityBox.getValue() == null || startDatePicker.getValue() == null || endDatePicker.getValue() == null || categoryBox.getValue() == null || responsibleBox.getValue() == null) {
                 Notification.show("Please fill in all fields to display the data.", 3000, Notification.Position.MIDDLE);
-                return;}
+                return;
+            }
             String prioritys = priorityBox.getValue() != null ? priorityBox.getValue().toString() : null;
             updateChartsBasedOnPriority(prioritys, chartLayout);
 
         });
 
     }
+
     public SOChart createBarChart(int TaskCR, int TaskCO, int NeedsCR, int NeedsCO) {
         SOChart barChart = new SOChart();
         barChart.setSize("400px", "400px");
@@ -134,13 +136,14 @@ public class Needs extends HorizontalLayout {
         for (int i = 0; i < labels.length; i++) {
             BarChart bar = new BarChart(new CategoryData(labels[i]), new Data(data[i]));
             bar.setName(labels[i]);
-            bar.setColors(new Color((int)(Math.random() * 256), (int)(Math.random() * 256), (int)(Math.random() * 256)));
+            bar.setColors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)));
             bar.plotOn(rc);
             barChart.add(bar);
         }
 
         return barChart;
     }
+
     public SOChart createPieChart(int TaskCR, int TaskCO, int NeedsCR, int NeedsCO) {
         SOChart pieChart = new SOChart();
         pieChart.setSize("400px", "400px");
@@ -164,7 +167,7 @@ public class Needs extends HorizontalLayout {
         CategoryData labels = new CategoryData("TasksCr", "TasksCo", "NeedsCr", "NeedsCo");
         Data data = new Data(TaskCR, TaskCO, NeedsCR, NeedsCO);
 
-        LineChart line = new LineChart(labels,data);
+        LineChart line = new LineChart(labels, data);
 
         RectangularCoordinate rc = new RectangularCoordinate(new XAxis(DataType.CATEGORY), new YAxis(DataType.NUMBER));
         line.plotOn(rc);
@@ -172,8 +175,8 @@ public class Needs extends HorizontalLayout {
 
         return lineChart;
     }
-  
-   public int getTaskCR() {
+
+    public int getTaskCR() {
         if (tasks.getStatusCode() == HttpStatus.OK) {
             int count = 0;
             for (TaskDTO task : tasks.getData()) {
@@ -186,6 +189,7 @@ public class Needs extends HorizontalLayout {
             return 0;
         }
     }
+
     public int getTaskCO() {
         if (needs.getStatusCode() == HttpStatus.OK) {
             int count = 0;
@@ -199,7 +203,7 @@ public class Needs extends HorizontalLayout {
             return 0;
         }
     }
-  
+
     private void updateChartsBasedOnPriority(String priority, HorizontalLayout chartLayout) {
         chartLayout.removeAll();
 
@@ -248,7 +252,9 @@ public class Needs extends HorizontalLayout {
                     if(need.getStartTimeDate() > endTimeDate) {
                         count++;
                     }
-                    return count;
+                    r v2eturn count;
                 }
             }*/
+        }
+    }
 }
