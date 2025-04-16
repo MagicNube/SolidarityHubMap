@@ -4,6 +4,7 @@ import com.storedobject.chart.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
@@ -35,9 +36,13 @@ public class Users extends HorizontalLayout {
         navBarLayout.setHeightFull();
         navBarLayout.add(NavigationBar.createNavBar());
 
-        VerticalLayout chartsContainer = new VerticalLayout();
-        chartsContainer.setSizeFull();
+        VerticalLayout mainContainer = new VerticalLayout();
+        mainContainer.setSizeFull();
+        mainContainer.setPadding(true);
+        mainContainer.setSpacing(true);
 
+        H1 title = new H1("Volunteer-Affected Dashboard");
+        mainContainer.add(title);
 
         HorizontalLayout chartLayout = new HorizontalLayout();
         chartLayout.setWidthFull();
@@ -45,9 +50,9 @@ public class Users extends HorizontalLayout {
         chartLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
 
-        chartLayout.add(createPieChart( 10,5), createBarChart(10,5), createLineChart(10,5));
-        chartsContainer.add(chartLayout);
-        this.add(navBarLayout, chartsContainer);
+        chartLayout.add(createPieChart( getVolunteers(),getAffected()), createBarChart(getVolunteers(),getAffected()), createLineChart(getVolunteers(),getAffected()));
+        mainContainer.add(chartLayout);
+        this.add(navBarLayout, mainContainer);
     }
   
     public SOChart createBarChart(int VolunteerData, int AffectedData) {
@@ -130,24 +135,7 @@ public class Users extends HorizontalLayout {
         return numberOfAffected;
 
     }
-    private void updateChartsBasedOnPriority(String priority, HorizontalLayout chartLayout) {
-        chartLayout.removeAll();
 
-        switch (priority) {
-            case "Low":
-                chartLayout.add(createPieChart(1, 2), createBarChart(5, 2), createLineChart(5, 2));
-                break;
-            case "Medium":
-                chartLayout.add(createPieChart(2, 1), createBarChart(2, 1), createLineChart(2, 1));
-                break;
-            case "High":
-                chartLayout.add(createPieChart(1,1), createBarChart(1,1), createLineChart(1,1));
-                break;
-            default:
-                chartLayout.add(createPieChart(1,1), createBarChart(1,1), createLineChart(1,1));
-                break;
-        }
-    }
 
 }
 
