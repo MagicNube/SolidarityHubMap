@@ -6,13 +6,8 @@ import lombok.Setter;
 import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.DTO.RouteDTO;
 import org.pinguweb.DTO.ZoneDTO;
-import org.pinguweb.frontend.mapObjects.Need;
-import org.pinguweb.frontend.mapObjects.Route;
-import org.pinguweb.frontend.mapObjects.Zone;
-import org.pinguweb.frontend.mapObjects.ZoneMarker;
-import org.pinguweb.frontend.mapObjects.factories.NeedFactory;
-import org.pinguweb.frontend.mapObjects.factories.ZoneFactory;
-import org.pinguweb.frontend.mapObjects.factories.ZoneMarkerFactory;
+import org.pinguweb.frontend.mapObjects.*;
+import org.pinguweb.frontend.mapObjects.factories.*;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.MapView;
@@ -25,6 +20,7 @@ import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -42,6 +38,10 @@ public class MapService {
     @Setter
     @Getter
     int tempIdRoute = 0;
+
+    @Setter
+    @Getter
+    int tempIdRoutePoint = 0;
 
     @Setter
     @Getter
@@ -82,15 +82,25 @@ public class MapService {
     @Getter
     private HashSet<Zone> zones = new HashSet<>();
 
+    @Getter
+    private HashSet<Route> routes = new HashSet<>();
+
+    @Getter
+    private HashMap<Integer,List<RoutePoint>> routePoints = new HashMap<>();
+
 
     private NeedFactory needFactory;
     private ZoneFactory zoneFactory;
     private ZoneMarkerFactory zoneMarkerFactory;
+    private RouteFactory routeFactory;
+    private RoutePointFactory routePointFactory;
 
     public MapService() {
         this.needFactory = new NeedFactory();
         this.zoneFactory = new ZoneFactory();
         this.zoneMarkerFactory = new ZoneMarkerFactory();
+        this.routeFactory = new RouteFactory();
+        this.routePointFactory = new RoutePointFactory();
         load();
     }
 
@@ -161,6 +171,16 @@ public class MapService {
         return zoneMarker;
     }
 
+    public RoutePoint createRoutePoint(double lat, double lng) {
+        RoutePoint routePoint = (RoutePoint) routePointFactory.createMapObject(reg, lat, lng);
+
+        routePoint.getMarkerObj().on("dragstart", "e => document.getElementById('" + ID + "').$server.routePointStart(e.target.getLatLng())");
+        routePoint.getMarkerObj().on("dragend", "e => document.getElementById('" + ID + "').$server.routePointEnd(e.target.getLatLng())");
+        routePoint.addToMap(this.map);
+
+        return routePoint;
+    }
+
     public Zone createZone(ZoneDTO zoneDTO) {
         List<Tuple<Double, Double>> points = new ArrayList<>();
 
@@ -185,17 +205,6 @@ public class MapService {
         return zone;
     }
 
-    public Route createRoute(RouteDTO routeDTO) {
-        Route route = new Route();
-        route.setID(routeDTO.getID());
-        route.addToMap(this.map);
-        for (int i = 0; i < routeDTO.getPoints().size(); i++) {
-            //route.addPoint(reg, new Tuple<>(routeDTO.getLatitudes().get(i), routeDTO.getLongitudes().get(i)));
-        }
-
-        return route;
-    }
-
     public void deleteZone(int ID) {
         Zone zone = zones.stream()
                 .filter(z -> z.getID() == ID)
@@ -207,6 +216,44 @@ public class MapService {
             zones.remove(zone);
             MapView.getLLayerGroupZones().removeLayer(zone.getPolygon());
             this.map.addLayer(MapView.getLLayerGroupZones());
+        }
+    }
+
+    public Route createRoute(RouteDTO routeDTO,List<RoutePoint> routePoints) {
+        Route route = (Route) routeFactory.createMapObject(reg, 0.0, routeDTO.getID() + 0.0);
+        route.setID(routeDTO.getID());
+        for (RoutePoint routePoint : routePoints) {
+            route.addPoint(reg, new Tuple<>(routePoint.getLatitude(), routePoint.getLongitude()));
+        }
+        route.generatePolygon(reg, "red", "blue");
+        route.setID(routeDTO.getID());
+        route.addToMap(this.map);
+
+        //route.getPolygon().on("click", "e => document.getElementById('" + ID + "').$server.clickOnRoute(e.latlng, " + route.getID() + ")");
+        routes.add(route);
+
+
+        return route;
+    }
+
+    public void deleteRoute(int ID) {
+        Route route = routes.stream()
+                .filter(r -> r.getID() == ID)
+                .findFirst()
+                .orElse(null);
+        if (route != null) {
+            route.removeFromMap(this.map);
+            route.deleteFromServer();
+            routes.remove(route);
+            List<RoutePoint> routePoints = this.routePoints.get(route.getID());
+            if (routePoints != null) {
+                for (RoutePoint routePoint : routePoints) {
+                    routePoint.removeFromMap(this.map);
+                    routePoint.deleteFromServer();
+                }
+                this.routePoints.remove(route.getID());
+            }
+            System.out.println("Route deleted: " + route.getID());
         }
     }
 

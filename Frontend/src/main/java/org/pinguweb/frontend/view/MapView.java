@@ -21,6 +21,7 @@ import org.pinguweb.DTO.NeedDTO;
 import org.pinguweb.DTO.RouteDTO;
 import org.pinguweb.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.Need;
+import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.pinguweb.frontend.services.map.MapService;
@@ -38,10 +39,7 @@ import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 @Route("map")
 @PageTitle("Visor del mapa")
@@ -73,8 +71,13 @@ public class MapView extends HorizontalLayout {
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
     private Tuple<Double, Double> zoneMarkerStartingPoint;
 
+    //private List<Tuple<Double, Double>> routePointPoints = new ArrayList<>();
+    private Tuple<Double, Double> routePointStartingPoint;
+    private List<RoutePoint> routePoints = new ArrayList<>();
+
     private String clickFuncReferenceCreateZone;
     private String clickFuncReferenceCreateNeed;
+    private String clickFuncReferenceCreateRoute;
 
     private NeedDTO tempNeedDTO;
     private ZoneDTO tempZoneDTO;
@@ -108,6 +111,7 @@ public class MapView extends HorizontalLayout {
 
         clickFuncReferenceCreateZone = map.clientComponentJsAccessor() + ".myClickFuncCreateZone";
         clickFuncReferenceCreateNeed = map.clientComponentJsAccessor() + ".myClickFuncCreateNeed";
+        clickFuncReferenceCreateRoute = map.clientComponentJsAccessor() + ".myClickFuncCreateRoute";
 
 
         this.map.locate(new LMapLocateOptions().withSetView(true));
@@ -192,28 +196,32 @@ public class MapView extends HorizontalLayout {
         this.mapContainer.addClassName("map_action");
         this.tempRouteDTO = routeDTO;
         System.out.println("Registrando puntos para la ruta");
-        reg.execJs(clickFuncReferenceCreateZone + "=e => document.getElementById('" + ID + "').$server.mapZona(e.latlng)");
-        map.on("click", clickFuncReferenceCreateZone);
+        reg.execJs(clickFuncReferenceCreateRoute + "=e => document.getElementById('" + ID + "').$server.mapRoute(e.latlng)");
+        map.on("click", clickFuncReferenceCreateRoute);
         this.ruta.setEnabled(false);
         this.ruta.setText("Terminar ruta");
         this.controller.setCreatingRoute(true);
     }
 
     public void endRouteConstruction(){
-        this.map.off("click", clickFuncReferenceCreateZone);
+        this.map.off("click", clickFuncReferenceCreateRoute);
         System.out.println("Ruta terminada");
         this.ruta.setText("Ruta");
         this.ruta.setEnabled(true);
-        this.controller.createRoute(this.tempRouteDTO);
+        this.controller.createRoute(this.tempRouteDTO, routePoints);
         this.controller.setCreatingRoute(false);
         this.mapContainer.removeClassName("map_action");
 
-        for (ZoneMarker zoneMarker : zoneMarkers.values()) {
-            zoneMarker.removeFromMap(this.map);
+        for (int i = routePoints.size() - 2; i > 0; i--) {
+            RoutePoint routePoint = routePoints.get(i);
+            routePoint.removeFromMap(this.map);
+            routePoints.remove(routePoint);
         }
 
-        zoneMarkers.clear();
-        zoneMarkerPoints.clear();
+        controller.getRoutePoints().put(tempRouteDTO.getID(), new ArrayList<>(routePoints));
+
+        routePoints.clear();
+        
     }
 
     public void clickBorrar() {
@@ -233,6 +241,18 @@ public class MapView extends HorizontalLayout {
                 reg.execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + ID + "').$server.removePolygon('" + zone.getID()+ "') ");
                 zone.getPolygon().on("click", clickFuncReferenceDeleteZone);
             }
+            for (org.pinguweb.frontend.mapObjects.Route route : this.controller.getRoutes()) {
+                System.out.println("Registrando rutas para borrar");
+                String clickFuncReferenceDeleteRoute = map.clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
+                reg.execJs(clickFuncReferenceDeleteRoute + "=e => document.getElementById('" + ID + "').$server.removeRoute('" + route.getID()+ "') ");
+                if (route.getPolygon() != null) {
+                    route.getPolygon().addTo(map); // Asegurarse de que el polígono está en el mapa
+                    route.getPolygon().on("click", clickFuncReferenceDeleteRoute);
+                    System.out.println("Evento de clic registrado para la ruta con ID: " + route.getID());
+                } else {
+                    System.out.println("El polígono de la ruta con ID " + route.getID() + " no está definido.");
+                }
+            }
         } else {
             this.controller.setDeleteBool(false);
             this.borrar.setText("Borrar");
@@ -243,6 +263,10 @@ public class MapView extends HorizontalLayout {
             for (Zone zone : this.controller.getZones()) {
                 String clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
                 zone.getPolygon().off("click", clickFuncReferenceDeleteZone);
+            }
+            for (org.pinguweb.frontend.mapObjects.Route route : this.controller.getRoutes()) {
+                String clickFuncReferenceDeleteRoute = map.clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
+                route.getPolygon().off("click", clickFuncReferenceDeleteRoute);
             }
 
             this.mapContainer.removeClassName("map_action");
@@ -337,6 +361,31 @@ public class MapView extends HorizontalLayout {
         }
     }
 
+
+
+    //AQUI
+    @ClientCallable
+    public void mapRoute(final JsonValue input) {
+        if (!(input instanceof final JsonObject obj)) {
+            return;
+        }
+        //Cambiar para que se genere un ID
+        RoutePoint routePoint = this.controller.createRoutePoint(obj.getNumber("lat"), obj.getNumber("lng"));
+        routePoint.setID(controller.getTempIdRoutePoint());
+        controller.setTempIdRoutePoint(controller.getTempIdRoutePoint() + 1);
+
+        tempRouteDTO.getPoints().add(routePoint.getID());
+
+        routePoints.add(routePoint);
+
+
+        if (routePoints.size() > 1) {
+            ruta.setEnabled(true);
+        }
+
+
+    }
+
     @ClientCallable
     public void zoneMarkerStart(final JsonValue input) {
         if (!(input instanceof final JsonObject obj)) {
@@ -369,6 +418,51 @@ public class MapView extends HorizontalLayout {
     }
 
     @ClientCallable
+    public void routePointStart(final JsonValue input) {
+        if (!(input instanceof final JsonObject obj)) {
+            return;
+        }
+
+        this.routePointStartingPoint = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+    }
+
+    @ClientCallable
+    public void routePointEnd(final JsonValue input) {
+        if (!(input instanceof final JsonObject obj)) {
+            return;
+        }
+
+        Tuple<Double, Double> point = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+
+        int index = -1;
+        for (int i = 0; i < routePoints.size(); i++) {
+            RoutePoint t = routePoints.get(i);
+
+            if (Objects.equals(t.getLatitude(), this.routePointStartingPoint._1()) && Objects.equals(t.getLongitude(), this.routePointStartingPoint._2())) {
+                index = i;
+                break;
+            }
+        }
+
+        System.out.println(this.routePointStartingPoint);
+        RoutePoint t = routePoints.get(index);
+        t.setLatitude(point._1());
+        t.setLongitude(point._2());
+        routePoints.set(index, t);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    @ClientCallable
     public void clickOnZone(final JsonValue input, String ID) {
         if (!(input instanceof final JsonObject obj)) {
             return;
@@ -395,6 +489,9 @@ public class MapView extends HorizontalLayout {
 
     }
 
+
+
+
     @ClientCallable
     public void removeMarker(String ID) {
         System.out.println("removeMarker: " + ID);
@@ -405,6 +502,12 @@ public class MapView extends HorizontalLayout {
     public void removePolygon(String ID) {
         System.out.println("removePolygon: " + ID);
         this.controller.deleteZone(Integer.parseInt(ID));
+    }
+
+    @ClientCallable
+    public void removeRoute(String ID) {
+        System.out.println("removeRoute: " + ID);
+        this.controller.deleteRoute(Integer.parseInt(ID));
     }
 
     @ClientCallable
