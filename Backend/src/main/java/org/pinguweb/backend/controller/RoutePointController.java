@@ -1,6 +1,6 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.DTO.RoutePointDTO;
+import org.pingu.domain.DTO.RoutePointDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.DTO.ModelDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
