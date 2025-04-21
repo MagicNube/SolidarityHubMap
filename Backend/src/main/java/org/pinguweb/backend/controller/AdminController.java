@@ -1,6 +1,6 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.DTO.AdminDTO;
+import org.pingu.domain.DTO.AdminDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Admin;

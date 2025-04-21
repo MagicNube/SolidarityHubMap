@@ -1,6 +1,6 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.DTO.TaskDTO;
+import org.pingu.domain.DTO.TaskDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Task;

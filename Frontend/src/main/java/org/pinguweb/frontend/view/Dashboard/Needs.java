@@ -8,8 +8,8 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import org.pinguweb.DTO.NeedDTO;
-import org.pinguweb.DTO.TaskDTO;
+import org.pingu.domain.DTO.NeedDTO;
+import org.pingu.domain.DTO.TaskDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
@@ -17,8 +17,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import com.vaadin.flow.component.html.H1;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Route("dashboard/needs")

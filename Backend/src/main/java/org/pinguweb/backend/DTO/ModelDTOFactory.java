@@ -1,14 +1,9 @@
 package org.pinguweb.backend.DTO;
 
-import org.pinguweb.DTO.*;
+import org.pingu.domain.DTO.*;
+import org.pingu.domain.enums.*;
 import org.pinguweb.backend.model.*;
 import org.pinguweb.backend.service.*;
-import org.pinguweb.enums.RoutePointType;
-import org.pinguweb.enums.RouteType;
-import org.pinguweb.enums.TaskType;
-import org.pinguweb.model.enums.EmergencyLevel;
-import org.pinguweb.model.enums.Status;
-import org.pinguweb.model.enums.UrgencyLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

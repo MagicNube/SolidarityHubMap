@@ -1,9 +1,9 @@
 package org.pinguweb.backend.DTO;
 
 import lombok.NoArgsConstructor;
-import org.pinguweb.DTO.*;
+import org.pingu.domain.DTO.*;
+import org.pingu.domain.enums.TaskType;
 import org.pinguweb.backend.model.*;
-import org.pinguweb.enums.TaskType;
 
 import java.util.stream.Collectors;
 

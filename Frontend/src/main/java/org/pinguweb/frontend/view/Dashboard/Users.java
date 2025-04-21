@@ -8,8 +8,8 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import org.pinguweb.DTO.AffectedDTO;
-import org.pinguweb.DTO.VolunteerDTO;
+import org.pingu.domain.DTO.AffectedDTO;
+import org.pingu.domain.DTO.VolunteerDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
@@ -135,9 +135,4 @@ public class Users extends HorizontalLayout {
         return numberOfAffected;
 
     }
-
-
 }
-
-
-

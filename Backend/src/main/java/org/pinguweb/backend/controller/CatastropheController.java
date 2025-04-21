@@ -1,7 +1,7 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.DTO.CatastropheDTO;
-import org.pinguweb.DTO.ZoneDTO;
+import org.pingu.domain.DTO.CatastropheDTO;
+import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Catastrophe;

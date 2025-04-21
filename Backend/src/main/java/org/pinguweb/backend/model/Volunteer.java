@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.pinguweb.enums.TaskType;
+import org.pingu.domain.enums.TaskType;
 
 import java.util.ArrayList;
 import java.util.List;

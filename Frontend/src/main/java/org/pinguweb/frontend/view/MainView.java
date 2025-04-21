@@ -27,7 +27,7 @@ public class MainView extends VerticalLayout {
         Paragraph welcomeMessage = new Paragraph("Por favor, inicia sesión para acceder a las funcionalidades.");
 
         Button loginButton = new Button("Iniciar Sesión", event -> {
-            UI.getCurrent().navigate("login");
+            UI.getCurrent().navigate("map");
         });
 
         loginButton.getStyle()
