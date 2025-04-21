@@ -1,0 +1,4 @@
+[submodule "Domain"]
+	path = CoordinacionBDSolidarityHub
+	url = https://github.com/jmoragu/CoordinacionBDSolidarityHub.git
+	branch = main

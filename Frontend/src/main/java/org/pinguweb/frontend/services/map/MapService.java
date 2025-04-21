@@ -3,8 +3,8 @@ package org.pinguweb.frontend.services.map;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.pinguweb.DTO.NeedDTO;
-import org.pinguweb.DTO.ZoneDTO;
+import org.pingu.domain.DTO.NeedDTO;
+import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;

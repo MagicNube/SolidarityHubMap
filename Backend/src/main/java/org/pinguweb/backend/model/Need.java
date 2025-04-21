@@ -7,9 +7,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.pinguweb.enums.TaskType;
-import org.pinguweb.model.enums.Status;
-import org.pinguweb.model.enums.UrgencyLevel;
+import org.pingu.domain.enums.Status;
+import org.pingu.domain.enums.TaskType;
+import org.pingu.domain.enums.UrgencyLevel;
 
 @Getter
 @Entity

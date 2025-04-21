@@ -2,7 +2,7 @@ package org.pinguweb.frontend.mapObjects;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.pinguweb.DTO.RouteDTO;
+import org.pingu.domain.DTO.RouteDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.springframework.http.HttpStatus;
