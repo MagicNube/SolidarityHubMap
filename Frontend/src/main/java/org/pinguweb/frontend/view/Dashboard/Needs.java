@@ -17,6 +17,7 @@ import org.pinguweb.frontend.view.NavigationBar;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Route("dashboard/needs")
