@@ -1,10 +1,7 @@
 package org.pinguweb.frontend.view.Dashboard;
 
 import com.storedobject.chart.*;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -16,112 +13,118 @@ import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+
+import java.util.Arrays;
 import java.util.List;
 
 @Route("dashboard/volunteer-skills")
-public class VolunteerSkills extends HorizontalLayout {
+public class VolunteerSkills extends VerticalLayout {
 
-    BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need/(id)",
-            new ParameterizedTypeReference<List<NeedDTO>>() {
-            });
-    BackendObject<List<TaskDTO>> tasks = BackendService.getListFromBackend(BackendService.BACKEND + "/api/task",
-            new ParameterizedTypeReference<List<TaskDTO>>() {
-            });
+    private List<VolunteerDTO> volunteers;
+    private TaskType[] tasks = TaskType.values();
 
     public VolunteerSkills() {
         this.setSizeFull();
+
         VerticalLayout navBarLayout = new VerticalLayout();
         navBarLayout.setWidth("250px");
         navBarLayout.setHeightFull();
         navBarLayout.add(NavigationBar.createNavBar());
 
-        VerticalLayout chartsContainer = new VerticalLayout();
-        chartsContainer.setSizeFull();
+        VerticalLayout mainContainer = new VerticalLayout();
+        mainContainer.setSizeFull();
+        mainContainer.setPadding(true);
+        mainContainer.setSpacing(true);
 
+        H1 title = new H1("Volunteer-Skills Dashboard");
+        mainContainer.add(title);
 
-        HorizontalLayout chartLayout = new HorizontalLayout();
-        chartLayout.setWidthFull();
-        chartLayout.setAlignItems(Alignment.CENTER);
-        chartLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+        BackendObject<List<VolunteerDTO>> volunteerResponse = BackendService.getListFromBackend(BackendService.BACKEND + "/api/volunteers",
+                new ParameterizedTypeReference<List<VolunteerDTO>>() {
+                });
 
-        chartLayout.add(createPieChart(2, 1, 4, 2, 1, 3), createBarChart(2, 1, 4, 2, 1, 3), createLineChart(2, 1, 4, 2, 1, 3));
-        chartsContainer.add(chartLayout);
-        this.add(navBarLayout, chartsContainer);
+        this.volunteers = volunteerResponse.getData();
 
-
+        SOChart barChart = createVolunteerSkillsBarChart();
+        this.add(barChart);
     }
 
-    public SOChart createBarChart(int skill1, int skill2, int skill3, int skill4, int skill5, int skill6) {
+    public SOChart createVolunteerSkillsBarChart() {
         SOChart barChart = new SOChart();
         barChart.setSize("400px", "400px");
-
+        String[] labels = Arrays.stream(tasks).map(TaskType::name).toArray(String[]::new);
         RectangularCoordinate rc = new RectangularCoordinate(new XAxis(DataType.CATEGORY), new YAxis(DataType.NUMBER));
-
-        String[] labels = {"MEDICAL", "SEARCH", "SAFETY", "LOGISTICS", "COMMUNICATION", "PSYCHOLOGICAL"};
-        int[] data = {skill1, skill2, skill3, skill4, skill5, skill6};
-
+        int[] data = new int[tasks.length];
+        if (tasks != null) {
+            for (VolunteerDTO volunteer : volunteers) {
+                for ( String task: volunteer.getTaskPreferences()){
+                    int index = Arrays.asList(labels).indexOf(task);
+                    if (index >= 0) {
+                        data[index]++;
+                    }
+                }
+            }
+        } else {labels = new String[0];System.out.println("no hay datos");}
         for (int i = 0; i < labels.length; i++) {
             BarChart bar = new BarChart(new CategoryData(labels[i]), new Data(data[i]));
             bar.setName(labels[i]);
-            bar.setColors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)));
+            bar.setColors(new Color((int)(Math.random() * 256), (int)(Math.random() * 256), (int)(Math.random() * 256)));
             bar.plotOn(rc);
             barChart.add(bar);
         }
 
         return barChart;
     }
-
-    public SOChart createPieChart(int skill1, int skill2, int skill3, int skill4, int skill5, int skill6) {
+    public SOChart createPieChart() {
         SOChart pieChart = new SOChart();
         pieChart.setSize("400px", "400px");
 
-        Data data = new Data(skill1, skill2, skill3, skill4, skill5, skill6);
-        CategoryData labels = new CategoryData("MEDICAL", "SEARCH", "SAFETY", "LOGISTICS", "COMMUNICATION", "PSYCHOLOGICAL");
-        PieChart pie = new PieChart(labels, data);
-
-        pie.setName("Volunteer Skills");
+        String[] labels = Arrays.stream(tasks).map(TaskType::name).toArray(String[]::new);
+        int[] data = new int[tasks.length];
+        for (VolunteerDTO volunteer : volunteers) {
+            for (String task : volunteer.getTaskPreferences()) {
+                int index = Arrays.asList(labels).indexOf(task);
+                if (index >= 0) {
+                    data[index]++;
+                }
+            }
+        }
+        for ( int i = 0; i < labels.length; i++) {
+            PieChart pie = new PieChart(new CategoryData(labels[i]), new Data(data[i]));
+            pie.setName(labels[i]);
+            pie.setColors(new Color((int)(Math.random() * 256), (int)(Math.random() * 256), (int)(Math.random() * 256)));
+            pieChart.add(pie);
+        }
 
         Legend legend = new Legend();
-        pieChart.add(pie, legend);
-
+        pieChart.add(legend);
         return pieChart;
     }
-
-    public SOChart createLineChart(int skill1, int skill2, int skill3, int skill4, int skill5, int skill6) {
+    public SOChart createLineChart() {
         SOChart lineChart = new SOChart();
         lineChart.setSize("400px", "400px");
 
-        Data data = new Data(skill1, skill2, skill3, skill4, skill5, skill6);
-        CategoryData labels = new CategoryData("MEDICAL", "SEARCH", "SAFETY", "LOGISTICS", "COMMUNICATION", "PSYCHOLOGICAL");
+        String[] labels = Arrays.stream(tasks).map(TaskType::name).toArray(String[]::new);
+        int[] data = new int[tasks.length];
+        for (VolunteerDTO volunteer : volunteers) {
+            for (String task : volunteer.getTaskPreferences()) {
+                int index = Arrays.asList(labels).indexOf(task);
+                if (index >= 0) {
+                    data[index]++;
+                }
+            }
+        }
+        for ( int i = 0; i < labels.length; i++) {
+            LineChart line = new LineChart(new CategoryData(labels[i]), new Data(data[i]));
+            line.setName(labels[i]);
+            line.setColors(new Color((int)(Math.random() * 256), (int)(Math.random() * 256), (int)(Math.random() * 256)));
+            lineChart.add(line);
+            RectangularCoordinate rc = new RectangularCoordinate(new XAxis(DataType.CATEGORY), new YAxis(DataType.NUMBER));
+            line.plotOn(rc);
+            lineChart.add(line);
+        }
 
-        LineChart line = new LineChart(labels, data);
-
-        RectangularCoordinate rc = new RectangularCoordinate(new XAxis(DataType.CATEGORY), new YAxis(DataType.NUMBER));
-        line.plotOn(rc);
-        lineChart.add(line);
-
-        return lineChart;
-    }
-}
-        return pieChart;
-    }
-
-    public SOChart createLineChart(int skill1, int skill2, int skill3, int skill4, int skill5, int skill6) {
-        SOChart lineChart = new SOChart();
-        lineChart.setSize("400px", "400px");
-
-        Data data = new Data(skill1, skill2, skill3, skill4, skill5, skill6);
-        CategoryData labels = new CategoryData("MEDICAL", "SEARCH", "SAFETY", "LOGISTICS", "COMMUNICATION", "PSYCHOLOGICAL");
-
-        LineChart line = new LineChart(labels, data);
-
-        RectangularCoordinate rc = new RectangularCoordinate(new XAxis(DataType.CATEGORY), new YAxis(DataType.NUMBER));
-        line.plotOn(rc);
-        lineChart.add(line);
 
         return lineChart;
     }

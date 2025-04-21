@@ -128,6 +128,7 @@ public class MapView extends HorizontalLayout {
         if (this.controller.getZones().isEmpty()) {
             this.necesidad.setEnabled(false);
         }
+      
         this.controller.load();
 
         necesidad.addClickListener(e -> crearDialogoTarea());
