@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.pinguweb.model.enums.DayMoment;
-import org.pinguweb.model.enums.WeekDay;
+import org.pingu.domain.enums.DayMoment;
+import org.pingu.domain.enums.WeekDay;
 
 @Getter
 @Entity

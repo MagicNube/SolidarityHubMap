@@ -1,6 +1,6 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.DTO.AffectedDTO;
+import org.pingu.domain.DTO.AffectedDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.pinguweb.backend.model.Affected;

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
-import org.pinguweb.enums.RoutePointType;
+import org.pingu.domain.enums.RoutePointType;
 
 @Getter
 @Entity

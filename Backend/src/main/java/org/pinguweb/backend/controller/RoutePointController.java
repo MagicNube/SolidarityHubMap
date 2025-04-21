@@ -1,6 +1,6 @@
 package org.pinguweb.backend.controller;
 
-import org.pinguweb.DTO.RoutePointDTO;
+import org.pingu.domain.DTO.RoutePointDTO;
 import org.pinguweb.backend.DTO.BackendDTOFactory;
 import org.pinguweb.backend.DTO.ModelDTOFactory;
 import org.pinguweb.backend.controller.common.ServerException;
@@ -24,7 +24,7 @@ public class RoutePointController {
     RoutePointService service;
 
     @Async
-    @GetMapping("/need")
+    @GetMapping("/routepoint")
     public CompletableFuture<ResponseEntity<List<RoutePointDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getRoutePointRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
         BackendDTOFactory factory = new BackendDTOFactory();
@@ -35,7 +35,7 @@ public class RoutePointController {
     }
 
     @Async
-    @GetMapping("/need/{ID}")
+    @GetMapping("/routepoint/{ID}")
     public CompletableFuture<ResponseEntity<RoutePointDTO>> getRoutePoints(@PathVariable Integer ID) {
         if (ServerException.isServerClosed(service.getRoutePointRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
@@ -50,7 +50,7 @@ public class RoutePointController {
     }
 
     @Async
-    @PostMapping("/need")
+    @PostMapping("/routepoint")
     public CompletableFuture<ResponseEntity<RoutePointDTO>> addNeed(@RequestBody  RoutePointDTO routePointDTO) {
         if (ServerException.isServerClosed(service.getRoutePointRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
@@ -61,7 +61,7 @@ public class RoutePointController {
     }
 
     @Async
-    @DeleteMapping("/need/{ID}")
+    @DeleteMapping("/routepoint/{ID}")
     public CompletableFuture<ResponseEntity<Void>> deleteNeed(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getRoutePointRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
@@ -76,7 +76,7 @@ public class RoutePointController {
     }
 
     @Async
-    @PutMapping("/need")
+    @PutMapping("/routepoint")
     public CompletableFuture<ResponseEntity<RoutePointDTO>> updateNeed(@RequestBody RoutePointDTO routePointDTO) {
         if (ServerException.isServerClosed(service.getRoutePointRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 

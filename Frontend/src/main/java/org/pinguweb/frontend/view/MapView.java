@@ -17,9 +17,8 @@ import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
-import org.pinguweb.DTO.NeedDTO;
-import org.pinguweb.DTO.RouteDTO;
-import org.pinguweb.DTO.ZoneDTO;
+import org.pingu.domain.DTO.NeedDTO;
+import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.Zone;
@@ -129,6 +128,8 @@ public class MapView extends HorizontalLayout {
         if (this.controller.getZones().isEmpty()) {
             this.necesidad.setEnabled(false);
         }
+        this.controller.load();
+
         necesidad.addClickListener(e -> crearDialogoTarea());
         zona.addClickListener(e -> createDialogZona());
         ruta.addClickListener(e -> createDialogRuta());
@@ -514,23 +515,6 @@ public class MapView extends HorizontalLayout {
     public void overlay(String status) {
         System.out.println("overlay: " + status);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public void createDialogZona() {
         if (!this.controller.isZoneBool()) {

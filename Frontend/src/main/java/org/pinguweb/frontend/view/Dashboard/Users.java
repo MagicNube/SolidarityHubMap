@@ -1,14 +1,11 @@
 package org.pinguweb.frontend.view.Dashboard;
 
 import com.storedobject.chart.*;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import org.pinguweb.DTO.AffectedDTO;
-import org.pinguweb.DTO.VolunteerDTO;
+import org.pingu.domain.DTO.AffectedDTO;
+import org.pingu.domain.DTO.VolunteerDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
@@ -38,20 +35,6 @@ public class Users extends HorizontalLayout {
         VerticalLayout chartsContainer = new VerticalLayout();
         chartsContainer.setSizeFull();
 
-        //Filtros
-        HorizontalLayout filtersLayout = new HorizontalLayout();
-        DatePicker startDatePicker = new DatePicker("Start Date");
-        DatePicker endDatePicker = new DatePicker("End Date");
-        ComboBox<String> priorityBox = new ComboBox<>("Priority");
-        priorityBox.setItems("Low", "Medium", "High");
-        ComboBox<String> categoryBox = new ComboBox<>("Category");
-        categoryBox.setItems("Category 1", "Category 2", "Category 3");
-        ComboBox<String> responsibleBox = new ComboBox<>("Responsible");
-        responsibleBox.setItems("User 1", "User 2", "User 3");
-        Button filterButton = new Button("Apply Filters");
-
-        filtersLayout.add(startDatePicker, endDatePicker, priorityBox, categoryBox, responsibleBox, filterButton);
-        chartsContainer.add(filtersLayout);
 
         HorizontalLayout chartLayout = new HorizontalLayout();
         chartLayout.setWidthFull();
@@ -59,57 +42,11 @@ public class Users extends HorizontalLayout {
         chartLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
 
-        chartLayout.add(createPieChart( getVolunteers(),getAffected()), createBarChart(getVolunteers(),getAffected()), createLineChart(getVolunteers(),getAffected()));
+        chartLayout.add(createPieChart( 10,5), createBarChart(10,5), createLineChart(10,5));
         chartsContainer.add(chartLayout);
         this.add(navBarLayout, chartsContainer);
-
-
-        //Listeners
-       /* filterButton.addClickListener(e -> {
-            String startDate = startDatePicker.getValue() != null ? startDatePicker.getValue().toString() : null;
-            String endDate = endDatePicker.getValue() != null ? endDatePicker.getValue().toString() : null;
-            String priority = priorityBox.getValue() != null ? priorityBox.getValue().toString() : null;
-            String category = categoryBox.getValue() != null ? categoryBox.getValue().toString() : null;
-            String responsible = responsibleBox.getValue() != null ? responsibleBox.getValue().toString() : null;
-
-            // Apply filters to the data
-            List<TaskDTO> filteredTasks = new ArrayList<>();
-            for (TaskDTO task : tasks.getData()) {
-                if ((startDate == null || task.getStartTimeDate().toString().compareTo(startDate) >= 0) &&
-                        (endDate == null || task.getEstimatedEndTimeDate().toString().compareTo(endDate) <= 0) &&
-                        (priority == null || task.getPriority().equals(priority)) &&
-                        (category == null || task.getType().equals(category)) &&
-                        (responsible == null || task.getCoordinates().equals(responsible))) {
-                    filteredTasks.add(task);
-                }
-            }
-
-            List<NeedDTO> filteredNeeds = new ArrayList<>();
-            TaskDTO tarea = null;
-            for (NeedDTO need : needs.getData()) {
-                for ( TaskDTO t : tasks.getData()){
-                    if ( need.getTask() == t.getID()){break}
-                }
-                if ((startDate == null || (tarea.getStartTimeDate().toString()).compareTo(startDate) >= 0) &&
-                        (endDate == null || tarea.getEstimatedEndTimeDate().toString().compareTo(endDate) <= 0) &&
-                        (priority == null || tarea.getPriority().equals(priority)) &&
-                        (category == null || tarea.getType().equals(category)) &&
-                        (responsible == null || tarea.getCoordinates().equals(responsible))) {
-                    filteredNeeds.add(need);
-                }
-            }
-
-            // Update the charts with the filtered data
-            int taskCR = (int) filteredTasks.stream().filter(task -> task.getStatus().equals("IN_PROGRESS")).count();
-            int taskCO = (int) filteredTasks.stream().filter(task -> task.getStatus().equals("FINISHED")).count();
-            int needsCR = (int) filteredNeeds.stream().filter(need -> need.getID() != 0).count();
-            int needsCO = (int) filteredNeeds.stream().filter(need -> need.getID() == 0).count();
-
-            chartLayout.removeAll();
-            chartLayout.add(createPieChart(taskCR, taskCO, needsCR, needsCO), createBarChart(taskCR, taskCO, needsCR, needsCO), createLineChart(taskCR, taskCO, needsCR, needsCO));
-        });*/
-
     }
+  
     public SOChart createBarChart(int VolunteerData, int AffectedData) {
         SOChart barChart = new SOChart();
         barChart.setSize("400px", "400px");
@@ -189,6 +126,24 @@ public class Users extends HorizontalLayout {
         }
         return numberOfAffected;
 
+    }
+    private void updateChartsBasedOnPriority(String priority, HorizontalLayout chartLayout) {
+        chartLayout.removeAll();
+
+        switch (priority) {
+            case "Low":
+                chartLayout.add(createPieChart(1, 2), createBarChart(5, 2), createLineChart(5, 2));
+                break;
+            case "Medium":
+                chartLayout.add(createPieChart(2, 1), createBarChart(2, 1), createLineChart(2, 1));
+                break;
+            case "High":
+                chartLayout.add(createPieChart(1,1), createBarChart(1,1), createLineChart(1,1));
+                break;
+            default:
+                chartLayout.add(createPieChart(1,1), createBarChart(1,1), createLineChart(1,1));
+                break;
+        }
     }
 
 }
