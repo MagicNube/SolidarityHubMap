@@ -18,6 +18,7 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
 import org.pingu.domain.DTO.NeedDTO;
+import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.RoutePoint;

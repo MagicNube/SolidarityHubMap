@@ -4,16 +4,12 @@ import com.storedobject.chart.*;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.Route;
-import org.pingu.domain.DTO.NeedDTO;
-import org.pingu.domain.DTO.TaskDTO;
+import org.pingu.domain.DTO.VolunteerDTO;
+import org.pingu.domain.enums.TaskType;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.pinguweb.frontend.view.NavigationBar;
 import org.springframework.core.ParameterizedTypeReference;
-
 
 import java.util.Arrays;
 import java.util.List;
