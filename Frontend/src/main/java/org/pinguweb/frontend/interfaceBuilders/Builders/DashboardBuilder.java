@@ -1,15 +1,19 @@
 package org.pinguweb.frontend.interfaceBuilders.Builders;
 
+import com.storedobject.chart.SOChart;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.ThemableLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.pinguweb.frontend.interfaceBuilders.customUIComponents.Dashboard;
-import org.pinguweb.frontend.interfaceBuilders.customUIComponents.InterfaceComponent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,6 +34,8 @@ public class DashboardBuilder implements InterfaceBuilder{
     @Override
     public Component build() {
         VerticalLayout layout = new VerticalLayout();
+        layout.setSizeFull();
+
         H1 Title = new H1(this.title);
         H2 Subtitle = new H2(this.subtitle);
 
@@ -47,6 +53,7 @@ public class DashboardBuilder implements InterfaceBuilder{
                 }
             }
         }
+
         return layout;
     }
 
@@ -81,12 +88,13 @@ public class DashboardBuilder implements InterfaceBuilder{
         return this;
     }
 
-    private Component getComponent(InterfaceComponent component){
+    private Component[] getComponent(InterfaceComponent component){
         if (component instanceof Dashboard){
-            return ((Dashboard) component).generateChart();
+            SOChart chart = (SOChart) component.getComponent();
+            return new Component[]{new H3(component.getName()), chart};
         }
         else{
-            return component;
+            return new Component[]{component.getComponent()};
         }
     }
 
@@ -94,10 +102,14 @@ public class DashboardBuilder implements InterfaceBuilder{
         HorizontalLayout side = new HorizontalLayout();
         VerticalLayout mainDown = new VerticalLayout();
 
+        side.setSizeFull();
+        mainDown.setSizeFull();
         mainDown.add(getComponent(component));
+
         for (InterfaceComponent insideComponent : component.getBelowComponents()){
             mainDown.add(this.getComponent(insideComponent));
         }
+
         side.add(mainDown);
 
         for (InterfaceComponent sizeComponents : component.getSideComponents()){
@@ -108,6 +120,7 @@ public class DashboardBuilder implements InterfaceBuilder{
             }
             side.add(compDown);
         }
+
         return side;
     }
 }

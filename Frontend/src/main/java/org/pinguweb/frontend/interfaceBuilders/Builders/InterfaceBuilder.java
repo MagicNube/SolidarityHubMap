@@ -2,7 +2,7 @@ package org.pinguweb.frontend.interfaceBuilders.Builders;
 
 import com.vaadin.flow.component.Component;
 import lombok.NonNull;
-import org.pinguweb.frontend.interfaceBuilders.customUIComponents.InterfaceComponent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
 import java.util.List;
 

@@ -1,28 +1,29 @@
-package org.pinguweb.frontend.interfaceBuilders.customUIComponents;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents;
 
 import com.storedobject.chart.*;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Builder
+@SuperBuilder
 @Getter
 @Tag("DashboardComponent")
 public class Dashboard extends InterfaceComponent{
-    protected SOChart chart;
-    protected final String name;
     protected final Color colors;
     protected final RectangularCoordinate coordinateConfiguration;
     protected final Object[] labels;
     protected final Object[] data;
     protected final ChartType type;
-    private String width;
-    private String height;
+    protected final String width;
+    protected final String height;
 
-    public SOChart generateChart(){
+    @Override
+    public Component getComponent(){
         switch (type){
             case BAR -> {return generateBarChart();}
             default -> {return null;}
@@ -30,8 +31,9 @@ public class Dashboard extends InterfaceComponent{
     }
 
     private SOChart generateBarChart(){
-        chart = new SOChart();
+        SOChart chart = new SOChart();
         chart.setSize(width, height);
+
         for (int i = 0; i < labels.length; i++) {
             BarChart bar =
                     new BarChart(
@@ -40,9 +42,9 @@ public class Dashboard extends InterfaceComponent{
             bar.setName(labels[i].toString());
             bar.setColors(this.colors);
             bar.plotOn(this.coordinateConfiguration);
-            this.chart.add(bar);
+            chart.add(bar);
         }
-        return this.chart;
+        return chart;
     }
 
     public static AbstractData<?> castObjectByCoordinateType(DataType tipo, Object valor) {
