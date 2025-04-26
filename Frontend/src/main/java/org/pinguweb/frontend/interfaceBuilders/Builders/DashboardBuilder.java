@@ -2,7 +2,8 @@ package org.pinguweb.frontend.interfaceBuilders.Builders;
 
 import com.storedobject.chart.SOChart;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -10,10 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 

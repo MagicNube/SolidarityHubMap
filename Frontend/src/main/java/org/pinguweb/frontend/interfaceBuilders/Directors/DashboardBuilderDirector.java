@@ -2,12 +2,10 @@ package org.pinguweb.frontend.interfaceBuilders.Directors;
 
 import com.storedobject.chart.*;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Unit;
 import org.pinguweb.frontend.interfaceBuilders.Builders.DashboardBuilder;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-
 
 import java.util.ArrayList;
 import java.util.List;

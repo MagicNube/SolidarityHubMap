@@ -3,7 +3,6 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents;
 import com.storedobject.chart.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 

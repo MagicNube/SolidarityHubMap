@@ -1,7 +1,6 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Unit;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
