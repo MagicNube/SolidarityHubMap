@@ -1,6 +1,5 @@
 package org.pinguweb.frontend.interfaceBuilders.Builders;
 
-import com.storedobject.chart.SOChart;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -27,8 +26,6 @@ public class DashboardBuilder implements InterfaceBuilder{
         return new DashboardBuilder();
     }
 
-    //TODO: Faltan filtros
-
     @Override
     public Component build() {
         VerticalLayout layout = new VerticalLayout();
@@ -40,16 +37,19 @@ public class DashboardBuilder implements InterfaceBuilder{
         layout.add(Title, Subtitle);
 
         for (InterfaceComponent component : childrens){
+            VerticalLayout vmain = new VerticalLayout();
+
             if (!component.getSideComponents().isEmpty()){
                 HorizontalLayout side = getHorizontalLayout(component);
-                layout.add(side);
+                vmain.add(side);
             }
             else{
                 layout.add(getComponent(component));
                 for (InterfaceComponent insideComponent : component.getBelowComponents()){
-                    layout.add(this.getComponent(insideComponent));
+                    vmain.add(this.getComponent(insideComponent));
                 }
             }
+            layout.add(vmain);
         }
 
         return layout;
@@ -88,8 +88,7 @@ public class DashboardBuilder implements InterfaceBuilder{
 
     private Component[] getComponent(InterfaceComponent component){
         if (component instanceof Dashboard){
-            SOChart chart = (SOChart) component.getComponent();
-            return new Component[]{new H3(component.getName()), chart};
+            return new Component[]{new H3(component.getName()), component.getComponent()};
         }
         else{
             return new Component[]{component.getComponent()};
