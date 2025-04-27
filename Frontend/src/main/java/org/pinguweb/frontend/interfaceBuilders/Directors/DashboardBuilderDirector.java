@@ -10,7 +10,6 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class DashboardBuilderDirector {

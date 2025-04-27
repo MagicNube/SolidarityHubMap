@@ -19,12 +19,13 @@ public class ChartData<T, J> {
     private final J[] pointObjects;
     
     public List<ChartPoint<?, ?>> flatten(){
-        List<ChartPoint<?,?>> points = new LinkedList<>();
-        
+        List<ChartPoint<?, ?>> points = new LinkedList<>();
+
         for (int i = 0; i < labelObjects.length; i++){
-            ChartPoint<T,J> point = new ChartPoint<>(labelObjects[i], pointObjects[i], labelValues[i], pointValues[i]);
+            ChartPoint<T, J> point = new ChartPoint<>(labelObjects[i], labelValues[i], pointObjects[i], pointValues[i]);
             points.add(point);
         }
         return points;
     }
+
 }

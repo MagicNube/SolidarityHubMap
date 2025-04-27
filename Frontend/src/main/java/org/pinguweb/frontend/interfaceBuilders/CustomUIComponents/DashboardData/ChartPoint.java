@@ -5,9 +5,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ChartPoint<T, J> {
-    private T LabelObject;
-    private J PointObject;
-    private final Object LabelValue;
-    private final Object PointValue;
+public class ChartPoint<X, Y> {
+    private X XObject;
+    private final Object XValue;
+
+    private Y YObject;
+    private final Object YValue;
 }
