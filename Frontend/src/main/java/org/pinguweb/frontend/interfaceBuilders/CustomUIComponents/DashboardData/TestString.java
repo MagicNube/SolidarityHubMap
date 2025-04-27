@@ -2,12 +2,11 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @AllArgsConstructor
-public class ChartPoint<T, J> {
-    private T LabelObject;
-    private J PointObject;
-    private final Object LabelValue;
-    private final Object PointValue;
+public class TestString {
+    public String name;
 }

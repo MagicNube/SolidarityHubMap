@@ -12,13 +12,18 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.function.SerializablePredicate;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartData;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartPoint;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -31,8 +36,8 @@ import java.util.stream.Collectors;
 public class Dashboard extends InterfaceComponent{
     protected final Color colors;
     protected final RectangularCoordinate coordinateConfiguration;
-    protected final ChartData data;
-    protected ListDataProvider<ChartPoint> filteredData;
+    protected final ChartData<?,?> data;
+    protected ListDataProvider<ChartPoint<?,?>> filteredData;
     protected final ChartType type;
     protected boolean hasFilter;
     protected final String width;
@@ -45,13 +50,10 @@ public class Dashboard extends InterfaceComponent{
         this.chart = new SOChart();
         this.chart.setSize(width, height);
         VerticalLayout layout = generateChartsComponents();
-
-
-
-        System.out.println(filteredData.getItems());
         switch (type){
             case BAR -> {
-                generateBarChart(filteredData);
+                generateBarChart(filteredData.fetch(new Query<>())
+                        .collect(Collectors.toList()));
                 layout.add(this.chart);
                 return layout;
             }
@@ -67,8 +69,7 @@ public class Dashboard extends InterfaceComponent{
         ComboBox<Class<?>> classname = new ComboBox<>("Clase");
         // Aquí podrías añadir más clases aparte de ChartData
 
-        assert(firstData.getValueClass() != null && firstData.getLabelClass() != null);
-        classname.setItems(firstData.getValueClass(), firstData.getLabelClass());
+        classname.setItems(firstData.getLabelObjects()[0].getClass(), firstData.getPointObjects()[0].getClass());
 
         classname.setItemLabelGenerator(Class::getSimpleName);
 
@@ -89,18 +90,19 @@ public class Dashboard extends InterfaceComponent{
                 return;
             }
             // Construir y aplicar predicate
-            SerializablePredicate<ChartPoint> filtro = buildPredicate(
-                    classname.getValue(),
+            SerializablePredicate<ChartPoint<?,?>> filtro = buildPredicate(
+                    classname.getValue().getName(),
                     property.getValue(),
                     operations.getValue(),
                     value.getValue()
             );
             // Resetear y volver a setear el provider
+
             filteredData.clearFilters();
             filteredData.addFilter(filtro);
             filteredData.refreshAll();
-            System.out.println(filteredData.getItems());
-            generateBarChart(filteredData);
+            generateBarChart(filteredData.fetch(new Query<>())
+                    .collect(Collectors.toList()));
         });
 
         // Listener: al cambiar de clase, relleno propiedades
@@ -137,41 +139,50 @@ public class Dashboard extends InterfaceComponent{
     /**
      * Crea un Predicate<ChartData> según los parámetros elegidos.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private SerializablePredicate<ChartPoint> buildPredicate(
-            Class<?> cls, String fieldName, String operation, String rawValue) {
+    private SerializablePredicate<ChartPoint<?,?>> buildPredicate(
+            String className,
+            String propertyName,
+            String operation,
+            String rawValue) {
 
-        return item -> {
+        return cp -> {
+            Object target = cp.getLabelObject().getClass().getName().equals(className)
+                    ? cp.getLabelObject()
+                    : cp.getPointObject();
+
+            PropertyDescriptor pd =
+                    null;
             try {
-                // Solo filtramos si el objeto es instancia de la clase
-                if (!cls.isInstance(item)) {
-                    return false;
-                }
-                Field f = item.getClass().getDeclaredField(fieldName);
-                f.setAccessible(true);
-                Object fieldValue = f.get(item);
+                pd = new PropertyDescriptor(propertyName, target.getClass());
+            } catch (IntrospectionException e) {
+                throw new RuntimeException(e);
+            }
+            Method getter = pd.getReadMethod();
+            Object fieldValue = null;
+            try {
+                fieldValue = getter.invoke(target);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
 
-                // Comparar según operación
-                switch (operation) {
-                    case "=":
-                        return Objects.equals(fieldValue, parseValue(fieldValue, rawValue));
-                    case "!=":
-                        return !Objects.equals(fieldValue, parseValue(fieldValue, rawValue));
-                    case ">":
-                        return ((Comparable) fieldValue)
-                                .compareTo(parseValue(fieldValue, rawValue)) > 0;
-                    case "<":
-                        return ((Comparable) fieldValue)
-                                .compareTo(parseValue(fieldValue, rawValue)) < 0;
-                    case "contains":
-                        return String.valueOf(fieldValue)
-                                .contains(rawValue);
-                    default:
-                        return true;
-                }
-            } catch (Exception e) {
-                // En caso de error, no excluimos el elemento
-                return true;
+            Object compareTo = parseValue(fieldValue, rawValue);
+
+            // 3) Comparar según la operación elegida
+            switch (operation) {
+                case "=":
+                    return Objects.equals(fieldValue, compareTo);
+                case "!=":
+                    return !Objects.equals(fieldValue, compareTo);
+                case ">":
+                    return ((Comparable) fieldValue).compareTo(compareTo) > 0;
+                case "<":
+                    return ((Comparable) fieldValue).compareTo(compareTo) < 0;
+                case "contains":
+                    return fieldValue.toString().contains(rawValue);
+                default:
+                    return false;
             }
         };
     }
@@ -180,15 +191,15 @@ public class Dashboard extends InterfaceComponent{
      * Convierte rawValue al mismo tipo que fieldValue, si es posible.
      */
     private Object parseValue(Object fieldValue, String rawValue) {
-        if (fieldValue instanceof Number) {
-            // Para números, intentamos Double
+        Class<?> type = fieldValue.getClass();
+        if (type == Integer.class) {
+            return Integer.valueOf(rawValue);
+        } else if (type == Double.class) {
             return Double.valueOf(rawValue);
-        } else if (fieldValue instanceof Boolean) {
+        } else if (type == Boolean.class) {
             return Boolean.valueOf(rawValue);
-        } else {
-            // Por defecto comparamos como String
-            return rawValue;
-        }
+        } // … más tipos según tu modelo
+        return rawValue; // por defecto, comparar con la cadena
     }
 
     private VerticalLayout generateChartsComponents(){
@@ -201,20 +212,21 @@ public class Dashboard extends InterfaceComponent{
         return vlayout;
     }
 
-    private void generateBarChart(ListDataProvider<ChartPoint> data){
+    private void generateBarChart(List<ChartPoint<?,?>> data){
+        this.chart.removeAll();
         this.chart.clear();
-        for (ChartPoint p : data.getItems()) {
+        for (ChartPoint<?,?> p : data) {
             BarChart bar =
                     new BarChart(
-                            Dashboard.castObjectByCoordinateType(this.coordinateConfiguration.getAxis(0).getDataType(), p.getLabel()),
-                            Dashboard.castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), p.getValue()));
-            bar.setName(p.getLabel().toString());
+                            Dashboard.castObjectByCoordinateType(this.coordinateConfiguration.getAxis(0).getDataType(), p.getLabelValue()),
+                            Dashboard.castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), p.getPointValue()));
+            bar.setName(p.getLabelValue().toString());
             bar.setColors(this.colors);
             bar.plotOn(this.coordinateConfiguration);
             this.chart.add(bar);
         }
         try {
-            this.chart.update();
+            this.chart.update(false);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -6,6 +6,7 @@ import org.pinguweb.frontend.interfaceBuilders.Builders.DashboardBuilder;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartData;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.TestString;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
 import java.util.ArrayList;
@@ -16,15 +17,21 @@ public class DashboardBuilderDirector {
     DashboardBuilder builder = new DashboardBuilder();
 
     public Component buildTest(){
+        TestString fs = new TestString("TasksCr");
+        TestString sn = new TestString("TasksCo");
+        TestString tr = new TestString("NeedsCr");
+        TestString fr = new TestString("NeedsCo");
+
+
         Dashboard first = Dashboard.builder()
                 .name("test 1")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
                 .data(
-                        new ChartData(
-                                new Object[]{"TasksCr","TasksCo","NeedsCr","NeedsCo"},
-                                new Object[]{0,1,2,3},
-                                Dashboard.class,
-                                ChartData.class
+                        new ChartData<>(
+                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                                new Object[]{1,2,3,4},
+                                new TestString[]{fs, sn, tr, fr},
+                                new Integer[]{1,2,3,4}
                         )
                 )
                 .coordinateConfiguration(
@@ -43,11 +50,11 @@ public class DashboardBuilderDirector {
                 .name("test 2")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
                 .data(
-                        new ChartData(
-                                new Object[]{"TasksCr","TasksCo","NeedsCr","NeedsCo"},
-                                new Object[]{0,1,2,3},
-                                Dashboard.class,
-                                ChartData.class
+                        new ChartData<>(
+                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                                new Object[]{1,2,3,4},
+                                new TestString[]{fs, sn, tr, fr},
+                                new Integer[]{1,2,3,4}
                         )
                 )
                 .coordinateConfiguration(
@@ -66,11 +73,11 @@ public class DashboardBuilderDirector {
                 .name("test 3")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
                 .data(
-                        new ChartData(
-                                new Object[]{"TasksCr","TasksCo","NeedsCr","NeedsCo"},
-                                new Object[]{0,1,2,3},
-                                Dashboard.class,
-                                ChartData.class
+                        new ChartData<>(
+                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                                new Object[]{1,2,3,4},
+                                new TestString[]{fs, sn, tr, fr},
+                                new Integer[]{1,2,3,4}
                         )
                 )
                 .coordinateConfiguration(
@@ -89,11 +96,11 @@ public class DashboardBuilderDirector {
                 .name("test 4")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
                 .data(
-                        new ChartData(
-                                new Object[]{"TasksCr","TasksCo","NeedsCr","NeedsCo"},
-                                new Object[]{0,1,2,3},
-                                Dashboard.class,
-                                ChartData.class
+                        new ChartData<>(
+                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                                new Object[]{1,2,3,4},
+                                new TestString[]{fs, sn, tr, fr},
+                                new Integer[]{1,2,3,4}
                         )
                 )
                 .coordinateConfiguration(
