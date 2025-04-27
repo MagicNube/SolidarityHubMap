@@ -89,7 +89,7 @@ public class Needs extends HorizontalLayout {
                         (endDate == null || task.getEstimatedEndTimeDate().toString().compareTo(endDate) <= 0) &&
                         (priority == null || task.getPriority().equals(priority)) &&
                         (category == null || task.getType().equals(category)) &&
-                        (responsible == null || task.getCoordinates().equals(responsible))) {
+                        (responsible == null)) {
                     filteredTasks.add(task);
                 }
             }
@@ -107,7 +107,7 @@ public class Needs extends HorizontalLayout {
                         (endDate == null || tarea.getEstimatedEndTimeDate().toString().compareTo(endDate) <= 0) &&
                         (priority == null || tarea.getPriority().equals(priority)) &&
                         (category == null || tarea.getType().equals(category)) &&
-                        (responsible == null || tarea.getCoordinates().equals(responsible))) {
+                        (responsible == null)) {
                     filteredNeeds.add(need);
                 }
             }

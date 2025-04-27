@@ -5,9 +5,11 @@ import com.vaadin.flow.component.Component;
 import org.pinguweb.frontend.interfaceBuilders.Builders.DashboardBuilder;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartData;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DashboardBuilderDirector {
@@ -17,8 +19,14 @@ public class DashboardBuilderDirector {
         Dashboard first = Dashboard.builder()
                 .name("test 1")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .labels(new String[]{"TasksCr", "TasksCo", "NeedsCr", "NeedsCo"})
-                .data(new Integer[]{0, 1, 2, 3})
+                .data(new ArrayList<>(
+                        Arrays.asList(
+                                new ChartData("TasksCr", 0),
+                                new ChartData("TasksCo",1),
+                                new ChartData("NeedsCr", 2),
+                                new ChartData("NeedsCo", 3)
+                        )
+                ))
                 .coordinateConfiguration(
                         new RectangularCoordinate(
                                 new XAxis(DataType.CATEGORY),
@@ -33,8 +41,14 @@ public class DashboardBuilderDirector {
         Dashboard second = Dashboard.builder()
                 .name("test 2")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .labels(new String[]{"TasksCr", "TasksCo", "NeedsCr", "NeedsCo"})
-                .data(new Integer[]{0, 1, 2, 3})
+                .data(new ArrayList<>(
+                        Arrays.asList(
+                                new ChartData("TasksCr", 0),
+                                new ChartData("TasksCo",1),
+                                new ChartData("NeedsCr", 2),
+                                new ChartData("NeedsCo", 3)
+                        )
+                ))
                 .coordinateConfiguration(
                         new RectangularCoordinate(
                                 new XAxis(DataType.CATEGORY),
@@ -49,8 +63,14 @@ public class DashboardBuilderDirector {
         Dashboard third = Dashboard.builder()
                 .name("test 3")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .labels(new String[]{"TasksCr", "TasksCo", "NeedsCr", "NeedsCo"})
-                .data(new Integer[]{0, 1, 2, 3})
+                .data(new ArrayList<>(
+                        Arrays.asList(
+                                new ChartData("TasksCr", 0),
+                                new ChartData("TasksCo",1),
+                                new ChartData("NeedsCr", 2),
+                                new ChartData("NeedsCo", 3)
+                        )
+                ))
                 .coordinateConfiguration(
                         new RectangularCoordinate(
                                 new XAxis(DataType.CATEGORY),
@@ -65,8 +85,14 @@ public class DashboardBuilderDirector {
         Dashboard forth = Dashboard.builder()
                 .name("test 4")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .labels(new String[]{"TasksCr", "TasksCo", "NeedsCr", "NeedsCo"})
-                .data(new Integer[]{0, 1, 2, 3})
+                .data(new ArrayList<>(
+                        Arrays.asList(
+                                new ChartData("TasksCr", 0),
+                                new ChartData("TasksCo",1),
+                                new ChartData("NeedsCr", 2),
+                                new ChartData("NeedsCo", 3)
+                        )
+                ))
                 .coordinateConfiguration(
                         new RectangularCoordinate(
                                 new XAxis(DataType.CATEGORY),

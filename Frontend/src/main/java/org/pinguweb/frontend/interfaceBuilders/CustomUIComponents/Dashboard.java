@@ -5,9 +5,11 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartData;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @SuperBuilder
 @Getter
@@ -15,8 +17,7 @@ import java.time.LocalDateTime;
 public class Dashboard extends InterfaceComponent{
     protected final Color colors;
     protected final RectangularCoordinate coordinateConfiguration;
-    protected final Object[] labels;
-    protected final Object[] data;
+    protected final List<ChartData> data;
     protected final ChartType type;
     protected final String width;
     protected final String height;
@@ -33,12 +34,12 @@ public class Dashboard extends InterfaceComponent{
         SOChart chart = new SOChart();
         chart.setSize(width, height);
 
-        for (int i = 0; i < labels.length; i++) {
+        for (ChartData datum : data) {
             BarChart bar =
                     new BarChart(
-                            Dashboard.castObjectByCoordinateType(this.coordinateConfiguration.getAxis(0).getDataType(), labels[i]),
-                            Dashboard.castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), data[i]));
-            bar.setName(labels[i].toString());
+                            Dashboard.castObjectByCoordinateType(this.coordinateConfiguration.getAxis(0).getDataType(), datum.getLabel()),
+                            Dashboard.castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), datum.getValue()));
+            bar.setName(datum.getLabel().toString());
             bar.setColors(this.colors);
             bar.plotOn(this.coordinateConfiguration);
             chart.add(bar);
