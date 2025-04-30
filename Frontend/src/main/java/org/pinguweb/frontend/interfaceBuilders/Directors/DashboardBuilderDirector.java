@@ -43,8 +43,8 @@ public class DashboardBuilderDirector {
                 )
                 .type(ChartType.BAR)
                 .hasFilter(true)
-                .width("400px")
-                .height("400px")
+                .width("100%")
+                .height("700px")
                 .build();
 
         Dashboard second = Dashboard.builder()
@@ -65,8 +65,8 @@ public class DashboardBuilderDirector {
                         )
                 )
                 .type(ChartType.BAR)
-                .width("400px")
-                .height("400px")
+                .width("100%")
+                .height("500px")
                 .hasFilter(false)
                 .build();
 
@@ -88,8 +88,8 @@ public class DashboardBuilderDirector {
                         )
                 )
                 .type(ChartType.BAR)
-                .width("400px")
-                .height("400px")
+                .width("100%")
+                .height("500px")
                 .hasFilter(false)
                 .build();
 
@@ -111,8 +111,8 @@ public class DashboardBuilderDirector {
                         )
                 )
                 .type(ChartType.BAR)
-                .width("400px")
-                .height("400px")
+                .width("100%")
+                .height("500px")
                 .hasFilter(false)
                 .build();
 

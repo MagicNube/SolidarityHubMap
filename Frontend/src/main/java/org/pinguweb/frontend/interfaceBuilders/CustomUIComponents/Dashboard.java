@@ -4,6 +4,7 @@ import com.storedobject.chart.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Getter;
@@ -42,11 +43,14 @@ public class Dashboard extends InterfaceComponent{
         this.chart = new SOChart();
         this.chart.setSize(width, height);
         VerticalLayout layout = generateChartsComponents();
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.addClassName("coloredBorder");
         switch (type){
             case BAR -> {
                 BarChart bar = generateBarChart(this.xAxis, this.yAxis);
                 this.chartobject = bar;
                 this.chart.add(bar);
+                this.chart.disableDefaultLegend();
                 layout.add(this.chart);
                 return layout;
             }
