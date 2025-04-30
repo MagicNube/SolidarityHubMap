@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.NoArgsConstructor;
@@ -37,19 +38,25 @@ public class DashboardBuilder implements InterfaceBuilder{
         layout.add(Title, Subtitle);
 
         for (InterfaceComponent component : childrens){
-            VerticalLayout vmain = new VerticalLayout();
 
-            if (!component.getSideComponents().isEmpty()){
-                HorizontalLayout side = getHorizontalLayout(component);
-                vmain.add(side);
+            if (component instanceof Dashboard) {
+                if (!component.getSideComponents().isEmpty()) {
+                    VerticalLayout vmain = new VerticalLayout();
+                    HorizontalLayout side = getHorizontalLayout(component);
+                    vmain.add(side);
+                    layout.add(vmain);
+                } else {
+                    layout.add(getComponent(component));
+                }
+
+                Hr separator = new Hr();
+                separator.setWidthFull();
+                separator.addClassName("separator");
+                layout.add(separator);
             }
             else{
                 layout.add(getComponent(component));
-                for (InterfaceComponent insideComponent : component.getBelowComponents()){
-                    vmain.add(this.getComponent(insideComponent));
-                }
             }
-            layout.add(vmain);
         }
 
         return layout;

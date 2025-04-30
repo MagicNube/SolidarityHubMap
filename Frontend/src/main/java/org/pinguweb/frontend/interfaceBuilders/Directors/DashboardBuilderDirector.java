@@ -7,6 +7,7 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartData;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.TestString;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Filters;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
 import java.time.LocalDate;
@@ -23,6 +24,8 @@ public class DashboardBuilderDirector {
         TestString tr = new TestString("NeedsCr", LocalDate.now().minusDays(2), LocalDateTime.now().minusDays(2), 3, true);
         TestString fr = new TestString("NeedsCo", LocalDate.now().minusDays(3), LocalDateTime.now().minusDays(3), 4, true);
 
+        Filters firstFilter = Filters.builder().build();
+        Filters secondFilter = Filters.builder().build();
 
         Dashboard first = Dashboard.builder()
                 .name("test 1")
@@ -42,9 +45,8 @@ public class DashboardBuilderDirector {
                         )
                 )
                 .type(ChartType.BAR)
-                .hasFilter(true)
-                .width("400px")
-                .height("400px")
+                .width("100%")
+                .height("700px")
                 .build();
 
         Dashboard second = Dashboard.builder()
@@ -65,9 +67,8 @@ public class DashboardBuilderDirector {
                         )
                 )
                 .type(ChartType.BAR)
-                .width("400px")
-                .height("400px")
-                .hasFilter(false)
+                .width("100%")
+                .height("500px")
                 .build();
 
         Dashboard third = Dashboard.builder()
@@ -88,9 +89,8 @@ public class DashboardBuilderDirector {
                         )
                 )
                 .type(ChartType.BAR)
-                .width("400px")
-                .height("400px")
-                .hasFilter(false)
+                .width("100%")
+                .height("500px")
                 .build();
 
         Dashboard forth = Dashboard.builder()
@@ -111,10 +111,15 @@ public class DashboardBuilderDirector {
                         )
                 )
                 .type(ChartType.BAR)
-                .width("400px")
-                .height("400px")
-                .hasFilter(false)
+                .width("100%")
+                .height("500px")
                 .build();
+
+        firstFilter.addDashboard(first);
+
+        secondFilter.addDashboard(second);
+        secondFilter.addDashboard(third);
+        secondFilter.addDashboard(forth);
 
         builder.reset();
 
@@ -125,10 +130,12 @@ public class DashboardBuilderDirector {
         sides.add(third);
 
         return builder
-            .setTile("Test")
-            .setSubtitle("Doble test")
-            .addBelow(first)
-            .addSide(sides)
-            .build();
+                .setTile("Test")
+                .setSubtitle("Doble test")
+                .addBelow(firstFilter)
+                .addBelow(first)
+                .addBelow(secondFilter)
+                .addSide(sides)
+                .build();
     }
 }
