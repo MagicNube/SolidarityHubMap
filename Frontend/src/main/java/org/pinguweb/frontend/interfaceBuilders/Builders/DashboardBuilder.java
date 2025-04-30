@@ -39,20 +39,24 @@ public class DashboardBuilder implements InterfaceBuilder{
 
         for (InterfaceComponent component : childrens){
 
-            if (!component.getSideComponents().isEmpty()){
-                VerticalLayout vmain = new VerticalLayout();
-                HorizontalLayout side = getHorizontalLayout(component);
-                vmain.add(side);
-                layout.add(vmain);
+            if (component instanceof Dashboard) {
+                if (!component.getSideComponents().isEmpty()) {
+                    VerticalLayout vmain = new VerticalLayout();
+                    HorizontalLayout side = getHorizontalLayout(component);
+                    vmain.add(side);
+                    layout.add(vmain);
+                } else {
+                    layout.add(getComponent(component));
+                }
+
+                Hr separator = new Hr();
+                separator.setWidthFull();
+                separator.addClassName("separator");
+                layout.add(separator);
             }
             else{
                 layout.add(getComponent(component));
             }
-
-            Hr separator = new Hr();
-            separator.setWidthFull();
-            separator.addClassName("separator");
-            layout.add(separator);
         }
 
         return layout;

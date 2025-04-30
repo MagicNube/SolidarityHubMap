@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartData;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartPoint;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.Filters;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,7 +28,6 @@ public class Dashboard extends InterfaceComponent{
     private AbstractDataProvider<?> yAxis;
 
     protected final ChartType type;
-    protected boolean hasFilter;
     protected final String width;
     protected final String height;
     protected SOChart chart;
@@ -42,7 +40,7 @@ public class Dashboard extends InterfaceComponent{
 
         this.chart = new SOChart();
         this.chart.setSize(width, height);
-        VerticalLayout layout = generateChartsComponents();
+        VerticalLayout layout = new VerticalLayout();
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         layout.addClassName("coloredBorder");
         switch (type){
@@ -73,17 +71,6 @@ public class Dashboard extends InterfaceComponent{
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private VerticalLayout generateChartsComponents(){
-        VerticalLayout vlayout = new VerticalLayout();
-        HorizontalLayout hlayout = new HorizontalLayout();
-        Filters filter = new Filters(this);
-        if (this.hasFilter) {
-            hlayout.add(filter.generateFilter(this.getData()));
-            vlayout.add(hlayout);
-        }
-        return vlayout;
     }
 
     private BarChart generateBarChart(AbstractDataProvider<?> xAxis, AbstractDataProvider<?> yAxis){

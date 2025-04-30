@@ -224,7 +224,6 @@ public class MapView extends HorizontalLayout {
         controller.getRoutePoints().put(tempRouteDTO.getID(), new ArrayList<>(routePoints));
 
         routePoints.clear();
-        
     }
 
     public void clickBorrar() {
