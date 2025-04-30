@@ -6,27 +6,35 @@ import org.pinguweb.frontend.interfaceBuilders.Builders.DashboardBuilder;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartData;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.TestString;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class DashboardBuilderDirector {
     DashboardBuilder builder = new DashboardBuilder();
 
     public Component buildTest(){
+        TestString fs = new TestString("TasksCr", LocalDate.now(), LocalDateTime.now(), 1, false);
+        TestString sn = new TestString("TasksCo", LocalDate.now().minusDays(1), LocalDateTime.now().minusDays(1), 2, false);
+        TestString tr = new TestString("NeedsCr", LocalDate.now().minusDays(2), LocalDateTime.now().minusDays(2), 3, true);
+        TestString fr = new TestString("NeedsCo", LocalDate.now().minusDays(3), LocalDateTime.now().minusDays(3), 4, true);
+
+
         Dashboard first = Dashboard.builder()
                 .name("test 1")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(new ArrayList<>(
-                        Arrays.asList(
-                                new ChartData("TasksCr", 0),
-                                new ChartData("TasksCo",1),
-                                new ChartData("NeedsCr", 2),
-                                new ChartData("NeedsCo", 3)
+                .data(
+                        new ChartData<>(
+                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                                new Object[]{1,2,3,4},
+                                new TestString[]{fs, sn, tr, fr},
+                                new Integer[]{1,2,3,4}
                         )
-                ))
+                )
                 .coordinateConfiguration(
                         new RectangularCoordinate(
                                 new XAxis(DataType.CATEGORY),
@@ -34,6 +42,7 @@ public class DashboardBuilderDirector {
                         )
                 )
                 .type(ChartType.BAR)
+                .hasFilter(true)
                 .width("400px")
                 .height("400px")
                 .build();
@@ -41,14 +50,14 @@ public class DashboardBuilderDirector {
         Dashboard second = Dashboard.builder()
                 .name("test 2")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(new ArrayList<>(
-                        Arrays.asList(
-                                new ChartData("TasksCr", 0),
-                                new ChartData("TasksCo",1),
-                                new ChartData("NeedsCr", 2),
-                                new ChartData("NeedsCo", 3)
+                .data(
+                        new ChartData<>(
+                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                                new Object[]{1,2,3,4},
+                                new TestString[]{fs, sn, tr, fr},
+                                new Integer[]{1,2,3,4}
                         )
-                ))
+                )
                 .coordinateConfiguration(
                         new RectangularCoordinate(
                                 new XAxis(DataType.CATEGORY),
@@ -58,19 +67,20 @@ public class DashboardBuilderDirector {
                 .type(ChartType.BAR)
                 .width("400px")
                 .height("400px")
+                .hasFilter(false)
                 .build();
 
         Dashboard third = Dashboard.builder()
                 .name("test 3")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(new ArrayList<>(
-                        Arrays.asList(
-                                new ChartData("TasksCr", 0),
-                                new ChartData("TasksCo",1),
-                                new ChartData("NeedsCr", 2),
-                                new ChartData("NeedsCo", 3)
+                .data(
+                        new ChartData<>(
+                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                                new Object[]{1,2,3,4},
+                                new TestString[]{fs, sn, tr, fr},
+                                new Integer[]{1,2,3,4}
                         )
-                ))
+                )
                 .coordinateConfiguration(
                         new RectangularCoordinate(
                                 new XAxis(DataType.CATEGORY),
@@ -80,19 +90,20 @@ public class DashboardBuilderDirector {
                 .type(ChartType.BAR)
                 .width("400px")
                 .height("400px")
+                .hasFilter(false)
                 .build();
 
         Dashboard forth = Dashboard.builder()
                 .name("test 4")
                 .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(new ArrayList<>(
-                        Arrays.asList(
-                                new ChartData("TasksCr", 0),
-                                new ChartData("TasksCo",1),
-                                new ChartData("NeedsCr", 2),
-                                new ChartData("NeedsCo", 3)
+                .data(
+                        new ChartData<>(
+                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                                new Object[]{1,2,3,4},
+                                new TestString[]{fs, sn, tr, fr},
+                                new Integer[]{1,2,3,4}
                         )
-                ))
+                )
                 .coordinateConfiguration(
                         new RectangularCoordinate(
                                 new XAxis(DataType.CATEGORY),
@@ -102,6 +113,7 @@ public class DashboardBuilderDirector {
                 .type(ChartType.BAR)
                 .width("400px")
                 .height("400px")
+                .hasFilter(false)
                 .build();
 
         builder.reset();
