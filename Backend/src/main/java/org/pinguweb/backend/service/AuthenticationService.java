@@ -21,9 +21,6 @@ public class AuthenticationService {
 
     public boolean authenticate(String dni, String password) {
         Optional<Admin> admin = adminRepository.findByDni(dni);
-        if (admin.isPresent()) {
-            return passwordEncoder.matches(password, admin.get().getPassword());
-        }
-        return false;
+        return admin.filter(value -> passwordEncoder.matches(password, value.getPassword())).isPresent();
     }
 }
