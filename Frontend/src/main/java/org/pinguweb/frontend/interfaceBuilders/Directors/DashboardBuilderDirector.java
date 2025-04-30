@@ -9,6 +9,8 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.TestString;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +18,10 @@ public class DashboardBuilderDirector {
     DashboardBuilder builder = new DashboardBuilder();
 
     public Component buildTest(){
-        TestString fs = new TestString("TasksCr");
-        TestString sn = new TestString("TasksCo");
-        TestString tr = new TestString("NeedsCr");
-        TestString fr = new TestString("NeedsCo");
+        TestString fs = new TestString("TasksCr", LocalDate.now(), LocalDateTime.now(), 1, false);
+        TestString sn = new TestString("TasksCo", LocalDate.now().minusDays(1), LocalDateTime.now().minusDays(1), 2, false);
+        TestString tr = new TestString("NeedsCr", LocalDate.now().minusDays(2), LocalDateTime.now().minusDays(2), 3, true);
+        TestString fr = new TestString("NeedsCo", LocalDate.now().minusDays(3), LocalDateTime.now().minusDays(3), 4, true);
 
 
         Dashboard first = Dashboard.builder()
