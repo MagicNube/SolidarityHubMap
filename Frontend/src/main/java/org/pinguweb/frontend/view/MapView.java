@@ -8,6 +8,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -17,8 +18,10 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
 import org.pingu.domain.DTO.NeedDTO;
+import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.Need;
+import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.pinguweb.frontend.services.map.MapService;
@@ -36,10 +39,7 @@ import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 @Route("map")
 @PageTitle("Visor del mapa")
@@ -63,16 +63,25 @@ public class MapView extends HorizontalLayout {
 
     private final Button necesidad = new Button("Necesidad");
     private final Button zona = new Button("Zona");
-    private final Button borrar = new Button("Borrar");
+    private final Button ruta = new Button("Ruta Segura");
     private final Button editar = new Button("Editar");
+    private final Button borrar = new Button("Borrar");
 
     private HashMap<Tuple<Double, Double>, ZoneMarker> zoneMarkers = new HashMap<>();
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
     private Tuple<Double, Double> zoneMarkerStartingPoint;
+
+    //private List<Tuple<Double, Double>> routePointPoints = new ArrayList<>();
+    private Tuple<Double, Double> routePointStartingPoint;
+    private List<RoutePoint> routePoints = new ArrayList<>();
+
     private String clickFuncReferenceCreateZone;
+    private String clickFuncReferenceCreateNeed;
+    private String clickFuncReferenceCreateRoute;
 
     private NeedDTO tempNeedDTO;
     private ZoneDTO tempZoneDTO;
+    private RouteDTO tempRouteDTO;
 
     public MapView() {
         this.setId(ID);
@@ -101,23 +110,31 @@ public class MapView extends HorizontalLayout {
         this.map.on("overlayremove", "e => document.getElementById('" + ID + "').$server.overlay('inactivo')");
 
         clickFuncReferenceCreateZone = map.clientComponentJsAccessor() + ".myClickFuncCreateZone";
+        clickFuncReferenceCreateNeed = map.clientComponentJsAccessor() + ".myClickFuncCreateNeed";
+        clickFuncReferenceCreateRoute = map.clientComponentJsAccessor() + ".myClickFuncCreateRoute";
+
 
         this.map.locate(new LMapLocateOptions().withSetView(true));
 
         MapVerticalLayout.add(mapContainer);
         MapVerticalLayout.add(ButtonLayout);
         necesidad.isDisableOnClick();
-        ButtonLayout.add(necesidad, zona, borrar, editar);
+        ButtonLayout.add(necesidad, zona, ruta, editar, borrar);
 
         this.controller = new MapService();
         this.controller.setReg(reg);
         this.controller.setMap(map);
         this.controller.setID(ID);
 
+        if (this.controller.getZones().isEmpty()) {
+            this.necesidad.setEnabled(false);
+        }
+      
         this.controller.load();
 
         necesidad.addClickListener(e -> crearDialogoTarea());
         zona.addClickListener(e -> createDialogZona());
+        ruta.addClickListener(e -> createDialogRuta());
         borrar.addClickListener(e -> clickBorrar());
         editar.addClickListener(e -> editar());
 
@@ -127,7 +144,8 @@ public class MapView extends HorizontalLayout {
         this.mapContainer.addClassName("map_action");
         this.tempNeedDTO = needDTO;
         controller.setCreatingNeed(true);
-        this.map.once("click", "e => document.getElementById('" + ID + "').$server.mapNeed(e.latlng)");
+        reg.execJs(clickFuncReferenceCreateNeed + "=e => document.getElementById('" + ID + "').$server.mapNeed(e.latlng)");
+        this.map.on("click", clickFuncReferenceCreateNeed);
         ui = UI.getCurrent();
 
         new Thread(() -> {
@@ -174,7 +192,39 @@ public class MapView extends HorizontalLayout {
 
         zoneMarkers.clear();
         zoneMarkerPoints.clear();
+        necesidad.setEnabled(true);
+    }
 
+    public void startRouteConstruction(RouteDTO routeDTO) {
+        this.mapContainer.addClassName("map_action");
+        this.tempRouteDTO = routeDTO;
+        System.out.println("Registrando puntos para la ruta");
+        reg.execJs(clickFuncReferenceCreateRoute + "=e => document.getElementById('" + ID + "').$server.mapRoute(e.latlng)");
+        map.on("click", clickFuncReferenceCreateRoute);
+        this.ruta.setEnabled(false);
+        this.ruta.setText("Terminar ruta");
+        this.controller.setCreatingRoute(true);
+    }
+
+    public void endRouteConstruction(){
+        this.map.off("click", clickFuncReferenceCreateRoute);
+        System.out.println("Ruta terminada");
+        this.ruta.setText("Ruta");
+        this.ruta.setEnabled(true);
+        this.controller.createRoute(this.tempRouteDTO, routePoints);
+        this.controller.setCreatingRoute(false);
+        this.mapContainer.removeClassName("map_action");
+
+        for (int i = routePoints.size() - 2; i > 0; i--) {
+            RoutePoint routePoint = routePoints.get(i);
+            routePoint.removeFromMap(this.map);
+            routePoints.remove(routePoint);
+        }
+
+        controller.getRoutePoints().put(tempRouteDTO.getID(), new ArrayList<>(routePoints));
+
+        routePoints.clear();
+        
     }
 
     public void clickBorrar() {
@@ -194,6 +244,18 @@ public class MapView extends HorizontalLayout {
                 reg.execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + ID + "').$server.removePolygon('" + zone.getID()+ "') ");
                 zone.getPolygon().on("click", clickFuncReferenceDeleteZone);
             }
+            for (org.pinguweb.frontend.mapObjects.Route route : this.controller.getRoutes()) {
+                System.out.println("Registrando rutas para borrar");
+                String clickFuncReferenceDeleteRoute = map.clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
+                reg.execJs(clickFuncReferenceDeleteRoute + "=e => document.getElementById('" + ID + "').$server.removeRoute('" + route.getID()+ "') ");
+                if (route.getPolygon() != null) {
+                    route.getPolygon().addTo(map); // Asegurarse de que el polígono está en el mapa
+                    route.getPolygon().on("click", clickFuncReferenceDeleteRoute);
+                    System.out.println("Evento de clic registrado para la ruta con ID: " + route.getID());
+                } else {
+                    System.out.println("El polígono de la ruta con ID " + route.getID() + " no está definido.");
+                }
+            }
         } else {
             this.controller.setDeleteBool(false);
             this.borrar.setText("Borrar");
@@ -204,6 +266,10 @@ public class MapView extends HorizontalLayout {
             for (Zone zone : this.controller.getZones()) {
                 String clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
                 zone.getPolygon().off("click", clickFuncReferenceDeleteZone);
+            }
+            for (org.pinguweb.frontend.mapObjects.Route route : this.controller.getRoutes()) {
+                String clickFuncReferenceDeleteRoute = map.clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
+                route.getPolygon().off("click", clickFuncReferenceDeleteRoute);
             }
 
             this.mapContainer.removeClassName("map_action");
@@ -271,11 +337,12 @@ public class MapView extends HorizontalLayout {
             synchronized (lock) {
                 lock.notify();
             }
+            this.map.off("click", clickFuncReferenceCreateNeed);
             ui.push();
             controller.setPointInZone(false);
             controller.setCreatingNeed(false);
         } else {
-            System.out.println("El clic no está dentro de ninguna zona.");
+            Notification.show("Debes crear las necesidades dentro de una zona", 3000, Notification.Position.TOP_CENTER);
         }
     }
 
@@ -295,6 +362,31 @@ public class MapView extends HorizontalLayout {
         if (zoneMarkerPoints.size() > 2) {
             zona.setEnabled(true);
         }
+    }
+
+
+
+    //AQUI
+    @ClientCallable
+    public void mapRoute(final JsonValue input) {
+        if (!(input instanceof final JsonObject obj)) {
+            return;
+        }
+        //Cambiar para que se genere un ID
+        RoutePoint routePoint = this.controller.createRoutePoint(obj.getNumber("lat"), obj.getNumber("lng"));
+        routePoint.setID(controller.getTempIdRoutePoint());
+        controller.setTempIdRoutePoint(controller.getTempIdRoutePoint() + 1);
+
+        tempRouteDTO.getPoints().add(routePoint.getID());
+
+        routePoints.add(routePoint);
+
+
+        if (routePoints.size() > 1) {
+            ruta.setEnabled(true);
+        }
+
+
     }
 
     @ClientCallable
@@ -329,6 +421,51 @@ public class MapView extends HorizontalLayout {
     }
 
     @ClientCallable
+    public void routePointStart(final JsonValue input) {
+        if (!(input instanceof final JsonObject obj)) {
+            return;
+        }
+
+        this.routePointStartingPoint = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+    }
+
+    @ClientCallable
+    public void routePointEnd(final JsonValue input) {
+        if (!(input instanceof final JsonObject obj)) {
+            return;
+        }
+
+        Tuple<Double, Double> point = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+
+        int index = -1;
+        for (int i = 0; i < routePoints.size(); i++) {
+            RoutePoint t = routePoints.get(i);
+
+            if (Objects.equals(t.getLatitude(), this.routePointStartingPoint._1()) && Objects.equals(t.getLongitude(), this.routePointStartingPoint._2())) {
+                index = i;
+                break;
+            }
+        }
+
+        System.out.println(this.routePointStartingPoint);
+        RoutePoint t = routePoints.get(index);
+        t.setLatitude(point._1());
+        t.setLongitude(point._2());
+        routePoints.set(index, t);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    @ClientCallable
     public void clickOnZone(final JsonValue input, String ID) {
         if (!(input instanceof final JsonObject obj)) {
             return;
@@ -355,6 +492,9 @@ public class MapView extends HorizontalLayout {
 
     }
 
+
+
+
     @ClientCallable
     public void removeMarker(String ID) {
         System.out.println("removeMarker: " + ID);
@@ -368,26 +508,15 @@ public class MapView extends HorizontalLayout {
     }
 
     @ClientCallable
+    public void removeRoute(String ID) {
+        System.out.println("removeRoute: " + ID);
+        this.controller.deleteRoute(Integer.parseInt(ID));
+    }
+
+    @ClientCallable
     public void overlay(String status) {
         System.out.println("overlay: " + status);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public void createDialogZona() {
         if (!this.controller.isZoneBool()) {
@@ -403,7 +532,7 @@ public class MapView extends HorizontalLayout {
             TextArea nameTextArea = new TextArea();
             nameTextArea.setPlaceholder("nombre");
             nameTextArea.setWidth("50vw");
-            nameTextArea.setHeight("3vh");
+            nameTextArea.setHeight("5vh");
 
             ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
             severityComboBox.setItems("Baja", "Media", "Alta");
@@ -520,6 +649,55 @@ public class MapView extends HorizontalLayout {
         dialog.open();
 
         icoClose.addClickListener(iev -> dialog.close());
+    }
+
+    public void createDialogRuta(){
+        if (!this.controller.isCreatingRoute()) {
+            final Icon icoClose = VaadinIcon.CLOSE.create();
+            final Dialog dialog = new Dialog(icoClose);
+            dialog.setDraggable(true);
+            dialog.setResizable(true);
+            dialog.setWidth("70vw");
+            dialog.setHeight("40vh");
+            H3 title = new H3("Crear ruta");
+            TextArea nameTextArea = new TextArea();
+            nameTextArea.setPlaceholder("nombre");
+            nameTextArea.setWidth("50vw");
+            nameTextArea.setHeight("5vh");
+            ComboBox<String> routeTypeComboBox = new ComboBox<>("Tipo de ruta");
+            routeTypeComboBox.setItems("Ruta Segura", "Ruta de Evacuación", "Ruta de Emergencia");
+
+            RouteDTO routeDTO = new RouteDTO();
+            routeDTO.setName(nameTextArea.getValue());
+            routeDTO.setCatastrophe(0);
+            routeDTO.setPoints(new ArrayList<>());
+            routeDTO.setID(controller.getTempIdRoute());
+            controller.setTempIdRoute(controller.getTempIdRoute() + 1);
+            routeDTO.setRouteType(routeTypeComboBox.getValue());
+
+            Button cancelButton = new Button("Cancelar", event -> dialog.close());
+            Button acceptButton = new Button("Aceptar", event -> {
+                startRouteConstruction(routeDTO);
+                dialog.close();
+            });
+
+            acceptButton.setEnabled(false);
+            nameTextArea.addValueChangeListener(event -> {
+                acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null);
+            });
+
+            routeTypeComboBox.addValueChangeListener(event -> {
+                acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null);
+            });
+
+            HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
+            VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, routeTypeComboBox, buttonLayout);
+            dialog.add(dialogLayout);
+            dialog.open();
+            icoClose.addClickListener(iev -> dialog.close());
+        }else{
+            endRouteConstruction();
+        }
     }
 
 
