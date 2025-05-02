@@ -31,6 +31,7 @@ public class DashboardBuilderDirector {
     DashboardBuilder builder = new DashboardBuilder();
     int[] completedTasksPerDay = new int[7];
     int[] needsByTaskType = new int[TaskType.values().length];
+    Integer[] completedTasks = new Integer[TaskType.values().length];
 
     //Sacar las necesidades y tareas de la BD
     BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need/(ID)",
@@ -41,8 +42,7 @@ public class DashboardBuilderDirector {
             });
 
 
-
-    public Component buildTest(){
+    public Component buildTest() {
         TestString fs = new TestString("TasksCr", LocalDate.now(), LocalDateTime.now(), 1, false);
         TestString sn = new TestString("TasksCo", LocalDate.now().minusDays(1), LocalDateTime.now().minusDays(1), 2, false);
         TestString tr = new TestString("NeedsCr", LocalDate.now().minusDays(2), LocalDateTime.now().minusDays(2), 3, true);
@@ -57,9 +57,9 @@ public class DashboardBuilderDirector {
                 .data(
                         new ChartData<>(
                                 new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1,2,3,4},
+                                new Object[]{1, 2, 3, 4},
                                 new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1,2,3,4}
+                                new Integer[]{1, 2, 3, 4}
                         )
                 )
                 .coordinateConfiguration(
@@ -79,9 +79,9 @@ public class DashboardBuilderDirector {
                 .data(
                         new ChartData<>(
                                 new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1,2,3,4},
+                                new Object[]{1, 2, 3, 4},
                                 new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1,2,3,4}
+                                new Integer[]{1, 2, 3, 4}
                         )
                 )
                 .coordinateConfiguration(
@@ -101,9 +101,9 @@ public class DashboardBuilderDirector {
                 .data(
                         new ChartData<>(
                                 new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1,2,3,4},
+                                new Object[]{1, 2, 3, 4},
                                 new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1,2,3,4}
+                                new Integer[]{1, 2, 3, 4}
                         )
                 )
                 .coordinateConfiguration(
@@ -123,9 +123,9 @@ public class DashboardBuilderDirector {
                 .data(
                         new ChartData<>(
                                 new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1,2,3,4},
+                                new Object[]{1, 2, 3, 4},
                                 new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1,2,3,4}
+                                new Integer[]{1, 2, 3, 4}
                         )
                 )
                 .coordinateConfiguration(
@@ -162,9 +162,12 @@ public class DashboardBuilderDirector {
                 .addSide(sides)
                 .build();
     }
+
     // GRAFICA DE PRUEBA CON BUILDER DE TAREAS
     public Component buildCompletedTasksChart() {
         String[] daysOfWeek = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
+
+        //Actualiza los datos con la base de datos
         calculatedDays();
 
         // CompletedTasksPerDay a Integer[]
@@ -203,9 +206,10 @@ public class DashboardBuilderDirector {
 
         return builder.build();
     }
+
     // GRAFICA DE PRUEBA CON BUILDER DE NECESIDADES
     public Component buildUncoveredNeedsChart() {
-        necesidadesNoCubiertas();
+        //necesidadesNoCubiertas();
 
         // Obtener los valores de TaskType
         TaskType[] taskTypes = TaskType.values();
@@ -245,11 +249,55 @@ public class DashboardBuilderDirector {
 
         return builder.build();
     }
+
+    public Component buildUncoveredTaskTypeChart() {
+        TasksInitialized();
+
+        // Obtener los valores de TaskType
+        TaskType[] taskTypes = TaskType.values();
+        String[] taskTypeLabels = Arrays.stream(taskTypes).map(TaskType::name).toArray(String[]::new);
+
+
+        Color typeColors = new Color(0, 0, 1); // Color por defectoº
+
+        // Configurar el Dashboard
+        Dashboard uncoveredNeedsChart = Dashboard.builder()
+                .name("Tareas no cubiertas por tipo de tarea")
+                .colors(typeColors)
+                .data(
+                        new ChartData<>(
+                                taskTypeLabels, // Etiquetas del eje X
+                                completedTasks, // Valores del eje Y
+                                taskTypeLabels, // Objetos de etiquetas
+                                completedTasks // Objetos de valores
+                        )
+                )
+                .coordinateConfiguration(
+                        new RectangularCoordinate(
+                                new XAxis(DataType.CATEGORY),
+                                new YAxis(DataType.NUMBER)
+                        )
+                )
+                .type(ChartType.BAR)
+                .width("100%")
+                .height("500px")
+                .build();
+
+        // Builder para construir el componente final
+        builder.reset();
+        builder.addBelow(uncoveredNeedsChart);
+        System.out.println(completedTasks[0]);
+
+        return builder.build();
+    }
+
     //PRUEBAS PARA GRAFICAS CON BUILDER
     public void calculatedDays() {
         // Inicializar el conteo de tareas completadas por día (0 = Lunes, 6 = Domingo)
 
+        Arrays.fill(this.completedTasksPerDay, 0);
         if (task.getStatusCode() == HttpStatus.OK) {
+
             for (TaskDTO task : task.getData()) {
                 if (task.getStatus().equals("FINISHED") && task.getEstimatedEndTimeDate() != null) {
                     // Obtener el día de la semana (1 = Lunes, 7 = Domingo)
@@ -261,8 +309,9 @@ public class DashboardBuilderDirector {
             }
         }
     }
+
     //PRUEBAS PARA GRAFICAS CON BUILDER
-    public void necesidadesNoCubiertas(){
+    public void necesidadesNoCubiertas() {
 
         TaskType[] tasks = TaskType.values();
 
@@ -271,11 +320,32 @@ public class DashboardBuilderDirector {
             if (!n.getStatus().equals("FINISHED")) {
                 for (int i = 0; i < tasks.length; i++) {
                     if (n.getNeedType().equals(tasks[i].name())) {
-                        needsByTaskType[i]++;break;
+                        needsByTaskType[i]++;
+                        break;
                     }
                 }
             }
-        }    }
+        }
+    }
 
+    public void TasksInitialized() {
+        TaskType[] tasks = TaskType.values();
 
+        Arrays.fill(this.completedTasks, 0);
+        if (task.getStatusCode() == HttpStatus.OK) {
+            for (TaskDTO taskk : task.getData()) {
+                //TODO: SI RENTA PODEMOS RELLENAR UN ARRAY CON LAS TAREAS Y NEEDS QUE YA ACABARON AUNQUE PODRÍA GENERAR PORBLEMAS SI HAY MUCHAS QUE FINALIZARON
+                if (!taskk.getStatus().equals("FINISHED")) {
+                    for (int i = 0; i < tasks.length; i++) {
+                        if (taskk.getType().equals(tasks[i].name())) {
+                            this.completedTasks[i]++;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
+
+

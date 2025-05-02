@@ -12,6 +12,7 @@ public class builderTest extends VerticalLayout {
         this.add(director.buildTest());
         this.add(director.buildUncoveredNeedsChart());
         this.add(director.buildCompletedTasksChart());
+        this.add(director.buildUncoveredTaskTypeChart());
     }
 
 }
