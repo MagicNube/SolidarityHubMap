@@ -1,4 +1,4 @@
-package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

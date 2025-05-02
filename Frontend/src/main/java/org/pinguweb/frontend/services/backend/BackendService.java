@@ -1,5 +1,6 @@
 package org.pinguweb.frontend.services.backend;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -10,7 +11,8 @@ import java.util.List;
 
 public class BackendService {
 
-    public static final String BACKEND = "http://localhost:8081";
+    @Value("${backend.url}")
+    public static String BACKEND;
 
     public static <T> BackendObject<T> getFromBackend(String url, Class<T> expected) throws RestClientException {
         try {

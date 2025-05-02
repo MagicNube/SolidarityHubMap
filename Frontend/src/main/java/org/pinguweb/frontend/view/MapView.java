@@ -286,19 +286,6 @@ public class MapView extends HorizontalLayout {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     private void addControls(
             final LLayerGroup lLayerGroupZones,
             final LLayerGroup lLayerGroupNeeds

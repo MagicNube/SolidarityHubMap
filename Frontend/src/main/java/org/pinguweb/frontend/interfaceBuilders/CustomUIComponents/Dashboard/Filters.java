@@ -1,4 +1,4 @@
-package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
 
 import com.storedobject.chart.AbstractDataProvider;
 import com.storedobject.chart.AbstractDataStream;
@@ -19,8 +19,9 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.SerializablePredicate;
 import lombok.experimental.SuperBuilder;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartData;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartPoint;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartData;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartPoint;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -30,7 +31,6 @@ import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.logging.Filter;
 import java.util.stream.Collectors;
 
 @SuperBuilder

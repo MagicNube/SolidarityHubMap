@@ -3,11 +3,11 @@ package org.pinguweb.frontend.interfaceBuilders.Directors;
 import com.storedobject.chart.*;
 import com.vaadin.flow.component.Component;
 import org.pinguweb.frontend.interfaceBuilders.Builders.DashboardBuilder;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.ChartType;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartData;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.TestString;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Filters;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartData;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.TestString;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Filters;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
 import java.time.LocalDate;
