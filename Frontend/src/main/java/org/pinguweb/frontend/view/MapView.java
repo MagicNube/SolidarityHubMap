@@ -3,11 +3,13 @@ package org.pinguweb.frontend.view;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.listbox.MultiSelectListBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -17,9 +19,8 @@ import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
-import org.pingu.domain.DTO.NeedDTO;
-import org.pingu.domain.DTO.RouteDTO;
-import org.pingu.domain.DTO.ZoneDTO;
+import org.pingu.domain.DTO.*;
+import org.pingu.domain.enums.EmergencyLevel;
 import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.Zone;
@@ -39,7 +40,9 @@ import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 @Route("map")
 @PageTitle("Visor del mapa")
@@ -129,7 +132,7 @@ public class MapView extends HorizontalLayout {
         if (this.controller.getZones().isEmpty()) {
             this.necesidad.setEnabled(false);
         }
-      
+
         this.controller.load();
 
         necesidad.addClickListener(e -> crearDialogoTarea());
@@ -175,7 +178,7 @@ public class MapView extends HorizontalLayout {
         this.controller.setZoneBool(true);
     }
 
-    public void endZoneConstruction(){
+    public void endZoneConstruction() {
         this.map.off("click", clickFuncReferenceCreateZone);
         System.out.println("Zona terminada");
         this.zona.setText("Zona");
@@ -206,7 +209,7 @@ public class MapView extends HorizontalLayout {
         this.controller.setCreatingRoute(true);
     }
 
-    public void endRouteConstruction(){
+    public void endRouteConstruction() {
         this.map.off("click", clickFuncReferenceCreateRoute);
         System.out.println("Ruta terminada");
         this.ruta.setText("Ruta");
@@ -224,7 +227,7 @@ public class MapView extends HorizontalLayout {
         controller.getRoutePoints().put(tempRouteDTO.getID(), new ArrayList<>(routePoints));
 
         routePoints.clear();
-        
+
     }
 
     public void clickBorrar() {
@@ -241,13 +244,13 @@ public class MapView extends HorizontalLayout {
             for (Zone zone : this.controller.getZones()) {
                 System.out.println("Registrando zonas para borrar");
                 String clickFuncReferenceDeleteZone = map.clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
-                reg.execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + ID + "').$server.removePolygon('" + zone.getID()+ "') ");
+                reg.execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + ID + "').$server.removePolygon('" + zone.getID() + "') ");
                 zone.getPolygon().on("click", clickFuncReferenceDeleteZone);
             }
             for (org.pinguweb.frontend.mapObjects.Route route : this.controller.getRoutes()) {
                 System.out.println("Registrando rutas para borrar");
                 String clickFuncReferenceDeleteRoute = map.clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
-                reg.execJs(clickFuncReferenceDeleteRoute + "=e => document.getElementById('" + ID + "').$server.removeRoute('" + route.getID()+ "') ");
+                reg.execJs(clickFuncReferenceDeleteRoute + "=e => document.getElementById('" + ID + "').$server.removeRoute('" + route.getID() + "') ");
                 if (route.getPolygon() != null) {
                     route.getPolygon().addTo(map); // Asegurarse de que el polígono está en el mapa
                     route.getPolygon().on("click", clickFuncReferenceDeleteRoute);
@@ -278,40 +281,27 @@ public class MapView extends HorizontalLayout {
 
 
     public void editar() {
-        if (!controller.isEditing()){
+        if (!controller.isEditing()) {
             this.controller.setEditing(true);
             this.editar.setText("Detener edicion");
-        }else {
+        } else {
             this.controller.setEditing(false);
             this.editar.setText("Editar");
         }
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     private void addControls(
             final LLayerGroup lLayerGroupZones,
             final LLayerGroup lLayerGroupNeeds
-    )
-    {
+    ) {
         // Use LinkedHashMap for order
         final LinkedHashMap<String, LLayer<?>> baseLayers = new LinkedHashMap<>();
         final LControlLayers lControlLayers = new LControlLayers(
                 this.reg,
                 baseLayers,
                 new LControlLayersOptions().withCollapsed(false))
-                .addOverlay(lLayerGroupNeeds , "Necesidades")
+                .addOverlay(lLayerGroupNeeds, "Necesidades")
                 .addOverlay(lLayerGroupZones, "Zonas")
                 .addTo(this.map);
 
@@ -363,7 +353,6 @@ public class MapView extends HorizontalLayout {
             zona.setEnabled(true);
         }
     }
-
 
 
     //AQUI
@@ -455,16 +444,6 @@ public class MapView extends HorizontalLayout {
     }
 
 
-
-
-
-
-
-
-
-
-
-
     @ClientCallable
     public void clickOnZone(final JsonValue input, String ID) {
         if (!(input instanceof final JsonObject obj)) {
@@ -474,8 +453,8 @@ public class MapView extends HorizontalLayout {
             controller.setPointInZone(true);
         } else if (controller.isEditing()) {
 
-        }else {
-            System.out.println("No se esta ni creando ni editando la zona "+ ID);
+        } else {
+            System.out.println("No se esta ni creando ni editando la zona " + ID);
         }
     }
 
@@ -484,15 +463,13 @@ public class MapView extends HorizontalLayout {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
-        if (controller.isEditing()){
+        if (controller.isEditing()) {
 
         } else {
-            System.out.println("No se esta editando la necesidad "+ID);
+            System.out.println("No se esta editando la necesidad " + ID);
         }
 
     }
-
-
 
 
     @ClientCallable
@@ -520,6 +497,8 @@ public class MapView extends HorizontalLayout {
 
     public void createDialogZona() {
         if (!this.controller.isZoneBool()) {
+            List<CatastropheDTO> catastropheDTOList = this.controller.getCatastrophes();
+            List<StorageDTO> storageDTOList = this.controller.getStorages();
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
             dialog.setDraggable(true);
@@ -530,15 +509,40 @@ public class MapView extends HorizontalLayout {
             H3 title = new H3("Crear zona");
 
             TextArea nameTextArea = new TextArea();
-            nameTextArea.setPlaceholder("nombre");
+            nameTextArea.setPlaceholder("Nombre");
             nameTextArea.setWidth("50vw");
             nameTextArea.setHeight("5vh");
 
             ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
-            severityComboBox.setItems("Baja", "Media", "Alta");
+            severityComboBox.setItems(Arrays.toString(EmergencyLevel.values()));
+
+            ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
+            catastropheComboBox.setItems(catastropheDTOList.stream().map(CatastropheDTO::getName).toList());
+
+            int catastropheID = catastropheComboBox.getValue() != null ? catastropheDTOList.stream()
+                    .filter(catastropheDTO -> catastropheDTO.getName().equals(catastropheComboBox.getValue()))
+                    .findFirst()
+                    .map(CatastropheDTO::getID)
+                    .orElse(0) : 0;
+
+            MultiSelectListBox<String> storageComboBox = new MultiSelectListBox<>();
+            storageComboBox.setItems(storageDTOList.stream().map(StorageDTO::getName).toList());
+
+            Set<String> seleccionados = storageComboBox.getSelectedItems();
+            List<Integer> selectedStorageIDs = new ArrayList<>();
+            for (String seleccionado : seleccionados) {
+                for (StorageDTO storageDTO : storageDTOList) {
+                    if (storageDTO.getName().equals(seleccionado)) {
+                        selectedStorageIDs.add(storageDTO.getID());
+                    }
+                }
+            }
+
+
+
 
             TextArea descriptionTextArea = new TextArea();
-            descriptionTextArea.setPlaceholder("descripcion");
+            descriptionTextArea.setPlaceholder("Descripcion");
             descriptionTextArea.setWidthFull();
             descriptionTextArea.setHeight("50vh");
 
@@ -549,12 +553,12 @@ public class MapView extends HorizontalLayout {
             zoneDTO.setDescription(descriptionTextArea.getValue());
             zoneDTO.setName(nameTextArea.getValue());
             //TODO: Mirar como funcionan las catastrofes
-            zoneDTO.setCatastrophe(null);
+            zoneDTO.setCatastrophe(catastropheID);
             zoneDTO.setEmergencyLevel(severityComboBox.getValue());
             zoneDTO.setLatitudes(new ArrayList<>());
             zoneDTO.setLongitudes(new ArrayList<>());
             //TODO: Mirar como asignar storages
-            zoneDTO.setStorages(new ArrayList<>());
+            zoneDTO.setStorages(selectedStorageIDs);
 
             Button cancelButton = new Button("Cancelar", event -> dialog.close());
             Button acceptButton = new Button("Aceptar", event -> {
@@ -577,7 +581,7 @@ public class MapView extends HorizontalLayout {
 
             HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
 
-            VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, severityComboBox, descriptionTextArea, buttonLayout);
+            VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, severityComboBox, catastropheComboBox, storageComboBox, descriptionTextArea, buttonLayout);
             dialog.add(dialogLayout);
 
             dialog.open();
@@ -623,7 +627,8 @@ public class MapView extends HorizontalLayout {
         needDTO.setUrgency(severityComboBox.getValue());
 
         Button cancelButton = new Button("Cancelar", event -> dialog.close());
-        Button acceptButton = new Button("Aceptar", event -> {this.clickNeed(needDTO);
+        Button acceptButton = new Button("Aceptar", event -> {
+            this.clickNeed(needDTO);
             dialog.close();
         });
 
@@ -651,7 +656,7 @@ public class MapView extends HorizontalLayout {
         icoClose.addClickListener(iev -> dialog.close());
     }
 
-    public void createDialogRuta(){
+    public void createDialogRuta() {
         if (!this.controller.isCreatingRoute()) {
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
@@ -695,11 +700,10 @@ public class MapView extends HorizontalLayout {
             dialog.add(dialogLayout);
             dialog.open();
             icoClose.addClickListener(iev -> dialog.close());
-        }else{
+        } else {
             endRouteConstruction();
         }
     }
-
 
 
 }

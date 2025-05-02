@@ -3,9 +3,7 @@ package org.pinguweb.frontend.services.map;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.pingu.domain.DTO.NeedDTO;
-import org.pingu.domain.DTO.RouteDTO;
-import org.pingu.domain.DTO.ZoneDTO;
+import org.pingu.domain.DTO.*;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
 import org.pinguweb.frontend.services.backend.BackendObject;
@@ -268,5 +266,33 @@ public class MapService {
             System.out.println("Route deleted: " + route.getID());
         }
     }
+
+    public List<StorageDTO> getStorages() {
+        BackendObject<List<StorageDTO>> storages = BackendService.getListFromBackend(BackendService.BACKEND + "/api/storages",
+                new ParameterizedTypeReference<>() {
+                });
+        if (storages.getData() != null) {
+            System.out.println("Storages: " + storages.getData());
+            return storages.getData();
+        } else {
+            System.out.println("Error getting storages");
+            return new ArrayList<>();
+        }
+    }
+
+    public List<CatastropheDTO> getCatastrophes() {
+        BackendObject<List<CatastropheDTO>> catastrophes = BackendService.getListFromBackend(BackendService.BACKEND + "/api/catastrophes",
+                new ParameterizedTypeReference<>() {
+                });
+        if (catastrophes.getData() != null) {
+            System.out.println("Catastrophes: " + catastrophes.getData());
+            return catastrophes.getData();
+        } else {
+            System.out.println("Error getting catastrophes");
+            return new ArrayList<>();
+        }
+    }
+
+
 
 }
