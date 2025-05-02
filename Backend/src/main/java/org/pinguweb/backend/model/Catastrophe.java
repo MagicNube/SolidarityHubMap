@@ -58,6 +58,7 @@ public class Catastrophe {
     @OneToMany
     private List<Zone> zones;
 
+
     public Catastrophe(@NonNull String name, @NonNull String description, @NonNull GPSCoordinates location, LocalDate startDate , @NonNull EmergencyLevel emergencyLevel) {
         this.zones = new ArrayList<>();
         this.needs = new ArrayList<>();
