@@ -1,10 +1,10 @@
 package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.AffectedDTO;
-import org.pinguweb.backend.DTO.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.persistence.model.Affected;
+import org.pingu.persistence.service.AffectedService;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Affected;
-import org.pinguweb.backend.service.AffectedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -31,7 +31,7 @@ public class AffectedController {
 
         BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<AffectedDTO> catastrophes = service.findAll().stream().map(factory::createAffectedDTO).collect(Collectors.toList());
+        List<AffectedDTO> catastrophes = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(catastrophes));
     }
 
@@ -43,7 +43,7 @@ public class AffectedController {
         BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Affected> res = service.findByDni(ID);
         if (res.isPresent()) {
-            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createAffectedDTO(res.get())));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

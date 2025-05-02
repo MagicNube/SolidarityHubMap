@@ -2,13 +2,14 @@ package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.TaskDTO;
 import org.pingu.domain.DTO.ZoneDTO;
-import org.pinguweb.backend.DTO.BackendDTOFactory;
-import org.pinguweb.backend.DTO.ModelDTOFactory;
+import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.ModelDTOFactory;
+import org.pingu.persistence.model.Task;
+import org.pingu.persistence.model.Zone;
+import org.pingu.persistence.service.TaskService;
+import org.pingu.persistence.service.TaskService;
+import org.pingu.persistence.service.ZoneService;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Task;
-import org.pinguweb.backend.model.Zone;
-import org.pinguweb.backend.service.TaskService;
-import org.pinguweb.backend.service.ZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -34,7 +35,7 @@ public class ZoneController {
 
         BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<ZoneDTO> zones = service.findAll().stream().map(factory::createZoneDTO).collect(Collectors.toList());
+        List<ZoneDTO> zones = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(zones));
     }
 
@@ -46,7 +47,7 @@ public class ZoneController {
         BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Zone> res = service.findByID(ID);
         if (res.isPresent()) {
-            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createZoneDTO(res.get())));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
@@ -69,7 +70,7 @@ public class ZoneController {
                     List<Task> tasksInZone = tasks.stream()
                             .filter(task -> task.getZone().getID() == zone.getID())
                             .collect(Collectors.toList());
-                    return CompletableFuture.completedFuture(ResponseEntity.ok(tasksInZone.stream().map(factory::createTaskDTO).toList()));
+                    return CompletableFuture.completedFuture(ResponseEntity.ok(tasksInZone.stream().map(factory::createDTO).toList()));
                 }
             }
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
@@ -88,7 +89,7 @@ public class ZoneController {
         ModelDTOFactory factory = new ModelDTOFactory();
         BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createZoneDTO(service.saveZone(factory.createFromDTO(zone)))));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveZone(factory.createFromDTO(zone)))));
     }
 
     @Async
@@ -116,7 +117,7 @@ public class ZoneController {
             ModelDTOFactory factory = new ModelDTOFactory();
             BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createZoneDTO(service.saveZone(factory.createFromDTO(zone)))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveZone(factory.createFromDTO(zone)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

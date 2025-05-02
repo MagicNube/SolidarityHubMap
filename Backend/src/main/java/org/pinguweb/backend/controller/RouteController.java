@@ -2,13 +2,13 @@ package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.RoutePointDTO;
-import org.pinguweb.backend.DTO.BackendDTOFactory;
-import org.pinguweb.backend.DTO.ModelDTOFactory;
+import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.ModelDTOFactory;
+import org.pingu.persistence.model.Route;
+import org.pingu.persistence.model.RoutePoint;
+import org.pingu.persistence.service.RoutePointService;
+import org.pingu.persistence.service.RouteService;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Route;
-import org.pinguweb.backend.model.RoutePoint;
-import org.pinguweb.backend.service.RoutePointService;
-import org.pinguweb.backend.service.RouteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -34,7 +34,7 @@ public class RouteController {
 
         BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<RouteDTO> routes = service.findAll().stream().map(factory::createRouteDTO).collect(Collectors.toList());
+        List<RouteDTO> routes = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(routes));
     }
 
@@ -46,7 +46,7 @@ public class RouteController {
         BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Route> res = service.findByID(ID);
         if (res.isPresent()) {
-            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createRouteDTO(res.get())));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
@@ -63,7 +63,7 @@ public class RouteController {
             Optional<Route> res = service.findByID(ID);
             if (res.isPresent()) {
                 List<RoutePoint> points = res.get().getPoints().stream().filter(x -> x.getRoute().getID() == ID).toList();
-                return CompletableFuture.completedFuture(ResponseEntity.ok(points.stream().map(factory::createRoutePointDTO).toList()));
+                return CompletableFuture.completedFuture(ResponseEntity.ok(points.stream().map(factory::createDTO).toList()));
             }
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
@@ -81,7 +81,7 @@ public class RouteController {
         ModelDTOFactory factory = new ModelDTOFactory();
         BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createRouteDTO(service.saveRoute(factory.createFromDTO(route)))));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveRoute(factory.createFromDTO(route)))));
     }
 
     @Async
@@ -109,7 +109,7 @@ public class RouteController {
             ModelDTOFactory factory = new ModelDTOFactory();
             BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createRouteDTO(service.saveRoute(factory.createFromDTO(route)))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveRoute(factory.createFromDTO(route)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

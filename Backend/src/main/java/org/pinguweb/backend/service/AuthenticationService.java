@@ -1,7 +1,8 @@
 package org.pinguweb.backend.service;
 
-import org.pinguweb.backend.model.Admin;
-import org.pinguweb.backend.repository.AdminRepository;
+import org.pingu.persistence.model.Admin;
+import org.pingu.persistence.repository.AdminRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import java.util.Optional;
 @Service
 public class AuthenticationService {
 
+    @Autowired
     private final AdminRepository adminRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 

@@ -1,14 +1,16 @@
 package org.pinguweb.backend;
 
-import org.pinguweb.backend.model.Admin;
-import org.pinguweb.backend.service.AdminService;
+import org.pingu.persistence.model.Admin;
+import org.pingu.persistence.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "org.pingu.persistence"
+})
 public class BackendApplication implements CommandLineRunner {
 
     @Autowired

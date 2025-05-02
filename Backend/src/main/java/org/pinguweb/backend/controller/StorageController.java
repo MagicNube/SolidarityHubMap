@@ -1,11 +1,11 @@
 package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.StorageDTO;
-import org.pinguweb.backend.DTO.BackendDTOFactory;
-import org.pinguweb.backend.DTO.ModelDTOFactory;
+import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.ModelDTOFactory;
+import org.pingu.persistence.model.Storage;
+import org.pingu.persistence.service.StorageService;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Storage;
-import org.pinguweb.backend.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -29,7 +29,7 @@ public class StorageController {
 
         BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<StorageDTO> zones = service.findAll().stream().map(factory::createStorageDTO).collect(Collectors.toList());
+        List<StorageDTO> zones = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(zones));
     }
 
@@ -41,7 +41,7 @@ public class StorageController {
         BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Storage> res = service.findByID(ID);
         if (res.isPresent()) {
-            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createStorageDTO(res.get())));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
@@ -56,7 +56,7 @@ public class StorageController {
         ModelDTOFactory factory = new ModelDTOFactory();
         BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createStorageDTO(service.saveStorage(factory.createFromDTO(storage)))));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveStorage(factory.createFromDTO(storage)))));
     }
 
     @Async
@@ -84,7 +84,7 @@ public class StorageController {
             ModelDTOFactory factory = new ModelDTOFactory();
             BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createStorageDTO(service.saveStorage(factory.createFromDTO(storage)))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveStorage(factory.createFromDTO(storage)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

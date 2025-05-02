@@ -1,11 +1,11 @@
 package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.NeedDTO;
-import org.pinguweb.backend.DTO.BackendDTOFactory;
-import org.pinguweb.backend.DTO.ModelDTOFactory;
+import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.ModelDTOFactory;
+import org.pingu.persistence.model.Need;
+import org.pingu.persistence.service.NeedService;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Need;
-import org.pinguweb.backend.service.NeedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -29,7 +29,7 @@ public class NeedController {
         if (ServerException.isServerClosed(service.getNeedRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
         BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<NeedDTO> needs = service.findAll().stream().map(factory::createNeedDTO).collect(Collectors.toList());
+        List<NeedDTO> needs = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
 
         return CompletableFuture.completedFuture(ResponseEntity.ok(needs));
     }
@@ -42,7 +42,7 @@ public class NeedController {
         BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Need> res = service.findByID(ID);
         if (res.isPresent()) {
-            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createNeedDTO(res.get())));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
@@ -57,7 +57,7 @@ public class NeedController {
         ModelDTOFactory factory = new ModelDTOFactory();
         BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createNeedDTO(service.saveNeed(factory.createFromDTO(need)))));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveNeed(factory.createFromDTO(need)))));
     }
 
     @Async
@@ -85,7 +85,7 @@ public class NeedController {
             ModelDTOFactory factory = new ModelDTOFactory();
             BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createNeedDTO(service.saveNeed(factory.createFromDTO(need)))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveNeed(factory.createFromDTO(need)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
