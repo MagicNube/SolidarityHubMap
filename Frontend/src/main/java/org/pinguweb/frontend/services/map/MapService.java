@@ -202,6 +202,16 @@ public class MapService {
         for (Tuple<Double, Double> marker : points) {
             zone.addPoint(reg, marker);
         }
+        zone.setName(zoneDTO.getName());
+        zone.setDescription(zoneDTO.getDescription());
+        zone.setEmergencyLevel(zoneDTO.getEmergencyLevel());
+        zone.setCatastrophe(zoneDTO.getCatastrophe());
+        zone.setStorages(zoneDTO.getStorages());
+        zone.setLatitudes(zoneDTO.getLatitudes());
+        zone.setLongitudes(zoneDTO.getLongitudes());
+        zone.setEmergencyLevel(zoneDTO.getEmergencyLevel());
+        zone.setCatastrophe(zoneDTO.getCatastrophe());
+        zone.setStorages(zoneDTO.getStorages());
 
         zone.generatePolygon(reg, "red", "blue");
         zone.setID(zoneDTO.getID());
@@ -268,7 +278,7 @@ public class MapService {
     }
 
     public List<StorageDTO> getStorages() {
-        BackendObject<List<StorageDTO>> storages = BackendService.getListFromBackend(BackendService.BACKEND + "/api/storages",
+        BackendObject<List<StorageDTO>> storages = BackendService.getListFromBackend(BackendService.BACKEND + "/api/storage",
                 new ParameterizedTypeReference<>() {
                 });
         if (storages.getData() != null) {

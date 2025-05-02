@@ -73,6 +73,7 @@ public class Zone extends MapObject{
             BackendObject<ZoneDTO> status = BackendService.postToBackend(finurl, zoneDTO, ZoneDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
                 //TODO: Se añadio exitosamente
+                System.out.println("Zone added successfully");
             }
         }
         catch (Exception e){
