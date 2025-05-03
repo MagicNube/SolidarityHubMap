@@ -60,7 +60,7 @@ public class Task {
     @Setter
     @ManyToOne(cascade = CascadeType.ALL)
     private Zone zone;
-
+  
     public Task(Need need, String taskName, String taskDescription, LocalDateTime startTimeDate,
                 LocalDateTime estimatedEndTimeDate, Priority priority, Status status, Volunteer volunteer, GPSCoordinates gpsCoordinates) {
         this.need = List.of(need);

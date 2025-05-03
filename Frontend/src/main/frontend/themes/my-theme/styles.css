@@ -16,6 +16,23 @@ vaadin-text-field.bordered::part(input-field) {
   background-color: var(--lumo-base-color);
 }
 
+.coloredBorder {
+    outline: 2px solid rgba(80, 80, 80, 0.5) !important;
+}
+
+.minicoloredBorder {
+    outline: 1px solid rgba(150, 150, 150, 0.5) !important;
+}
+
+.separator {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 2px solid #6D6D6D;
+    margin: 1em 0;
+    padding: 0;
+}
+
 .map_action {
    cursor: crosshair;
 }
