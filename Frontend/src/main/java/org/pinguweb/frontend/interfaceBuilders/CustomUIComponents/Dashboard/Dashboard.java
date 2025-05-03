@@ -6,49 +6,48 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartData;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartPoint;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
+import org.yaml.snakeyaml.util.Tuple;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
+@Slf4j
 @SuperBuilder
 @Getter
 @Tag("DashboardComponent")
 public class Dashboard extends InterfaceComponent {
-    protected final Color colors;
     protected final RectangularCoordinate coordinateConfiguration;
-    protected final ChartData<?,?> data;
-    private AbstractDataProvider<?> xAxis;
-    private AbstractDataProvider<?> yAxis;
+    protected final List<ChartData<?,?>> data = new ArrayList<>();
 
     protected final ChartType type;
     protected final String width;
     protected final String height;
+
     protected SOChart chart;
-    private XYChart chartobject;
+    protected final List<Tuple<AbstractChart, ChartData<?,?>>> pairs = new ArrayList<>();
 
     @Override
     public Component getComponent(){
-        xAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(0).getDataType(), data.flatten().stream().map(ChartPoint::getXValue).toArray());
-        yAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), data.flatten().stream().map(ChartPoint::getYValue).toArray());
-
         this.chart = new SOChart();
         this.chart.setSize(width, height);
         VerticalLayout layout = new VerticalLayout();
+        layout.setSizeFull();
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         layout.addClassName("coloredBorder");
         switch (type){
             case BAR -> {
-                BarChart bar = generateBarChart(this.xAxis, this.yAxis);
-                this.chartobject = bar;
-                this.chart.add(bar);
-                this.chart.disableDefaultLegend();
+                generateBarChart();
                 layout.add(this.chart);
                 return layout;
             }
@@ -57,12 +56,10 @@ public class Dashboard extends InterfaceComponent {
     }
 
     public void update(AbstractDataProvider<?> x, AbstractDataProvider<?> y){
+        log.error("Los filtros están desactivados por ahora, sorry");
         try{
             switch (type){
                 case BAR -> {
-                    this.chartobject.setYData(y);
-                    this.chartobject.setXData(x);
-                    this.chart.updateData(chartobject);
                 }
                 default -> {return;}
             }
@@ -73,11 +70,17 @@ public class Dashboard extends InterfaceComponent {
         }
     }
 
-    private BarChart generateBarChart(AbstractDataProvider<?> xAxis, AbstractDataProvider<?> yAxis){
-        BarChart bar = new BarChart(xAxis, yAxis);
-        bar.setColors(this.colors);
-        bar.plotOn(this.coordinateConfiguration);
-        return bar;
+    private void generateBarChart(){
+        this.chart.clear();
+        for (ChartData<?,?> d : data) {
+            AbstractDataProvider<?> xAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(0).getDataType(), d.flatten().stream().map(ChartPoint::getXValue).toArray());
+            AbstractDataProvider<?> yAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), d.flatten().stream().map(ChartPoint::getYValue).toArray());
+            BarChart bar = new BarChart(xAxis, yAxis);
+            bar.setColors(d.getColor());
+            bar.setName(d.getLabel());
+            bar.plotOn(this.coordinateConfiguration);
+            this.chart.add(bar);
+        }
     }
 
     public static AbstractDataProvider<?> castObjectByCoordinateType(
@@ -116,5 +119,13 @@ public class Dashboard extends InterfaceComponent {
                     "Tipo no soportado: " + tipo +
                             " (valores: " + Arrays.toString(valor) + ")");
         };
+    }
+
+    public static Dashboard createSimpleDashboard(String name, ChartType type, RectangularCoordinate coordinatesConfig ){
+        return Dashboard.builder().name(name).type(type).coordinateConfiguration(coordinatesConfig).build();
+    }
+
+    public <T,J> void addData(Object[] XData, T[] XObjects, Object[] YData, J[] YObjects, String name, Color color){
+        this.data.add(new ChartData<>(XData, YData, XObjects, YObjects, color, name));
     }
 }

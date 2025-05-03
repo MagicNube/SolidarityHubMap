@@ -13,6 +13,9 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dash
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.Filters;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.TestString;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
+import org.pinguweb.frontend.mapObjects.Need;
+import org.pinguweb.frontend.mapObjects.Task;
+import org.pinguweb.frontend.mapObjects.Volunteer;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.springframework.core.ParameterizedTypeReference;
@@ -23,232 +26,134 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.*;
 
 @Slf4j
 public class DashboardBuilderDirector {
     DashboardBuilder builder = new DashboardBuilder();
-    int[] completedTasksPerDay = new int[7];
-    int[] needsByTaskType = new int[TaskType.values().length];
+    Integer[] completedTasksPerDay = new Integer[7];
+    Integer[] needsByTaskType = new Integer[TaskType.values().length];
     Integer[] completedTasks = new Integer[TaskType.values().length];
-
-    //Sacar las necesidades y tareas de la BD
-    BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/needs/(ID)",
-            new ParameterizedTypeReference<List<NeedDTO>>() {
-            });
-    BackendObject<List<TaskDTO>> task = BackendService.getListFromBackend(BackendService.BACKEND + "/api/tasks",
-            new ParameterizedTypeReference<List<TaskDTO>>() {
-            });
-
 
     public Component buildTest() {
         TestString fs = new TestString("TasksCr", LocalDate.now(), LocalDateTime.now(), 1, false);
         TestString sn = new TestString("TasksCo", LocalDate.now().minusDays(1), LocalDateTime.now().minusDays(1), 2, false);
         TestString tr = new TestString("NeedsCr", LocalDate.now().minusDays(2), LocalDateTime.now().minusDays(2), 3, true);
         TestString fr = new TestString("NeedsCo", LocalDate.now().minusDays(3), LocalDateTime.now().minusDays(3), 4, true);
-
         Filters firstFilter = Filters.builder().build();
-        Filters secondFilter = Filters.builder().build();
 
-        Dashboard first = Dashboard.builder()
-                .name("test 1")
-                .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(
-                        new ChartData<>(
-                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1, 2, 3, 4},
-                                new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1, 2, 3, 4}
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("700px")
-                .build();
+        Dashboard first = Dashboard.createSimpleDashboard("Test 1", ChartType.BAR, new RectangularCoordinate(
+                new XAxis(DataType.CATEGORY),
+                new YAxis(DataType.NUMBER))
+        );
 
-        Dashboard second = Dashboard.builder()
-                .name("test 2")
-                .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(
-                        new ChartData<>(
-                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1, 2, 3, 4},
-                                new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1, 2, 3, 4}
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("500px")
-                .build();
+        first.addData(
+                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                new TestString[]{fs, sn, tr, fr},
+                new Object[]{1, 2, 3, 4},
+                new Integer[]{1, 2, 3, 4},
+                "Mis datos",
+                new Color(0, 0, 255)
+        );
 
-        Dashboard third = Dashboard.builder()
-                .name("test 3")
-                .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(
-                        new ChartData<>(
-                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1, 2, 3, 4},
-                                new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1, 2, 3, 4}
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("500px")
-                .build();
-
-        Dashboard forth = Dashboard.builder()
-                .name("test 4")
-                .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(
-                        new ChartData<>(
-                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1, 2, 3, 4},
-                                new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1, 2, 3, 4}
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("500px")
-                .build();
+        first.addData(
+                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                new TestString[]{fs, sn, tr, fr},
+                new Object[]{1, 2, 3, 4},
+                new Integer[]{1, 2, 3, 4},
+                "Mis datos 2",
+                new Color(0, 255, 0)
+        );
 
         firstFilter.addDashboard(first);
 
-        secondFilter.addDashboard(second);
-        secondFilter.addDashboard(third);
-        secondFilter.addDashboard(forth);
-
         builder.reset();
-
-        third.addBelowComponent(forth);
-
-        List<InterfaceComponent> sides = new ArrayList<>();
-        sides.add(second);
-        sides.add(third);
 
         builder.setTile("Test");
         builder.setSubtitle("Doble test");
         builder.addBelow(firstFilter);
         builder.addBelow(first);
-        builder.addBelow(secondFilter);
-        builder.addSide(sides);
         return builder.build().getInterface();
     }
 
-    // GRAFICA DE PRUEBA CON BUILDER DE TAREAS
+    //tareas completadas por dias
     public Component buildCompletedTasksChart() {
         String[] daysOfWeek = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
-
         //Actualiza los datos con la base de datos
         calculatedDays();
 
-        // CompletedTasksPerDay a Integer[]
-        Integer[] completedTasksPerDayObjects = new Integer[completedTasksPerDay.length];
-        for (int i = 0; i < completedTasksPerDay.length; i++) {
-            completedTasksPerDayObjects[i] = completedTasksPerDay[i];
-        }
-
         Color dayColors = new Color(0, 0, 0);
         // Configurar el Dashboard
-        Dashboard completedTasksChart = Dashboard.builder()
-                .name("Tareas Completadas por Día")
-                .colors(dayColors) // Asignar colores específicos
-                .data(
-                        new ChartData<>(
-                                daysOfWeek, // Etiquetas del eje X
-                                completedTasksPerDayObjects, // Valores del eje Y
-                                daysOfWeek, // Objetos de etiquetas
-                                completedTasksPerDayObjects // Objetos de valores
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY), // Eje X categórico
-                                new YAxis(DataType.NUMBER) // Eje Y numérico
-                        )
-                )
-                .type(ChartType.BAR) // Tipo de gráfica: Barras
-                .width("100%")
-                .height("500px")
-                .build();
+//        Dashboard completedTasksChart = Dashboard.builder()
+//                .name("Tareas Completadas por Día")
+//                .colors(dayColors)
+//                .data(
+//                        new ChartData<>(
+//                                daysOfWeek, // Etiquetas del eje X
+//                                completedTasksPerDay, // Valores del eje Y
+//                                daysOfWeek, // Objetos de etiquetas
+//                                completedTasksPerDay // Objetos de valores
+//                        )
+//                )
+//                .coordinateConfiguration(
+//                        new RectangularCoordinate(
+//                                new XAxis(DataType.CATEGORY), // Eje X categórico
+//                                new YAxis(DataType.NUMBER) // Eje Y numérico
+//                        )
+//                )
+//                .type(ChartType.BAR) // Tipo de gráfica: Barras
+//                .width("100%")
+//                .height("500px")
+//                .build();
 
-        // Builder para construir el componente final
         builder.reset();
-        builder.addBelow(completedTasksChart);
+//        builder.addBelow(completedTasksChart);
 
         return null;
     }
 
-    // GRAFICA DE PRUEBA CON BUILDER DE NECESIDADES
+    // Gnecesidades no cubiertas por tasktype
     public Component buildUncoveredNeedsChart() {
-        //necesidadesNoCubiertas();
+        needsPerType();
 
         // Obtener los valores de TaskType
         TaskType[] taskTypes = TaskType.values();
         String[] taskTypeLabels = Arrays.stream(taskTypes).map(TaskType::name).toArray(String[]::new);
 
-        // datos de needsByTaskType -> Integer[]
-        Integer[] needsByTaskTypeObjects = Arrays.stream(needsByTaskType).boxed().toArray(Integer[]::new);
-
         Color typeColors = new Color(0, 0, 1); // Color por defectoº
 
         // Configurar el Dashboard
-        Dashboard uncoveredNeedsChart = Dashboard.builder()
-                .name("Necesidades No Cubiertas por Tipo de Tarea")
-                .colors(typeColors)
-                .data(
-                        new ChartData<>(
-                                taskTypeLabels, // Etiquetas del eje X
-                                needsByTaskTypeObjects, // Valores del eje Y
-                                taskTypeLabels, // Objetos de etiquetas
-                                needsByTaskTypeObjects // Objetos de valores
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("500px")
-                .build();
+//        Dashboard uncoveredNeedsChart = Dashboard.builder()
+//                .name("Necesidades No Cubiertas por Tipo de Tarea")
+//                .colors(typeColors)
+//                .data(
+//                        new ChartData<>(
+//                                taskTypeLabels, // Etiquetas del eje X
+//                                needsByTaskType, // Valores del eje Y
+//                                taskTypeLabels, // Objetos de etiquetas
+//                                needsByTaskType // Objetos de valores
+//                        )
+//                )
+//                .coordinateConfiguration(
+//                        new RectangularCoordinate(
+//                                new XAxis(DataType.CATEGORY),
+//                                new YAxis(DataType.NUMBER)
+//                        )
+//                )
+//                .type(ChartType.BAR)
+//                .width("100%")
+//                .height("500px")
+//                .build();
 
         // Builder para construir el componente final
         builder.reset();
-        builder.addBelow(uncoveredNeedsChart);
+//        builder.addBelow(uncoveredNeedsChart);
 
         return null;
     }
-
+// Tareas no terminadas por tasktype
     public Component buildUncoveredTaskTypeChart() {
-        TasksInitialized();
+        TasksperType();
 
         // Obtener los valores de TaskType
         TaskType[] taskTypes = TaskType.values();
@@ -258,88 +163,99 @@ public class DashboardBuilderDirector {
         Color typeColors = new Color(0, 0, 1); // Color por defectoº
 
         // Configurar el Dashboard
-        Dashboard uncoveredNeedsChart = Dashboard.builder()
-                .name("Tareas no cubiertas por tipo de tarea")
-                .colors(typeColors)
-                .data(
-                        new ChartData<>(
-                                taskTypeLabels, // Etiquetas del eje X
-                                completedTasks, // Valores del eje Y
-                                taskTypeLabels, // Objetos de etiquetas
-                                completedTasks // Objetos de valores
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("500px")
-                .build();
+//        Dashboard uncoveredNeedsChart = Dashboard.builder()
+//                .name("Tareas no cubiertas por tipo de tarea")
+//                .colors(typeColors)
+//                .data(
+//                        new ChartData<>(
+//                                taskTypeLabels, // Etiquetas del eje X
+//                                completedTasks, // Valores del eje Y
+//                                taskTypeLabels, // Objetos de etiquetas
+//                                completedTasks // Objetos de valores
+//                        )
+//                )
+//                .coordinateConfiguration(
+//                        new RectangularCoordinate(
+//                                new XAxis(DataType.CATEGORY),
+//                                new YAxis(DataType.NUMBER)
+//                        )
+//                )
+//                .type(ChartType.BAR)
+//                .width("100%")
+//                .height("500px")
+//                .build();
 
         // Builder para construir el componente final
         builder.reset();
-        builder.addBelow(uncoveredNeedsChart);
-        log.debug(String.valueOf(completedTasks[0]));
+//        builder.addBelow(uncoveredNeedsChart);
 
         return null;
     }
 
-    //PRUEBAS PARA GRAFICAS CON BUILDER
     public void calculatedDays() {
         // Inicializar el conteo de tareas completadas por día (0 = Lunes, 6 = Domingo)
-
-        Arrays.fill(this.completedTasksPerDay, 0);
-        if (task.getStatusCode() == HttpStatus.OK) {
-
-            for (TaskDTO task : task.getData()) {
-                if (task.getStatus().equals("FINISHED") && task.getEstimatedEndTimeDate() != null) {
-                    // Obtener el día de la semana (1 = Lunes, 7 = Domingo)
-                    int dayOfWeek = task.getEstimatedEndTimeDate().getDayOfWeek().getValue();
-                    // Convertir a índice del array (0 = Lunes, 6 = Domingo)
-                    int index = (dayOfWeek - 1);
-                    completedTasksPerDay[index]++;
-                }
+        List<TaskDTO> list = Task.getAllFromServer();
+        for (TaskDTO task : list) {
+            if (task.getStatus().equals("FINISHED") && task.getEstimatedEndTimeDate() != null) {
+                //(1 = Lunes, 7 = Domingo)
+                int dayOfWeek = task.getEstimatedEndTimeDate().getDayOfWeek().getValue();
+                //(0 = Lunes, 6 = Domingo)
+                int index = (dayOfWeek - 1);
+                completedTasksPerDay[index]++;
             }
         }
+
     }
 
     //PRUEBAS PARA GRAFICAS CON BUILDER
-    public void necesidadesNoCubiertas() {
-
-        TaskType[] tasks = TaskType.values();
-
-
-        for (NeedDTO n : needs.getData()) {
-            if (!n.getStatus().equals("FINISHED")) {
-                for (int i = 0; i < tasks.length; i++) {
-                    if (n.getNeedType().equals(tasks[i].name())) {
-                        needsByTaskType[i]++;
-                        break;
-                    }
-                }
+    public void needsPerType() {
+        Map<TaskType, Integer> needsByTaskTypeMap = new HashMap<>();
+        for (TaskType taskType : TaskType.values()) {
+            needsByTaskTypeMap.put(taskType, 0); // Inicializar el mapa con 0 para cada tipo de tarea
+        }
+        List<NeedDTO> needs = Need.getAllFromServer();
+        for (NeedDTO need : needs) {
+            if (!need.getStatus().equals("FINISHED")) {
+                TaskType taskType = TaskType.valueOf(need.getNeedType());
+                needsByTaskTypeMap.put(taskType, needsByTaskTypeMap.get(taskType) + 1);
             }
         }
+        // Convertir el mapa a un arreglo si es necesario
+        for (int i = 0; i < TaskType.values().length; i++) {
+            needsByTaskType[i] = needsByTaskTypeMap.get(TaskType.values()[i]);
+        }
+
     }
 
-    public void TasksInitialized() {
-        TaskType[] tasks = TaskType.values();
+    public void TasksperType() {
+        // Inicializar el mapa con todos los tipos de tarea y un conteo inicial de 0
+        Map<TaskType, Integer> completedTasksMap = new HashMap<>();
+        for (TaskType taskType : TaskType.values()) {
+            completedTasksMap.put(taskType, 0);
+        }
+        // Iterar sobre las tareas obtenidas del servidor
+        for (TaskDTO taskk : Task.getAllFromServer()) {
+            if (!taskk.getStatus().equals("FINISHED")) {
+                TaskType taskType = TaskType.valueOf(taskk.getType());
+                completedTasksMap.put(taskType, completedTasksMap.get(taskType) + 1);
+            }
+        }
+        // Convertir el mapa a un arreglo si es necesario
+        for (int i = 0; i < TaskType.values().length; i++) {
+            completedTasks[i] = completedTasksMap.get(TaskType.values()[i]);
+        }
+    }
+    public void VolunteerPerSkill(){
+        Map<TaskType, Integer> volunteersByTaskType = new HashMap<>();
+        for (TaskType taskType : TaskType.values()) {
+            volunteersByTaskType.put(taskType, 0);
+        }
 
-        Arrays.fill(this.completedTasks, 0);
-        if (task.getStatusCode() == HttpStatus.OK) {
-            for (TaskDTO taskk : task.getData()) {
-                //TODO: SI RENTA PODEMOS RELLENAR UN ARRAY CON LAS TAREAS Y NEEDS QUE YA ACABARON AUNQUE PODRÍA GENERAR PORBLEMAS SI HAY MUCHAS QUE FINALIZARON
-                if (!taskk.getStatus().equals("FINISHED")) {
-                    for (int i = 0; i < tasks.length; i++) {
-                        if (taskk.getType().equals(tasks[i].name())) {
-                            this.completedTasks[i]++;
-                            break;
-                        }
-                    }
-                }
+        // Contar voluntarios por TaskType
+        for (VolunteerDTO volunteer : Volunteer.getAllFromServer()) {
+            for (String taskPreference : volunteer.getTaskPreferences()) {
+                TaskType taskType = TaskType.valueOf(taskPreference);
+                volunteersByTaskType.put(taskType, volunteersByTaskType.get(taskType) + 1);
             }
         }
     }
