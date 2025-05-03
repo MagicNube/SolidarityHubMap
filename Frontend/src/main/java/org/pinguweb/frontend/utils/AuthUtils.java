@@ -2,18 +2,20 @@ package org.pinguweb.frontend.utils;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
+@Slf4j
 public class AuthUtils {
 
     public static void checkAuthentication() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
-            System.out.println("Authentication required");
+            log.debug("Authentication required");
             showRedirectDialog("Redirigiendo al login...", "login");
         }
     }
@@ -35,13 +37,12 @@ public class AuthUtils {
 
             @Override
             public void run() {
-                System.out.println("RUNEANDO");
-                System.out.println(currentUI == null);
+                log.debug("RUNEANDO");
                 if (currentUI != null) {
                     currentUI.access(() -> {
                         dialog.close();
                         currentUI.navigate(route);
-                        System.out.println("Ruteado to login");
+                        log.debug("Ruteado to login");
                     });
                 }
             }

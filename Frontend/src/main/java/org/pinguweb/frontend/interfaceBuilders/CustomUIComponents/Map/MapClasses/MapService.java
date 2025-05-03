@@ -1,16 +1,15 @@
-package org.pinguweb.frontend.services.map;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses;
 
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.*;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
-import org.pinguweb.frontend.view.MapView;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
@@ -22,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+@Slf4j
 @Setter
 @Getter
 @Service
@@ -87,13 +87,6 @@ public class MapService {
     @Getter
     private HashMap<Integer,List<RoutePoint>> routePoints = new HashMap<>();
 
-
-
-
-
-
-
-
     private ZoneDTO tempZoneDTO;
     private RouteDTO tempRouteDTO;
 
@@ -101,10 +94,8 @@ public class MapService {
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
     private Tuple<Double, Double> zoneMarkerStartingPoint;
 
-
     private Tuple<Double, Double> routePointStartingPoint;
     private List<RoutePoint> routePoint = new ArrayList<>();
-
 
     private NeedFactory needFactory;
     private ZoneFactory zoneFactory;
@@ -121,38 +112,20 @@ public class MapService {
         load();
     }
 
-
     @Async
     public void load() {
-        try {
-            BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/needs",
-                    new ParameterizedTypeReference<>() {
-                    });
-
-            if (needs.getStatusCode() == HttpStatus.OK && needs.getData() != null) {
-                for (NeedDTO need : needs.getData()) {
-                    System.out.println(need.toString());
-                    if (need.getLatitude() != null && need.getLongitude() != null) {
-                        createNeed(need);
-                    }
+            for (NeedDTO need : Need.getAllFromServer()) {
+                log.debug(need.toString());
+                if (need.getLatitude() != null && need.getLongitude() != null) {
+                    createNeed(need);
                 }
             }
 
-            BackendObject<List<ZoneDTO>> zonas = BackendService.getListFromBackend(BackendService.BACKEND + "/api/zones",
-                    new ParameterizedTypeReference<>() {
-                    });
-
-            if (zonas.getStatusCode() == HttpStatus.OK  && needs.getData() != null) {
-                for (ZoneDTO zone : zonas.getData()) {
-                    if (!zone.getLatitudes().isEmpty() && !zone.getLongitudes().isEmpty()) {
-                        createZone(zone);
-                    }
+            for (ZoneDTO zone : Zone.getAllFromServer()) {
+                if (!zone.getLatitudes().isEmpty() && !zone.getLongitudes().isEmpty()) {
+                    createZone(zone);
                 }
             }
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
     // TODO: Texto para el el marcador de tarea
@@ -169,9 +142,9 @@ public class MapService {
         //this.map.addLayer(MapView.getLLayerGroupNeeds());
 
         for (Need m : needs) {
-            System.out.println("ID: " + m.getID() + m );
+            log.debug("ID: " + m.getID() + m );
         }
-        System.out.println("Fin");
+        log.debug("Fin");
 
         return need;
     }
@@ -292,35 +265,7 @@ public class MapService {
                 }
                 this.routePoints.remove(route.getID());
             }
-            System.out.println("Route deleted: " + route.getID());
+            log.debug("Route deleted: {}", route.getID());
         }
     }
-
-    public List<StorageDTO> getStorages() {
-        BackendObject<List<StorageDTO>> storages = BackendService.getListFromBackend(BackendService.BACKEND + "/api/storage",
-                new ParameterizedTypeReference<>() {
-                });
-        if (storages.getData() != null) {
-            System.out.println("Storages: " + storages.getData());
-            return storages.getData();
-        } else {
-            System.out.println("Error getting storages");
-            return new ArrayList<>();
-        }
-    }
-
-    public List<CatastropheDTO> getCatastrophes() {
-        BackendObject<List<CatastropheDTO>> catastrophes = BackendService.getListFromBackend(BackendService.BACKEND + "/api/catastrophes",
-                new ParameterizedTypeReference<>() {
-                });
-        if (catastrophes.getData() != null) {
-            System.out.println("Catastrophes: " + catastrophes.getData());
-            return catastrophes.getData();
-        } else {
-            System.out.println("Error getting catastrophes");
-            return new ArrayList<>();
-        }
-    }
-
-
 }

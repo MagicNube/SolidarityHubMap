@@ -3,7 +3,6 @@ package org.pinguweb.frontend.mapObjects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.RoutePointDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
@@ -20,6 +19,7 @@ import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -78,7 +78,7 @@ public class RoutePoint extends MapObject {
                 //TODO: Se añadio exitosamente
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
     }
 
@@ -91,7 +91,7 @@ public class RoutePoint extends MapObject {
                 //TODO: Eliminar del mapa
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
     }
 

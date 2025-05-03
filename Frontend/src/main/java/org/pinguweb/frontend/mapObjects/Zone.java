@@ -3,7 +3,6 @@ package org.pinguweb.frontend.mapObjects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.pingu.domain.DTO.RoutePointDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
@@ -18,6 +17,7 @@ import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -69,18 +69,15 @@ public class Zone extends MapObject{
         zoneDTO.setLatitudes(this.latitudes);
         zoneDTO.setLongitudes(this.longitudes);
 
-        // TODO: AGREGAR LO QUE QUIERAS GUARDAR
-
         String finurl = "/api/zones";
         try{
             BackendObject<ZoneDTO> status = BackendService.postToBackend(finurl, zoneDTO, ZoneDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
-                //TODO: Se añadio exitosamente
-                System.out.println("Zone added successfully");
+                log.debug("Zone added successfully");
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
     }
 
@@ -94,7 +91,7 @@ public class Zone extends MapObject{
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
     }
 

@@ -2,12 +2,12 @@ package org.pinguweb.frontend.interfaceBuilders.Directors;
 
 import com.storedobject.chart.*;
 import com.vaadin.flow.component.Component;
-import org.pingu.domain.DTO.AffectedDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.NeedDTO;
 import org.pingu.domain.DTO.TaskDTO;
-import org.pingu.domain.DTO.VolunteerDTO;
 import org.pingu.domain.enums.TaskType;
 import org.pinguweb.frontend.interfaceBuilders.Builders.DashboardBuilder;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartData;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.Filters;
@@ -20,19 +20,20 @@ import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.*;
 
+@Slf4j
 public class DashboardBuilderDirector {
     DashboardBuilder builder = new DashboardBuilder();
     Integer[] completedTasksPerDay = new Integer[7];
     Integer[] needsByTaskType = new Integer[TaskType.values().length];
     Integer[] completedTasks = new Integer[TaskType.values().length];
-
-
 
     public Component buildTest() {
         TestString fs = new TestString("TasksCr", LocalDate.now(), LocalDateTime.now(), 1, false);
@@ -68,12 +69,11 @@ public class DashboardBuilderDirector {
 
         builder.reset();
 
-        return builder
-                .setTile("Test")
-                .setSubtitle("Doble test")
-                .addBelow(firstFilter)
-                .addBelow(first)
-                .build();
+        builder.setTile("Test");
+        builder.setSubtitle("Doble test");
+        builder.addBelow(firstFilter);
+        builder.addBelow(first);
+        return builder.build().getInterface();
     }
 
     //tareas completadas por dias
@@ -109,7 +109,7 @@ public class DashboardBuilderDirector {
         builder.reset();
 //        builder.addBelow(completedTasksChart);
 
-        return builder.build();
+        return null;
     }
 
     // Gnecesidades no cubiertas por tasktype
@@ -149,7 +149,7 @@ public class DashboardBuilderDirector {
         builder.reset();
 //        builder.addBelow(uncoveredNeedsChart);
 
-        return builder.build();
+        return null;
     }
 // Tareas no terminadas por tasktype
     public Component buildUncoveredTaskTypeChart() {
@@ -189,7 +189,7 @@ public class DashboardBuilderDirector {
         builder.reset();
 //        builder.addBelow(uncoveredNeedsChart);
 
-        return builder.build();
+        return null;
     }
 
     public void calculatedDays() {

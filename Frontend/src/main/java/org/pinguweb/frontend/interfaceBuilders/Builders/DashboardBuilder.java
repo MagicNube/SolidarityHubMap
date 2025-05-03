@@ -18,79 +18,56 @@ import java.util.List;
 @NoArgsConstructor
 public class DashboardBuilder implements InterfaceBuilder{
 
-    private String title = "Page Title";
-    private String subtitle = "Page subtitle";
-    private final List<InterfaceComponent> childrens = new LinkedList<>();
+    private final Interface interfaz = new Interface();
 
     @Override
-    public InterfaceBuilder reset() {
-        return new DashboardBuilder();
+    public void reset() {
+        interfaz.reset();
     }
 
     @Override
-    public Component build() {
-        VerticalLayout layout = new VerticalLayout();
-        layout.setSizeFull();
+    public Interface build() {
+        return interfaz;
+    }
 
-        H1 Title = new H1(this.title);
-        H2 Subtitle = new H2(this.subtitle);
+    @Override
+    public void setTile(@NonNull String title) {
+        interfaz.addComponent(new H1(title));
+    }
 
-        layout.add(Title, Subtitle);
+    @Override
+    public void setSubtitle(@NonNull String subtitle) {
+        interfaz.addComponent(new H2(subtitle));
+    }
 
-        for (InterfaceComponent component : childrens){
+    @Override
+    public void addBelow(@NonNull InterfaceComponent component) {
+        interfaz.addComponent(getComponent(component));
 
-            if (component instanceof Dashboard) {
-                if (!component.getSideComponents().isEmpty()) {
-                    VerticalLayout vmain = new VerticalLayout();
-                    HorizontalLayout side = getHorizontalLayout(component);
-                    vmain.add(side);
-                    layout.add(vmain);
-                } else {
-                    layout.add(getComponent(component));
-                }
-
-                Hr separator = new Hr();
-                separator.setWidthFull();
-                separator.addClassName("separator");
-                layout.add(separator);
-            }
-            else{
-                layout.add(getComponent(component));
-            }
+        if (component instanceof Dashboard){
+           Hr separator = new Hr();
+           separator.setWidthFull();
+           separator.addClassName("separator");
+           interfaz.addComponent(separator);
         }
-
-        return layout;
-    }
-
-
-    @Override
-    public InterfaceBuilder setTile(@NonNull String title) {
-        this.title = title;
-        return this;
     }
 
     @Override
-    public InterfaceBuilder setSubtitle(@NonNull String subtitle) {
-        this.subtitle = subtitle;
-        return this;
-    }
-
-    @Override
-    public InterfaceBuilder addBelow(@NonNull InterfaceComponent component) {
-        this.childrens.add(component);
-        return this;
-    }
-
-    @Override
-    public InterfaceBuilder addSide(@NonNull  List<InterfaceComponent> component) {
+    public void addSide(@NonNull  List<InterfaceComponent> component) {
         InterfaceComponent first = component.get(0);
 
         for (int i = 1; i < component.size(); i++){
             first.addSideComponent(component.get(i));
         }
-        this.childrens.add(first);
 
-        return this;
+        interfaz.addComponent(getHorizontalLayout(first));
+
+        if (component instanceof Dashboard){
+           Hr separator = new Hr();
+           separator.setWidthFull();
+           separator.addClassName("separator");
+           interfaz.addComponent(separator);
+        }
     }
 
     private Component[] getComponent(InterfaceComponent component){
