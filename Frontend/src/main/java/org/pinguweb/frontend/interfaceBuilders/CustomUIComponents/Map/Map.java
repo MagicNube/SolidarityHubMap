@@ -68,7 +68,7 @@ public class Map extends InterfaceComponent {
         this.map.addLayer(layer);
 
         //TODO: Agregar layers en función de lo que se requiera + guardarlas
-        generateLayers();
+        //generateLayers();
 
         this.map.locate(new LMapLocateOptions().withSetView(true).withMaxZoom(16));
 
