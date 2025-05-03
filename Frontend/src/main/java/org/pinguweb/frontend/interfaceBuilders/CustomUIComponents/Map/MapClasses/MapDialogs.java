@@ -26,10 +26,12 @@ import java.util.Set;
 public class MapDialogs {
 
     private final MapService service;
-    private MapBuild mapBuild;
+    private final MapBuild mapBuild;
+    private final MapButtons mapButtons;
 
-    public MapDialogs(MapService service) {
+    public MapDialogs(MapService service, MapButtons mapButtons) {
         this.service = service;
+        this.mapButtons = mapButtons;
         this.mapBuild = new MapBuild(service);
     }
 
@@ -39,6 +41,8 @@ public class MapDialogs {
             List<StorageDTO> storageDTOList = Storage.getAllFromServer();
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
+            dialog.setCloseOnEsc(false);
+            dialog.setCloseOnOutsideClick(false);
             dialog.setDraggable(true);
             dialog.setResizable(true);
             dialog.setWidth("70vw");
@@ -95,7 +99,11 @@ public class MapDialogs {
             //TODO: Mirar como asignar storages
             zoneDTO.setStorages(selectedStorageIDs);
 
-            Button cancelButton = new Button("Cancelar", event -> dialog.close());
+            Button cancelButton = new Button("Cancelar");
+            cancelButton.addClickListener(event -> {
+                mapButtons.cancelZoneCreation();
+                dialog.close();
+            });
             Button acceptButton = new Button("Aceptar", event -> {
                 mapBuild.startZoneConstruction(zoneDTO);
                 dialog.close();
@@ -121,7 +129,11 @@ public class MapDialogs {
 
             dialog.open();
 
-            icoClose.addClickListener(iev -> dialog.close());
+            icoClose.addClickListener(iev -> {
+                mapButtons.cancelZoneCreation();
+                dialog.close();
+            });
+
         } else {
             mapBuild.endZoneConstruction();
         }
@@ -132,6 +144,8 @@ public class MapDialogs {
         if (mapState == MapState.CREATING_ROUTE) {
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
+            dialog.setCloseOnEsc(false);
+            dialog.setCloseOnOutsideClick(false);
             dialog.setDraggable(true);
             dialog.setResizable(true);
             dialog.setWidth("70vw");
@@ -152,7 +166,11 @@ public class MapDialogs {
             service.setTempIdRoute(service.getTempIdRoute() + 1);
             routeDTO.setRouteType(routeTypeComboBox.getValue());
 
-            Button cancelButton = new Button("Cancelar", event -> dialog.close());
+            Button cancelButton = new Button("Cancelar");
+            cancelButton.addClickListener(event -> {
+                mapButtons.cancelRouteCreation();
+                dialog.close();
+            });
             Button acceptButton = new Button("Aceptar", event -> {
                 mapBuild.startRouteConstruction(routeDTO);
                 dialog.close();
@@ -171,7 +189,10 @@ public class MapDialogs {
             VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, routeTypeComboBox, buttonLayout);
             dialog.add(dialogLayout);
             dialog.open();
-            icoClose.addClickListener(iev -> dialog.close());
+            icoClose.addClickListener(iev -> {
+                mapButtons.cancelRouteCreation();
+                dialog.close();
+            });
         } else {
             mapBuild.endRouteConstruction();
         }

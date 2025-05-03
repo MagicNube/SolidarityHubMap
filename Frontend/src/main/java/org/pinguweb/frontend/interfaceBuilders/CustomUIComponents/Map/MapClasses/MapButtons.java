@@ -1,6 +1,7 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import lombok.Getter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
@@ -18,7 +19,7 @@ public class MapButtons {
     public MapButtons(MapService service, Map map) {
         this.map = map;
         this.map.setState(MapState.IDLE);
-        this.mapDialogs = new MapDialogs(service);
+        this.mapDialogs = new MapDialogs(service, this);
 
         zone.addClickListener(event -> toggleZoneCreation());
         route.addClickListener(event -> toggleRouteCreation());
@@ -38,6 +39,12 @@ public class MapButtons {
         }
     }
 
+    public void cancelZoneCreation() {
+        this.map.setState(MapState.IDLE);
+        System.out.println("Cancelando zona");
+        this.zone.setText("Zona");
+    }
+
     private void toggleRouteCreation() {
         if (this.map.getState() == MapState.IDLE) {
             this.map.setState(MapState.CREATING_ROUTE);
@@ -48,6 +55,11 @@ public class MapButtons {
             mapDialogs.createDialogRuta(this.map.getState());
             this.route.setText("Ruta");
         }
+    }
+
+    public void cancelRouteCreation() {
+        this.map.setState(MapState.IDLE);
+        this.route.setText("Ruta");
     }
 
     public HorizontalLayout generateButtonRow(){
@@ -69,6 +81,9 @@ public class MapButtons {
         if (hlayout.getChildren().findAny().isPresent()){
             hlayout.add(this.edit, this.delete);
         }
+
+        hlayout.setWidthFull();
+        hlayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         return hlayout;
     }

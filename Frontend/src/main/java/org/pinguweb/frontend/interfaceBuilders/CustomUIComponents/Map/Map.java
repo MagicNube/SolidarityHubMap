@@ -1,9 +1,12 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map;
 
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +17,11 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceCompo
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapButtons;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapState;
+import org.pinguweb.frontend.mapObjects.RoutePoint;
+import org.pinguweb.frontend.mapObjects.ZoneMarker;
+import org.pinguweb.frontend.view.MapView;
+import org.pinguweb.frontend.view.NavigationBar;
+import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
 import software.xdev.vaadin.maps.leaflet.layer.LLayer;
 import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
@@ -23,6 +31,7 @@ import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -57,7 +66,6 @@ public class Map extends InterfaceComponent {
     public void loadView(){
         this.component = new VerticalLayout();
         this.component.setSizeFull();
-        this.component.setId("MapView");
 
         this.reg = new LDefaultComponentManagementRegistry(this.component);
         MapContainer mapContainer = new MapContainer(reg);
@@ -75,7 +83,8 @@ public class Map extends InterfaceComponent {
         this.service = new MapService();
         this.service.setReg(reg);
         this.service.setMap(map);
-        this.service.setID("MapView");
+        this.service.setID(MapView.getMapId());
+        MapView.setMapService(this.service);
 
         component.add(mapContainer);
         component.add(new MapButtons(this.service, this).generateButtonRow());
@@ -104,6 +113,8 @@ public class Map extends InterfaceComponent {
             //TODO: AddControls?
         }
     }
+
+
 
 
 }

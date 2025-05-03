@@ -2,50 +2,38 @@ package org.pinguweb.frontend.view;
 
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
 import lombok.Setter;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapButtons;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.yaml.snakeyaml.util.Tuple;
-import software.xdev.vaadin.maps.leaflet.MapContainer;
-import software.xdev.vaadin.maps.leaflet.layer.LLayer;
-import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
-import software.xdev.vaadin.maps.leaflet.map.LMap;
-import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
-import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
-import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
+
+import java.util.Objects;
 
 @Route("map")
 @PageTitle("Visor del mapa")
-@Setter
-@Getter
 public class MapView extends HorizontalLayout {
 
-    private static final String ID = "map-view";
-
-    private MapService controller;
-    private MapButtons buttons;
-
-    private LMap map;
-    private LComponentManagementRegistry reg;
-    private LLayer layer;
-    private MapContainer mapContainer;
-
-    VerticalLayout MapVerticalLayout = new VerticalLayout();
-    HorizontalLayout ButtonLayout = new HorizontalLayout();
+    @Getter
+    private static String mapId = "MapView";
+    private static MapService controller;
 
     public MapView() {
+        this.setSizeFull();
+        this.setId(mapId);
         MapBuilderDirector director = new MapBuilderDirector();
+        this.add(NavigationBar.createNavBar());
         this.add(director.createFullMap());
+    }
+
+    public static void setMapService(MapService controller) {
+        MapView.controller = controller;
     }
 
     @ClientCallable
@@ -54,7 +42,7 @@ public class MapView extends HorizontalLayout {
             return;
         }
 
-        ZoneMarker zoneMarker = this.controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
+        ZoneMarker zoneMarker = controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
         controller.getTempZoneDTO().getLatitudes().add(obj.getNumber("lat"));
         controller.getTempZoneDTO().getLongitudes().add(obj.getNumber("lng"));
 
@@ -72,7 +60,7 @@ public class MapView extends HorizontalLayout {
             return;
         }
         //Cambiar para que se genere un ID
-        RoutePoint routePoint = this.controller.createRoutePoint(obj.getNumber("lat"), obj.getNumber("lng"));
+        RoutePoint routePoint = controller.createRoutePoint(obj.getNumber("lat"), obj.getNumber("lng"));
         routePoint.setID(controller.getTempIdRoutePoint());
         controller.setTempIdRoutePoint(controller.getTempIdRoutePoint() + 1);
 
@@ -118,13 +106,13 @@ public class MapView extends HorizontalLayout {
         controller.getZoneMarkerPoints().set(index, point);
     }
 
-    /*@ClientCallable
+    @ClientCallable
     public void routePointStart(final JsonValue input) {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
 
-        controller.setrothis.routePointStartingPoint = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+        controller.setRoutePointStartingPoint(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
     }
 
     @ClientCallable
@@ -136,20 +124,20 @@ public class MapView extends HorizontalLayout {
         Tuple<Double, Double> point = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
 
         int index = -1;
-        for (int i = 0; i < routePoints.size(); i++) {
-            RoutePoint t = routePoints.get(i);
+        for (int i = 0; i < controller.getRoutePoints().size(); i++) {
+            RoutePoint t = controller.getRoutePoints().get(0).get(i);
 
-            if (Objects.equals(t.getLatitude(), this.routePointStartingPoint._1()) && Objects.equals(t.getLongitude(), this.routePointStartingPoint._2())) {
+            if (Objects.equals(t.getLatitude(), controller.getRoutePointStartingPoint()._1()) && Objects.equals(t.getLongitude(), controller.getRoutePointStartingPoint()._2())) {
                 index = i;
                 break;
             }
         }
 
-        RoutePoint t = routePoints.get(index);
+        RoutePoint t = controller.getRoutePoint().get(index);
         t.setLatitude(point._1());
         t.setLongitude(point._2());
-        routePoints.set(index, t);
-    }*/
+        controller.getRoutePoint().set(index, t);
+    }
 
 
 
