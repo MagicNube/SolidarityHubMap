@@ -4,19 +4,28 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.pingu.persistence.model.GPSCoordinates;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapButtons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapState;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
 import software.xdev.vaadin.maps.leaflet.layer.LLayer;
 import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
+import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 @SuperBuilder
 public class Map extends InterfaceComponent {
 
@@ -34,8 +43,11 @@ public class Map extends InterfaceComponent {
 
     private LDefaultComponentManagementRegistry reg;
     private LMap map;
-
     private VerticalLayout component;
+    private MapService service;
+
+    @Setter
+    private MapState state;
 
     @Override
     public final Component getComponent() {
@@ -58,7 +70,19 @@ public class Map extends InterfaceComponent {
         //TODO: Agregar layers en función de lo que se requiera + guardarlas
         generateLayers();
 
-        this.component.add(mapContainer, generateButtonRow());
+        this.component.add(mapContainer);
+
+        this.map.locate(new LMapLocateOptions().withSetView(true).withMaxZoom(16));
+
+        this.service = new MapService();
+        this.service.setReg(reg);
+        this.service.setMap(map);
+        this.service.setID("MapView");
+
+        component.add(mapContainer);
+        component.add(new MapButtons(this.service, this).generateButtonRow());
+
+        this.service.load();
     }
 
     private void generateLayers(){
@@ -83,26 +107,5 @@ public class Map extends InterfaceComponent {
         }
     }
 
-    private HorizontalLayout generateButtonRow(){
-        HorizontalLayout hlayout = new HorizontalLayout();
 
-        if (this.canCreateNeeds){
-            hlayout.add(new Button("Crear Necesidad"));
-        }
-        if (this.canCreateZones){
-            hlayout.add(new Button("Crear Zona"));
-        }
-        if (this.canCreateStorages){
-            hlayout.add(new Button("Crear Almacen"));
-        }
-        if (this.canCreateRoutes){
-            hlayout.add(new Button("Crear Ruta"));
-        }
-
-        if (hlayout.getChildren().findAny().isPresent()){
-            hlayout.add(new Button("Editar"), new Button("Borrar"));
-        }
-
-        return hlayout;
-    }
 }

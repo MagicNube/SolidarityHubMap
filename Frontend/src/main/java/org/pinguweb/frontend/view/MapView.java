@@ -9,8 +9,10 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
 import lombok.Setter;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapButtons;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
+import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.yaml.snakeyaml.util.Tuple;
@@ -42,32 +44,8 @@ public class MapView extends HorizontalLayout {
     HorizontalLayout ButtonLayout = new HorizontalLayout();
 
     public MapView() {
-        this.setId(ID);
-        this.setSizeFull();
-        this.add(NavigationBar.createNavBar());
-
-        this.add(MapVerticalLayout);
-
-        reg = new LDefaultComponentManagementRegistry(this);
-        mapContainer = new MapContainer(reg);
-        mapContainer.setSizeFull();
-        this.map = mapContainer.getlMap();
-        layer = LTileLayer.createDefaultForOpenStreetMapTileServer(reg);
-        this.map.addLayer(layer);
-
-        this.map.locate(new LMapLocateOptions().withSetView(true).withMaxZoom(16));
-
-        this.controller = new MapService();
-        this.controller.setReg(reg);
-        this.controller.setMap(map);
-        this.controller.setID(ID);
-
-        buttons = new MapButtons(ButtonLayout, this.controller);
-
-        MapVerticalLayout.add(mapContainer);
-        MapVerticalLayout.add(ButtonLayout);
-
-        this.controller.load();
+        MapBuilderDirector director = new MapBuilderDirector();
+        this.add(director.createFullMap());
     }
 
     @ClientCallable

@@ -6,6 +6,7 @@ import com.vaadin.flow.component.html.H2;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -42,9 +43,16 @@ public class MapBuilder implements InterfaceBuilder{
 
     @Override
     public void addSide(@NonNull  List<InterfaceComponent> component) {
+
     }
 
     private Component[] getComponent(InterfaceComponent component){
-        return new Component[]{component.getComponent()};
+        if (component instanceof Map m){
+            m.loadView();
+            return new Component[]{m.getComponent()};
+        }
+        else {
+            return new Component[]{component.getComponent()};
+        }
     }
 }

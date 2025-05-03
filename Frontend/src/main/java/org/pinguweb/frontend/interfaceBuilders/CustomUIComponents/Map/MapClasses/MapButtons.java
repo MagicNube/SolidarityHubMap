@@ -3,6 +3,7 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasse
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import lombok.Getter;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 
 public class MapButtons {
     private final Button zone = new Button("Zona");
@@ -10,17 +11,14 @@ public class MapButtons {
     private final Button edit = new Button("Editar");
     private final Button delete = new Button("Borrar");
 
-    @Getter
-    private MapState mapState;
+    private final Map map;
+
     private final MapDialogs mapDialogs;
-    private final MapService controller;
 
-    public MapButtons(HorizontalLayout layout, MapService controller) {
-        layout.add(zone, route, edit, delete);
-        this.controller = controller;
-
-        this.mapState = MapState.IDLE;
-        this.mapDialogs = new MapDialogs(this.controller);
+    public MapButtons(MapService controller, Map map) {
+        this.map = map;
+        this.map.setState(MapState.IDLE);
+        this.mapDialogs = new MapDialogs(controller);
 
         zone.addClickListener(event -> toggleZoneCreation());
         route.addClickListener(event -> toggleRouteCreation());
@@ -29,27 +27,50 @@ public class MapButtons {
     }
 
     private void toggleZoneCreation() {
-        if (mapState == MapState.IDLE) {
-            mapState = MapState.CREATING_ZONE;
-            mapDialogs.createDialogZona(mapState);
+        if (this.map.getState() == MapState.IDLE) {
+            this.map.setState(MapState.CREATING_ZONE);
+            mapDialogs.createDialogZona(this.map.getState());
             this.zone.setText("Terminar zona");
         } else {
-            mapState = MapState.IDLE;
-            mapDialogs.createDialogZona(mapState);
+            this.map.setState(MapState.IDLE);
+            mapDialogs.createDialogZona(this.map.getState());
             this.zone.setText("Zona");
         }
     }
 
     private void toggleRouteCreation() {
-        if (mapState == MapState.IDLE) {
-            mapState = MapState.CREATING_ROUTE;
-            mapDialogs.createDialogRuta(mapState);
+        if (this.map.getState() == MapState.IDLE) {
+            this.map.setState(MapState.CREATING_ROUTE);
+            mapDialogs.createDialogRuta(this.map.getState());
             this.route.setText("Terminar ruta");
         } else {
-            mapState = MapState.IDLE;
-            mapDialogs.createDialogRuta(mapState);
+            this.map.setState(MapState.IDLE);
+            mapDialogs.createDialogRuta(this.map.getState());
             this.route.setText("Ruta");
         }
+    }
+
+    public HorizontalLayout generateButtonRow(){
+        HorizontalLayout hlayout = new HorizontalLayout();
+
+        if (this.map.isCanCreateNeeds()){
+            hlayout.add(new Button("Crear Necesidad"));
+        }
+        if (this.map.isCanCreateZones()){
+            hlayout.add(this.zone);
+        }
+        if (this.map.isCanCreateStorages()){
+            hlayout.add(new Button("Crear Almacen"));
+        }
+        if (this.map.isCanCreateRoutes()){
+            hlayout.add(this.route);
+        }
+
+        if (hlayout.getChildren().findAny().isPresent()){
+            hlayout.add(this.edit, this.delete);
+        }
+
+        return hlayout;
     }
 
     /*private void toggleEdit() {

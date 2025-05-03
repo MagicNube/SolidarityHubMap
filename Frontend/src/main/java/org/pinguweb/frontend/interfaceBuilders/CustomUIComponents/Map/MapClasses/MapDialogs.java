@@ -26,12 +26,11 @@ import java.util.Set;
 public class MapDialogs {
 
     private final MapService controller;
-    private MapState mapState;
-    private MapBuilder mapBuilder;
+    private MapBuild mapBuild;
 
     public MapDialogs(MapService controller) {
         this.controller = controller;
-        this.mapBuilder = new MapBuilder(controller);
+        this.mapBuild = new MapBuild(controller);
     }
 
     public void createDialogZona(MapState mapState) {
@@ -98,7 +97,7 @@ public class MapDialogs {
 
             Button cancelButton = new Button("Cancelar", event -> dialog.close());
             Button acceptButton = new Button("Aceptar", event -> {
-                mapBuilder.startZoneConstruction(zoneDTO);
+                mapBuild.startZoneConstruction(zoneDTO);
                 dialog.close();
             });
             acceptButton.setEnabled(false);
@@ -124,7 +123,7 @@ public class MapDialogs {
 
             icoClose.addClickListener(iev -> dialog.close());
         } else {
-            mapBuilder.endZoneConstruction();
+            mapBuild.endZoneConstruction();
         }
 
     }
@@ -155,7 +154,7 @@ public class MapDialogs {
 
             Button cancelButton = new Button("Cancelar", event -> dialog.close());
             Button acceptButton = new Button("Aceptar", event -> {
-                mapBuilder.startRouteConstruction(routeDTO);
+                mapBuild.startRouteConstruction(routeDTO);
                 dialog.close();
             });
 
@@ -174,7 +173,7 @@ public class MapDialogs {
             dialog.open();
             icoClose.addClickListener(iev -> dialog.close());
         } else {
-            mapBuilder.endRouteConstruction();
+            mapBuild.endRouteConstruction();
         }
     }
 }

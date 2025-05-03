@@ -14,14 +14,14 @@ import java.util.ArrayList;
 @Slf4j
 @Setter
 @Getter
-public class MapBuilder {
+public class MapBuild {
 
     MapService controller;
 
     private String clickFuncReferenceCreateZone;
     private String clickFuncReferenceCreateRoute;
 
-    public MapBuilder(MapService controller) {
+    public MapBuild(MapService controller) {
         this.controller = controller;
         clickFuncReferenceCreateZone = controller.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone";
         clickFuncReferenceCreateRoute = controller.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute";
