@@ -56,7 +56,7 @@ public class RoutePoint extends MapObject {
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
 
-        String finurl = "/api/routepoint";
+        String finurl = "/api/routepoints";
         try {
             BackendObject<RoutePointDTO> status = BackendService.postToBackend(finurl, routePointDTO, RoutePointDTO.class);
             if (status.getStatusCode() == HttpStatus.OK) {
@@ -69,7 +69,7 @@ public class RoutePoint extends MapObject {
 
     @Override
     public void deleteFromServer() {
-        String finurl = "/api/routepoint/" + this.getID();
+        String finurl = "/api/routepoints/" + this.getID();
         try {
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
             if (status == HttpStatus.OK) {

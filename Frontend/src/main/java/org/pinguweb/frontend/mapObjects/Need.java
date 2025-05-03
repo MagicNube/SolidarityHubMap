@@ -40,7 +40,7 @@ public class Need extends MapObject{
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
 
-        String finurl = "/api/need";
+        String finurl = "/api/needs";
         try{
             BackendObject<NeedDTO> status = BackendService.postToBackend(finurl, needDTO, NeedDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
@@ -54,7 +54,7 @@ public class Need extends MapObject{
 
     @Override
     public void deleteFromServer() {
-        String finurl = "/api/zone/" + this.getID();
+        String finurl = "/api/zones/" + this.getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
             if (status == HttpStatus.OK){

@@ -2,10 +2,10 @@ package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.CatastropheDTO;
 import org.pingu.domain.DTO.ZoneDTO;
-import org.pinguweb.backend.DTO.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.persistence.model.Catastrophe;
+import org.pingu.persistence.service.CatastropheService;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Catastrophe;
-import org.pinguweb.backend.service.CatastropheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -26,25 +26,25 @@ public class CatastropheController {
     CatastropheService service;
 
     @Async
-    @GetMapping("/catastrophe")
+    @GetMapping("/catastrophes")
     public CompletableFuture<ResponseEntity<List<CatastropheDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getCatastropheRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<CatastropheDTO> catastrophes = service.findAll().stream().map(factory::createCatastropheDTO).collect(Collectors.toList());
+        List<CatastropheDTO> catastrophes = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(catastrophes));
     }
 
     @Async
-    @GetMapping("/catastrophe/{ID}")
+    @GetMapping("/catastrophes/{ID}")
     public CompletableFuture<ResponseEntity<CatastropheDTO>> getCatastrophe(@PathVariable Integer ID) {
         if (ServerException.isServerClosed(service.getCatastropheRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Catastrophe> res = service.findByID(ID);
         if (res.isPresent()) {
-            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createCatastropheDTO(res.get())));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
@@ -52,7 +52,7 @@ public class CatastropheController {
     }
 
     @Async
-    @GetMapping("/catastrophe/{ID}/zones")
+    @GetMapping("/catastrophes/{ID}/zones")
     public CompletableFuture<ResponseEntity<List<ZoneDTO>>> getCatastropheZones(@PathVariable Integer ID) {
         if (ServerException.isServerClosed(service.getCatastropheRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
@@ -61,7 +61,7 @@ public class CatastropheController {
         Optional<Catastrophe> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(
-                    res.get().getZones().stream().map(factory::createZoneDTO).collect(Collectors.toList())));
+                    res.get().getZones().stream().map(factory::createDTO).collect(Collectors.toList())));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

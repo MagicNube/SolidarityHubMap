@@ -52,7 +52,7 @@ public class Zone extends MapObject{
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
 
-        String finurl = "/api/zone";
+        String finurl = "/api/zones";
         try{
             BackendObject<ZoneDTO> status = BackendService.postToBackend(finurl, zoneDTO, ZoneDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
@@ -66,7 +66,7 @@ public class Zone extends MapObject{
 
     @Override
     public void deleteFromServer() {
-        String finurl = "/api/zone/" + this.getID();
+        String finurl = "/api/zones/" + this.getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
             if (status == HttpStatus.OK){

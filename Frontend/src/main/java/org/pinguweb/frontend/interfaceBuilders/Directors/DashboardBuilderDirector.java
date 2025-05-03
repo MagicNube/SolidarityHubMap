@@ -34,10 +34,10 @@ public class DashboardBuilderDirector {
     Integer[] completedTasks = new Integer[TaskType.values().length];
 
     //Sacar las necesidades y tareas de la BD
-    BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need/(ID)",
+    BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/needs/(ID)",
             new ParameterizedTypeReference<List<NeedDTO>>() {
             });
-    BackendObject<List<TaskDTO>> task = BackendService.getListFromBackend(BackendService.BACKEND + "/api/task",
+    BackendObject<List<TaskDTO>> task = BackendService.getListFromBackend(BackendService.BACKEND + "/api/tasks",
             new ParameterizedTypeReference<List<TaskDTO>>() {
             });
 

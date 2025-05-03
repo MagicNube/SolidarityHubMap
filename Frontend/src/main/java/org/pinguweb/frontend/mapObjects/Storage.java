@@ -56,7 +56,7 @@ public class Storage extends MapObject{
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
 
-        String finurl = "/api/storage";
+        String finurl = "/api/storages";
         try{
             BackendObject<StorageDTO> status = BackendService.postToBackend(finurl, storageDTO, StorageDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
@@ -70,7 +70,7 @@ public class Storage extends MapObject{
 
     @Override
     public void deleteFromServer() {
-        String finurl = "/api/storage/" + this.getID();
+        String finurl = "/api/storages/" + this.getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
             if (status == HttpStatus.OK){

@@ -52,7 +52,7 @@ public class Route extends MapObject{
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
 
-        String finurl = "/api/route";
+        String finurl = "/api/routes";
         try{
             BackendObject<RouteDTO> status = BackendService.postToBackend(finurl, routeDTO, RouteDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
@@ -66,7 +66,7 @@ public class Route extends MapObject{
 
     @Override
     public void deleteFromServer() {
-        String finurl = "/api/route/" + this.getID();
+        String finurl = "/api/routes/" + this.getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
             if (status == HttpStatus.OK){
