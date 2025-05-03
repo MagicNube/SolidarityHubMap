@@ -10,7 +10,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Slf4j
-@SpringBootApplication(scanBasePackages = "org.pingu")
+@SpringBootApplication(scanBasePackages = {
+        "org.pingu",
+        "org.pinguweb"
+})
 public class BackendApplication implements CommandLineRunner {
 
     @Autowired
