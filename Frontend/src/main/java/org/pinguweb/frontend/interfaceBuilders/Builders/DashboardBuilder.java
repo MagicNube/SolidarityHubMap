@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 public class DashboardBuilder implements InterfaceBuilder{
 
-    private Interface interfaz = new Interface();
+    private final Interface interfaz = new Interface();
 
     @Override
     public void reset() {
