@@ -3,7 +3,6 @@ package org.pinguweb.frontend.mapObjects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.RoutePointDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;

@@ -1,8 +1,8 @@
 package org.pinguweb.backend.controller;
 
 import jakarta.validation.Valid;
-import org.pinguweb.backend.LoginRequest;
 import org.pinguweb.backend.AuthenticationService;
+import org.pinguweb.backend.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

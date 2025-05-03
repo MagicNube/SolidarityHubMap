@@ -1,4 +1,4 @@
-package org.pinguweb.frontend.services.map;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapData;
 
 
 import lombok.Getter;
@@ -8,9 +8,7 @@ import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
-import org.pinguweb.frontend.view.MapView;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
@@ -124,35 +122,18 @@ public class MapService {
 
     @Async
     public void load() {
-        try {
-            BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/needs",
-                    new ParameterizedTypeReference<>() {
-                    });
-
-            if (needs.getStatusCode() == HttpStatus.OK && needs.getData() != null) {
-                for (NeedDTO need : needs.getData()) {
-                    System.out.println(need.toString());
-                    if (need.getLatitude() != null && need.getLongitude() != null) {
-                        createNeed(need);
-                    }
+            for (NeedDTO need : Need.getAllFromServer()) {
+                System.out.println(need.toString());
+                if (need.getLatitude() != null && need.getLongitude() != null) {
+                    createNeed(need);
                 }
             }
 
-            BackendObject<List<ZoneDTO>> zonas = BackendService.getListFromBackend(BackendService.BACKEND + "/api/zones",
-                    new ParameterizedTypeReference<>() {
-                    });
-
-            if (zonas.getStatusCode() == HttpStatus.OK  && needs.getData() != null) {
-                for (ZoneDTO zone : zonas.getData()) {
-                    if (!zone.getLatitudes().isEmpty() && !zone.getLongitudes().isEmpty()) {
-                        createZone(zone);
-                    }
+            for (ZoneDTO zone : Zone.getAllFromServer()) {
+                if (!zone.getLatitudes().isEmpty() && !zone.getLongitudes().isEmpty()) {
+                    createZone(zone);
                 }
             }
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
     // TODO: Texto para el el marcador de tarea

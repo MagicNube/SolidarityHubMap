@@ -2,29 +2,25 @@ package org.pinguweb.frontend.interfaceBuilders.Directors;
 
 import com.storedobject.chart.*;
 import com.vaadin.flow.component.Component;
-import org.pingu.domain.DTO.AffectedDTO;
 import org.pingu.domain.DTO.NeedDTO;
 import org.pingu.domain.DTO.TaskDTO;
-import org.pingu.domain.DTO.VolunteerDTO;
 import org.pingu.domain.enums.TaskType;
 import org.pinguweb.frontend.interfaceBuilders.Builders.DashboardBuilder;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartData;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.Filters;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.TestString;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 public class DashboardBuilderDirector {
@@ -153,14 +149,13 @@ public class DashboardBuilderDirector {
         sides.add(second);
         sides.add(third);
 
-        return builder
-                .setTile("Test")
-                .setSubtitle("Doble test")
-                .addBelow(firstFilter)
-                .addBelow(first)
-                .addBelow(secondFilter)
-                .addSide(sides)
-                .build();
+        builder.setTile("Test");
+        builder.setSubtitle("Doble test");
+        builder.addBelow(firstFilter);
+        builder.addBelow(first);
+        builder.addBelow(secondFilter);
+        builder.addSide(sides);
+        return builder.build().getInterface();
     }
 
     // GRAFICA DE PRUEBA CON BUILDER DE TAREAS
@@ -204,7 +199,7 @@ public class DashboardBuilderDirector {
         builder.reset();
         builder.addBelow(completedTasksChart);
 
-        return builder.build();
+        return null;
     }
 
     // GRAFICA DE PRUEBA CON BUILDER DE NECESIDADES
@@ -247,7 +242,7 @@ public class DashboardBuilderDirector {
         builder.reset();
         builder.addBelow(uncoveredNeedsChart);
 
-        return builder.build();
+        return null;
     }
 
     public Component buildUncoveredTaskTypeChart() {
@@ -288,7 +283,7 @@ public class DashboardBuilderDirector {
         builder.addBelow(uncoveredNeedsChart);
         System.out.println(completedTasks[0]);
 
-        return builder.build();
+        return null;
     }
 
     //PRUEBAS PARA GRAFICAS CON BUILDER
