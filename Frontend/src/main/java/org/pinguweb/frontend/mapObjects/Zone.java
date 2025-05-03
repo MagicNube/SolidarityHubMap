@@ -25,6 +25,14 @@ import java.util.List;
 @Getter
 public class Zone extends MapObject{
 
+    private String name;
+    private String description;
+    private String emergencyLevel;
+    private int catastrophe;
+    private List<Integer> storages;
+    private List<Double> latitudes;
+    private List<Double> longitudes;
+
     List<LLatLng> points;
     LPolygon polygon;
 
@@ -53,6 +61,13 @@ public class Zone extends MapObject{
     @Override
     public void pushToServer(){
         ZoneDTO zoneDTO = new ZoneDTO();
+        zoneDTO.setName(this.name);
+        zoneDTO.setDescription(this.description);
+        zoneDTO.setEmergencyLevel(this.emergencyLevel);
+        zoneDTO.setCatastrophe(this.catastrophe);
+        zoneDTO.setStorages(this.storages);
+        zoneDTO.setLatitudes(this.latitudes);
+        zoneDTO.setLongitudes(this.longitudes);
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
 
@@ -61,6 +76,7 @@ public class Zone extends MapObject{
             BackendObject<ZoneDTO> status = BackendService.postToBackend(finurl, zoneDTO, ZoneDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
                 //TODO: Se añadio exitosamente
+                System.out.println("Zone added successfully");
             }
         }
         catch (Exception e){

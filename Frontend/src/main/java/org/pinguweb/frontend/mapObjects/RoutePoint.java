@@ -28,6 +28,11 @@ import java.util.List;
 public class RoutePoint extends MapObject {
 
     LMarker markerObj;
+    private Double latitude;
+    private Double longitude;
+    private String routeType;
+
+
 
     public RoutePoint(LComponentManagementRegistry reg, Double latitude, Double longitude) {
         this.setLatitude(latitude);
@@ -60,6 +65,9 @@ public class RoutePoint extends MapObject {
     @Override
     public void pushToServer() {
         RoutePointDTO routePointDTO = new RoutePointDTO();
+        routePointDTO.setLatitude(this.getLatitude());
+        routePointDTO.setLongitude(this.getLongitude());
+        routePointDTO.setRouteType(this.getRouteType());
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
 

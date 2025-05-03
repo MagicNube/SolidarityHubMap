@@ -1,16 +1,16 @@
-package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
 
 import com.storedobject.chart.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartData;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData.ChartPoint;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartData;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartPoint;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +20,7 @@ import java.util.Arrays;
 @SuperBuilder
 @Getter
 @Tag("DashboardComponent")
-public class Dashboard extends InterfaceComponent{
+public class Dashboard extends InterfaceComponent {
     protected final Color colors;
     protected final RectangularCoordinate coordinateConfiguration;
     protected final ChartData<?,?> data;

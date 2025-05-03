@@ -9,7 +9,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
 import java.util.LinkedList;
