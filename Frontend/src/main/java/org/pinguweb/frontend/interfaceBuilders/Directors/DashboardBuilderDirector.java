@@ -5,6 +5,7 @@ import com.vaadin.flow.component.Component;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.NeedDTO;
 import org.pingu.domain.DTO.TaskDTO;
+import org.pingu.domain.DTO.VolunteerDTO;
 import org.pingu.domain.enums.TaskType;
 import org.pinguweb.frontend.interfaceBuilders.Builders.DashboardBuilder;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
