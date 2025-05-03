@@ -54,7 +54,7 @@ public class ZoneController {
     }
 
     @Async
-    @GetMapping("/zones/{ID}/taskss")
+    @GetMapping("/zones/{ID}/tasks")
     public CompletableFuture<ResponseEntity<List<TaskDTO>>> getZoneTasks(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 

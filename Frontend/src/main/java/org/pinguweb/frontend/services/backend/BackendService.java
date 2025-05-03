@@ -20,7 +20,7 @@ public class BackendService {
             return generateObject(respuesta);
         }
         catch (Exception e) {
-            return new BackendObject<T>(null, HttpStatus.SERVICE_UNAVAILABLE, null);
+            return new BackendObject<>(null, HttpStatus.SERVICE_UNAVAILABLE, null);
         }
     }
 
@@ -103,6 +103,11 @@ public class BackendService {
         HttpStatusCode statusCode = respuesta.getStatusCode();
         HttpHeaders headers = respuesta.getHeaders();
         T cuerpo = respuesta.getBody();
+
+        if (cuerpo == null){
+            statusCode = HttpStatus.NO_CONTENT;
+        }
+
         return new BackendObject<>(headers, statusCode, cuerpo);
     }
 }
