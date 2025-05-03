@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 @SuperBuilder
 @Getter
+@Tag("DashboardComponent")
 public class Dashboard extends InterfaceComponent {
     protected final Color colors;
     protected final RectangularCoordinate coordinateConfiguration;

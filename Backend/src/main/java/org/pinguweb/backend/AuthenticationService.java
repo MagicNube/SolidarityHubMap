@@ -1,7 +1,7 @@
-package org.pinguweb.backend.service;
+package org.pinguweb.backend;
 
-import org.pinguweb.backend.model.Admin;
-import org.pinguweb.backend.repository.AdminRepository;
+import org.pingu.persistence.model.Admin;
+import org.pingu.persistence.repository.AdminRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +21,6 @@ public class AuthenticationService {
 
     public boolean authenticate(String dni, String password) {
         Optional<Admin> admin = adminRepository.findByDni(dni);
-        if (admin.isPresent()) {
-            return passwordEncoder.matches(password, admin.get().getPassword());
-        }
-        return false;
+        return admin.filter(value -> passwordEncoder.matches(password, value.getPassword())).isPresent();
     }
 }

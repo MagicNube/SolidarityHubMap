@@ -1,4 +1,4 @@
-package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData;
 
 import com.storedobject.chart.AbstractDataProvider;
 import com.storedobject.chart.AbstractDataStream;
@@ -19,8 +19,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.SerializablePredicate;
 import lombok.experimental.SuperBuilder;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartData;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartPoint;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
 import java.beans.IntrospectionException;

@@ -14,7 +14,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import java.util.Arrays;
 import java.util.List;
 
-@Route("dashboard/volunteer-skills")
+@Route("dashboard/volunteers-skills")
 public class VolunteerSkills extends VerticalLayout {
 
     private List<VolunteerDTO> volunteers;
@@ -36,7 +36,7 @@ public class VolunteerSkills extends VerticalLayout {
         H1 title = new H1("Volunteer-Skills Dashboard");
         mainContainer.add(title);
 
-        BackendObject<List<VolunteerDTO>> volunteerResponse = BackendService.getListFromBackend(BackendService.BACKEND + "/api/volunteers",
+        BackendObject<List<VolunteerDTO>> volunteerResponse = BackendService.getListFromBackend(BackendService.BACKEND + "/api/volunteerss",
                 new ParameterizedTypeReference<List<VolunteerDTO>>() {
                 });
 

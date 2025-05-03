@@ -125,7 +125,7 @@ public class MapService {
     @Async
     public void load() {
         try {
-            BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/need",
+            BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/needs",
                     new ParameterizedTypeReference<>() {
                     });
 
@@ -138,7 +138,7 @@ public class MapService {
                 }
             }
 
-            BackendObject<List<ZoneDTO>> zonas = BackendService.getListFromBackend(BackendService.BACKEND + "/api/zone",
+            BackendObject<List<ZoneDTO>> zonas = BackendService.getListFromBackend(BackendService.BACKEND + "/api/zones",
                     new ParameterizedTypeReference<>() {
                     });
 
