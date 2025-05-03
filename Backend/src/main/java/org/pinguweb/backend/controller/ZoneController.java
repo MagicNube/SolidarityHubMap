@@ -1,5 +1,6 @@
 package org.pinguweb.backend.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.TaskDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.domain.DTO.factories.BackendDTOFactory;
@@ -14,11 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class ZoneController {
@@ -68,14 +71,14 @@ public class ZoneController {
                 if (tasks != null) {
                     List<Task> tasksInZone = tasks.stream()
                             .filter(task -> task.getZone().getID() == zone.getID())
-                            .collect(Collectors.toList());
+                            .toList();
                     return CompletableFuture.completedFuture(ResponseEntity.ok(tasksInZone.stream().map(factory::createDTO).toList()));
                 }
             }
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
         catch (Exception e){
-            e.printStackTrace();
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
         return null;
     }

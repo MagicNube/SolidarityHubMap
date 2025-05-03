@@ -15,6 +15,7 @@ import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -54,7 +55,7 @@ public class Need extends MapObject{
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
     }
 
@@ -68,7 +69,7 @@ public class Need extends MapObject{
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
     }
 

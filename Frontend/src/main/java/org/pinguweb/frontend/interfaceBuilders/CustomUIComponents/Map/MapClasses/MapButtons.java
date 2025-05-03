@@ -15,10 +15,10 @@ public class MapButtons {
 
     private final MapDialogs mapDialogs;
 
-    public MapButtons(MapService controller, Map map) {
+    public MapButtons(MapService service, Map map) {
         this.map = map;
         this.map.setState(MapState.IDLE);
-        this.mapDialogs = new MapDialogs(controller);
+        this.mapDialogs = new MapDialogs(service);
 
         zone.addClickListener(event -> toggleZoneCreation());
         route.addClickListener(event -> toggleRouteCreation());

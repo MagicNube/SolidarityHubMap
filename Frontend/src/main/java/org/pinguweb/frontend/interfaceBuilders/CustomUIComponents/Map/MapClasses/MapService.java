@@ -265,35 +265,7 @@ public class MapService {
                 }
                 this.routePoints.remove(route.getID());
             }
-            log.debug("Route deleted: " + route.getID());
+            log.debug("Route deleted: {}", route.getID());
         }
     }
-
-    public List<StorageDTO> getStorages() {
-        BackendObject<List<StorageDTO>> storages = BackendService.getListFromBackend(BackendService.BACKEND + "/api/storage",
-                new ParameterizedTypeReference<>() {
-                });
-        if (storages.getData() != null) {
-            log.debug("Storages: " + storages.getData());
-            return storages.getData();
-        } else {
-            log.error("Error getting storages");
-            return new ArrayList<>();
-        }
-    }
-
-    public List<CatastropheDTO> getCatastrophes() {
-        BackendObject<List<CatastropheDTO>> catastrophes = BackendService.getListFromBackend(BackendService.BACKEND + "/api/catastrophes",
-                new ParameterizedTypeReference<>() {
-                });
-        if (catastrophes.getData() != null) {
-            log.debug("Catastrophes: " + catastrophes.getData());
-            return catastrophes.getData();
-        } else {
-            log.error("Error getting catastrophes");
-            return new ArrayList<>();
-        }
-    }
-
-
 }

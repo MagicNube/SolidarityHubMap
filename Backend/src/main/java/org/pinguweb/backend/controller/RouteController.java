@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -70,7 +71,7 @@ public class RouteController {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
         catch (Exception e){
-            e.printStackTrace();
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
         return null;
     }

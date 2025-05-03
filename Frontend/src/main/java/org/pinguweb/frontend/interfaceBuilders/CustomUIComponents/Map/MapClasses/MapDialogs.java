@@ -25,12 +25,12 @@ import java.util.Set;
 
 public class MapDialogs {
 
-    private final MapService controller;
+    private final MapService service;
     private MapBuild mapBuild;
 
-    public MapDialogs(MapService controller) {
-        this.controller = controller;
-        this.mapBuild = new MapBuild(controller);
+    public MapDialogs(MapService service) {
+        this.service = service;
+        this.mapBuild = new MapBuild(service);
     }
 
     public void createDialogZona(MapState mapState) {
@@ -83,8 +83,8 @@ public class MapDialogs {
 
             ZoneDTO zoneDTO = new ZoneDTO();
             //TODO: Mirar cambiar como se asigna el ID
-            zoneDTO.setID(controller.getTempIdZone());
-            controller.setTempIdZone(controller.getTempIdZone() + 1);
+            zoneDTO.setID(service.getTempIdZone());
+            service.setTempIdZone(service.getTempIdZone() + 1);
             zoneDTO.setDescription(descriptionTextArea.getValue());
             zoneDTO.setName(nameTextArea.getValue());
             //TODO: Mirar como funcionan las catastrofes
@@ -148,8 +148,8 @@ public class MapDialogs {
             routeDTO.setName(nameTextArea.getValue());
             routeDTO.setCatastrophe(0);
             routeDTO.setPoints(new ArrayList<>());
-            routeDTO.setID(controller.getTempIdRoute());
-            controller.setTempIdRoute(controller.getTempIdRoute() + 1);
+            routeDTO.setID(service.getTempIdRoute());
+            service.setTempIdRoute(service.getTempIdRoute() + 1);
             routeDTO.setRouteType(routeTypeComboBox.getValue());
 
             Button cancelButton = new Button("Cancelar", event -> dialog.close());
