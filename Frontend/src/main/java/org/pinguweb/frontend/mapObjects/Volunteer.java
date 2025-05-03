@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.TaskDTO;
+import org.pingu.domain.DTO.VolunteerDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.frontend.services.backend.BackendObject;
 import org.pinguweb.frontend.services.backend.BackendService;
@@ -25,17 +26,17 @@ import java.util.List;
 @Getter
 public class Volunteer{
 
-    public static List<TaskDTO> getAllFromServer() {
-        BackendObject<List<TaskDTO>> tasks = BackendService.getListFromBackend(BackendService.BACKEND + "/api/tasks",
+    public static List<VolunteerDTO> getAllFromServer() {
+        BackendObject<List<VolunteerDTO>> volunteer = BackendService.getListFromBackend(BackendService.BACKEND + "/api/volunteers",
                 new ParameterizedTypeReference<>() {
                 });
 
-        if (tasks.getStatusCode() == HttpStatus.OK) {
-            return tasks.getData();
-        } else if (tasks.getStatusCode() == HttpStatus.NO_CONTENT) {
-            log.error("FALLO: No se ha encontrado contenido en la petición: /api/tasks");
+        if (volunteer.getStatusCode() == HttpStatus.OK) {
+            return volunteer.getData();
+        } else if (volunteer.getStatusCode() == HttpStatus.NO_CONTENT) {
+            log.error("FALLO: No se ha encontrado contenido en la petición: /api/volunteers");
             return new ArrayList<>();
-        } else if (tasks.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE) {
+        } else if (volunteer.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE) {
             log.error("FALLO: Petición /api/zones devolvió servicio no disponible. ¿El backend funciona?");
             return new ArrayList<>();
         } else {

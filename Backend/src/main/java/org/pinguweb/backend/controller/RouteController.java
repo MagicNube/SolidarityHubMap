@@ -62,7 +62,7 @@ public class RouteController {
         try {
             Optional<Route> res = service.findByID(ID);
             if (res.isPresent()) {
-                List<RoutePoint> points = res.get().getPoints().stream().filter(x -> x.getRoute().getID() == ID).toList();
+                List<RoutePoint> points = res.get().getPoints().stream().toList();
                 return CompletableFuture.completedFuture(ResponseEntity.ok(points.stream().map(factory::createDTO).toList()));
             }
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
