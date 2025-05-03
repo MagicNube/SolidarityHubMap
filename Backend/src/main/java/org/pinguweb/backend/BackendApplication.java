@@ -9,7 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @SpringBootApplication(scanBasePackages = {
-        "org.pingu.persistence"
+        "org.pingu",
+        "org.pinguweb"
 })
 public class BackendApplication implements CommandLineRunner {
 
