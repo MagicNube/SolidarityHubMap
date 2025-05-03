@@ -40,117 +40,39 @@ public class DashboardBuilderDirector {
         TestString tr = new TestString("NeedsCr", LocalDate.now().minusDays(2), LocalDateTime.now().minusDays(2), 3, true);
         TestString fr = new TestString("NeedsCo", LocalDate.now().minusDays(3), LocalDateTime.now().minusDays(3), 4, true);
         Filters firstFilter = Filters.builder().build();
-        Filters secondFilter = Filters.builder().build();
 
-        Dashboard first = Dashboard.builder()
-                .name("test 1")
-                .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(
-                        new ChartData<>(
-                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1, 2, 3, 4},
-                                new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1, 2, 3, 4}
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("700px")
-                .build();
+        Dashboard first = Dashboard.createSimpleDashboard("Test 1", ChartType.BAR, new RectangularCoordinate(
+                new XAxis(DataType.CATEGORY),
+                new YAxis(DataType.NUMBER))
+        );
 
-        Dashboard second = Dashboard.builder()
-                .name("test 2")
-                .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(
-                        new ChartData<>(
-                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1, 2, 3, 4},
-                                new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1, 2, 3, 4}
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("500px")
-                .build();
+        first.addData(
+                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                new TestString[]{fs, sn, tr, fr},
+                new Object[]{1, 2, 3, 4},
+                new Integer[]{1, 2, 3, 4},
+                "Mis datos",
+                new Color(0, 0, 255)
+        );
 
-        Dashboard third = Dashboard.builder()
-                .name("test 3")
-                .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(
-                        new ChartData<>(
-                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1, 2, 3, 4},
-                                new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1, 2, 3, 4}
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("500px")
-                .build();
-
-        Dashboard forth = Dashboard.builder()
-                .name("test 4")
-                .colors(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)))
-                .data(
-                        new ChartData<>(
-                                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                                new Object[]{1, 2, 3, 4},
-                                new TestString[]{fs, sn, tr, fr},
-                                new Integer[]{1, 2, 3, 4}
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("500px")
-                .build();
+        first.addData(
+                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                new TestString[]{fs, sn, tr, fr},
+                new Object[]{1, 2, 3, 4},
+                new Integer[]{1, 2, 3, 4},
+                "Mis datos 2",
+                new Color(0, 255, 0)
+        );
 
         firstFilter.addDashboard(first);
 
-        secondFilter.addDashboard(second);
-        secondFilter.addDashboard(third);
-        secondFilter.addDashboard(forth);
-
         builder.reset();
-
-        third.addBelowComponent(forth);
-
-        List<InterfaceComponent> sides = new ArrayList<>();
-        sides.add(second);
-        sides.add(third);
 
         return builder
                 .setTile("Test")
                 .setSubtitle("Doble test")
                 .addBelow(firstFilter)
                 .addBelow(first)
-                .addBelow(secondFilter)
-                .addSide(sides)
                 .build();
     }
 
@@ -162,30 +84,30 @@ public class DashboardBuilderDirector {
 
         Color dayColors = new Color(0, 0, 0);
         // Configurar el Dashboard
-        Dashboard completedTasksChart = Dashboard.builder()
-                .name("Tareas Completadas por Día")
-                .colors(dayColors)
-                .data(
-                        new ChartData<>(
-                                daysOfWeek, // Etiquetas del eje X
-                                completedTasksPerDay, // Valores del eje Y
-                                daysOfWeek, // Objetos de etiquetas
-                                completedTasksPerDay // Objetos de valores
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY), // Eje X categórico
-                                new YAxis(DataType.NUMBER) // Eje Y numérico
-                        )
-                )
-                .type(ChartType.BAR) // Tipo de gráfica: Barras
-                .width("100%")
-                .height("500px")
-                .build();
+//        Dashboard completedTasksChart = Dashboard.builder()
+//                .name("Tareas Completadas por Día")
+//                .colors(dayColors)
+//                .data(
+//                        new ChartData<>(
+//                                daysOfWeek, // Etiquetas del eje X
+//                                completedTasksPerDay, // Valores del eje Y
+//                                daysOfWeek, // Objetos de etiquetas
+//                                completedTasksPerDay // Objetos de valores
+//                        )
+//                )
+//                .coordinateConfiguration(
+//                        new RectangularCoordinate(
+//                                new XAxis(DataType.CATEGORY), // Eje X categórico
+//                                new YAxis(DataType.NUMBER) // Eje Y numérico
+//                        )
+//                )
+//                .type(ChartType.BAR) // Tipo de gráfica: Barras
+//                .width("100%")
+//                .height("500px")
+//                .build();
 
         builder.reset();
-        builder.addBelow(completedTasksChart);
+//        builder.addBelow(completedTasksChart);
 
         return builder.build();
     }
@@ -201,31 +123,31 @@ public class DashboardBuilderDirector {
         Color typeColors = new Color(0, 0, 1); // Color por defectoº
 
         // Configurar el Dashboard
-        Dashboard uncoveredNeedsChart = Dashboard.builder()
-                .name("Necesidades No Cubiertas por Tipo de Tarea")
-                .colors(typeColors)
-                .data(
-                        new ChartData<>(
-                                taskTypeLabels, // Etiquetas del eje X
-                                needsByTaskType, // Valores del eje Y
-                                taskTypeLabels, // Objetos de etiquetas
-                                needsByTaskType // Objetos de valores
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("500px")
-                .build();
+//        Dashboard uncoveredNeedsChart = Dashboard.builder()
+//                .name("Necesidades No Cubiertas por Tipo de Tarea")
+//                .colors(typeColors)
+//                .data(
+//                        new ChartData<>(
+//                                taskTypeLabels, // Etiquetas del eje X
+//                                needsByTaskType, // Valores del eje Y
+//                                taskTypeLabels, // Objetos de etiquetas
+//                                needsByTaskType // Objetos de valores
+//                        )
+//                )
+//                .coordinateConfiguration(
+//                        new RectangularCoordinate(
+//                                new XAxis(DataType.CATEGORY),
+//                                new YAxis(DataType.NUMBER)
+//                        )
+//                )
+//                .type(ChartType.BAR)
+//                .width("100%")
+//                .height("500px")
+//                .build();
 
         // Builder para construir el componente final
         builder.reset();
-        builder.addBelow(uncoveredNeedsChart);
+//        builder.addBelow(uncoveredNeedsChart);
 
         return builder.build();
     }
@@ -241,31 +163,31 @@ public class DashboardBuilderDirector {
         Color typeColors = new Color(0, 0, 1); // Color por defectoº
 
         // Configurar el Dashboard
-        Dashboard uncoveredNeedsChart = Dashboard.builder()
-                .name("Tareas no cubiertas por tipo de tarea")
-                .colors(typeColors)
-                .data(
-                        new ChartData<>(
-                                taskTypeLabels, // Etiquetas del eje X
-                                completedTasks, // Valores del eje Y
-                                taskTypeLabels, // Objetos de etiquetas
-                                completedTasks // Objetos de valores
-                        )
-                )
-                .coordinateConfiguration(
-                        new RectangularCoordinate(
-                                new XAxis(DataType.CATEGORY),
-                                new YAxis(DataType.NUMBER)
-                        )
-                )
-                .type(ChartType.BAR)
-                .width("100%")
-                .height("500px")
-                .build();
+//        Dashboard uncoveredNeedsChart = Dashboard.builder()
+//                .name("Tareas no cubiertas por tipo de tarea")
+//                .colors(typeColors)
+//                .data(
+//                        new ChartData<>(
+//                                taskTypeLabels, // Etiquetas del eje X
+//                                completedTasks, // Valores del eje Y
+//                                taskTypeLabels, // Objetos de etiquetas
+//                                completedTasks // Objetos de valores
+//                        )
+//                )
+//                .coordinateConfiguration(
+//                        new RectangularCoordinate(
+//                                new XAxis(DataType.CATEGORY),
+//                                new YAxis(DataType.NUMBER)
+//                        )
+//                )
+//                .type(ChartType.BAR)
+//                .width("100%")
+//                .height("500px")
+//                .build();
 
         // Builder para construir el componente final
         builder.reset();
-        builder.addBelow(uncoveredNeedsChart);
+//        builder.addBelow(uncoveredNeedsChart);
 
         return builder.build();
     }
