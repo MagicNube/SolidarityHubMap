@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 
 @Setter
+@Getter
 @Service
 public class MapService {
     @Setter
@@ -87,6 +88,24 @@ public class MapService {
     private HashMap<Integer,List<RoutePoint>> routePoints = new HashMap<>();
 
 
+
+
+
+
+
+
+    private ZoneDTO tempZoneDTO;
+    private RouteDTO tempRouteDTO;
+
+    private HashMap<Tuple<Double, Double>, ZoneMarker> zoneMarkers = new HashMap<>();
+    private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
+    private Tuple<Double, Double> zoneMarkerStartingPoint;
+
+
+    private Tuple<Double, Double> routePointStartingPoint;
+    private List<RoutePoint> routePoint = new ArrayList<>();
+
+
     private NeedFactory needFactory;
     private ZoneFactory zoneFactory;
     private ZoneMarkerFactory zoneMarkerFactory;
@@ -146,8 +165,8 @@ public class MapService {
         need.getMarkerObj().on("click", "e => document.getElementById('" + ID + "').$server.clickOnNeed(e.latlng, " + need.getID() + ")");
 
         needs.add(need);
-        MapView.getLLayerGroupNeeds().addLayer(need.getMarkerObj());
-        this.map.addLayer(MapView.getLLayerGroupNeeds());
+        //MapView.getLLayerGroupNeeds().addLayer(need.getMarkerObj());
+        //this.map.addLayer(MapView.getLLayerGroupNeeds());
 
         for (Need m : needs) {
             System.out.println("ID: " + m.getID() + m );
@@ -166,8 +185,8 @@ public class MapService {
             need.removeFromMap(this.map);
             need.deleteFromServer();
             needs.remove(need);
-            MapView.getLLayerGroupNeeds().removeLayer(need.getMarkerObj());
-            this.map.addLayer(MapView.getLLayerGroupNeeds());
+            //MapView.getLLayerGroupNeeds().removeLayer(need.getMarkerObj());
+            //this.map.addLayer(MapView.getLLayerGroupNeeds());
         }
     }
 
@@ -219,8 +238,8 @@ public class MapService {
         zone.getPolygon().on("click", "e => document.getElementById('" + ID + "').$server.clickOnZone(e.latlng, " + zone.getID() + ")");
 
         zones.add(zone);
-        MapView.getLLayerGroupZones().addLayer(zone.getPolygon());
-        this.map.addLayer(MapView.getLLayerGroupZones());
+        //MapView.getLLayerGroupZones().addLayer(zone.getPolygon());
+        //this.map.addLayer(MapView.getLLayerGroupZones());
 
         return zone;
     }
@@ -234,8 +253,8 @@ public class MapService {
             zone.removeFromMap(this.map);
             zone.deleteFromServer();
             zones.remove(zone);
-            MapView.getLLayerGroupZones().removeLayer(zone.getPolygon());
-            this.map.addLayer(MapView.getLLayerGroupZones());
+            //MapView.getLLayerGroupZones().removeLayer(zone.getPolygon());
+            //this.map.addLayer(MapView.getLLayerGroupZones());
         }
     }
 
@@ -249,7 +268,7 @@ public class MapService {
         route.setID(routeDTO.getID());
         route.addToMap(this.map);
 
-        //route.getPolygon().on("click", "e => document.getElementById('" + ID + "').$server.clickOnRoute(e.latlng, " + route.getID() + ")");
+        route.getPolygon().on("click", "e => document.getElementById('" + ID + "').$server.clickOnRoute(e.latlng, " + route.getID() + ")");
         routes.add(route);
 
 
@@ -302,7 +321,6 @@ public class MapService {
             return new ArrayList<>();
         }
     }
-
 
 
 }

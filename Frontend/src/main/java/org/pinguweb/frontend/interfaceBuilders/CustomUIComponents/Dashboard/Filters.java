@@ -1,4 +1,4 @@
-package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.DashboardData;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
 
 import com.storedobject.chart.AbstractDataProvider;
 import com.storedobject.chart.AbstractDataStream;
@@ -18,7 +18,10 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.SerializablePredicate;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard;
+import lombok.experimental.SuperBuilder;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartData;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartPoint;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -30,12 +33,17 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Filters {
+@SuperBuilder
+public class Filters extends InterfaceComponent {
 
-    private Dashboard dashboard;
+    private final List<Dashboard> dashboards = new ArrayList<>();
 
-    public Filters(Dashboard dashboard) {
-        this.dashboard = dashboard;
+    protected Filters(InterfaceComponentBuilder<?, ?> b) {
+        super(b);
+    }
+
+    public void addDashboard(Dashboard dashboard){
+        this.dashboards.add(dashboard);
     }
 
     public Component generateFilter(ChartData<?, ?> firstData) {
@@ -77,34 +85,38 @@ public class Filters {
                     getValue(valueField).toString()
             );
 
-            List<Object> filteredX = this.dashboard.getData().flatten().stream()
-                    .filter(filtro::test)
-                    .map(ChartPoint::getXValue)
-                    .toList();
-            AbstractDataProvider<?> xFiltrado = new AbstractDataStream<>(
-                    this.dashboard.getXAxis().getDataType(),
-                    filteredX.stream()
-            );
+            for (Dashboard dashboard : dashboards) {
+                List<Object> filteredX = dashboard.getData().flatten().stream()
+                        .filter(filtro::test)
+                        .map(ChartPoint::getXValue)
+                        .toList();
+                AbstractDataProvider<?> xFiltrado = new AbstractDataStream<>(
+                        dashboard.getXAxis().getDataType(),
+                        filteredX.stream()
+                );
 
-            List<Object> filteredY = this.dashboard.getData().flatten().stream()
-                    .filter(filtro::test)
-                    .map(ChartPoint::getYValue)
-                    .toList();
-            AbstractDataProvider<?> yFiltrado = new AbstractDataStream<>(
-                    this.dashboard.getYAxis().getDataType(),
-                    filteredY.stream()
-            );
+                List<Object> filteredY = dashboard.getData().flatten().stream()
+                        .filter(filtro::test)
+                        .map(ChartPoint::getYValue)
+                        .toList();
+                AbstractDataProvider<?> yFiltrado = new AbstractDataStream<>(
+                        dashboard.getYAxis().getDataType(),
+                        filteredY.stream()
+                );
 
-            this.dashboard.update(xFiltrado, yFiltrado);
+                dashboard.update(xFiltrado, yFiltrado);
+            }
         });
 
         // 6. Botón de reiniciar
         Button reset = new Button(VaadinIcon.CLOSE.create());
         reset.addThemeVariants(ButtonVariant.LUMO_ERROR);
         reset.getElement().setAttribute("aria-label", "Reiniciar gráfica");
-        reset.addClickListener(evt ->
-                this.dashboard.update(this.dashboard.getXAxis(), this.dashboard.getYAxis())
-        );
+        reset.addClickListener(evt -> {
+            for(Dashboard dashboard : dashboards){
+                dashboard.update(dashboard.getXAxis(), dashboard.getYAxis());
+            }
+        });
 
         // Listener: al cambiar de clase, relleno propiedades
         classname.addValueChangeListener(evt -> {
@@ -250,6 +262,15 @@ public class Filters {
             return LocalDateTime.parse(rawValue);
         }
         return rawValue;
+    }
+
+    @Override
+    public Component getComponent() {
+        HorizontalLayout hlayout = new HorizontalLayout();
+        hlayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        hlayout.setWidthFull();
+        hlayout.add(this.generateFilter(dashboards.get(0).getData()));
+        return hlayout;
     }
 }
 
