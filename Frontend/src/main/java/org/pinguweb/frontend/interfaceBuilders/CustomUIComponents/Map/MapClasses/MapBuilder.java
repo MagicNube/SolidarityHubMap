@@ -1,7 +1,8 @@
-package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapData;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
@@ -10,6 +11,7 @@ import org.pinguweb.frontend.mapObjects.ZoneMarker;
 
 import java.util.ArrayList;
 
+@Slf4j
 @Setter
 @Getter
 public class MapBuilder {
@@ -27,7 +29,7 @@ public class MapBuilder {
 
     public void startZoneConstruction(ZoneDTO zoneDTO) {
         controller.setTempZoneDTO(zoneDTO);
-        System.out.println("Registrando puntos para la zona");
+        log.debug("Registrando puntos para la zona");
         controller.getReg().execJs(clickFuncReferenceCreateZone + "=e => document.getElementById('" + controller.getID() + "').$server.mapZona(e.latlng)");
         controller.getMap().on("click", clickFuncReferenceCreateZone);
         this.controller.setZoneBool(true);
@@ -35,7 +37,7 @@ public class MapBuilder {
 
     public void endZoneConstruction() {
         controller.getMap().off("click", clickFuncReferenceCreateZone);
-        System.out.println("Zona terminada");
+        log.debug("Zona terminada");
         Zone zona = this.controller.createZone(controller.getTempZoneDTO());
         zona.pushToServer();
 
@@ -51,7 +53,7 @@ public class MapBuilder {
 
     public void startRouteConstruction(RouteDTO routeDTO) {
         controller.setTempRouteDTO(routeDTO);
-        System.out.println("Registrando puntos para la ruta");
+        log.debug("Registrando puntos para la ruta");
         controller.getReg().execJs(clickFuncReferenceCreateRoute + "=e => document.getElementById('" + controller.getID() + "').$server.mapRoute(e.latlng)");
         controller.getMap().on("click", clickFuncReferenceCreateRoute);
         this.controller.setCreatingRoute(true);
@@ -59,7 +61,7 @@ public class MapBuilder {
 
     public void endRouteConstruction() {
         controller.getMap().off("click", clickFuncReferenceCreateRoute);
-        System.out.println("Ruta terminada");
+        log.debug("Ruta terminada");
         this.controller.createRoute(controller.getTempRouteDTO(), controller.getRoutePoint());
         this.controller.setCreatingRoute(false);
 

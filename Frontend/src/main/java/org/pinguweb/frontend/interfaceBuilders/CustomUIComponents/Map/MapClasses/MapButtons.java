@@ -1,4 +1,4 @@
-package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapData;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;

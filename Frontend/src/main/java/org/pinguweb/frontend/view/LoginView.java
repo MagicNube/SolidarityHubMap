@@ -12,12 +12,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.objects.LoginRequest;
 import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Route("login")
 @PageTitle("Admin - Solidarity Hub")
 public class LoginView extends VerticalLayout {
@@ -63,7 +65,7 @@ public class LoginView extends VerticalLayout {
             String password = event.getPassword();
             LoginRequest loginRequest = new LoginRequest(dni, password);
 
-            System.out.println("Por enviar: " + dni + password);
+            log.debug("Por enviar: " + dni + password);
             try {
                 if (authenticate(loginRequest)) {
                     UsernamePasswordAuthenticationToken authentication =
@@ -112,18 +114,18 @@ public class LoginView extends VerticalLayout {
     private boolean authenticate(LoginRequest loginRequest) {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:8081/api/auth/login";
-        System.out.println("Request con URL " + url);
+        log.debug("Request con URL " + url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<LoginRequest> request = new HttpEntity<>(loginRequest, headers);
-        System.out.println("Request: " + request);
+        log.debug("Request: " + request);
         ResponseEntity<Void> response = restTemplate.postForEntity(
                 url,
                 request,
                 Void.class
         );
-        System.out.println("MENSAJE ENVIADO");
+        log.debug("MENSAJE ENVIADO");
         return response.getStatusCode() == HttpStatus.OK;
     }
 }

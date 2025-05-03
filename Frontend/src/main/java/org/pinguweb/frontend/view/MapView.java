@@ -9,8 +9,8 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
 import lombok.Setter;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapData.MapButtons;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapData.MapService;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapButtons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.yaml.snakeyaml.util.Tuple;
@@ -137,7 +137,6 @@ public class MapView extends HorizontalLayout {
             }
         }
 
-        System.out.println(controller.getZoneMarkerStartingPoint());
         controller.getZoneMarkerPoints().set(index, point);
     }
 
@@ -168,7 +167,6 @@ public class MapView extends HorizontalLayout {
             }
         }
 
-        System.out.println(this.routePointStartingPoint);
         RoutePoint t = routePoints.get(index);
         t.setLatitude(point._1());
         t.setLongitude(point._2());

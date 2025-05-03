@@ -4,6 +4,7 @@ import com.storedobject.chart.*;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.VolunteerDTO;
 import org.pingu.domain.enums.TaskType;
 import org.pinguweb.frontend.services.backend.BackendObject;
@@ -14,6 +15,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Route("dashboard/volunteers-skills")
 public class VolunteerSkills extends VerticalLayout {
 
@@ -61,7 +63,7 @@ public class VolunteerSkills extends VerticalLayout {
                     }
                 }
             }
-        } else {labels = new String[0];System.out.println("no hay datos");}
+        } else {labels = new String[0];log.debug("no hay datos");}
         for (int i = 0; i < labels.length; i++) {
             BarChart bar = new BarChart(new CategoryData(labels[i]), new Data(data[i]));
             bar.setName(labels[i]);

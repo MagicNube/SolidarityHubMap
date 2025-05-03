@@ -1,6 +1,7 @@
 package org.pinguweb.backend.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.backend.AuthenticationService;
 import org.pinguweb.backend.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -24,7 +26,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Void> login(@Valid @RequestBody LoginRequest request) {
-        System.out.println("Login request recibida en AuthController: " + request);
+        log.debug("Login request recibida en AuthController: " + request);
         boolean isAuthenticated = authService.authenticate(
                 request.getDni(),
                 request.getPassword()

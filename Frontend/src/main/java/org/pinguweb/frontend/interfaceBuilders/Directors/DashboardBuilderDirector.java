@@ -2,6 +2,7 @@ package org.pinguweb.frontend.interfaceBuilders.Directors;
 
 import com.storedobject.chart.*;
 import com.vaadin.flow.component.Component;
+import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.NeedDTO;
 import org.pingu.domain.DTO.TaskDTO;
 import org.pingu.domain.enums.TaskType;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class DashboardBuilderDirector {
     DashboardBuilder builder = new DashboardBuilder();
     int[] completedTasksPerDay = new int[7];
@@ -281,7 +283,7 @@ public class DashboardBuilderDirector {
         // Builder para construir el componente final
         builder.reset();
         builder.addBelow(uncoveredNeedsChart);
-        System.out.println(completedTasks[0]);
+        log.debug(String.valueOf(completedTasks[0]));
 
         return null;
     }

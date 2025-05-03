@@ -1,5 +1,6 @@
 package org.pinguweb.backend.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.RoutePointDTO;
 import org.pingu.domain.DTO.factories.BackendDTOFactory;
@@ -19,6 +20,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class RouteController {
@@ -62,7 +64,7 @@ public class RouteController {
         try {
             Optional<Route> res = service.findByID(ID);
             if (res.isPresent()) {
-                List<RoutePoint> points = res.get().getPoints().stream().filter(x -> x.getRoute().getID() == ID).toList();
+                List<RoutePoint> points = res.get().getPoints().stream().toList();
                 return CompletableFuture.completedFuture(ResponseEntity.ok(points.stream().map(factory::createDTO).toList()));
             }
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
