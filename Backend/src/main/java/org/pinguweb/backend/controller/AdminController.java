@@ -2,6 +2,7 @@ package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.AdminDTO;
 import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.ModelDTOFactory;
 import org.pingu.persistence.model.Admin;
 import org.pingu.persistence.service.AdminService;
 import org.pinguweb.backend.controller.common.ServerException;
@@ -21,12 +22,15 @@ import java.util.concurrent.CompletableFuture;
 public class AdminController {
     @Autowired
     AdminService service;
+    @Autowired
+    BackendDTOFactory factory;
+    @Autowired
+    ModelDTOFactory dtoFactory;
 
     @Async
     @GetMapping("/admins/{ID}")
     public CompletableFuture<ResponseEntity<AdminDTO>> getAdmin(@PathVariable String ID) {
         if (ServerException.isServerClosed(service.getAdminRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         try {
             Optional<Admin> res = service.findByDni(ID);

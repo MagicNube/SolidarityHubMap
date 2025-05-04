@@ -63,7 +63,7 @@ public class MapDialogs {
 
             ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
             String[] severityOptions = Arrays.stream(EmergencyLevel.values())
-                    .map(EmergencyLevel::getName)
+                    .map(EmergencyLevel::name)
                     .toArray(String[]::new);
             severityComboBox.setItems(severityOptions);
 
@@ -173,7 +173,7 @@ public class MapDialogs {
 
             ComboBox<String> routeTypeComboBox = new ComboBox<>("Tipo de ruta");
             String[] routeTypeOptions = Arrays.stream(RouteType.values())
-                    .map(RouteType::getName)
+                    .map(RouteType::name)
                     .toArray(String[]::new);
             routeTypeComboBox.setItems(routeTypeOptions);
 
@@ -250,7 +250,7 @@ public class MapDialogs {
 
         ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
         String[] severityOptions = Arrays.stream(EmergencyLevel.values())
-                .map(EmergencyLevel::getName)
+                .map(EmergencyLevel::name)
                 .toArray(String[]::new);
         severityComboBox.setItems(severityOptions);
         severityComboBox.setValue(zone.getEmergencyLevel());
@@ -354,7 +354,7 @@ public class MapDialogs {
 
         ComboBox<String> routeTypeComboBox = new ComboBox<>("Tipo de ruta");
         String[] routeTypeOptions = Arrays.stream(RouteType.values())
-                .map(RouteType::getName)
+                .map(RouteType::name)
                 .toArray(String[]::new);
         routeTypeComboBox.setItems(routeTypeOptions);
         routeTypeComboBox.setValue(route.getRouteType());

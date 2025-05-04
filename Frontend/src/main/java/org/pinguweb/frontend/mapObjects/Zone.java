@@ -68,18 +68,16 @@ public class Zone extends MapObject{
         zoneDTO.setStorages(this.storages);
         zoneDTO.setLatitudes(this.latitudes);
         zoneDTO.setLongitudes(this.longitudes);
-        System.out.println("ZoneDTO: " + zoneDTO);
         String finurl = "/api/zones";
         try{
-            BackendObject<ZoneDTO> status = BackendService.postToBackend(finurl, zoneDTO, ZoneDTO.class);
+            BackendObject<ZoneDTO> status = BackendService.postToBackend(BackendService.BACKEND + finurl, zoneDTO, ZoneDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
-                log.debug("Zone added successfully");
-                System.out.println("Zone added successfully");
+                log.debug("Zona creada satisfactoriamente");
             }
         }
-        catch (Exception e){
+        catch (Exception e) {
+            log.error("Error creando zona");
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
-            System.out.println("Error adding zone: " + e.getMessage());
         }
     }
 
@@ -87,7 +85,7 @@ public class Zone extends MapObject{
     public void deleteFromServer() {
         String finurl = "/api/zones/" + this.getID();
         try{
-            HttpStatusCode status = BackendService.deleteFromBackend(finurl);
+            HttpStatusCode status = BackendService.deleteFromBackend(BackendService.BACKEND + finurl);
             if (status == HttpStatus.OK){
                 //TODO: Eliminar del mapa
             }

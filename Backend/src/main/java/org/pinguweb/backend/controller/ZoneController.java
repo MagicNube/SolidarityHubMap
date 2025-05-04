@@ -29,13 +29,16 @@ public class ZoneController {
     ZoneService service;
     @Autowired
     TaskService taskService;
+    @Autowired
+    ModelDTOFactory dtoFactory;
+    @Autowired
+    BackendDTOFactory factory;
 
     @Async
     @GetMapping("/zones")
     public CompletableFuture<ResponseEntity<List<ZoneDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         List<ZoneDTO> zones = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(zones));
@@ -46,7 +49,6 @@ public class ZoneController {
     public CompletableFuture<ResponseEntity<ZoneDTO>> getZone(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Zone> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
@@ -61,7 +63,6 @@ public class ZoneController {
     public CompletableFuture<ResponseEntity<List<TaskDTO>>> getZoneTasks(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         try {
             Optional<Zone> res = service.findByID(ID);
             if (res.isPresent()) {
@@ -88,10 +89,7 @@ public class ZoneController {
     public CompletableFuture<ResponseEntity<ZoneDTO>> addZone(@RequestBody ZoneDTO zone) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        ModelDTOFactory factory = new ModelDTOFactory();
-        BackendDTOFactory dtoFactory = new BackendDTOFactory();
-
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveZone(factory.createFromDTO(zone)))));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveZone(dtoFactory.createFromDTO(zone)))));
     }
 
     @Async
@@ -116,10 +114,8 @@ public class ZoneController {
 
         Optional<Zone> res = service.findByID(zone.getID());
         if (res.isPresent()) {
-            ModelDTOFactory factory = new ModelDTOFactory();
-            BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveZone(factory.createFromDTO(zone)))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveZone(dtoFactory.createFromDTO(zone)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

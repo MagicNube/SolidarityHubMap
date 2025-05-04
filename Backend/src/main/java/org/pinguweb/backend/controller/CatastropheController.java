@@ -3,6 +3,7 @@ package org.pinguweb.backend.controller;
 import org.pingu.domain.DTO.CatastropheDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.ModelDTOFactory;
 import org.pingu.persistence.model.Catastrophe;
 import org.pingu.persistence.service.CatastropheService;
 import org.pinguweb.backend.controller.common.ServerException;
@@ -24,13 +25,16 @@ import java.util.stream.Collectors;
 public class CatastropheController {
     @Autowired
     CatastropheService service;
+    @Autowired
+    BackendDTOFactory factory;
+    @Autowired
+    ModelDTOFactory dtoFactory;
+
 
     @Async
     @GetMapping("/catastrophes")
     public CompletableFuture<ResponseEntity<List<CatastropheDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getCatastropheRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         List<CatastropheDTO> catastrophes = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(catastrophes));
@@ -41,7 +45,6 @@ public class CatastropheController {
     public CompletableFuture<ResponseEntity<CatastropheDTO>> getCatastrophe(@PathVariable Integer ID) {
         if (ServerException.isServerClosed(service.getCatastropheRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Catastrophe> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
@@ -55,8 +58,6 @@ public class CatastropheController {
     @GetMapping("/catastrophes/{ID}/zones")
     public CompletableFuture<ResponseEntity<List<ZoneDTO>>> getCatastropheZones(@PathVariable Integer ID) {
         if (ServerException.isServerClosed(service.getCatastropheRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         Optional<Catastrophe> res = service.findByID(ID);
         if (res.isPresent()) {
