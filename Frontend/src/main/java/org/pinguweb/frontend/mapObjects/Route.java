@@ -28,6 +28,10 @@ public class Route extends MapObject{
     List<LLatLng> points;
     LPolyline polygon;
 
+    private String name;
+    private String routeType;
+    private int catastrophe;
+
     public Route(){
         this.points = new ArrayList<>();
     }

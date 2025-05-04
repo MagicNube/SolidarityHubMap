@@ -22,12 +22,15 @@ public class NeedController {
 
     @Autowired
     NeedService service;
+    @Autowired
+    BackendDTOFactory factory;
+    @Autowired
+    ModelDTOFactory dtoFactory;
 
     @Async
     @GetMapping("/needs")
     public CompletableFuture<ResponseEntity<List<NeedDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getNeedRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         List<NeedDTO> needs = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
 
@@ -39,7 +42,6 @@ public class NeedController {
     public CompletableFuture<ResponseEntity<NeedDTO>> getNeed(@PathVariable Integer ID) {
         if (ServerException.isServerClosed(service.getNeedRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Need> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
@@ -54,10 +56,7 @@ public class NeedController {
     public CompletableFuture<ResponseEntity<NeedDTO>> addNeed(@RequestBody NeedDTO need) {
         if (ServerException.isServerClosed(service.getNeedRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        ModelDTOFactory factory = new ModelDTOFactory();
-        BackendDTOFactory dtoFactory = new BackendDTOFactory();
-
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveNeed(factory.createFromDTO(need)))));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveNeed(dtoFactory.createFromDTO(need)))));
     }
 
     @Async
@@ -82,10 +81,8 @@ public class NeedController {
 
         Optional<Need> res = service.findByID(need.getID());
         if (res.isPresent()) {
-            ModelDTOFactory factory = new ModelDTOFactory();
-            BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveNeed(factory.createFromDTO(need)))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveNeed(dtoFactory.createFromDTO(need)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

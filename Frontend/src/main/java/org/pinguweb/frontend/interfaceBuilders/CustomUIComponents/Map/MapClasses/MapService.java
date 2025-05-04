@@ -43,34 +43,10 @@ public class MapService {
     int tempIdRoutePoint = 0;
 
     @Setter
-    @Getter
-    private Boolean pointInZone = false;
-
-    @Setter
-    @Getter
-    private boolean creatingNeed = false;
-
-    @Setter
-    @Getter
-    private boolean creatingRoute = false;
-
-    @Setter
-    @Getter
-    private boolean editing = false;
-
-    @Setter
     private LComponentManagementRegistry reg;
 
     @Setter
     private LMap map;
-
-    @Setter
-    @Getter
-    private boolean zoneBool = false;
-
-    @Setter
-    @Getter
-    private boolean deleteBool = false;
 
     @Setter
     private String ID;
@@ -109,7 +85,6 @@ public class MapService {
         this.zoneMarkerFactory = new ZoneMarkerFactory();
         this.routeFactory = new RouteFactory();
         this.routePointFactory = new RoutePointFactory();
-        load();
     }
 
     @Async
@@ -135,7 +110,6 @@ public class MapService {
         Need need = (Need) needFactory.createMapObject(reg, lat, lng);
         need.setID(needDTO.getID());
         need.addToMap(this.map);
-        need.getMarkerObj().on("click", "e => document.getElementById('" + ID + "').$server.clickOnNeed(e.latlng, " + need.getID() + ")");
 
         needs.add(need);
         //MapView.getLLayerGroupNeeds().addLayer(need.getMarkerObj());
@@ -190,25 +164,22 @@ public class MapService {
             points.add(new Tuple<>(zoneDTO.getLatitudes().get(i), zoneDTO.getLongitudes().get(i)));
         }
 
-        Zone zone = (Zone) zoneFactory.createMapObject(reg, 0.0, zoneDTO.getID()+0.0);
+        Zone zone = (Zone) zoneFactory.createMapObject(reg, 0.0, zoneDTO.getID()+1.0);
         for (Tuple<Double, Double> marker : points) {
             zone.addPoint(reg, marker);
         }
-        zone.setName(zoneDTO.getName());
-        zone.setDescription(zoneDTO.getDescription());
-        zone.setEmergencyLevel(zoneDTO.getEmergencyLevel());
-        zone.setCatastrophe(zoneDTO.getCatastrophe());
-        zone.setStorages(zoneDTO.getStorages());
-        zone.setLatitudes(zoneDTO.getLatitudes());
-        zone.setLongitudes(zoneDTO.getLongitudes());
-        zone.setEmergencyLevel(zoneDTO.getEmergencyLevel());
-        zone.setCatastrophe(zoneDTO.getCatastrophe());
-        zone.setStorages(zoneDTO.getStorages());
+
+        zone.setName(zoneDTO.getName() != null ? zoneDTO.getName() : "Sin nombre");
+        zone.setDescription(zoneDTO.getDescription() != null ? zoneDTO.getDescription() : "Sin descripción");
+        zone.setEmergencyLevel(zoneDTO.getEmergencyLevel() != null ? zoneDTO.getEmergencyLevel() : "Bajo"); // Nivel por defecto: "Bajo"
+        zone.setCatastrophe(zoneDTO.getCatastrophe() != null ? zoneDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
+        zone.setStorages(zoneDTO.getStorages() != null ? zoneDTO.getStorages() : new ArrayList<>());
+        zone.setLatitudes(zoneDTO.getLatitudes() != null ? zoneDTO.getLatitudes() : List.of(0.0));
+        zone.setLongitudes(zoneDTO.getLongitudes() != null ? zoneDTO.getLongitudes() : List.of(0.0));
 
         zone.generatePolygon(reg, "red", "blue");
         zone.setID(zoneDTO.getID());
         zone.addToMap(this.map);
-        zone.getPolygon().on("click", "e => document.getElementById('" + ID + "').$server.clickOnZone(e.latlng, " + zone.getID() + ")");
 
         zones.add(zone);
         //MapView.getLLayerGroupZones().addLayer(zone.getPolygon());
@@ -238,12 +209,15 @@ public class MapService {
             route.addPoint(reg, new Tuple<>(routePoint.getLatitude(), routePoint.getLongitude()));
         }
         route.generatePolygon(reg, "red", "blue");
+
         route.setID(routeDTO.getID());
+        route.setRouteType(routeDTO.getRouteType());
+        route.setName(routeDTO.getName() != null ? routeDTO.getName() : "Sin nombre");
+        route.setCatastrophe(routeDTO.getCatastrophe() != null ? routeDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
+
         route.addToMap(this.map);
 
-        route.getPolygon().on("click", "e => document.getElementById('" + ID + "').$server.clickOnRoute(e.latlng, " + route.getID() + ")");
         routes.add(route);
-
 
         return route;
     }
@@ -268,4 +242,27 @@ public class MapService {
             log.debug("Route deleted: {}", route.getID());
         }
     }
+
+    public Need getNeedByID(String ID) {
+        return needs.stream()
+                .filter(m -> m.getID() == Integer.parseInt(ID))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Zone getZoneByID(String ID) {
+        return zones.stream()
+                .filter(z -> z.getID() == Integer.parseInt(ID))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Route getRouteByID(String ID) {
+        return routes.stream()
+                .filter(r -> r.getID() == Integer.parseInt(ID))
+                .findFirst()
+                .orElse(null);
+    }
+
+
 }

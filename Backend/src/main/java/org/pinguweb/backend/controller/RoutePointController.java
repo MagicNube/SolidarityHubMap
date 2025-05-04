@@ -22,12 +22,15 @@ public class RoutePointController {
 
     @Autowired
     RoutePointService service;
+    @Autowired
+    BackendDTOFactory factory;
+    @Autowired
+    ModelDTOFactory dtoFactory;
 
     @Async
     @GetMapping("/routepoints")
     public CompletableFuture<ResponseEntity<List<RoutePointDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getRoutePointRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         List<RoutePointDTO> routePoints = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
 
@@ -39,7 +42,6 @@ public class RoutePointController {
     public CompletableFuture<ResponseEntity<RoutePointDTO>> getRoutePoints(@PathVariable Integer ID) {
         if (ServerException.isServerClosed(service.getRoutePointRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<RoutePoint> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
@@ -54,10 +56,7 @@ public class RoutePointController {
     public CompletableFuture<ResponseEntity<RoutePointDTO>> addNeed(@RequestBody  RoutePointDTO routePointDTO) {
         if (ServerException.isServerClosed(service.getRoutePointRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        ModelDTOFactory factory = new ModelDTOFactory();
-        BackendDTOFactory dtoFactory = new BackendDTOFactory();
-
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveRoutePoint(factory.createFromDTO(routePointDTO)))));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveRoutePoint(dtoFactory.createFromDTO(routePointDTO)))));
     }
 
     @Async
@@ -82,10 +81,7 @@ public class RoutePointController {
 
         Optional<RoutePoint> res = service.findByID(routePointDTO.getID());
         if (res.isPresent()) {
-            ModelDTOFactory factory = new ModelDTOFactory();
-            BackendDTOFactory dtoFactory = new BackendDTOFactory();
-
-            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveRoutePoint(factory.createFromDTO(routePointDTO)))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveRoutePoint(dtoFactory.createFromDTO(routePointDTO)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

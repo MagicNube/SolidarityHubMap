@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./Backend
+      args:
+        - BACKEND_PORT=${BACKEND_PORT}
+        - DB_PASSWORD=${DB_PASSWORD}
+    environment:
+      - BACKEND_PORT=${BACKEND_PORT}
+      - DB_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    networks:
+      - app-net
+
+  frontend:
+    build:
+      context: ./Frontend
+      args:
+        - FRONTEND_PORT=${FRONTEND_PORT}
+        - BACKEND_URL=http://backend:${BACKEND_PORT}
+    environment:
+      - BACKEND_URL=http://backend:${BACKEND_PORT}
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge

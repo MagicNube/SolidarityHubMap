@@ -28,14 +28,14 @@ public class RouteController {
     @Autowired
     RouteService service;
     @Autowired
-    RoutePointService routePointService;
+    BackendDTOFactory factory;
+    @Autowired
+    ModelDTOFactory dtoFactory;
 
     @Async
     @GetMapping("/routes")
     public CompletableFuture<ResponseEntity<List<RouteDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getRouteRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         List<RouteDTO> routes = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(routes));
@@ -46,7 +46,6 @@ public class RouteController {
     public CompletableFuture<ResponseEntity<RouteDTO>> getRoute(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getRouteRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Route> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
@@ -61,7 +60,6 @@ public class RouteController {
     public CompletableFuture<ResponseEntity<List<RoutePointDTO>>> getRoutePoints(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getRouteRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         try {
             Optional<Route> res = service.findByID(ID);
             if (res.isPresent()) {
@@ -81,10 +79,7 @@ public class RouteController {
     public CompletableFuture<ResponseEntity<RouteDTO>> addRoute(@RequestBody RouteDTO route) {
         if (ServerException.isServerClosed(service.getRouteRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        ModelDTOFactory factory = new ModelDTOFactory();
-        BackendDTOFactory dtoFactory = new BackendDTOFactory();
-
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveRoute(factory.createFromDTO(route)))));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveRoute(dtoFactory.createFromDTO(route)))));
     }
 
     @Async
@@ -109,10 +104,7 @@ public class RouteController {
 
         Optional<Route> res = service.findByID(route.getID());
         if (res.isPresent()) {
-            ModelDTOFactory factory = new ModelDTOFactory();
-            BackendDTOFactory dtoFactory = new BackendDTOFactory();
-
-            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveRoute(factory.createFromDTO(route)))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveRoute(dtoFactory.createFromDTO(route)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

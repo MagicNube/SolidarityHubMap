@@ -2,6 +2,7 @@ package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.AffectedDTO;
 import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.ModelDTOFactory;
 import org.pingu.persistence.model.Affected;
 import org.pingu.persistence.service.AffectedService;
 import org.pinguweb.backend.controller.common.ServerException;
@@ -23,13 +24,15 @@ import java.util.stream.Collectors;
 public class AffectedController {
     @Autowired
     AffectedService service;
+    @Autowired
+    BackendDTOFactory factory;
+    @Autowired
+    ModelDTOFactory dtoFactory;
 
     @Async
     @GetMapping("/affecteds")
     public CompletableFuture<ResponseEntity<List<AffectedDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getAffectedRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         List<AffectedDTO> catastrophes = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(catastrophes));
@@ -40,7 +43,6 @@ public class AffectedController {
     public CompletableFuture<ResponseEntity<AffectedDTO>> getAffected(@PathVariable String ID) {
         if (ServerException.isServerClosed(service.getAffectedRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Affected> res = service.findByDni(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));

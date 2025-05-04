@@ -1,13 +1,16 @@
 package org.pinguweb.frontend.services.backend;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class BackendService {
 
     public static final String BACKEND = "http://localhost:8081";
@@ -20,6 +23,7 @@ public class BackendService {
             return generateObject(respuesta);
         }
         catch (Exception e) {
+            log.error(e.getMessage(), Arrays.stream(e.getStackTrace()).toArray());
             return new BackendObject<>(null, HttpStatus.SERVICE_UNAVAILABLE, null);
         }
     }
@@ -32,6 +36,7 @@ public class BackendService {
             return generateObject(respuesta);
             }
         catch (Exception e) {
+            log.error(e.getMessage(), Arrays.stream(e.getStackTrace()).toArray());
             return new BackendObject<T>(null, HttpStatus.SERVICE_UNAVAILABLE, null);
         }
     }
@@ -55,6 +60,7 @@ public class BackendService {
             return respuesta.getStatusCode();
         }
         catch (Exception e) {
+            log.error(e.getMessage(), Arrays.stream(e.getStackTrace()).toArray());
             return HttpStatus.SERVICE_UNAVAILABLE;
         }
     }
@@ -78,6 +84,7 @@ public class BackendService {
             return respuesta.getStatusCode();
         }
         catch (Exception e) {
+            log.error(e.getMessage(), Arrays.stream(e.getStackTrace()).toArray());
             return HttpStatus.SERVICE_UNAVAILABLE;
         }
     }
@@ -95,6 +102,7 @@ public class BackendService {
             return generateObject(response);
         }
         catch (Exception e) {
+            log.error(e.getMessage(), Arrays.stream(e.getStackTrace()).toArray());
             return new BackendObject<>(null, HttpStatus.SERVICE_UNAVAILABLE, null);
         }
     }
