@@ -75,6 +75,7 @@ public class Zone extends MapObject{
             BackendObject<ZoneDTO> status = BackendService.postToBackend(BackendService.BACKEND + finurl, zoneDTO, ZoneDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
                 log.debug("Zona creada satisfactoriamente");
+                System.out.println(status.getData());
                 return status.getData().getID();
             }
         }
