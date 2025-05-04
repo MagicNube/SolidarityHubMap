@@ -25,11 +25,10 @@ public class Need extends MapObject{
 
     LMarker markerObj;
 
-    public Need(LComponentManagementRegistry reg, Double latitude, Double longitude){
-        this.setLatitude(latitude);
-        this.setLongitude(longitude);
+    public Need(LComponentManagementRegistry reg, Double latitude, Double longitude) {
         this.markerObj = new LMarker(reg, new LLatLng(reg, latitude, longitude));
     }
+
 
     @Override
     public void addToMap(LMap map){

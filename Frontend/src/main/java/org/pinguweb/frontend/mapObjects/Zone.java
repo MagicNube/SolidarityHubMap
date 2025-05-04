@@ -68,16 +68,18 @@ public class Zone extends MapObject{
         zoneDTO.setStorages(this.storages);
         zoneDTO.setLatitudes(this.latitudes);
         zoneDTO.setLongitudes(this.longitudes);
-
+        System.out.println("ZoneDTO: " + zoneDTO);
         String finurl = "/api/zones";
         try{
             BackendObject<ZoneDTO> status = BackendService.postToBackend(finurl, zoneDTO, ZoneDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
                 log.debug("Zone added successfully");
+                System.out.println("Zone added successfully");
             }
         }
         catch (Exception e){
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
+            System.out.println("Error adding zone: " + e.getMessage());
         }
     }
 

@@ -8,9 +8,13 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
 import lombok.Setter;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapDialogs;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapState;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
+import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
+import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.yaml.snakeyaml.util.Tuple;
 
@@ -23,6 +27,7 @@ public class MapView extends HorizontalLayout {
     @Getter
     private static String mapId = "MapView";
     private static MapService controller;
+    private static MapDialogs mapDialogs;
 
     public MapView() {
         this.setSizeFull();
@@ -34,6 +39,10 @@ public class MapView extends HorizontalLayout {
 
     public static void setMapService(MapService controller) {
         MapView.controller = controller;
+    }
+
+    public static void setMapDialogs(MapDialogs mapDialogs) {
+        MapView.mapDialogs = mapDialogs;
     }
 
     @ClientCallable
@@ -139,6 +148,41 @@ public class MapView extends HorizontalLayout {
         controller.getRoutePoint().set(index, t);
     }
 
+    @ClientCallable
+    public void removeMarker(String ID) {
+        System.out.println("removeMarker: " + ID);
+        controller.deleteNeed(Integer.parseInt(ID));
+    }
+
+    @ClientCallable
+    public void removePolygon(String ID) {
+        System.out.println("removePolygon: " + ID);
+        controller.deleteZone(Integer.parseInt(ID));
+    }
+
+    @ClientCallable
+    public void removeRoute(String ID) {
+        System.out.println("removeRoute: " + ID);
+        controller.deleteRoute(Integer.parseInt(ID));
+    }
+
+    /*@ClientCallable
+    public void editMarker(Need need) {
+        System.out.println("editMarker: " + need.getID());
+        controller.editNeed(need);
+    }*/
+
+    @ClientCallable
+    public void editPolygon(String ID) {
+        System.out.println("editPolygon: " + ID);
+        mapDialogs.editDialogZone(ID);
+    }
+
+    @ClientCallable
+    public void editRoute(String ID) {
+        System.out.println("editRoute: " + ID);
+        mapDialogs.editDialogRoute(ID);
+    }
 
 
 }
