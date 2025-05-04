@@ -227,13 +227,14 @@ public Component buildUncoveredTaskTypeChart() {
     public void calculatedDays() {
         // Inicializar el conteo de tareas completadas por día (0 = Lunes, 6 = Domingo)
         List<TaskDTO> list = Task.getAllFromServer();
+        completedTasksPerDay = new Integer[]{0,0,0,0,0,0,0};
         for (TaskDTO task : list) {
             if (task.getStatus().equals("FINISHED") && task.getEstimatedEndTimeDate() != null) {
                 //(1 = Lunes, 7 = Domingo)
                 int dayOfWeek = task.getEstimatedEndTimeDate().getDayOfWeek().getValue();
                 //(0 = Lunes, 6 = Domingo)
                 int index = (dayOfWeek - 1);
-                completedTasksPerDay[index]++;
+                completedTasksPerDay[index] = completedTasksPerDay[index] + 1;
             }
         }
 
