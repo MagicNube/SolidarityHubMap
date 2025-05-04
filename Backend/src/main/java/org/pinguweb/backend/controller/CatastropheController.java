@@ -39,7 +39,7 @@ public class CatastropheController {
     }
 
     @Async
-    @PostMapping("/routes")
+    @PostMapping("/catastrophes")
     public CompletableFuture<ResponseEntity<CatastropheDTO>> addCatastrophe(@RequestBody CatastropheDTO catastrophe) {
         if (ServerException.isServerClosed(service.getCatastropheRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
