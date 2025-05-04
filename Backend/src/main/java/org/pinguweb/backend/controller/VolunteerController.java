@@ -24,22 +24,23 @@ public class VolunteerController {
     @Autowired
     VolunteerService service;
 
+    @Autowired
+    BackendDTOFactory factory;
+
     @Async
-    @GetMapping("/volunteer")
+    @GetMapping("/volunteers")
     public CompletableFuture<ResponseEntity<List<VolunteerDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getVolunteerRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         List<VolunteerDTO> volunteers = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(volunteers));
     }
 
     @Async
-    @GetMapping("/volunteer/{ID}")
+    @GetMapping("/volunteers/{ID}")
     public CompletableFuture<ResponseEntity<VolunteerDTO>> getVolunteer(@PathVariable String ID) {
         if (ServerException.isServerClosed(service.getVolunteerRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Volunteer> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));

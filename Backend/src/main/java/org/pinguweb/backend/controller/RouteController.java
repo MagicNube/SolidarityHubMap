@@ -1,5 +1,6 @@
 package org.pinguweb.backend.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.RoutePointDTO;
 import org.pingu.domain.DTO.factories.BackendDTOFactory;
@@ -14,36 +15,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class RouteController {
     @Autowired
     RouteService service;
     @Autowired
-    RoutePointService routePointService;
+    BackendDTOFactory factory;
+    @Autowired
+    ModelDTOFactory dtoFactory;
 
     @Async
-    @GetMapping("/route")
+    @GetMapping("/routes")
     public CompletableFuture<ResponseEntity<List<RouteDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getRouteRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         List<RouteDTO> routes = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(routes));
     }
 
     @Async
-    @GetMapping("/route/{ID}")
+    @GetMapping("/routes/{ID}")
     public CompletableFuture<ResponseEntity<RouteDTO>> getRoute(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getRouteRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Route> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
@@ -54,11 +56,10 @@ public class RouteController {
     }
 
     @Async
-    @GetMapping("/route/{ID}/points")
+    @GetMapping("/routes/{ID}/points")
     public CompletableFuture<ResponseEntity<List<RoutePointDTO>>> getRoutePoints(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getRouteRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         try {
             Optional<Route> res = service.findByID(ID);
             if (res.isPresent()) {
@@ -68,24 +69,21 @@ public class RouteController {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
         catch (Exception e){
-            e.printStackTrace();
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
         return null;
     }
 
     @Async
-    @PostMapping("/route")
+    @PostMapping("/routes")
     public CompletableFuture<ResponseEntity<RouteDTO>> addRoute(@RequestBody RouteDTO route) {
         if (ServerException.isServerClosed(service.getRouteRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        ModelDTOFactory factory = new ModelDTOFactory();
-        BackendDTOFactory dtoFactory = new BackendDTOFactory();
-
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveRoute(factory.createFromDTO(route)))));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveRoute(dtoFactory.createFromDTO(route)))));
     }
 
     @Async
-    @DeleteMapping("/route/{ID}")
+    @DeleteMapping("/routes/{ID}")
     public CompletableFuture<ResponseEntity<Void>> deleteRoute(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getRouteRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
@@ -100,16 +98,13 @@ public class RouteController {
     }
 
     @Async
-    @PutMapping("/route")
+    @PutMapping("/routes")
     public CompletableFuture<ResponseEntity<RouteDTO>> updateRoute(@RequestBody RouteDTO route) {
         if (ServerException.isServerClosed(service.getRouteRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         Optional<Route> res = service.findByID(route.getID());
         if (res.isPresent()) {
-            ModelDTOFactory factory = new ModelDTOFactory();
-            BackendDTOFactory dtoFactory = new BackendDTOFactory();
-
-            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createDTO(service.saveRoute(factory.createFromDTO(route)))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveRoute(dtoFactory.createFromDTO(route)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

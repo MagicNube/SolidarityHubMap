@@ -1,4 +1,4 @@
-package org.pinguweb.backend.model;
+package org.pinguweb.backend;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -25,23 +25,23 @@ public class TaskController {
     @Autowired
     TaskService service;
 
+    @Autowired
+    BackendDTOFactory factory;
+
     @Async
-    @GetMapping("/task")
+    @GetMapping("/tasks")
     public CompletableFuture<ResponseEntity<List<TaskDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getTaskRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         List<TaskDTO> tasks = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(tasks));
     }
 
     @Async
-    @GetMapping("/task/{ID}")
+    @GetMapping("/tasks/{ID}")
     public CompletableFuture<ResponseEntity<TaskDTO>> getTask(@PathVariable Integer ID) {
         if (ServerException.isServerClosed(service.getTaskRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Task> res = service.findByID(ID);
 
         if (res.isPresent()) {
