@@ -1,24 +1,27 @@
 package org.pinguweb.backend.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.TaskDTO;
 import org.pingu.domain.DTO.ZoneDTO;
-import org.pinguweb.backend.DTO.BackendDTOFactory;
-import org.pinguweb.backend.DTO.ModelDTOFactory;
+import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.ModelDTOFactory;
+import org.pingu.persistence.model.Task;
+import org.pingu.persistence.model.Zone;
+import org.pingu.persistence.service.TaskService;
+import org.pingu.persistence.service.ZoneService;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Task;
-import org.pinguweb.backend.model.Zone;
-import org.pinguweb.backend.service.TaskService;
-import org.pinguweb.backend.service.ZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class ZoneController {
@@ -26,27 +29,29 @@ public class ZoneController {
     ZoneService service;
     @Autowired
     TaskService taskService;
+    @Autowired
+    ModelDTOFactory dtoFactory;
+    @Autowired
+    BackendDTOFactory factory;
 
     @Async
-    @GetMapping("/zone")
+    @GetMapping("/zones")
     public CompletableFuture<ResponseEntity<List<ZoneDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<ZoneDTO> zones = service.findAll().stream().map(factory::createZoneDTO).collect(Collectors.toList());
+        List<ZoneDTO> zones = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(zones));
     }
 
     @Async
-    @GetMapping("/zone/{ID}")
+    @GetMapping("/zones/{ID}")
     public CompletableFuture<ResponseEntity<ZoneDTO>> getZone(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Zone> res = service.findByID(ID);
         if (res.isPresent()) {
-            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createZoneDTO(res.get())));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
@@ -54,11 +59,10 @@ public class ZoneController {
     }
 
     @Async
-    @GetMapping("/zone/{ID}/tasks")
+    @GetMapping("/zones/{ID}/tasks")
     public CompletableFuture<ResponseEntity<List<TaskDTO>>> getZoneTasks(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         try {
             Optional<Zone> res = service.findByID(ID);
             if (res.isPresent()) {
@@ -68,31 +72,28 @@ public class ZoneController {
                 if (tasks != null) {
                     List<Task> tasksInZone = tasks.stream()
                             .filter(task -> task.getZone().getID() == zone.getID())
-                            .collect(Collectors.toList());
-                    return CompletableFuture.completedFuture(ResponseEntity.ok(tasksInZone.stream().map(factory::createTaskDTO).toList()));
+                            .toList();
+                    return CompletableFuture.completedFuture(ResponseEntity.ok(tasksInZone.stream().map(factory::createDTO).toList()));
                 }
             }
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
         catch (Exception e){
-            e.printStackTrace();
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
         return null;
     }
 
     @Async
-    @PostMapping("/zone")
+    @PostMapping("/zones")
     public CompletableFuture<ResponseEntity<ZoneDTO>> addZone(@RequestBody ZoneDTO zone) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        ModelDTOFactory factory = new ModelDTOFactory();
-        BackendDTOFactory dtoFactory = new BackendDTOFactory();
-
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createZoneDTO(service.saveZone(factory.createFromDTO(zone)))));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveZone(dtoFactory.createFromDTO(zone)))));
     }
 
     @Async
-    @DeleteMapping("/zone/{ID}")
+    @DeleteMapping("/zones/{ID}")
     public CompletableFuture<ResponseEntity<Void>> deleteZone(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
@@ -107,16 +108,14 @@ public class ZoneController {
     }
 
     @Async
-    @PutMapping("/zone")
+    @PutMapping("/zones")
     public CompletableFuture<ResponseEntity<ZoneDTO>> updateZone(@RequestBody ZoneDTO zone) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         Optional<Zone> res = service.findByID(zone.getID());
         if (res.isPresent()) {
-            ModelDTOFactory factory = new ModelDTOFactory();
-            BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createZoneDTO(service.saveZone(factory.createFromDTO(zone)))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveZone(dtoFactory.createFromDTO(zone)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

@@ -1,11 +1,11 @@
 package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.StorageDTO;
-import org.pinguweb.backend.DTO.BackendDTOFactory;
-import org.pinguweb.backend.DTO.ModelDTOFactory;
+import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.ModelDTOFactory;
+import org.pingu.persistence.model.Storage;
+import org.pingu.persistence.service.StorageService;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Storage;
-import org.pinguweb.backend.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -21,27 +21,29 @@ import java.util.stream.Collectors;
 public class StorageController {
     @Autowired
     StorageService service;
+    @Autowired
+    BackendDTOFactory factory;
+    @Autowired
+    ModelDTOFactory dtoFactory;
 
     @Async
-    @GetMapping("/storage")
+    @GetMapping("/storages")
     public CompletableFuture<ResponseEntity<List<StorageDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getStorageRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<StorageDTO> storages = service.findAll().stream().map(factory::createStorageDTO).collect(Collectors.toList());
-        return CompletableFuture.completedFuture(ResponseEntity.ok(storages));
+        List<StorageDTO> zones = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
+        return CompletableFuture.completedFuture(ResponseEntity.ok(zones));
     }
 
     @Async
-    @GetMapping("/storage/{ID}")
+    @GetMapping("/storages/{ID}")
     public CompletableFuture<ResponseEntity<StorageDTO>> getStorage(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getStorageRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Storage> res = service.findByID(ID);
         if (res.isPresent()) {
-            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createStorageDTO(res.get())));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
@@ -49,18 +51,15 @@ public class StorageController {
     }
 
     @Async
-    @PostMapping("/storage")
+    @PostMapping("/storages")
     public CompletableFuture<ResponseEntity<StorageDTO>> addZone(@RequestBody StorageDTO storage) {
         if (ServerException.isServerClosed(service.getStorageRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        ModelDTOFactory factory = new ModelDTOFactory();
-        BackendDTOFactory dtoFactory = new BackendDTOFactory();
-
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createStorageDTO(service.saveStorage(factory.createFromDTO(storage)))));
+        return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveStorage(dtoFactory.createFromDTO(storage)))));
     }
 
     @Async
-    @DeleteMapping("/storage/{ID}")
+    @DeleteMapping("/storages/{ID}")
     public CompletableFuture<ResponseEntity<Void>> deleteZone(@PathVariable int ID) {
         if (ServerException.isServerClosed(service.getStorageRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
@@ -75,16 +74,14 @@ public class StorageController {
     }
 
     @Async
-    @PutMapping("/storage")
+    @PutMapping("/storages")
     public CompletableFuture<ResponseEntity<StorageDTO>> updateZone(@RequestBody StorageDTO storage) {
         if (ServerException.isServerClosed(service.getStorageRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
         Optional<Storage> res = service.findByID(storage.getID());
         if (res.isPresent()) {
-            ModelDTOFactory factory = new ModelDTOFactory();
-            BackendDTOFactory dtoFactory = new BackendDTOFactory();
 
-            return CompletableFuture.completedFuture(ResponseEntity.ok(dtoFactory.createStorageDTO(service.saveStorage(factory.createFromDTO(storage)))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveStorage(dtoFactory.createFromDTO(storage)))));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

@@ -7,10 +7,10 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceCompo
 import java.util.List;
 
 public interface InterfaceBuilder {
-    InterfaceBuilder reset();
-    Component build();
-    InterfaceBuilder setTile(@NonNull String title);
-    InterfaceBuilder setSubtitle(@NonNull String subtitle);
-    InterfaceBuilder addBelow(@NonNull InterfaceComponent component);
-    InterfaceBuilder addSide(@NonNull List<InterfaceComponent> component);
+    void reset();
+    Interface build();
+    void setTile(@NonNull String title);
+    void setSubtitle(@NonNull String subtitle);
+    void addBelow(@NonNull InterfaceComponent component);
+    void addSide(@NonNull List<InterfaceComponent> component);
 }

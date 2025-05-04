@@ -2,6 +2,7 @@ package org.pinguweb.frontend.mapObjects;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIcon;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIconOptions;
 import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
@@ -11,6 +12,7 @@ import software.xdev.vaadin.maps.leaflet.layer.ui.LMarkerOptions;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
+@Slf4j
 @Setter
 @Getter
 public class ZoneMarker extends MapObject{
