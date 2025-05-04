@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 @Slf4j
 @SuperBuilder
 @Getter
@@ -56,18 +55,23 @@ public class Dashboard extends InterfaceComponent {
                 layout.add(this.chart);
                 return layout;
             }
-            default -> {return null;}
+            case GAUGE -> {
+                generateGaugeChart();
+                layout.add(this.chart);
+                return layout;
+            }
+            case STACKED_BAR -> {
+                generateStackedBarChart();
+                layout.add(this.chart);
+                return layout;
+            }
+            default -> {throw new RuntimeException("Tipo de chart no añadida");}
         }
     }
 
-    public void update(AbstractDataProvider<?> x, AbstractDataProvider<?> y){
-        log.error("Los filtros están desactivados por ahora, sorry");
+    public void update(AbstractChart[] data){
         try{
-            switch (type){
-                case BAR -> {
-                }
-                default -> {return;}
-            }
+            this.chart.updateData(data);
             this.chart.update(false);
             UI.getCurrent().push();
         } catch (Exception e) {
@@ -84,6 +88,7 @@ public class Dashboard extends InterfaceComponent {
             bar.setColors(d.getColor());
             bar.setName(d.getLabel());
             bar.plotOn(this.coordinateConfiguration);
+            this.pairs.add(new Tuple<>(bar, d));
             this.chart.add(bar);
         }
     }
@@ -97,7 +102,27 @@ public class Dashboard extends InterfaceComponent {
             pie.setColors(d.getColor());
             pie.setName(d.getLabel());
             pie.plotOn(this.coordinateConfiguration);
+            this.pairs.add(new Tuple<>(pie, d));
             this.chart.add(pie);
+        }
+    }
+
+    private void generateGaugeChart(){
+        this.chart.clear();
+    }
+
+    private void generateStackedBarChart(){
+        this.chart.clear();
+        for (ChartData<?,?> d : data) {
+            AbstractDataProvider<?> xAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(0).getDataType(), d.flatten().stream().map(ChartPoint::getXValue).toArray());
+            AbstractDataProvider<?> yAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), d.flatten().stream().map(ChartPoint::getYValue).toArray());
+            BarChart bar = new BarChart(xAxis, yAxis);
+            bar.setStackName(d.getLabel());
+            bar.setColors(d.getColor());
+            bar.setName(d.getLabel());
+            bar.plotOn(this.coordinateConfiguration);
+            this.pairs.add(new Tuple<>(bar, d));
+            this.chart.add(bar);
         }
     }
 

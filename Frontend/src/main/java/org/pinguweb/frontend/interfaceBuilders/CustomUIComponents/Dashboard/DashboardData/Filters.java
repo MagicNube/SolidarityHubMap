@@ -1,10 +1,10 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData;
 
-import com.storedobject.chart.AbstractDataProvider;
-import com.storedobject.chart.AbstractDataStream;
+import com.storedobject.chart.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.charts.model.DataProviderSeries;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -19,8 +19,10 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.SerializablePredicate;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
+import org.yaml.snakeyaml.util.Tuple;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -32,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @SuperBuilder
 public class Filters extends InterfaceComponent {
 
@@ -45,16 +48,24 @@ public class Filters extends InterfaceComponent {
         this.dashboards.add(dashboard);
     }
 
-    public Component generateFilter(ChartData<?, ?> firstData) {
+    public Component generateFilter(List<ChartData<?, ?> > firstData) {
         HorizontalLayout hmain = new HorizontalLayout();
         hmain.setAlignItems(FlexComponent.Alignment.END);
 
         // 1. ComboBox de clases
         ComboBox<Class<?>> classname = new ComboBox<>("Clase");
+
+        Set<Class<?>> classes = new HashSet<>();
+
+        for (ChartData<?,?> d : firstData){
+            classes.add(d.getLabelObjects()[0].getClass());
+            classes.add(d.getPointObjects()[0].getClass());
+        }
+
         classname.setItems(
-                firstData.getLabelObjects()[0].getClass(),
-                firstData.getPointObjects()[0].getClass()
+            classes
         );
+
         classname.setItemLabelGenerator(Class::getSimpleName);
 
         // 2. ComboBox de propiedades (se llena tras seleccionar clase)
@@ -85,27 +96,33 @@ public class Filters extends InterfaceComponent {
             );
 
             //TODO: Cambiar aqui
-//            for (Dashboard dashboard : dashboards) {
-//                List<Object> filteredX = dashboard.getData().flatten().stream()
-//                        .filter(filtro::test)
-//                        .map(ChartPoint::getXValue)
-//                        .toList();
-//                AbstractDataProvider<?> xFiltrado = new AbstractDataStream<>(
-//                        dashboard.getXAxis().getDataType(),
-//                        filteredX.stream()
-//                );
-//
-//                List<Object> filteredY = dashboard.getData().flatten().stream()
-//                        .filter(filtro::test)
-//                        .map(ChartPoint::getYValue)
-//                        .toList();
-//                AbstractDataProvider<?> yFiltrado = new AbstractDataStream<>(
-//                        dashboard.getYAxis().getDataType(),
-//                        filteredY.stream()
-//                );
-//
-//                dashboard.update(xFiltrado, yFiltrado);
-//            }
+            List<AbstractChart> data = new ArrayList<>();
+
+            for (Dashboard dashboard : dashboards) {
+                for (Tuple<AbstractChart, ChartData<?,?>> pair : dashboard.getPairs()) {
+
+                    List<Object> filteredX = pair._2().flatten().stream()
+                            .filter(filtro::test)
+                            .map(ChartPoint::getXValue)
+                            .toList();
+                    AbstractDataProvider<?> xFiltrado = new AbstractDataStream<>(
+                            dashboard.getCoordinateConfiguration().getAxis(0).getDataType(),
+                            filteredX.stream()
+                    );
+
+                    List<Object> filteredY = pair._2().flatten().stream()
+                            .filter(filtro::test)
+                            .map(ChartPoint::getYValue)
+                            .toList();
+                    AbstractDataProvider<?> yFiltrado = new AbstractDataStream<>(
+                            dashboard.getCoordinateConfiguration().getAxis(1).getDataType(),
+                            filteredY.stream()
+                    );
+
+                    addUpdatedChart(dashboard, pair, xFiltrado, yFiltrado, data);
+                }
+                dashboard.update(data.toArray(AbstractChart[]::new));
+            }
         });
 
         // 6. Botón de reiniciar
@@ -114,8 +131,15 @@ public class Filters extends InterfaceComponent {
         reset.getElement().setAttribute("aria-label", "Reiniciar gráfica");
         reset.addClickListener(evt -> {
             for(Dashboard dashboard : dashboards){
-                //TODO: Cambiar aquí
-                //dashboard.update(dashboard.getXAxis(), dashboard.getYAxis());
+                List<AbstractChart> data = new ArrayList<>();
+                for (Tuple<AbstractChart, ChartData<?,?>> pair : dashboard.getPairs()) {
+                    AbstractDataProvider<?> xAxis = Dashboard.castObjectByCoordinateType(dashboard.getCoordinateConfiguration().getAxis(0).getDataType(), pair._2().flatten().stream().map(ChartPoint::getXValue).toArray());
+                    AbstractDataProvider<?> yAxis = Dashboard.castObjectByCoordinateType(dashboard.getCoordinateConfiguration().getAxis(1).getDataType(), pair._2().flatten().stream().map(ChartPoint::getYValue).toArray());
+
+                    addUpdatedChart(dashboard, pair, xAxis, yAxis, data);
+                }
+
+                dashboard.update(data.toArray(AbstractChart[]::new));
             }
         });
 
@@ -154,6 +178,28 @@ public class Filters extends InterfaceComponent {
                 reset
         );
         return hmain;
+    }
+
+    private void addUpdatedChart(Dashboard dashboard, Tuple<AbstractChart, ChartData<?, ?>> pair, AbstractDataProvider<?> xFiltrado, AbstractDataProvider<?> yFiltrado, List<AbstractChart> data) {
+        switch (dashboard.getType()) {
+            case BAR, STACKED_BAR -> {
+                BarChart bar = (BarChart) pair._1();
+                bar.setXData(xFiltrado);
+                bar.setYData(yFiltrado);
+                data.add(bar);
+            }
+            case PIE -> {
+                PieChart pie = (PieChart) pair._1();
+                pie.setItemNames(xFiltrado);
+
+                Number[] nums = yFiltrado.stream()
+                        .map(v -> (Number) v)
+                        .toArray(Number[]::new);
+
+                pie.setData(new Data(nums));
+                data.add(pie);
+            }
+        }
     }
 
     /** Crea un campo de input acorde al tipo */
@@ -271,7 +317,7 @@ public class Filters extends InterfaceComponent {
         hlayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         hlayout.setWidthFull();
         //TODO: Cambiar aquí
-        hlayout.add(this.generateFilter(dashboards.get(0).getData().get(0)));
+        hlayout.add(this.generateFilter(dashboards.get(0).getData()));
         return hlayout;
     }
 }

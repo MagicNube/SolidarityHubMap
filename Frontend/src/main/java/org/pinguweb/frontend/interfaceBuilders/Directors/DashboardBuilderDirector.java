@@ -55,9 +55,16 @@ public class DashboardBuilderDirector {
                 new Object[]{1, 2, 3, 4},
                 new Integer[]{1, 2, 3, 4},
                 "Mis datos",
-                new Color[]{new Color(0, 0, 255), new Color(255, 0, 0), new Color(0,255,0), new Color("#000000")}
+                new Color[]{new Color(0, 0, 255)}
         );
-
+        first.addData(
+                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
+                new TestString[]{fs, sn, tr, fr},
+                new Object[]{4, 3, 2, 1},
+                new Integer[]{4, 3, 2, 1},
+                "Mis datos",
+                new Color[]{new Color(0, 255, 0)}
+        );
         firstFilter.addDashboard(first);
 
         builder.reset();
