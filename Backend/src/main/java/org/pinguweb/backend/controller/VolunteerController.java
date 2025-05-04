@@ -1,10 +1,10 @@
 package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.VolunteerDTO;
-import org.pinguweb.backend.DTO.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.persistence.model.Volunteer;
+import org.pingu.persistence.service.VolunteerService;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Volunteer;
-import org.pinguweb.backend.service.VolunteerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -24,25 +24,26 @@ public class VolunteerController {
     @Autowired
     VolunteerService service;
 
+    @Autowired
+    BackendDTOFactory factory;
+
     @Async
-    @GetMapping("/volunteer")
+    @GetMapping("/volunteers")
     public CompletableFuture<ResponseEntity<List<VolunteerDTO>>> getAll(){
         if (ServerException.isServerClosed(service.getVolunteerRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-        BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<VolunteerDTO> volunteers = service.findAll().stream().map(factory::createVolunteerDTO).collect(Collectors.toList());
+        List<VolunteerDTO> volunteers = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(volunteers));
     }
 
     @Async
-    @GetMapping("/volunteer/{ID}")
+    @GetMapping("/volunteers/{ID}")
     public CompletableFuture<ResponseEntity<VolunteerDTO>> getVolunteer(@PathVariable String ID) {
         if (ServerException.isServerClosed(service.getVolunteerRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        BackendDTOFactory factory = new BackendDTOFactory();
         Optional<Volunteer> res = service.findByID(ID);
         if (res.isPresent()) {
-            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createVolunteerDTO(res.get())));
+            return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
         }
         else {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());

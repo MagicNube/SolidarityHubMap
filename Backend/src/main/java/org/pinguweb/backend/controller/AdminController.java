@@ -1,10 +1,11 @@
 package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.AdminDTO;
-import org.pinguweb.backend.DTO.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.BackendDTOFactory;
+import org.pingu.domain.DTO.factories.ModelDTOFactory;
+import org.pingu.persistence.model.Admin;
+import org.pingu.persistence.service.AdminService;
 import org.pinguweb.backend.controller.common.ServerException;
-import org.pinguweb.backend.model.Admin;
-import org.pinguweb.backend.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -21,17 +22,20 @@ import java.util.concurrent.CompletableFuture;
 public class AdminController {
     @Autowired
     AdminService service;
+    @Autowired
+    BackendDTOFactory factory;
+    @Autowired
+    ModelDTOFactory dtoFactory;
 
     @Async
-    @GetMapping("/admin/{ID}")
+    @GetMapping("/admins/{ID}")
     public CompletableFuture<ResponseEntity<AdminDTO>> getAdmin(@PathVariable String ID) {
         if (ServerException.isServerClosed(service.getAdminRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
-        BackendDTOFactory factory = new BackendDTOFactory();
 
         try {
             Optional<Admin> res = service.findByDni(ID);
             if (res.isPresent()) {
-                return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createAdminDTO(res.get())));
+                return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(res.get())));
             } else {
                 return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
             }
