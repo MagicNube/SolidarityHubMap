@@ -1,6 +1,7 @@
 package org.pinguweb.backend.controller;
 
 import org.pingu.domain.DTO.CatastropheDTO;
+import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.domain.DTO.factories.BackendDTOFactory;
 import org.pingu.domain.DTO.factories.ModelDTOFactory;
