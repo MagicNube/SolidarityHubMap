@@ -7,11 +7,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Getter
 @Service
 public class AdminService {
-    @Getter
     private final AdminRepository adminRepository;
+
     public AdminService(AdminRepository adminRepository) {this.adminRepository = adminRepository;}
+    //Meter admin a mano, no se pueden crear desde la web
     public Admin saveAdmin(Admin admin) {return adminRepository.save(admin);}
     public Optional<Admin> findByDni(String dni) {return adminRepository.findByDni(dni);}
 }

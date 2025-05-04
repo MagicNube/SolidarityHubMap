@@ -29,8 +29,8 @@ public class StorageController {
 
         BackendDTOFactory factory = new BackendDTOFactory();
 
-        List<StorageDTO> zones = service.findAll().stream().map(factory::createStorageDTO).collect(Collectors.toList());
-        return CompletableFuture.completedFuture(ResponseEntity.ok(zones));
+        List<StorageDTO> storages = service.findAll().stream().map(factory::createStorageDTO).collect(Collectors.toList());
+        return CompletableFuture.completedFuture(ResponseEntity.ok(storages));
     }
 
     @Async

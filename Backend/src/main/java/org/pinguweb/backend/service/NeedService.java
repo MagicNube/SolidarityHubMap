@@ -12,6 +12,7 @@ import java.util.Optional;
 public class NeedService {
     @Getter
     private final NeedRepository needRepository;
+
     public NeedService(NeedRepository needRepository) {this.needRepository = needRepository;}
     public Need saveNeed(Need need) {
         return needRepository.save(need);

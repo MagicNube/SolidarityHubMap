@@ -8,10 +8,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+@Getter
 @Service
 public class RoutePointService {
-    @Getter
     private final RoutePointRepository routePointRepository;
+
     public RoutePointService(RoutePointRepository routePointRepository) {this.routePointRepository = routePointRepository;}
     public RoutePoint saveRoutePoint(RoutePoint routePoint) {return routePointRepository.save(routePoint);}
     public List<RoutePoint> findAll(){return routePointRepository.findAll();}

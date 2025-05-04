@@ -8,11 +8,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+@Getter
 @Service
 public class VolunteerService {
-    @Getter
     private final VolunteerRepository volunteerRepository;
+
     public VolunteerService(VolunteerRepository volunteerRepository) {this.volunteerRepository = volunteerRepository;}
-    public List<Volunteer> findAll(){return volunteerRepository.findAll();}
-    public Optional<Volunteer> findByID(String ID){return  volunteerRepository.findById(ID);}
+    public List<Volunteer> findAll(){return this.volunteerRepository.findAll();}
+    public Optional<Volunteer> findByID(String ID){return  this.volunteerRepository.findById(ID);}
 }

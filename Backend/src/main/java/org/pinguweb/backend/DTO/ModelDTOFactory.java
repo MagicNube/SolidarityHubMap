@@ -88,14 +88,8 @@ public class ModelDTOFactory {
         storage.setName(dto.getName());
         storage.setFull(dto.isFull());
 
-        Optional<Zone> storageZone = zoneService.findByID(dto.getZone());
-        if (storageZone.isPresent()) {
-            storage.setZone(storageZone.get());
-        }
-
         GPSCoordinates coord = new GPSCoordinates(dto.getLatitude(), dto.getLongitude());
         storage.setGpsCoordinates(coord);
-
 
         return storage;
     }

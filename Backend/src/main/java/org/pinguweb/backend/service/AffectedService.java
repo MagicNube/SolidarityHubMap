@@ -12,6 +12,7 @@ import java.util.Optional;
 public class AffectedService {
     @Getter
     private final AffectedRepository AffectedRepository;
+
     public AffectedService(AffectedRepository AffectedRepository) {this.AffectedRepository = AffectedRepository;}
     public Optional<Affected> findByDni(String dNI) {return AffectedRepository.findById(dNI);}
     public List<Affected> findAll() {return AffectedRepository.findAll();}
