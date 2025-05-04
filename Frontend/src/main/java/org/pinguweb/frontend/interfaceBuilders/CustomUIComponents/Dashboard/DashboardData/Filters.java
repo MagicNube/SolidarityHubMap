@@ -201,24 +201,32 @@ public class Filters extends InterfaceComponent {
         }
     }
 
-    /** Crea un campo de input acorde al tipo */
     private Component createFieldByType(Class<?> type) {
-        if (Boolean.class.equals(type) || boolean.class.equals(type)) {
+        if (type.isEnum()) {
+            Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) type;
+            ComboBox<Enum<?>> combo = new ComboBox<>();
+            combo.setItems(enumType.getEnumConstants());
+            combo.setItemLabelGenerator(Enum::name);
+            return combo;
+        }
+        else if (Boolean.class.equals(type) || boolean.class.equals(type)) {
             return new Checkbox();
-        } else if (Number.class.isAssignableFrom(type)
+        }
+        else if (Number.class.isAssignableFrom(type)
                 || (type.isPrimitive() && !boolean.class.equals(type))) {
+
             if (Integer.class.equals(type) || int.class.equals(type)) {
                 return new IntegerField();
-            } else if (Double.class.equals(type) || double.class.equals(type)
-                    || Float.class.equals(type) || float.class.equals(type)) {
+            } else {
                 return new NumberField();
             }
-            return new NumberField();
-        } else if (LocalDate.class.equals(type) || Date.class.equals(type)) {
+        }
+        else if (LocalDate.class.equals(type) || java.util.Date.class.equals(type)) {
             return new DatePicker();
         } else if (LocalDateTime.class.equals(type)) {
             return new DateTimePicker();
-        } else {
+        }
+        else {
             return new TextField();
         }
     }
