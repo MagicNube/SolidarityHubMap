@@ -25,9 +25,7 @@ import java.util.List;
 @Getter
 @Service
 public class MapService {
-    @Setter
-    @Getter
-    int tempIdZone = 0;
+
 
     @Setter
     @Getter
@@ -60,7 +58,7 @@ public class MapService {
     private HashSet<Route> routes = new HashSet<>();
 
     @Getter
-    private HashMap<Integer,List<RoutePoint>> routePoints = new HashMap<>();
+    private HashMap<Integer, List<RoutePoint>> routePoints = new HashMap<>();
 
     private ZoneDTO tempZoneDTO;
     private RouteDTO tempRouteDTO;
@@ -88,18 +86,18 @@ public class MapService {
 
     @Async
     public void load() {
-            for (NeedDTO need : Need.getAllFromServer()) {
-                log.debug(need.toString());
-                if (need.getLatitude() != null && need.getLongitude() != null) {
-                    createNeed(need);
-                }
+        for (NeedDTO need : Need.getAllFromServer()) {
+            log.debug(need.toString());
+            if (need.getLatitude() != null && need.getLongitude() != null) {
+                createNeed(need);
             }
+        }
 
-            for (ZoneDTO zone : Zone.getAllFromServer()) {
-                if (!zone.getLatitudes().isEmpty() && !zone.getLongitudes().isEmpty()) {
-                    createZone(zone);
-                }
+        for (ZoneDTO zone : Zone.getAllFromServer()) {
+            if (!zone.getLatitudes().isEmpty() && !zone.getLongitudes().isEmpty()) {
+                createZone(zone);
             }
+        }
     }
 
     // TODO: Texto para el el marcador de tarea
@@ -115,7 +113,7 @@ public class MapService {
         //this.map.addLayer(MapView.getLLayerGroupNeeds());
 
         for (Need m : needs) {
-            log.debug("ID: " + m.getID() + m );
+            log.debug("ID: " + m.getID() + m);
         }
         log.debug("Fin");
 
@@ -159,24 +157,42 @@ public class MapService {
     public Zone createZone(ZoneDTO zoneDTO) {
         List<Tuple<Double, Double>> points = new ArrayList<>();
 
-        for(int i = 0; i < zoneDTO.getLatitudes().size(); i++){
+        for (int i = 0; i < zoneDTO.getLatitudes().size(); i++) {
             points.add(new Tuple<>(zoneDTO.getLatitudes().get(i), zoneDTO.getLongitudes().get(i)));
         }
 
-        Zone zone = (Zone) zoneFactory.createMapObject(reg, 0.0, zoneDTO.getID()+1.0);
+        Zone zone = (Zone) zoneFactory.createMapObject(reg, 0.0, zoneDTO.getID() + 1.0);
         for (Tuple<Double, Double> marker : points) {
             zone.addPoint(reg, marker);
         }
 
         zone.setName(zoneDTO.getName() != null ? zoneDTO.getName() : "Sin nombre");
         zone.setDescription(zoneDTO.getDescription() != null ? zoneDTO.getDescription() : "Sin descripción");
-        zone.setEmergencyLevel(zoneDTO.getEmergencyLevel() != null ? zoneDTO.getEmergencyLevel() : "Bajo"); // Nivel por defecto: "Bajo"
+        zone.setEmergencyLevel(zoneDTO.getEmergencyLevel() != null ? zoneDTO.getEmergencyLevel() : "LOW"); // Nivel por defecto: "Bajo"
+        //System.out.println(zoneDTO.getCatastrophe());
         zone.setCatastrophe(zoneDTO.getCatastrophe() != null ? zoneDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
+        //System.out.println(zoneDTO.getStorages());
         zone.setStorages(zoneDTO.getStorages() != null ? zoneDTO.getStorages() : new ArrayList<>());
         zone.setLatitudes(zoneDTO.getLatitudes() != null ? zoneDTO.getLatitudes() : List.of(0.0));
         zone.setLongitudes(zoneDTO.getLongitudes() != null ? zoneDTO.getLongitudes() : List.of(0.0));
 
-        zone.generatePolygon(reg, "red", "blue");
+        switch (zoneDTO.getEmergencyLevel()) {
+            case "LOW":
+                zone.generatePolygon(reg, "grey", "green");
+                break;
+            case "MEDIUM":
+                zone.generatePolygon(reg, "grey", "yellow");
+                break;
+            case "HIGH":
+                zone.generatePolygon(reg, "grey", "red");
+                break;
+            case "VERYHIGH":
+                zone.generatePolygon(reg, "grey", "black");
+                break;
+            default:
+                zone.generatePolygon(reg, "grey", "blue");
+        }
+        zone.getPolygon().bindPopup(zone.getName());
         zone.setID(zoneDTO.getID());
         zone.addToMap(this.map);
 

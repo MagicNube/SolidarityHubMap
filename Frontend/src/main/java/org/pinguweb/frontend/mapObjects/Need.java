@@ -41,7 +41,7 @@ public class Need extends MapObject{
     }
 
     @Override
-    public void pushToServer(){
+    public int pushToServer(){
         NeedDTO needDTO = new NeedDTO();
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
@@ -56,10 +56,11 @@ public class Need extends MapObject{
         catch (Exception e){
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
+        return 0;
     }
 
     @Override
-    public void deleteFromServer() {
+    public int deleteFromServer() {
         String finurl = "/api/zones/" + this.getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
@@ -70,6 +71,22 @@ public class Need extends MapObject{
         catch (Exception e){
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
+        return 0;
+    }
+
+    @Override
+    public int updateToServer() {
+        String finurl = "/api/zones/" + this.getID();
+        try{
+            HttpStatusCode status = BackendService.putToBackend(finurl, this);
+            if (status == HttpStatus.OK){
+
+            }
+        }
+        catch (Exception e){
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
+        }
+        return 0;
     }
 
     public static List<NeedDTO> getAllFromServer() {

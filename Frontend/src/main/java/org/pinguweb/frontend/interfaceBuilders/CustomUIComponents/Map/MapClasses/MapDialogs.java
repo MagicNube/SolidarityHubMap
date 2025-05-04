@@ -102,8 +102,7 @@ public class MapDialogs {
                 }
 
                 ZoneDTO zoneDTO = new ZoneDTO();
-                zoneDTO.setID(service.getTempIdZone());
-                service.setTempIdZone(service.getTempIdZone() + 1);
+                zoneDTO.setID(0);
                 zoneDTO.setDescription(descriptionTextArea.getValue());
                 zoneDTO.setName(nameTextArea.getValue());
                 //TODO: Mirar como funcionan las catastrofes

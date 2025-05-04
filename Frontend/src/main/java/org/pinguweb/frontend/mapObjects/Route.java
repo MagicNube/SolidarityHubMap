@@ -55,7 +55,7 @@ public class Route extends MapObject{
     }
 
     @Override
-    public void pushToServer(){
+    public int pushToServer(){
         RouteDTO routeDTO = new RouteDTO();
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
@@ -70,10 +70,11 @@ public class Route extends MapObject{
         catch (Exception e){
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
+        return 0;
     }
 
     @Override
-    public void deleteFromServer() {
+    public int deleteFromServer() {
         String finurl = "/api/routes/" + this.getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
@@ -84,6 +85,23 @@ public class Route extends MapObject{
         catch (Exception e){
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
+        return 0;
+    }
+
+    @Override
+    public int updateToServer() {
+        RouteDTO routeDTO = new RouteDTO();
+        String finurl = "/api/routes/" + this.getID();
+        try{
+            HttpStatusCode status = BackendService.putToBackend(finurl, routeDTO);
+            if (status == HttpStatus.OK){
+
+            }
+        }
+        catch (Exception e){
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
+        }
+        return 0;
     }
 
     public static List<RouteDTO> getAllFromServer() {

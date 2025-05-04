@@ -58,7 +58,7 @@ public class Storage extends MapObject{
     }
 
     @Override
-    public void pushToServer(){
+    public int pushToServer(){
         StorageDTO storageDTO = new StorageDTO();
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
@@ -73,10 +73,11 @@ public class Storage extends MapObject{
         catch (Exception e){
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
+        return 0;
     }
 
     @Override
-    public void deleteFromServer() {
+    public int deleteFromServer() {
         String finurl = "/api/storages/" + this.getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
@@ -87,6 +88,23 @@ public class Storage extends MapObject{
         catch (Exception e){
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
+        return 0;
+    }
+
+    @Override
+    public int updateToServer() {
+        String finurl = "/api/storages/" + this.getID();
+        try{
+            StorageDTO storageDTO = new StorageDTO();
+            HttpStatus status = (HttpStatus) BackendService.putToBackend(finurl, storageDTO);
+            if (status == HttpStatus.OK){
+
+            }
+        }
+        catch (Exception e){
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
+        }
+        return 0;
     }
 
     public static List<StorageDTO> getAllFromServer() {

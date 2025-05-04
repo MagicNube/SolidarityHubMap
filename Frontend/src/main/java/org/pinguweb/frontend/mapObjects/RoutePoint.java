@@ -63,7 +63,7 @@ public class RoutePoint extends MapObject {
     }
 
     @Override
-    public void pushToServer() {
+    public int pushToServer() {
         RoutePointDTO routePointDTO = new RoutePointDTO();
         routePointDTO.setLatitude(this.getLatitude());
         routePointDTO.setLongitude(this.getLongitude());
@@ -80,10 +80,11 @@ public class RoutePoint extends MapObject {
         } catch (Exception e) {
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
+        return 0;
     }
 
     @Override
-    public void deleteFromServer() {
+    public int deleteFromServer() {
         String finurl = "/api/routepoints/" + this.getID();
         try {
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
@@ -93,6 +94,22 @@ public class RoutePoint extends MapObject {
         } catch (Exception e) {
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
+        return 0;
+    }
+
+    @Override
+    public int updateToServer() {
+        RoutePointDTO routePointDTO = new RoutePointDTO();
+        String finurl = "/api/routepoints/" + this.getID();
+        try {
+            HttpStatusCode status = BackendService.putToBackend(finurl, routePointDTO);
+            if (status == HttpStatus.OK) {
+
+            }
+        } catch (Exception e) {
+
+        }
+        return 0;
     }
 
     public static List<RoutePointDTO> getAllFromServer() {

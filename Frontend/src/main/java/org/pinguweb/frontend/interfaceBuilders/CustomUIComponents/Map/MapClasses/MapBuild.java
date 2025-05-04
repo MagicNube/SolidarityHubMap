@@ -7,6 +7,7 @@ import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.*;
 
+import java.security.Provider;
 import java.util.ArrayList;
 
 @Slf4j
@@ -36,7 +37,11 @@ public class MapBuild {
         service.getMap().off("click", clickFuncReferenceCreateZone);
         log.debug("Zona terminada");
         Zone zona = this.service.createZone(service.getTempZoneDTO());
-        zona.pushToServer();
+
+        int newID = zona.pushToServer();
+        service.getZones().stream().filter(z -> z.getID() == service.getTempZoneDTO().getID()).findFirst().ifPresent(z -> {
+            z.setID(newID);
+        });
 
         for (ZoneMarker zoneMarker : service.getZoneMarkers().values()) {
             zoneMarker.removeFromMap(service.getMap());
