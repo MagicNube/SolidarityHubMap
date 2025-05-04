@@ -7,7 +7,6 @@ import org.pingu.domain.DTO.factories.BackendDTOFactory;
 import org.pingu.domain.DTO.factories.ModelDTOFactory;
 import org.pingu.persistence.model.Route;
 import org.pingu.persistence.model.RoutePoint;
-import org.pingu.persistence.service.RoutePointService;
 import org.pingu.persistence.service.RouteService;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.springframework.beans.factory.annotation.Autowired;

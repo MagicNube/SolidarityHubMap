@@ -4,12 +4,11 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasse
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.pingu.domain.DTO.*;
+import org.pingu.domain.DTO.NeedDTO;
+import org.pingu.domain.DTO.RouteDTO;
+import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
-import org.pinguweb.frontend.services.backend.BackendObject;
-import org.pinguweb.frontend.services.backend.BackendService;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
