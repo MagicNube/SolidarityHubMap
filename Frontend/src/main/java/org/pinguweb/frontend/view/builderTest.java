@@ -10,9 +10,11 @@ public class builderTest extends VerticalLayout {
     public builderTest(){
         DashboardBuilderDirector director = new DashboardBuilderDirector();
         this.add(director.buildTest());
-        //this.add(director.buildUncoveredNeedsChart());
-        //this.add(director.buildCompletedTasksChart());
-        //this.add(director.buildUncoveredTaskTypeChart());
+        this.add(director.buildUncoveredNeedsChart());
+        this.add(director.buildCompletedTasksChart());
+        this.add(director.buildUncoveredTaskTypeChart());
+        this.add(director.buildVolunteersByTaskTypeChart());
+        this.add(director.buildVolunteersVSAffected());
     }
 
 }
