@@ -84,27 +84,28 @@ public class Filters extends InterfaceComponent {
                     getValue(valueField).toString()
             );
 
-            for (Dashboard dashboard : dashboards) {
-                List<Object> filteredX = dashboard.getData().flatten().stream()
-                        .filter(filtro::test)
-                        .map(ChartPoint::getXValue)
-                        .toList();
-                AbstractDataProvider<?> xFiltrado = new AbstractDataStream<>(
-                        dashboard.getXAxis().getDataType(),
-                        filteredX.stream()
-                );
-
-                List<Object> filteredY = dashboard.getData().flatten().stream()
-                        .filter(filtro::test)
-                        .map(ChartPoint::getYValue)
-                        .toList();
-                AbstractDataProvider<?> yFiltrado = new AbstractDataStream<>(
-                        dashboard.getYAxis().getDataType(),
-                        filteredY.stream()
-                );
-
-                dashboard.update(xFiltrado, yFiltrado);
-            }
+            //TODO: Cambiar aqui
+//            for (Dashboard dashboard : dashboards) {
+//                List<Object> filteredX = dashboard.getData().flatten().stream()
+//                        .filter(filtro::test)
+//                        .map(ChartPoint::getXValue)
+//                        .toList();
+//                AbstractDataProvider<?> xFiltrado = new AbstractDataStream<>(
+//                        dashboard.getXAxis().getDataType(),
+//                        filteredX.stream()
+//                );
+//
+//                List<Object> filteredY = dashboard.getData().flatten().stream()
+//                        .filter(filtro::test)
+//                        .map(ChartPoint::getYValue)
+//                        .toList();
+//                AbstractDataProvider<?> yFiltrado = new AbstractDataStream<>(
+//                        dashboard.getYAxis().getDataType(),
+//                        filteredY.stream()
+//                );
+//
+//                dashboard.update(xFiltrado, yFiltrado);
+//            }
         });
 
         // 6. Botón de reiniciar
@@ -113,7 +114,8 @@ public class Filters extends InterfaceComponent {
         reset.getElement().setAttribute("aria-label", "Reiniciar gráfica");
         reset.addClickListener(evt -> {
             for(Dashboard dashboard : dashboards){
-                dashboard.update(dashboard.getXAxis(), dashboard.getYAxis());
+                //TODO: Cambiar aquí
+                //dashboard.update(dashboard.getXAxis(), dashboard.getYAxis());
             }
         });
 
@@ -268,7 +270,8 @@ public class Filters extends InterfaceComponent {
         HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         hlayout.setWidthFull();
-        hlayout.add(this.generateFilter(dashboards.get(0).getData()));
+        //TODO: Cambiar aquí
+        hlayout.add(this.generateFilter(dashboards.get(0).getData().get(0)));
         return hlayout;
     }
 }
