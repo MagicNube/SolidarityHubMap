@@ -19,7 +19,7 @@ public class ChartData<T, J> {
     /// La clase de la que sacas el dato de value
     private final J[] pointObjects;
 
-    private Color color;
+    private Color[] color;
     private String label;
     
     public List<ChartPoint<?, ?>> flatten(){

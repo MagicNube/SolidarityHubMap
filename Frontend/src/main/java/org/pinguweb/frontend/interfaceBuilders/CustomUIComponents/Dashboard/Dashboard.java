@@ -51,6 +51,11 @@ public class Dashboard extends InterfaceComponent {
                 layout.add(this.chart);
                 return layout;
             }
+            case PIE -> {
+                generatePieChart();
+                layout.add(this.chart);
+                return layout;
+            }
             default -> {return null;}
         }
     }
@@ -80,6 +85,19 @@ public class Dashboard extends InterfaceComponent {
             bar.setName(d.getLabel());
             bar.plotOn(this.coordinateConfiguration);
             this.chart.add(bar);
+        }
+    }
+
+    private void generatePieChart(){
+        this.chart.clear();
+        for (ChartData<?,?> d : data) {
+            AbstractDataProvider<?> xAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(0).getDataType(), d.flatten().stream().map(ChartPoint::getXValue).toArray());
+            AbstractDataProvider<?> yAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), d.flatten().stream().map(ChartPoint::getYValue).toArray());
+            PieChart pie = new PieChart(xAxis, (DataProvider) yAxis);
+            pie.setColors(d.getColor());
+            pie.setName(d.getLabel());
+            pie.plotOn(this.coordinateConfiguration);
+            this.chart.add(pie);
         }
     }
 
@@ -121,11 +139,61 @@ public class Dashboard extends InterfaceComponent {
         };
     }
 
-    public static Dashboard createSimpleDashboard(String name, ChartType type, RectangularCoordinate coordinatesConfig ){
-        return Dashboard.builder().name(name).type(type).coordinateConfiguration(coordinatesConfig).build();
+    /**
+     * Crea un dashboard sencillo con configuración básica de tamaño, nombre, tipo y coordenadas.
+     *
+     * @param name                 el nombre que se asignará al dashboard
+     * @param type                 el tipo de gráfico que contendrá el dashboard
+     * @param coordinatesConfig    la configuración de coordenadas rectangulares a usar
+     * @return un nuevo {@link Dashboard} configurado con los parámetros indicados,
+     *         con ancho al 100% y altura fija de 700px
+     */
+    public static Dashboard createSimpleDashboard(
+            String name,
+            ChartType type,
+            RectangularCoordinate coordinatesConfig
+    ) {
+        return Dashboard.builder()
+                .width("100%")
+                .height("700px")
+                .name(name)
+                .type(type)
+                .coordinateConfiguration(coordinatesConfig)
+                .build();
     }
 
-    public <T,J> void addData(Object[] XData, T[] XObjects, Object[] YData, J[] YObjects, String name, Color color){
-        this.data.add(new ChartData<>(XData, YData, XObjects, YObjects, color, name));
+    /**
+     * Añade un conjunto de datos al dashboard para su representación en un gráfico.
+     * <p>
+     * Este método es genérico en los tipos {@code T} y {@code J}, que representan
+     * metadatos (o “objetos”) asociados a los ejes X e Y, respectivamente.
+     * </p>
+     *
+     * @param <T>       el tipo de los objetos asociados a los valores del eje X
+     * @param <J>       el tipo de los objetos asociados a los valores del eje Y
+     * @param XData     array de valores para el eje X (por ejemplo, fechas o categorías)
+     * @param XObjects  array de objetos de tipo {@code T} relacionados a cada valor de X
+     * @param YData     array de valores para el eje Y (por ejemplo, medidas o cantidades)
+     * @param YObjects  array de objetos de tipo {@code J} relacionados a cada valor de Y
+     * @param name      etiqueta o nombre de la serie de datos
+     * @param color     color para representar la serie en el gráfico
+     */
+    public <T, J> void addData(
+            Object[] XData,
+            T[] XObjects,
+            Object[] YData,
+            J[] YObjects,
+            String name,
+            Color[] color
+    ) {
+        this.data.add(new ChartData<>(
+                XData,
+                YData,
+                XObjects,
+                YObjects,
+                color,
+                name
+        ));
     }
+
 }
