@@ -211,7 +211,7 @@ public Component buildUncoveredTaskTypeChart() {
                         new XAxis(DataType.CATEGORY),
                         new YAxis(DataType.NUMBER))
         );
-
+//a
         // Agregar datos al gráfico
         volunteersDashboard.addData(
                 labels,

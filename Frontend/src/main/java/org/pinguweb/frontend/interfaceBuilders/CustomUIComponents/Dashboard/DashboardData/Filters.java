@@ -179,7 +179,7 @@ public class Filters extends InterfaceComponent {
         );
         return hmain;
     }
-
+//a
     private void addUpdatedChart(Dashboard dashboard, Tuple<AbstractChart, ChartData<?, ?>> pair, AbstractDataProvider<?> xFiltrado, AbstractDataProvider<?> yFiltrado, List<AbstractChart> data) {
         switch (dashboard.getType()) {
             case BAR, STACKED_BAR -> {
