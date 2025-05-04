@@ -3,6 +3,7 @@ package org.pinguweb.frontend.interfaceBuilders.Directors;
 import com.storedobject.chart.*;
 import com.vaadin.flow.component.Component;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.pingu.domain.DTO.NeedDTO;
 import org.pingu.domain.DTO.TaskDTO;
 import org.pingu.domain.DTO.VolunteerDTO;
@@ -43,7 +44,7 @@ public class DashboardBuilderDirector {
         TestString fr = new TestString("NeedsCo", LocalDate.now().minusDays(3), LocalDateTime.now().minusDays(3), 4, true);
         Filters firstFilter = Filters.builder().build();
 
-        Dashboard first = Dashboard.createSimpleDashboard("Test 1", ChartType.BAR, new RectangularCoordinate(
+        Dashboard first = Dashboard.createSimpleDashboard("Test 1", ChartType.PIE, new RectangularCoordinate(
                 new XAxis(DataType.CATEGORY),
                 new YAxis(DataType.NUMBER))
         );
@@ -54,16 +55,7 @@ public class DashboardBuilderDirector {
                 new Object[]{1, 2, 3, 4},
                 new Integer[]{1, 2, 3, 4},
                 "Mis datos",
-                new Color(0, 0, 255)
-        );
-
-        first.addData(
-                new Object[]{fs.getName(), sn.getName(), tr.getName(), fr.getName()},
-                new TestString[]{fs, sn, tr, fr},
-                new Object[]{1, 2, 3, 4},
-                new Integer[]{1, 2, 3, 4},
-                "Mis datos 2",
-                new Color(0, 255, 0)
+                new Color[]{new Color(0, 0, 255), new Color(255, 0, 0), new Color(0,255,0), new Color("#000000")}
         );
 
         firstFilter.addDashboard(first);

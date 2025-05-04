@@ -51,11 +51,16 @@ public class Dashboard extends InterfaceComponent {
                 layout.add(this.chart);
                 return layout;
             }
+            case PIE -> {
+                generatePieChart();
+                layout.add(this.chart);
+                return layout;
+            }
             default -> {return null;}
         }
     }
 
-    public void update(){
+    public void update(AbstractDataProvider<?> x, AbstractDataProvider<?> y){
         log.error("Los filtros están desactivados por ahora, sorry");
         try{
             switch (type){
@@ -79,8 +84,20 @@ public class Dashboard extends InterfaceComponent {
             bar.setColors(d.getColor());
             bar.setName(d.getLabel());
             bar.plotOn(this.coordinateConfiguration);
-            this.pairs.add(new Tuple<>(bar, d));
             this.chart.add(bar);
+        }
+    }
+
+    private void generatePieChart(){
+        this.chart.clear();
+        for (ChartData<?,?> d : data) {
+            AbstractDataProvider<?> xAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(0).getDataType(), d.flatten().stream().map(ChartPoint::getXValue).toArray());
+            AbstractDataProvider<?> yAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), d.flatten().stream().map(ChartPoint::getYValue).toArray());
+            PieChart pie = new PieChart(xAxis, (DataProvider) yAxis);
+            pie.setColors(d.getColor());
+            pie.setName(d.getLabel());
+            pie.plotOn(this.coordinateConfiguration);
+            this.chart.add(pie);
         }
     }
 
@@ -167,7 +184,7 @@ public class Dashboard extends InterfaceComponent {
             Object[] YData,
             J[] YObjects,
             String name,
-            Color color
+            Color[] color
     ) {
         this.data.add(new ChartData<>(
                 XData,
