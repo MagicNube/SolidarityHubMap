@@ -51,6 +51,12 @@ public class MapBuild {
         service.getZoneMarkerPoints().clear();
     }
 
+    public void editZone(Zone zone) {
+        service.getMap().off("click", clickFuncReferenceCreateZone);
+        log.debug("Zona editada");
+        zone.updateToServer();
+    }
+
     public void startRouteConstruction(RouteDTO routeDTO) {
         service.setTempRouteDTO(routeDTO);
         log.debug("Registrando puntos para la ruta");

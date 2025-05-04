@@ -105,12 +105,10 @@ public class MapDialogs {
                 zoneDTO.setID(0);
                 zoneDTO.setDescription(descriptionTextArea.getValue());
                 zoneDTO.setName(nameTextArea.getValue());
-                //TODO: Mirar como funcionan las catastrofes
                 zoneDTO.setCatastrophe(catastropheID);
                 zoneDTO.setEmergencyLevel(severityComboBox.getValue());
                 zoneDTO.setLatitudes(new ArrayList<>());
                 zoneDTO.setLongitudes(new ArrayList<>());
-                //TODO: Mirar como asignar storages
                 zoneDTO.setStorages(selectedStorageIDs);
 
 
@@ -305,6 +303,7 @@ public class MapDialogs {
             zone.setLatitudes(new ArrayList<>());
             zone.setLongitudes(new ArrayList<>());
             //TODO:PATCH
+            mapBuild.editZone(zone);
             dialog.close();
         });
 
