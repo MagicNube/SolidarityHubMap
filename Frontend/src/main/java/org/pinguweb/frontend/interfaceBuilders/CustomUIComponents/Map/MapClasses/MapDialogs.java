@@ -194,8 +194,7 @@ public class MapDialogs {
                 routeDTO.setName(nameTextArea.getValue());
                 routeDTO.setCatastrophe(catastropheID);
                 routeDTO.setPoints(new ArrayList<>());
-                routeDTO.setID(service.getTempIdRoute());
-                service.setTempIdRoute(service.getTempIdRoute() + 1);
+                routeDTO.setID(0);
                 routeDTO.setRouteType(routeTypeComboBox.getValue());
 
 
@@ -300,9 +299,6 @@ public class MapDialogs {
             zone.setCatastrophe(catastropheID);
             zone.setEmergencyLevel(severityComboBox.getValue());
             zone.setStorages(selectedStorageIDs);
-            zone.setLatitudes(new ArrayList<>());
-            zone.setLongitudes(new ArrayList<>());
-            //TODO:PATCH
             mapBuild.editZone(zone);
             dialog.close();
         });

@@ -9,6 +9,7 @@ import org.pinguweb.frontend.mapObjects.*;
 
 import java.security.Provider;
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Slf4j
 @Setter
@@ -55,6 +56,11 @@ public class MapBuild {
         service.getMap().off("click", clickFuncReferenceCreateZone);
         log.debug("Zona editada");
         zone.updateToServer();
+        service.getZones().stream().filter(z -> Objects.equals(z.getID(), zone.getID())).findFirst().ifPresent(z -> {
+            service.getZones().remove(z);
+            service.getZones().add(zone);
+        });
+        service.updateZone(zone);
     }
 
     public void startRouteConstruction(RouteDTO routeDTO) {
@@ -67,20 +73,32 @@ public class MapBuild {
     public void endRouteConstruction() {
         service.getMap().off("click", clickFuncReferenceCreateRoute);
         log.debug("Ruta terminada");
-        Route ruta = this.service.createRoute(service.getTempRouteDTO(), service.getRoutePoint());
-        ruta.pushToServer();
+        ArrayList<RoutePoint> routePoints = new ArrayList<>(service.getRoutePoint());
+        ArrayList<Integer> pointsID = new ArrayList<>();
+        for (RoutePoint routePoint : routePoints) {
+            pointsID.add(routePoint.pushToServer());
+        }
 
-        for (int i = service.getRoutePoints().size() - 2; i > 0; i--) {
+        Route ruta = this.service.createRoute(service.getTempRouteDTO(), service.getRoutePoint());
+        ruta.setPointsID(pointsID);
+        int tempID = ruta.pushToServer();
+
+        service.getRoutes().stream().filter(r -> r.getID() == service.getTempRouteDTO().getID()).findFirst().ifPresent(r -> {
+            service.getRoutes().remove(r);
+            service.getRoutes().add(ruta);
+        });
+        service.getRoutePoints().put(tempID, new ArrayList<>(service.getRoutePoint()));
+
+
+        for (int i = service.getRoutePoint().size() - 2; i > 0; i--) {
             RoutePoint routePoint = service.getRoutePoint().get(i);
             routePoint.removeFromMap(service.getMap());
-            service.getRoutePoints().remove(routePoint.getID());
+            service.getRoutePoint().remove(routePoint);
         }
 
-        service.getRoutePoints().put(service.getTempRouteDTO().getID(), new ArrayList<>(service.getRoutePoint()));
 
-        for (RoutePoint routePoint : service.getRoutePoint()) {
-            routePoint.removeFromMap(service.getMap());
-        }
+        service.getRoutePoint().clear();
+
     }
 
     public void startEdit() {

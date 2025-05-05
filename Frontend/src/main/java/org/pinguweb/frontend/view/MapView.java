@@ -64,10 +64,7 @@ public class MapView extends HorizontalLayout {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
-        //Cambiar para que se genere un ID
         RoutePoint routePoint = controller.createRoutePoint(obj.getNumber("lat"), obj.getNumber("lng"));
-        routePoint.setID(controller.getTempIdRoutePoint());
-        controller.setTempIdRoutePoint(controller.getTempIdRoutePoint() + 1);
 
         controller.getTempRouteDTO().getPoints().add(routePoint.getID());
 
@@ -129,8 +126,8 @@ public class MapView extends HorizontalLayout {
         Tuple<Double, Double> point = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
 
         int index = -1;
-        for (int i = 0; i < controller.getRoutePoints().size(); i++) {
-            RoutePoint t = controller.getRoutePoints().get(0).get(i);
+        for (int i = 0; i < controller.getRoutePoint().size(); i++) {
+            RoutePoint t = controller.getRoutePoint().get(i);
 
             if (Objects.equals(t.getLatitude(), controller.getRoutePointStartingPoint()._1()) && Objects.equals(t.getLongitude(), controller.getRoutePointStartingPoint()._2())) {
                 index = i;

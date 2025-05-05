@@ -117,6 +117,7 @@ public class Zone extends MapObject{
     @Override
     public int updateToServer() {
         ZoneDTO zoneDTO = new ZoneDTO();
+        zoneDTO.setID(this.getID());
         zoneDTO.setName(this.name);
         zoneDTO.setDescription(this.description);
         zoneDTO.setEmergencyLevel(this.emergencyLevel);
@@ -125,7 +126,7 @@ public class Zone extends MapObject{
         zoneDTO.setLatitudes(this.latitudes);
         zoneDTO.setLongitudes(this.longitudes);
 
-        String finurl = "/api/zones/" + this.getID();
+        String finurl = "/api/zones";
         try{
             HttpStatusCode status = BackendService.putToBackend(BackendService.BACKEND + finurl, zoneDTO);
             if (status == HttpStatus.OK){
