@@ -113,11 +113,26 @@ public class Route extends MapObject{
     @Override
     public int updateToServer() {
         RouteDTO routeDTO = new RouteDTO();
-        String finurl = "/api/routes/" + this.getID();
+        routeDTO.setID(this.getID());
+        routeDTO.setName(this.name);
+        routeDTO.setRouteType(this.routeType);
+        routeDTO.setCatastrophe(this.catastrophe);
+        routeDTO.setPoints(this.pointsID);
+        System.out.println(routeDTO.getPoints());
+        String finurl = "/api/routes";
         try{
-            HttpStatusCode status = BackendService.putToBackend(finurl, routeDTO);
+            HttpStatusCode status = BackendService.putToBackend(BackendService.BACKEND + finurl, routeDTO);
             if (status == HttpStatus.OK){
-
+                return this.getID();
+            }
+            else if (status == HttpStatus.NO_CONTENT){
+                log.error("FALLO: No se ha encontrado contenido en la petición: /api/routes");
+            }
+            else if (status == HttpStatus.SERVICE_UNAVAILABLE){
+                log.error("FALLO: Petición /api/routes devolvió servicio no disponible. ¿El backend funciona?");
+            }
+            else{
+                throw new RuntimeException("Backend object return unexpected status code");
             }
         }
         catch (Exception e){

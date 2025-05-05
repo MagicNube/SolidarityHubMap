@@ -13,7 +13,9 @@ import org.pinguweb.frontend.mapObjects.factories.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
+import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
+import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
 import java.util.ArrayList;
@@ -47,6 +49,11 @@ public class MapService {
 
     @Getter
     private HashMap<Integer, List<RoutePoint>> routePoints = new HashMap<>();
+
+    private LLayerGroup lLayerGroupZones;
+    private LLayerGroup lLayerGroupNeeds;
+    private LLayerGroup lLayerGroupRoutes;
+    private LLayerGroup lLayerGroupStorages;
 
     private ZoneDTO tempZoneDTO;
     private RouteDTO tempRouteDTO;
@@ -114,7 +121,6 @@ public class MapService {
         }
     }
 
-    // TODO: Texto para el el marcador de tarea
     public Need createNeed(NeedDTO needDTO) {
         double lat = needDTO.getLatitude();
         double lng = needDTO.getLongitude();
@@ -124,8 +130,8 @@ public class MapService {
 
         need.getMarkerObj().bindPopup(needDTO.getNeedType());
         needs.add(need);
-        //MapView.getLLayerGroupNeeds().addLayer(need.getMarkerObj());
-        //this.map.addLayer(MapView.getLLayerGroupNeeds());
+        lLayerGroupNeeds.addLayer(need.getMarkerObj());
+        this.map.addLayer(lLayerGroupNeeds);
 
         for (Need m : needs) {
             log.debug("ID: " + m.getID() + m);
@@ -144,8 +150,8 @@ public class MapService {
             need.removeFromMap(this.map);
             need.deleteFromServer();
             needs.remove(need);
-            //MapView.getLLayerGroupNeeds().removeLayer(need.getMarkerObj());
-            //this.map.addLayer(MapView.getLLayerGroupNeeds());
+            lLayerGroupNeeds.removeLayer(need.getMarkerObj());
+            this.map.addLayer(lLayerGroupNeeds);
         }
     }
 
@@ -198,9 +204,7 @@ public class MapService {
         zone.setName(zoneDTO.getName() != null ? zoneDTO.getName() : "Sin nombre");
         zone.setDescription(zoneDTO.getDescription() != null ? zoneDTO.getDescription() : "Sin descripción");
         zone.setEmergencyLevel(zoneDTO.getEmergencyLevel() != null ? zoneDTO.getEmergencyLevel() : "LOW"); // Nivel por defecto: "Bajo"
-        //System.out.println(zoneDTO.getCatastrophe());
         zone.setCatastrophe(zoneDTO.getCatastrophe() != null ? zoneDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
-        //System.out.println(zoneDTO.getStorages());
         zone.setStorages(zoneDTO.getStorages() != null ? zoneDTO.getStorages() : new ArrayList<>());
         zone.setLatitudes(zoneDTO.getLatitudes() != null ? zoneDTO.getLatitudes() : List.of(0.0));
         zone.setLongitudes(zoneDTO.getLongitudes() != null ? zoneDTO.getLongitudes() : List.of(0.0));
@@ -226,8 +230,8 @@ public class MapService {
         zone.addToMap(this.map);
 
         zones.add(zone);
-        //MapView.getLLayerGroupZones().addLayer(zone.getPolygon());
-        //this.map.addLayer(MapView.getLLayerGroupZones());
+        lLayerGroupZones.addLayer(zone.getPolygon());
+        this.map.addLayer(lLayerGroupZones);
 
         return zone;
     }
@@ -241,8 +245,8 @@ public class MapService {
             zone.removeFromMap(this.map);
             zone.deleteFromServer();
             zones.remove(zone);
-            //MapView.getLLayerGroupZones().removeLayer(zone.getPolygon());
-            //this.map.addLayer(MapView.getLLayerGroupZones());
+            lLayerGroupZones.removeLayer(zone.getPolygon());
+            this.map.addLayer(lLayerGroupZones);
         }
     }
 
@@ -277,13 +281,20 @@ public class MapService {
         route.setRouteType(routeDTO.getRouteType());
         route.setName(routeDTO.getName() != null ? routeDTO.getName() : "Sin nombre");
         route.setCatastrophe(routeDTO.getCatastrophe() != null ? routeDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
+        route.setPointsID(routeDTO.getPoints() != null ? (ArrayList<Integer>) routeDTO.getPoints() : new ArrayList<>());
 
-        route.addToMap(this.map);
         route.getPolygon().bindPopup(route.getName());
         routes.add(route);
 
+        lLayerGroupRoutes.addLayer(route.getPolygon());
+        lLayerGroupRoutes.addLayer(routePoints.get(0).getMarkerObj());
+        lLayerGroupRoutes.addLayer(routePoints.get(routePoints.size() - 1).getMarkerObj());
+        this.map.addLayer(lLayerGroupRoutes);
+
         return route;
     }
+
+
 
     public void deleteRoute(int ID) {
         Route route = routes.stream()
@@ -300,6 +311,10 @@ public class MapService {
                     routePoint.removeFromMap(this.map);
                 }
                 routes.remove(route);
+                lLayerGroupRoutes.removeLayer(route.getPolygon());
+                lLayerGroupRoutes.addLayer(routePoints.get(0).getMarkerObj());
+                lLayerGroupRoutes.addLayer(routePoints.get(routePoints.size() - 1).getMarkerObj());
+                this.map.addLayer(lLayerGroupRoutes);
                 this.routePoints.remove(route.getID());
             }
             log.debug("Route deleted: {}", route.getID());
@@ -349,4 +364,33 @@ public class MapService {
         zone.getPolygon().bindPopup(zone.getName());
         zone.getPolygon().addTo(this.map);
     }
+
+    public void updateRoute(Route route) {
+        route.getPolygon().removeFrom(this.map);
+        switch (route.getRouteType()) {
+            case "PREFERRED_ROUTE":
+                route.generatePolygon(reg, "green", "green");
+                break;
+            case "LOW_RISK":
+                route.generatePolygon(reg, "yellow", "yellow");
+                break;
+            case "MEDIUM_RISK":
+                route.generatePolygon(reg, "red", "red");
+                break;
+            case "HIGH_RISK":
+                route.generatePolygon(reg, "black", "black");
+                break;
+            case "CLOSED":
+                route.generatePolygon(reg, "blue", "blue");
+                break;
+            default:
+                route.generatePolygon(reg, "blue", "blue");
+        }
+        route.getPolygon().bindPopup(route.getName());
+        route.getPolygon().addTo(this.map);
+        for (RoutePoint routePoint : this.routePoints.get(route.getID())) {
+            routePoint.getMarkerObj().bindPopup(route.getName());
+        }
+    }
+
 }

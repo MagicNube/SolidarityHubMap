@@ -135,20 +135,20 @@ public class MapButtons {
     }
 
 
-    public HorizontalLayout generateButtonRow(){
+    public HorizontalLayout generateButtonRow() {
         HorizontalLayout hlayout = new HorizontalLayout();
 
-        if (this.map.isCanCreateZones()){
-            hlayout.add(this.zone);
-        }
-        if (this.map.isCanCreateStorages()){
-            hlayout.add(this.storage);
-        }
-        if (this.map.isCanCreateRoutes()){
-            hlayout.add(this.route);
-        }
 
-        if (hlayout.getChildren().findAny().isPresent()){
+        hlayout.add(this.zone);
+
+
+        hlayout.add(this.storage);
+
+
+        hlayout.add(this.route);
+
+
+        if (hlayout.getChildren().findAny().isPresent()) {
             hlayout.add(this.edit, this.delete);
         }
 

@@ -13,7 +13,14 @@ import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.yaml.snakeyaml.util.Tuple;
+import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
+import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
+import software.xdev.vaadin.maps.leaflet.controls.LControlScale;
+import software.xdev.vaadin.maps.leaflet.controls.LControlScaleOptions;
+import software.xdev.vaadin.maps.leaflet.layer.LLayer;
+import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 
+import java.util.LinkedHashMap;
 import java.util.Objects;
 
 @Route("map")
@@ -31,6 +38,43 @@ public class MapView extends HorizontalLayout {
         MapBuilderDirector director = new MapBuilderDirector();
         this.add(NavigationBar.createNavBar());
         this.add(director.createFullMap());
+        this.generateLayers();
+        controller.load();
+
+    }
+
+    private void generateLayers() {
+
+        controller.setLLayerGroupNeeds(new LLayerGroup(controller.getReg()));
+        controller.setLLayerGroupZones(new LLayerGroup(controller.getReg()));
+        controller.setLLayerGroupRoutes(new LLayerGroup(controller.getReg()));
+        controller.setLLayerGroupStorages(new LLayerGroup(controller.getReg()));
+        addControls(
+                controller.getLLayerGroupZones(),
+                controller.getLLayerGroupNeeds(),
+                controller.getLLayerGroupRoutes()
+        );
+
+    }
+
+    public void addControls(
+            final LLayerGroup lLayerGroupZones,
+            final LLayerGroup lLayerGroupNeeds,
+            final LLayerGroup lLayerGroupRoutes
+    ) {
+        // Use LinkedHashMap for order
+        final LinkedHashMap<String, LLayer<?>> baseLayers = new LinkedHashMap<>();
+        final LControlLayers lControlLayers = new LControlLayers(
+                controller.getReg(),
+                baseLayers,
+                new LControlLayersOptions().withCollapsed(true))
+                .addOverlay(lLayerGroupNeeds, "Necesidades")
+                .addOverlay(lLayerGroupZones, "Zonas")
+                .addOverlay(lLayerGroupRoutes, "Rutas")
+                .addTo(controller.getMap());
+
+        controller.getMap().addControl(lControlLayers);
+        controller.getMap().addLayer(lLayerGroupZones).addLayer(lLayerGroupNeeds);
     }
 
     public static void setMapService(MapService controller) {

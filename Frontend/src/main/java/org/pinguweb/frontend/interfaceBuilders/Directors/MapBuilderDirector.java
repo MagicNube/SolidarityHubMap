@@ -8,16 +8,8 @@ public class MapBuilderDirector {
 
     MapBuilder builder = new MapBuilder();
 
-    public Component createFullMap(){
+    public Component createFullMap() {
         Map map = Map.builder()
-                .canCreateNeeds(true)
-                .canSeeNeeds(true)
-                .canCreateRoutes(true)
-                .canSeeRoutes(true)
-                .canCreateStorages(true)
-                .canSeeStorages(true)
-                .canCreateZones(true)
-                .canSeeNeeds(true)
                 .build();
 
         builder.reset();

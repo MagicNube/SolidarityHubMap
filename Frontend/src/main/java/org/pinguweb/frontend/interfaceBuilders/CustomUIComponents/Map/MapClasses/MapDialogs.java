@@ -353,27 +353,43 @@ public class MapDialogs {
         routeTypeComboBox.setItems(routeTypeOptions);
         routeTypeComboBox.setValue(route.getRouteType());
 
+        ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
+        catastropheComboBox.setItems(Catastrophe.getAllFromServer().stream().map(CatastropheDTO::getName).toList());
+
         Button cancelButton = new Button("Cancelar");
         cancelButton.addClickListener(event -> {
             dialog.close();
         });
         Button acceptButton = new Button("Aceptar", event -> {
+            int catastropheID = catastropheComboBox.getValue() != null ? Catastrophe.getAllFromServer().stream()
+                    .filter(catastropheDTO -> catastropheDTO.getName().equals(catastropheComboBox.getValue()))
+                    .findFirst()
+                    .map(CatastropheDTO::getID)
+                    .orElse(0) : 0;
+
             route.setName(nameTextArea.getValue());
             route.setRouteType(routeTypeComboBox.getValue());
-            //TODO:PATCH
+            route.setCatastrophe(catastropheID);
+            route.setPointsID(service.getRouteByID(routeID).getPointsID());
+            route.updateToServer();
+            service.updateRoute(route);
             dialog.close();
         });
 
         acceptButton.setEnabled(false);
         nameTextArea.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null);
+            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
         });
         routeTypeComboBox.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null);
+            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
+        });
+        catastropheComboBox.addValueChangeListener(event -> {
+            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
         });
 
+
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
-        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, routeTypeComboBox, buttonLayout);
+        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, routeTypeComboBox, catastropheComboBox, buttonLayout);
         dialog.add(dialogLayout);
         dialog.open();
         icoClose.addClickListener(iev -> {

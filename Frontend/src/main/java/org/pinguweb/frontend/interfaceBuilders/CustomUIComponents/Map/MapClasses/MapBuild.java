@@ -98,7 +98,17 @@ public class MapBuild {
 
 
         service.getRoutePoint().clear();
+    }
 
+    public void editRoute(org.pinguweb.frontend.mapObjects.Route route) {
+        service.getMap().off("click", clickFuncReferenceCreateRoute);
+        log.debug("Ruta editada");
+        route.updateToServer();
+        service.getRoutes().stream().filter(r -> Objects.equals(r.getID(), route.getID())).findFirst().ifPresent(r -> {
+            service.getRoutes().remove(r);
+            service.getRoutes().add(route);
+        });
+        service.updateRoute(route);
     }
 
     public void startEdit() {
