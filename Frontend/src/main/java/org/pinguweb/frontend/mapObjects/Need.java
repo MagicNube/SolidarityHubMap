@@ -61,7 +61,7 @@ public class Need extends MapObject{
 
     @Override
     public int deleteFromServer() {
-        String finurl = "/api/zones/" + this.getID();
+        String finurl = "/api/needs/" + this.getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(finurl);
             if (status == HttpStatus.OK){
@@ -74,9 +74,10 @@ public class Need extends MapObject{
         return 0;
     }
 
+    //TODO Comprobar si aquí la url es api zones o api needs
     @Override
     public int updateToServer() {
-        String finurl = "/api/zones/" + this.getID();
+        String finurl = "/api/needs/" + this.getID();
         try{
             HttpStatusCode status = BackendService.putToBackend(finurl, this);
             if (status == HttpStatus.OK){

@@ -30,21 +30,7 @@ public class Storage extends MapObject{
     LMarker markerObj;
 
     public Storage(LComponentManagementRegistry reg, Double latitude, Double longitude){
-        this.setLatitude(latitude);
-        this.setLongitude(longitude);
-
-        LIcon icon = new LIcon(reg, new LIconOptions()
-                .withIconUrl("https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png")
-                .withShadowUrl("https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png")
-                .withIconSize(new LPoint(reg, 25, 41))
-                .withIconAnchor(new LPoint(reg, 12, 41))
-                .withPopupAnchor(new LPoint(reg, 1, -34))
-                .withShadowSize(new LPoint(reg, 41, 41))
-        );
-
-        LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
-
-        this.markerObj = new LMarker(reg, new LLatLng(reg, this.getLatitude(), this.getLongitude()), options);
+        this.markerObj = new LMarker(reg, new LLatLng(reg, latitude, longitude));
     }
 
     @Override
@@ -113,6 +99,9 @@ public class Storage extends MapObject{
                 });
 
         if (storages.getStatusCode() == HttpStatus.OK) {
+            System.out.println("PEDIDOS ALMACENES A BACKEND");
+            System.out.println(storages.getData().size());
+            System.out.println(Arrays.toString(storages.getData().toArray()));
             return storages.getData();
         } else if (storages.getStatusCode() == HttpStatus.NO_CONTENT) {
             log.error("FALLO: No se ha encontrado contenido en la petición: /api/storages");

@@ -81,7 +81,7 @@ public class MapView extends HorizontalLayout {
                 .addTo(controller.getMap());
 
         controller.getMap().addControl(lControlLayers);
-        controller.getMap().addLayer(lLayerGroupZones).addLayer(lLayerGroupNeeds);
+        controller.getMap().addLayer(lLayerGroupZones).addLayer(lLayerGroupNeeds).addLayer(lLayerGroupRoutes).addLayer(lLayerGroupStorages);
     }
 
     public static void setMapService(MapService controller) {
@@ -101,7 +101,6 @@ public class MapView extends HorizontalLayout {
         ZoneMarker zoneMarker = controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
         controller.getTempZoneDTO().getLatitudes().add(obj.getNumber("lat"));
         controller.getTempZoneDTO().getLongitudes().add(obj.getNumber("lng"));
-
         controller.getZoneMarkerPoints().add(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
         controller.getZoneMarkers().put(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")), zoneMarker);
 

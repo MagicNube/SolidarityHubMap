@@ -136,7 +136,7 @@ public class MapService {
 
     }
 
-    private void createStorage(StorageDTO storage) {
+    private Storage createStorage(StorageDTO storage) {
         double lat = storage.getLatitude();
         double lng = storage.getLongitude();
         Storage storageObj = (Storage) storageFactory.createMapObject(reg, lat, lng);
@@ -146,6 +146,8 @@ public class MapService {
         storages.add(storageObj);
         lLayerGroupStorages.addLayer(storageObj.getMarkerObj());
         this.map.addLayer(lLayerGroupStorages);
+
+        return storageObj;
     }
 
     public Need createNeed(NeedDTO needDTO) {
@@ -320,8 +322,6 @@ public class MapService {
 
         return route;
     }
-
-
 
     public void deleteRoute(int ID) {
         Route route = routes.stream()
