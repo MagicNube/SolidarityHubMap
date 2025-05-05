@@ -4,10 +4,7 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasse
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.pingu.domain.DTO.NeedDTO;
-import org.pingu.domain.DTO.RouteDTO;
-import org.pingu.domain.DTO.RoutePointDTO;
-import org.pingu.domain.DTO.ZoneDTO;
+import org.pingu.domain.DTO.*;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
 import org.springframework.scheduling.annotation.Async;
@@ -37,6 +34,9 @@ public class MapService {
 
     @Setter
     private String ID;
+
+    @Getter
+    private HashSet<Storage> storages = new HashSet<>();
 
     @Getter
     private HashSet<Need> needs = new HashSet<>();
@@ -70,6 +70,7 @@ public class MapService {
     private ZoneMarkerFactory zoneMarkerFactory;
     private RouteFactory routeFactory;
     private RoutePointFactory routePointFactory;
+    private StorageFactory storageFactory;
 
     public MapService() {
         this.needFactory = new NeedFactory();
@@ -77,6 +78,7 @@ public class MapService {
         this.zoneMarkerFactory = new ZoneMarkerFactory();
         this.routeFactory = new RouteFactory();
         this.routePointFactory = new RoutePointFactory();
+        this.storageFactory = new StorageFactory();
     }
 
 
@@ -118,7 +120,32 @@ public class MapService {
                     createRoute(route, routePoints);
                 }
             }
+
         }
+
+        for (StorageDTO storage : Storage.getAllFromServer()) {
+            if (storage.getLatitude() != null && storage.getLongitude() != null) {
+                createStorage(storage);
+            }
+        }
+
+
+
+
+
+
+    }
+
+    private void createStorage(StorageDTO storage) {
+        double lat = storage.getLatitude();
+        double lng = storage.getLongitude();
+        Storage storageObj = (Storage) storageFactory.createMapObject(reg, lat, lng);
+        storageObj.setID(storage.getID());
+        storageObj.addToMap(this.map);
+
+        storages.add(storageObj);
+        lLayerGroupStorages.addLayer(storageObj.getMarkerObj());
+        this.map.addLayer(lLayerGroupStorages);
     }
 
     public Need createNeed(NeedDTO needDTO) {

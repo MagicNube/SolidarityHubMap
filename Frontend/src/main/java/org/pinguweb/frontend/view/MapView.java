@@ -35,10 +35,14 @@ public class MapView extends HorizontalLayout {
     public MapView() {
         this.setSizeFull();
         this.setId(mapId);
+
         MapBuilderDirector director = new MapBuilderDirector();
+
         this.add(NavigationBar.createNavBar());
         this.add(director.createFullMap());
+
         this.generateLayers();
+
         controller.load();
 
     }
@@ -52,7 +56,8 @@ public class MapView extends HorizontalLayout {
         addControls(
                 controller.getLLayerGroupZones(),
                 controller.getLLayerGroupNeeds(),
-                controller.getLLayerGroupRoutes()
+                controller.getLLayerGroupRoutes(),
+                controller.getLLayerGroupStorages()
         );
 
     }
@@ -60,7 +65,8 @@ public class MapView extends HorizontalLayout {
     public void addControls(
             final LLayerGroup lLayerGroupZones,
             final LLayerGroup lLayerGroupNeeds,
-            final LLayerGroup lLayerGroupRoutes
+            final LLayerGroup lLayerGroupRoutes,
+            final LLayerGroup lLayerGroupStorages
     ) {
         // Use LinkedHashMap for order
         final LinkedHashMap<String, LLayer<?>> baseLayers = new LinkedHashMap<>();
@@ -71,6 +77,7 @@ public class MapView extends HorizontalLayout {
                 .addOverlay(lLayerGroupNeeds, "Necesidades")
                 .addOverlay(lLayerGroupZones, "Zonas")
                 .addOverlay(lLayerGroupRoutes, "Rutas")
+                .addOverlay(lLayerGroupStorages, "Almacenes")
                 .addTo(controller.getMap());
 
         controller.getMap().addControl(lControlLayers);
