@@ -395,7 +395,7 @@ public class DashboardBuilderDirector {
     }
     //TODO: Nico necesitamos los controles de Resource que no están
     public Component buildResourcesByTypeChart() {
-        calculateResourcesByType();
+        //calculateResourcesByType();
 
         String[] labels = Arrays.stream(ResourceType.values())
                 .map(ResourceType::name)
@@ -433,7 +433,7 @@ public class DashboardBuilderDirector {
     }
 //Todo: Nico necesitamos los controler de Resource que no están
     public Component buildResourcesByTypePieChart() {
-        calculateResourcesByType();
+        //calculateResourcesByType();
 
         List<String> lbl = new ArrayList<>();
         List<Integer> val = new ArrayList<>();
@@ -471,7 +471,7 @@ public class DashboardBuilderDirector {
     }
 
 //TODO: Nico necesitamos los controles de Resource que no están
-    public void calculateResourcesByType() {
+    /*public void calculateResourcesByType() {
         Arrays.fill(resourcesByType, 0);
         Map<ResourceType, Integer> map = new EnumMap<>(ResourceType.class);
         List<ResourceDTO> recursos = Resource.getAllFromServer();
@@ -482,7 +482,7 @@ public class DashboardBuilderDirector {
         for (int i = 0; i < ResourceType.values().length; i++) {
             resourcesByType[i] = map.getOrDefault(ResourceType.values()[i], 0);
         }
-    }
+    }*/
 
     public void calculateCompletedTasksPerDay() {
         List<TaskDTO> list = Task.getAllFromServer();

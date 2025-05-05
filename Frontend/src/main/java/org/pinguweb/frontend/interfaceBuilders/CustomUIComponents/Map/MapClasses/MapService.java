@@ -47,9 +47,6 @@ public class MapService {
     private HashSet<Route> routes = new HashSet<>();
 
     @Getter
-    private HashSet<Storage> storages = new HashSet<>();
-
-    @Getter
     private HashMap<Integer, List<RoutePoint>> routePoints = new HashMap<>();
 
     private Object lock = new Object();
@@ -177,19 +174,6 @@ public class MapService {
 
     }
 
-    private Storage createStorage(StorageDTO storage) {
-        double lat = storage.getLatitude();
-        double lng = storage.getLongitude();
-        Storage storageObj = (Storage) storageFactory.createMapObject(reg, lat, lng);
-        storageObj.setID(storage.getID());
-        storageObj.addToMap(this.map);
-
-        storages.add(storageObj);
-        lLayerGroupStorages.addLayer(storageObj.getMarkerObj());
-        this.map.addLayer(lLayerGroupStorages);
-
-        return storageObj;
-    }
 
     public Storage createStorage(StorageDTO storage) {
         double lat = storage.getLatitude();
@@ -399,8 +383,8 @@ public class MapService {
                 }
                 routes.remove(route);
                 lLayerGroupRoutes.removeLayer(route.getPolygon());
-                lLayerGroupRoutes.addLayer(routePoints.get(0).getMarkerObj());
-                lLayerGroupRoutes.addLayer(routePoints.get(routePoints.size() - 1).getMarkerObj());
+                lLayerGroupRoutes.removeLayer(routePoints.get(0).getMarkerObj());
+                lLayerGroupRoutes.removeLayer(routePoints.get(routePoints.size() - 1).getMarkerObj());
                 this.map.addLayer(lLayerGroupRoutes);
                 this.routePoints.remove(route.getID());
             }

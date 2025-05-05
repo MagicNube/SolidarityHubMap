@@ -113,9 +113,6 @@ public class Storage extends MapObject{
                 });
 
         if (storages.getStatusCode() == HttpStatus.OK) {
-            System.out.println("PEDIDOS ALMACENES A BACKEND");
-            System.out.println(storages.getData().size());
-            System.out.println(Arrays.toString(storages.getData().toArray()));
             return storages.getData();
         } else if (storages.getStatusCode() == HttpStatus.NO_CONTENT) {
             log.error("FALLO: No se ha encontrado contenido en la petición: /api/storages");
