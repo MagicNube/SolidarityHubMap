@@ -9,8 +9,9 @@ public abstract class MapObject {
     private Double longitude;
     private Integer ID;
 
-    public abstract void pushToServer();
-    public abstract void deleteFromServer();
+    public abstract int pushToServer();
+    public abstract int deleteFromServer();
+    public abstract int updateToServer();
 
     public abstract void addToMap(LMap map);
     public abstract void removeFromMap(LMap map);

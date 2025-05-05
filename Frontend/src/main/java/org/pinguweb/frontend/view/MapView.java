@@ -13,7 +13,14 @@ import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.yaml.snakeyaml.util.Tuple;
+import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
+import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
+import software.xdev.vaadin.maps.leaflet.controls.LControlScale;
+import software.xdev.vaadin.maps.leaflet.controls.LControlScaleOptions;
+import software.xdev.vaadin.maps.leaflet.layer.LLayer;
+import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 
+import java.util.LinkedHashMap;
 import java.util.Objects;
 
 @Route("map")
@@ -31,6 +38,43 @@ public class MapView extends HorizontalLayout {
         MapBuilderDirector director = new MapBuilderDirector();
         this.add(NavigationBar.createNavBar());
         this.add(director.createFullMap());
+        this.generateLayers();
+        controller.load();
+
+    }
+
+    private void generateLayers() {
+
+        controller.setLLayerGroupNeeds(new LLayerGroup(controller.getReg()));
+        controller.setLLayerGroupZones(new LLayerGroup(controller.getReg()));
+        controller.setLLayerGroupRoutes(new LLayerGroup(controller.getReg()));
+        controller.setLLayerGroupStorages(new LLayerGroup(controller.getReg()));
+        addControls(
+                controller.getLLayerGroupZones(),
+                controller.getLLayerGroupNeeds(),
+                controller.getLLayerGroupRoutes()
+        );
+
+    }
+
+    public void addControls(
+            final LLayerGroup lLayerGroupZones,
+            final LLayerGroup lLayerGroupNeeds,
+            final LLayerGroup lLayerGroupRoutes
+    ) {
+        // Use LinkedHashMap for order
+        final LinkedHashMap<String, LLayer<?>> baseLayers = new LinkedHashMap<>();
+        final LControlLayers lControlLayers = new LControlLayers(
+                controller.getReg(),
+                baseLayers,
+                new LControlLayersOptions().withCollapsed(true))
+                .addOverlay(lLayerGroupNeeds, "Necesidades")
+                .addOverlay(lLayerGroupZones, "Zonas")
+                .addOverlay(lLayerGroupRoutes, "Rutas")
+                .addTo(controller.getMap());
+
+        controller.getMap().addControl(lControlLayers);
+        controller.getMap().addLayer(lLayerGroupZones).addLayer(lLayerGroupNeeds);
     }
 
     public static void setMapService(MapService controller) {
@@ -64,10 +108,7 @@ public class MapView extends HorizontalLayout {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
-        //Cambiar para que se genere un ID
         RoutePoint routePoint = controller.createRoutePoint(obj.getNumber("lat"), obj.getNumber("lng"));
-        routePoint.setID(controller.getTempIdRoutePoint());
-        controller.setTempIdRoutePoint(controller.getTempIdRoutePoint() + 1);
 
         controller.getTempRouteDTO().getPoints().add(routePoint.getID());
 
@@ -129,8 +170,8 @@ public class MapView extends HorizontalLayout {
         Tuple<Double, Double> point = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
 
         int index = -1;
-        for (int i = 0; i < controller.getRoutePoints().size(); i++) {
-            RoutePoint t = controller.getRoutePoints().get(0).get(i);
+        for (int i = 0; i < controller.getRoutePoint().size(); i++) {
+            RoutePoint t = controller.getRoutePoint().get(i);
 
             if (Objects.equals(t.getLatitude(), controller.getRoutePointStartingPoint()._1()) && Objects.equals(t.getLongitude(), controller.getRoutePointStartingPoint()._2())) {
                 index = i;

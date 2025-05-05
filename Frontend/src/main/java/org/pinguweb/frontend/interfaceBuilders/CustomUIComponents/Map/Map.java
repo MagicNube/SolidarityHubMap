@@ -12,6 +12,10 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapState;
 import org.pinguweb.frontend.view.MapView;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
+import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
+import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
+import software.xdev.vaadin.maps.leaflet.controls.LControlScale;
+import software.xdev.vaadin.maps.leaflet.controls.LControlScaleOptions;
 import software.xdev.vaadin.maps.leaflet.layer.LLayer;
 import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
@@ -20,21 +24,12 @@ import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Getter
 @SuperBuilder
 public class Map extends InterfaceComponent {
-
-    protected final boolean canCreateNeeds;
-    protected final boolean canCreateZones;
-    protected final boolean canCreateStorages;
-    protected final boolean canCreateRoutes;
-
-    protected final boolean canSeeNeeds;
-    protected final boolean canSeeZones;
-    protected final boolean canSeeStorages;
-    protected final boolean canSeeRoutes;
 
     protected final GPSCoordinates startingPosition;
 
@@ -51,7 +46,7 @@ public class Map extends InterfaceComponent {
         return component;
     }
 
-    public void loadView(){
+    public void loadView() {
         this.component = new VerticalLayout();
         this.component.setSizeFull();
 
@@ -62,9 +57,6 @@ public class Map extends InterfaceComponent {
 
         LLayer<LTileLayer> layer = LTileLayer.createDefaultForOpenStreetMapTileServer(reg);
         this.map.addLayer(layer);
-
-        //TODO: Agregar layers en función de lo que se requiera + guardarlas
-        //generateLayers();
 
         this.map.locate(new LMapLocateOptions().withSetView(true).withMaxZoom(16));
 
@@ -77,30 +69,10 @@ public class Map extends InterfaceComponent {
         component.add(mapContainer);
         component.add(new MapButtons(this.service, this).generateButtonRow());
 
-        this.service.load();
     }
 
-    private void generateLayers(){
-        List<LLayerGroup> layers = new ArrayList<>();
 
-        if(this.canSeeNeeds){
-            layers.add(new LLayerGroup(this.reg));
-        }
-        if(this.canSeeRoutes){
-            layers.add(new LLayerGroup(this.reg));
-        }
-        if(this.canSeeStorages){
-            layers.add(new LLayerGroup(this.reg));
-        }
-        if(this.canSeeRoutes){
-            layers.add(new LLayerGroup(this.reg));
-        }
 
-        for(LLayerGroup layer : layers){
-            this.map.addLayer(layer);
-            //TODO: AddControls?
-        }
-    }
 
 
 
