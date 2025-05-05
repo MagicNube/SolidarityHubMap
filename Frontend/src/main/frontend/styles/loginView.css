@@ -1,0 +1,75 @@
+/* Google Fonts Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+body, .login-view {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.login-view {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background: url('../backgrounds/mainViewFondo.jpg') center/cover no-repeat fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.login-view::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 0;
+}
+
+.login-form {
+    position: relative;
+    z-index: 1;
+    width: 360px;
+    max-width: 90%;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.login-form::before {
+    content: "Acceso administradores";
+    display: block;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.back-button {
+    position: relative;
+    z-index: 1;
+    margin-top: 1rem;
+    background: transparent;
+    border: 2px solid white;
+    border-radius: 8px;
+    padding: 12px 24px;
+    color: white;
+    font-size: 0.9rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+    .login-form {
+        width: 90%;
+        padding: 1.5rem;
+    }
+}

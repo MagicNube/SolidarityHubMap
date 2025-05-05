@@ -1,12 +1,10 @@
-/* src/main/frontend/styles/mainView.css */
-
 /* Google Fonts Montserrat */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 body, .main {
-    font-family: 'Montserrat', sans-serif;
     margin: 0;
     padding: 0;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .main {
@@ -26,7 +24,7 @@ body, .main {
     display: flex;
     align-items: center;
     padding: 1rem 2rem;
-    background: transparent;
+    background: transparent;           /* ← totalmente transparente */
     width: 80%;
     max-width: 1200px;
     z-index: 2;
@@ -41,7 +39,6 @@ body, .main {
 
 .nav-button,
 .nav-combo {
-    /* antes tenías height, padding, etc… */
     height: 2.5rem;
     padding: 0 1.5rem;
     font-weight: 600;
@@ -50,18 +47,25 @@ body, .main {
     border: none;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
-
     width: 11rem;
-    min-width: 11rem;
     box-sizing: border-box;
     text-align: center;
 }
-
 
 .nav-button:hover,
 .nav-combo:hover {
     background: rgba(255,255,255,0.2);
     transform: scale(1.05);
+}
+
+.nav-button:focus,
+.content-button:focus {
+    outline: 2px dashed rgba(255,255,255,0.8);
+    outline-offset: 2px;
+}
+
+.nav-combo::part(input-field):focus-within {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.8);
 }
 
 .nav-combo::part(input-field) {
@@ -76,24 +80,10 @@ body, .main {
     color: white;
 }
 
-.nav-combo::part(panel) {
-    background: rgba(0,0,0,0.7);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    border: none;
-    border-radius: 4px;
-}
-
-.nav-combo::part(item) {
-    padding: 0.5rem 1rem;
-    text-align: center;
-    color: white;
-}
-
 .nav-combo::part(item):hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1);
 }
 
-/* Animaciones para contenido central */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -157,23 +147,16 @@ body, .main {
     transform: scale(1.05);
 }
 
-.app-header h1 {
-    margin: 0;
-    padding-left: 0.5rem;
-    line-height: 60px;
-    font-size: 1.5rem;
-    color: white;
+@media (max-width: 600px) {
+    .app-header {
+        width: 100%;
+        padding: 0.5rem 1rem;
+    }
+    .nav-button,
+    .nav-combo {
+        flex: 1;
+        width: auto;
+        padding: 0 1rem;
+        font-size: 0.9rem;
+    }
 }
-
-.nav-combo {
-    /* hace transparente todito el text-field, incluído el fondo por defecto */
-    --lumo-field-background-color: transparent;
-    --lumo-primary-text-color: white;
-}
-
-/* para asegurarnos también en foco */
-.nav-combo::part(input-field),
-.nav-combo::part(input-field):focus-within {
-    background: transparent;
-}
-

@@ -7,6 +7,8 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -43,7 +45,11 @@ public class MainView extends VerticalLayout {
         );
         subtitle.addClassName("content-subtitle");
 
-        Button login = new Button("Iniciar Sesión", e -> UI.getCurrent().navigate("login"));
+        Icon arrow = VaadinIcon.ARROW_RIGHT.create();
+        Button login = new Button("Iniciar Sesión", arrow, e ->
+                getUI().ifPresent(ui -> ui.navigate("login"))
+        );
+        login.setIconAfterText(true);
         login.addClassName("content-button");
 
         content.add(title, subtitle, login);
