@@ -39,7 +39,7 @@ public class MainView extends VerticalLayout {
         title.addClassName("content-title");
 
         Paragraph subtitle = new Paragraph(
-                "Por favor, inicia sesión para acceder a las funcionalidades."
+                "Inicia sesión para acceder a las funcionalidades."
         );
         subtitle.addClassName("content-subtitle");
 
@@ -54,6 +54,17 @@ public class MainView extends VerticalLayout {
     private HorizontalLayout createHeader() {
         Image logo = new Image("icons/PinguLogo.png", "Logo");
         logo.setHeight("60px");
+
+        H1 appName = new H1("Solidarity Hub");
+        appName.getStyle()
+                .set("color", "white")
+                .set("font-size", "1.5rem")
+                .set("margin", "0 0 0 0.5rem");
+
+        HorizontalLayout left = new HorizontalLayout(logo, appName);
+        left.setAlignItems(Alignment.CENTER);
+
+        logo.getElement().setAttribute("title", "Logo de Pingu Solidarity Hub");
 
         Button home = new Button("Home", e -> UI.getCurrent().navigate(""));
         Button about = new Button("About Us", e -> UI.getCurrent().navigate("about"));
@@ -70,7 +81,7 @@ public class MainView extends VerticalLayout {
         right.setSpacing(true);
         right.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        HorizontalLayout header = new HorizontalLayout(logo, right);
+        HorizontalLayout header = new HorizontalLayout(left, right);
         header.addClassName("app-header");
         header.setWidthFull();
         header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);

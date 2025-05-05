@@ -1,24 +1,29 @@
 /* src/main/frontend/styles/mainView.css */
 
+/* Google Fonts Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+body, .main {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
 .main {
-    /* Fondo full-screen */
-    background: url('../backgrounds/mainViewFondo.jpg') center / cover no-repeat fixed;
+    background: url('../backgrounds/mainViewFondo.jpg') center/cover no-repeat fixed;
     width: 100vw;
     height: 100vh;
     display: flex;
     flex-direction: column;
-    margin: 0;
     overflow: hidden;
 }
 
 .app-header {
-    /* Header centrado y transparente */
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
     background: transparent;
@@ -27,31 +32,44 @@
     z-index: 2;
 }
 
-.nav-button,
-.nav-combo {
-    /* ancho fijo */
-    flex: 0 0 200px;   /* no crece, no encoge, ocupa 200px */
-    width: 200px;
-    text-align: center;
-    margin: 0 0.5rem;  /* mismo espaciado para ambos */
-}
-.nav-button {
-    background: none;
-    font-weight: bold;
-    color: white;
-    border: none;
-    cursor: pointer;
+.app-header .right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
 }
 
+.nav-button,
 .nav-combo {
-    background-color: transparent;
+    /* antes tenías height, padding, etc… */
+    height: 2.5rem;
+    padding: 0 1.5rem;
+    font-weight: 600;
     color: white;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+
+    width: 11rem;
+    min-width: 11rem;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+
+.nav-button:hover,
+.nav-combo:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.05);
 }
 
 .nav-combo::part(input-field) {
-    background-color: transparent;
+    background: transparent;
     color: white;
-    padding-inline: 0.5rem;
+    justify-content: center;
+    height: 100%;
+    line-height: 2.5rem;
 }
 
 .nav-combo::part(toggle-button) {
@@ -59,18 +77,32 @@
 }
 
 .nav-combo::part(panel) {
-    background-color: transparent;
-    box-shadow: none;
+    background: rgba(0,0,0,0.7);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     border: none;
-}
-
-.nav-combo::part(content) {
-    background-color: transparent;
+    border-radius: 4px;
 }
 
 .nav-combo::part(item) {
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
+    text-align: center;
     color: white;
+}
+
+.nav-combo::part(item):hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Animaciones para contenido central */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .content-wrapper {
@@ -79,32 +111,69 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0,0,0,0.45);
     position: relative;
     z-index: 1;
+    padding: 2rem;
+    gap: 2rem;
+}
+
+.content-wrapper > * {
+    margin: 0;
+    animation: fadeInUp 0.8s ease both;
 }
 
 .content-title {
     color: #ffffff;
-    font-size: 3em;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
-    margin: 0.2em 0;
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    text-align: center;
+    line-height: 1.2;
 }
 
 .content-subtitle {
     color: #e0e7ff;
-    font-size: 1.2em;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    margin-bottom: 1em;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    font-weight: 400;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    text-align: center;
+    max-width: 600px;
 }
 
 .content-button {
-    background-color: #2563eb;
+    background: transparent;
     color: white;
-    padding: 12px 24px;
+    border: 2px solid white;
+    padding: 0.75rem 2rem;
     border-radius: 8px;
-    font-weight: bold;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    border: none;
+    font-weight: 600;
     cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
 }
+
+.content-button:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.05);
+}
+
+.app-header h1 {
+    margin: 0;
+    padding-left: 0.5rem;
+    line-height: 60px;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.nav-combo {
+    /* hace transparente todito el text-field, incluído el fondo por defecto */
+    --lumo-field-background-color: transparent;
+    --lumo-primary-text-color: white;
+}
+
+/* para asegurarnos también en foco */
+.nav-combo::part(input-field),
+.nav-combo::part(input-field):focus-within {
+    background: transparent;
+}
+
