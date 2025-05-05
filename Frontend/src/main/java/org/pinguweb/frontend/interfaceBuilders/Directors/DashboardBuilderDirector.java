@@ -13,14 +13,12 @@ import org.pingu.domain.enums.TaskType;
 import org.pinguweb.frontend.interfaceBuilders.Builders.DashboardBuilder;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.Filters;
 import org.pinguweb.frontend.mapObjects.Affected;
 import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.Task;
 import org.pinguweb.frontend.mapObjects.Volunteer;
+import org.example.coordinacionbdsolidarityhub.model.enums.ResourceType;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -30,6 +28,7 @@ public class DashboardBuilderDirector {
     private Integer[] needsByTaskType = new Integer[TaskType.values().length];
     private Integer[] completedTasks = new Integer[TaskType.values().length];
     private Integer[] volunteersCountByType = new Integer[TaskType.values().length];
+    private Integer[] resourcesByType = new Integer[ResourceType.values().length];
 
     public Component buildCompletedTasksChart() {
         calculateCompletedTasksPerDay();
@@ -394,6 +393,96 @@ public class DashboardBuilderDirector {
         builder.addBelow(dp);
         return builder.build().getInterface();
     }
+    //TODO: Nico necesitamos los controles de Resource que no están
+    public Component buildResourcesByTypeChart() {
+        calculateResourcesByType();
+
+        String[] labels = Arrays.stream(ResourceType.values())
+                .map(ResourceType::name)
+                .toArray(String[]::new);
+
+        Dashboard d = Dashboard.createSimpleDashboard(
+                "",
+                ChartType.BAR,
+                new RectangularCoordinate(
+                        new XAxis(DataType.CATEGORY),
+                        new YAxis(DataType.NUMBER)
+                )
+        );
+        for (int i = 0; i < labels.length; i++) {
+            int v = resourcesByType[i] != null ? resourcesByType[i] : 0;
+            Color c = new Color(
+                    (int) (Math.random() * 256),
+                    (int) (Math.random() * 256),
+                    (int) (Math.random() * 256)
+            );
+            d.addData(
+                    new Object[]{labels[i]},
+                    new Object[]{labels[i]},
+                    new Object[]{v},
+                    new Integer[]{v},
+                    labels[i],
+                    new Color[]{c}
+            );
+        }
+        builder.reset();
+        builder.setTile("Recursos por Tipo");
+        builder.setSubtitle("Distribución de Recursos");
+        builder.addBelow(d);
+        return builder.build().getInterface();
+    }
+//Todo: Nico necesitamos los controler de Resource que no están
+    public Component buildResourcesByTypePieChart() {
+        calculateResourcesByType();
+
+        List<String> lbl = new ArrayList<>();
+        List<Integer> val = new ArrayList<>();
+        for (int i = 0; i < ResourceType.values().length; i++) {
+            int count = resourcesByType[i] != null ? resourcesByType[i] : 0;
+            if (count > 0) {
+                lbl.add(ResourceType.values()[i].name());
+                val.add(count);
+            }
+        }
+        String[] labels = lbl.toArray(new String[0]);
+        Integer[] values = val.toArray(new Integer[0]);
+
+        Dashboard dp = Dashboard.createSimpleDashboard(
+                "",
+                ChartType.PIE,
+                new RectangularCoordinate(
+                        new XAxis(DataType.CATEGORY),
+                        new YAxis(DataType.NUMBER)
+                )
+        );
+        dp.addData(
+                labels,
+                labels,
+                values,
+                values,
+                "Recursos por Tipo",
+                generateColorPalette(labels.length)
+        );
+        builder.reset();
+        builder.setTile("Recursos por Tipo");
+        builder.setSubtitle("Distribución de Recursos");
+        builder.addBelow(dp);
+        return builder.build().getInterface();
+    }
+
+//TODO: Nico necesitamos los controles de Resource que no están
+    public void calculateResourcesByType() {
+        Arrays.fill(resourcesByType, 0);
+        Map<ResourceType, Integer> map = new EnumMap<>(ResourceType.class);
+        List<ResourceDTO> recursos = Resource.getAllFromServer();
+        for (ResourceDTO recurso : recursos) {
+            ResourceType type = ResourceType.valueOf(recurso.getType());
+            map.put(type, map.getOrDefault(type, 0) + 1);
+        }
+        for (int i = 0; i < ResourceType.values().length; i++) {
+            resourcesByType[i] = map.getOrDefault(ResourceType.values()[i], 0);
+        }
+    }
 
     public void calculateCompletedTasksPerDay() {
         List<TaskDTO> list = Task.getAllFromServer();
@@ -481,6 +570,8 @@ public class DashboardBuilderDirector {
         Component volPie      = buildVolunteersByTaskTypePieChart();
         Component vsBar       = buildVolunteersVSAffectedChart();
         Component vsPie       = buildVolunteersVSAffectedPieChart();
+        Component resourcesBar = buildResourcesByTypeChart();
+        Component resourcesPie = buildResourcesByTypePieChart();
 
         VerticalLayout grid = new VerticalLayout();
         grid.setWidthFull();
@@ -488,10 +579,11 @@ public class DashboardBuilderDirector {
         grid.setSpacing(true);
 
         grid.add(twoColumns(tareasBar,   tareasPie));
-        grid.add(twoColumns(needsBar,    needsPie));
         grid.add(twoColumns(unctaskBar,  unctaskPie));
+        grid.add(twoColumns(needsBar,    needsPie));
         grid.add(twoColumns(volBar,      volPie));
         grid.add(twoColumns(vsBar,       vsPie));
+        grid.add(twoColumns(resourcesBar, resourcesPie));
 
         return grid;
     }
