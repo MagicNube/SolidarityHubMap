@@ -225,6 +225,67 @@ public class MapDialogs {
         }
     }
 
+    public void createDialogAlmacen(MapState mapState, MapButtons mapButtons) {
+        if (mapState == MapState.CREATING_STORAGE) {
+            final Icon icoClose = VaadinIcon.CLOSE.create();
+            final Dialog dialog = new Dialog(icoClose);
+            dialog.setCloseOnEsc(false);
+            dialog.setCloseOnOutsideClick(false);
+            dialog.setDraggable(true);
+            dialog.setResizable(true);
+            dialog.setWidth("70vw");
+            dialog.setHeight("40vh");
+            H3 title = new H3("Crear almacen");
+            TextArea nameTextArea = new TextArea();
+            nameTextArea.setPlaceholder("nombre");
+            nameTextArea.setWidth("50vw");
+            nameTextArea.setHeight("5vh");
+
+            ComboBox<String> zoneComboBox = new ComboBox<>("Zona");
+            zoneComboBox.setItems(Zone.getAllFromServer().stream().map(ZoneDTO::getName).toList());
+
+            ComboBox<String> llenoComboBox = new ComboBox<>("Estado");
+            String[] llenoOptions = {"Lleno", "Vacio"};
+            llenoComboBox.setItems(llenoOptions);
+            llenoComboBox.setValue("Vacio");
+
+            Button cancelButton = new Button("Cancelar");
+            cancelButton.addClickListener(event -> {
+                mapButtons.cancelStorageCreation();
+                dialog.close();
+            });
+            Button acceptButton = new Button("Aceptar", event -> {
+                int zoneID = zoneComboBox.getValue() != null ? Zone.getAllFromServer().stream()
+                        .filter(zoneDTO -> zoneDTO.getName().equals(zoneComboBox.getValue()))
+                        .findFirst()
+                        .map(ZoneDTO::getID)
+                        .orElse(0) : 0;
+                StorageDTO storageDTO = new StorageDTO();
+                storageDTO.setName(nameTextArea.getValue());
+                storageDTO.setID(0);
+                storageDTO.setZone(zoneID);
+                storageDTO.setFull(llenoComboBox.getValue().equals("Lleno"));
+
+                mapBuild.createStorage(storageDTO, mapButtons);
+                dialog.close();
+            });
+
+            acceptButton.setEnabled(false);
+            nameTextArea.addValueChangeListener(event -> {
+                acceptButton.setEnabled(!nameTextArea.getValue().isEmpty());
+            });
+
+            HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
+            VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, zoneComboBox, llenoComboBox, buttonLayout);
+            dialog.add(dialogLayout);
+            dialog.open();
+            icoClose.addClickListener(iev -> {
+                mapButtons.cancelStorageCreation();
+                dialog.close();
+            });
+        }
+    }
+
     public void editDialogZone(String zoneID) {
         Zone zone = service.getZoneByID(zoneID);
         final Icon icoClose = VaadinIcon.CLOSE.create();
@@ -372,7 +433,7 @@ public class MapDialogs {
             route.setCatastrophe(catastropheID);
             route.setPointsID(service.getRouteByID(routeID).getPointsID());
             route.updateToServer();
-            service.updateRoute(route);
+            mapBuild.editRoute(route);
             dialog.close();
         });
 
@@ -390,6 +451,63 @@ public class MapDialogs {
 
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
         VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, routeTypeComboBox, catastropheComboBox, buttonLayout);
+        dialog.add(dialogLayout);
+        dialog.open();
+        icoClose.addClickListener(iev -> {
+            dialog.close();
+        });
+    }
+
+    public void editDialogStorage(String id) {
+        Storage storage = service.getStorageByID(id);
+        final Icon icoClose = VaadinIcon.CLOSE.create();
+        final Dialog dialog = new Dialog(icoClose);
+        dialog.setCloseOnEsc(false);
+        dialog.setCloseOnOutsideClick(false);
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setWidth("70vw");
+        dialog.setHeight("40vh");
+        H3 title = new H3("Editar almacen");
+        TextArea nameTextArea = new TextArea();
+        nameTextArea.setPlaceholder("nombre");
+        nameTextArea.setWidth("50vw");
+        nameTextArea.setHeight("5vh");
+        nameTextArea.setValue(storage.getName());
+
+        ComboBox<String> zoneComboBox = new ComboBox<>("Zona");
+        zoneComboBox.setItems(Zone.getAllFromServer().stream().map(ZoneDTO::getName).toList());
+
+        ComboBox<String> llenoComboBox = new ComboBox<>("Estado");
+        String[] llenoOptions = {"Lleno", "Vacio"};
+        llenoComboBox.setItems(llenoOptions);
+        llenoComboBox.setValue(storage.isFull() ? "Lleno" : "Vacio");
+
+        Button cancelButton = new Button("Cancelar");
+        cancelButton.addClickListener(event -> {
+            dialog.close();
+        });
+        Button acceptButton = new Button("Aceptar", event -> {
+            int zoneID = zoneComboBox.getValue() != null ? Zone.getAllFromServer().stream()
+                    .filter(zoneDTO -> zoneDTO.getName().equals(zoneComboBox.getValue()))
+                    .findFirst()
+                    .map(ZoneDTO::getID)
+                    .orElse(0) : 0;
+            storage.setName(nameTextArea.getValue());
+            storage.setZoneID(zoneID);
+            storage.setFull(llenoComboBox.getValue().equals("Lleno"));
+            storage.updateToServer();
+            mapBuild.editStorage(storage);
+            dialog.close();
+        });
+
+        acceptButton.setEnabled(false);
+        nameTextArea.addValueChangeListener(event -> {
+            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty());
+        });
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
+        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, zoneComboBox, llenoComboBox, buttonLayout);
         dialog.add(dialogLayout);
         dialog.open();
         icoClose.addClickListener(iev -> {

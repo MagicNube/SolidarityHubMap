@@ -1,6 +1,7 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses;
 
 
+import com.vaadin.flow.component.UI;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +16,8 @@ import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Setter
@@ -48,7 +47,14 @@ public class MapService {
     private HashSet<Route> routes = new HashSet<>();
 
     @Getter
+    private HashSet<Storage> storages = new HashSet<>();
+
+    @Getter
     private HashMap<Integer, List<RoutePoint>> routePoints = new HashMap<>();
+
+    private Object lock = new Object();
+    private UI ui;
+    private String clickFuncReferenceCreateStorage;
 
     private LLayerGroup lLayerGroupZones;
     private LLayerGroup lLayerGroupNeeds;
@@ -57,6 +63,7 @@ public class MapService {
 
     private ZoneDTO tempZoneDTO;
     private RouteDTO tempRouteDTO;
+    private StorageDTO tempStorageDTO;
 
     private HashMap<Tuple<Double, Double>, ZoneMarker> zoneMarkers = new HashMap<>();
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
@@ -81,43 +88,77 @@ public class MapService {
         this.storageFactory = new StorageFactory();
     }
 
-
-
     @Async
     public void load() {
-        for (NeedDTO need : Need.getAllFromServer()) {
-            log.debug(need.toString());
-            if (need.getLatitude() != null && need.getLongitude() != null) {
-                createNeed(need);
-            }
+        UI ui = UI.getCurrent();
+        if (ui == null) {
+            log.warn("UI is null, cannot update UI components.");
+            return;
         }
 
+        CompletableFuture.runAsync(() -> loadNeeds(ui));
+        CompletableFuture.runAsync(() -> loadZones(ui));
+        CompletableFuture.runAsync(() -> loadRoutes(ui));
+        CompletableFuture.runAsync(() -> loadStorages(ui));
+    }
+
+    private void loadNeeds(UI ui) {
+        for (NeedDTO need : Need.getAllFromServer()) {
+            if (need.getLatitude() != null && need.getLongitude() != null) {
+                ui.access(() -> {
+                    log.debug(need.toString());
+                    createNeed(need);
+                });
+            }
+        }
+    }
+
+    private void loadZones(UI ui) {
         for (ZoneDTO zone : Zone.getAllFromServer()) {
             if (!zone.getLatitudes().isEmpty() && !zone.getLongitudes().isEmpty()) {
-                createZone(zone);
+                ui.access(() -> createZone(zone));
             }
         }
+    }
 
+    private void loadStorages(UI ui) {
+        for (StorageDTO storage : Storage.getAllFromServer()) {
+            if (storage.getLatitude() != null && storage.getLongitude() != null) {
+                ui.access(() -> createStorage(storage));
+            }
+        }
+    }
+
+    private void loadRoutes(UI ui) {
         for (RouteDTO route : Route.getAllFromServer()) {
             if (!route.getPoints().isEmpty()) {
                 List<RoutePoint> routePoints = new ArrayList<>();
                 for (int i = 0; i < route.getPoints().size(); i++) {
-                    RoutePointDTO routePoint =  RoutePoint.getFromServerById(route.getPoints().get(i));
+                    RoutePointDTO routePoint = RoutePoint.getFromServerById(route.getPoints().get(i));
                     if (routePoint != null) {
-                        RoutePoint point = (RoutePoint) routePointFactory.createMapObject(reg, routePoint.getLatitude(), routePoint.getLongitude());
-                        point.setID(routePoint.getID());
-                        point.getMarkerObj().bindPopup(route.getName());
-                        routePoints.add(point);
-                        this.routePoints.computeIfAbsent(route.getID(), k -> new ArrayList<>()).add(point);
-                        if (i == 0 || i == route.getPoints().size() - 1) {
-                            point.addToMap(this.map);
-                        }
+                        double lat = routePoint.getLatitude();
+                        double lon = routePoint.getLongitude();
+                        int id = routePoint.getID();
+                        boolean isEdge = i == 0 || i == route.getPoints().size() - 1;
+
+                        ui.access(() -> {
+                            RoutePoint point = (RoutePoint) routePointFactory.createMapObject(reg, lat, lon);
+                            point.setID(id);
+                            point.getMarkerObj().bindPopup(route.getName());
+                            this.routePoints.computeIfAbsent(route.getID(), k -> new ArrayList<>()).add(point);
+                            if (isEdge) {
+                                point.addToMap(this.map);
+                            }
+                            routePoints.add(point);
+                        });
+
                     } else {
                         log.debug("RoutePoint not found: " + route.getPoints().get(i));
                     }
                 }
+
                 if (!routePoints.isEmpty()) {
-                    createRoute(route, routePoints);
+                    ui.access(() -> createRoute(route, routePoints));
                 }
             }
 
@@ -147,6 +188,25 @@ public class MapService {
         lLayerGroupStorages.addLayer(storageObj.getMarkerObj());
         this.map.addLayer(lLayerGroupStorages);
 
+        return storageObj;
+    }
+
+    public Storage createStorage(StorageDTO storage) {
+        double lat = storage.getLatitude();
+        double lng = storage.getLongitude();
+        Storage storageObj = (Storage) storageFactory.createMapObject(reg, lat, lng);
+        storageObj.setID(storage.getID());
+        storageObj.setName(storage.getName() != null ? storage.getName() : "Sin nombre");
+        storageObj.setFull(storage.isFull());
+        storageObj.setLatitude(storage.getLatitude());
+        storageObj.setLongitude(storage.getLongitude());
+        storageObj.setZoneID(storage.getZone());
+        storageObj.addToMap(this.map);
+        storageObj.getMarkerObj().bindPopup(storage.getName());
+
+        storages.add(storageObj);
+        lLayerGroupStorages.addLayer(storageObj.getMarkerObj());
+        this.map.addLayer(lLayerGroupStorages);
         return storageObj;
     }
 
@@ -420,4 +480,30 @@ public class MapService {
         }
     }
 
+    public void deleteStorage(int i) {
+        Storage storage = storages.stream()
+                .filter(s -> s.getID() == i)
+                .findFirst()
+                .orElse(null);
+        if (storage != null) {
+            storage.removeFromMap(this.map);
+            storage.deleteFromServer();
+            storages.remove(storage);
+            lLayerGroupStorages.removeLayer(storage.getMarkerObj());
+            this.map.addLayer(lLayerGroupStorages);
+        }
+    }
+
+    public Storage getStorageByID(String id) {
+        return storages.stream()
+                .filter(s -> s.getID() == Integer.parseInt(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void updateStorage(Storage storage) {
+        storage.getMarkerObj().removeFrom(this.map);
+        storage.getMarkerObj().bindPopup(storage.getName());
+        storage.getMarkerObj().addTo(this.map);
+    }
 }

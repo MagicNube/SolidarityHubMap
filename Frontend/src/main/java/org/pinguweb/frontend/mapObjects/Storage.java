@@ -28,6 +28,9 @@ import java.util.List;
 public class Storage extends MapObject{
 
     LMarker markerObj;
+    private String name;
+    private int zoneID;
+    private boolean full;
 
     public Storage(LComponentManagementRegistry reg, Double latitude, Double longitude){
         this.markerObj = new LMarker(reg, new LLatLng(reg, latitude, longitude));
@@ -46,14 +49,19 @@ public class Storage extends MapObject{
     @Override
     public int pushToServer(){
         StorageDTO storageDTO = new StorageDTO();
+        storageDTO.setLatitude(this.getLatitude());
+        storageDTO.setLongitude(this.getLongitude());
+        storageDTO.setName(this.getName());
+        storageDTO.setZone(this.getZoneID());
+        storageDTO.setFull(this.isFull());
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
 
         String finurl = "/api/storages";
         try{
-            BackendObject<StorageDTO> status = BackendService.postToBackend(finurl, storageDTO, StorageDTO.class);
+            BackendObject<StorageDTO> status = BackendService.postToBackend(BackendService.BACKEND+finurl, storageDTO, StorageDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
-                //TODO: Se añadio exitosamente
+                return status.getData().getID();
             }
         }
         catch (Exception e){
@@ -66,7 +74,7 @@ public class Storage extends MapObject{
     public int deleteFromServer() {
         String finurl = "/api/storages/" + this.getID();
         try{
-            HttpStatusCode status = BackendService.deleteFromBackend(finurl);
+            HttpStatusCode status = BackendService.deleteFromBackend(BackendService.BACKEND+finurl);
             if (status == HttpStatus.OK){
                 //TODO: Eliminar del mapa
             }
@@ -79,10 +87,16 @@ public class Storage extends MapObject{
 
     @Override
     public int updateToServer() {
+        StorageDTO storageDTO = new StorageDTO();
+        storageDTO.setLatitude(this.getLatitude());
+        storageDTO.setLongitude(this.getLongitude());
+        storageDTO.setName(this.getName());
+        storageDTO.setZone(this.getZoneID());
+        storageDTO.setFull(this.isFull());
+
         String finurl = "/api/storages/" + this.getID();
         try{
-            StorageDTO storageDTO = new StorageDTO();
-            HttpStatus status = (HttpStatus) BackendService.putToBackend(finurl, storageDTO);
+            HttpStatus status = (HttpStatus) BackendService.putToBackend(BackendService.BACKEND+finurl, storageDTO);
             if (status == HttpStatus.OK){
 
             }

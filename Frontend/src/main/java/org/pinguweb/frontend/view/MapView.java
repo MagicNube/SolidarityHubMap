@@ -7,10 +7,12 @@ import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
+import org.pingu.domain.DTO.StorageDTO;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapDialogs;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
+import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
@@ -191,6 +193,29 @@ public class MapView extends HorizontalLayout {
         controller.getRoutePoint().set(index, t);
     }
 
+
+    @ClientCallable
+    public void mapStorage(final JsonValue input) {
+        if (!(input instanceof final JsonObject obj)) {
+            return;
+        }
+        controller.getTempStorageDTO().setLatitude(obj.getNumber("lat"));
+        controller.getTempStorageDTO().setLongitude(obj.getNumber("lng"));
+        Storage storage = controller.createStorage(controller.getTempStorageDTO());
+        int tempId = storage.pushToServer();
+        storage.setID(tempId);
+        controller.getStorages().stream().filter(s -> s.getID() == storage.getID()).findFirst().ifPresent(s -> {
+            controller.getStorages().remove(s);
+        });
+        System.out.println(controller.getStorages());
+        synchronized (controller.getLock()) {
+            controller.getLock().notify();
+        }
+        controller.getMap().off("click", controller.getClickFuncReferenceCreateStorage());
+        //controller.getUi().push();
+    }
+
+
     @ClientCallable
     public void removeMarker(String ID) {
         System.out.println("removeMarker: " + ID);
@@ -209,6 +234,12 @@ public class MapView extends HorizontalLayout {
         controller.deleteRoute(Integer.parseInt(ID));
     }
 
+    @ClientCallable
+    public void removeStorage(String ID) {
+        System.out.println("removeStorage: " + ID);
+        controller.deleteStorage(Integer.parseInt(ID));
+    }
+
     /*@ClientCallable
     public void editMarker(Need need) {
         System.out.println("editMarker: " + need.getID());
@@ -225,6 +256,12 @@ public class MapView extends HorizontalLayout {
     public void editRoute(String ID) {
         System.out.println("editRoute: " + ID);
         mapDialogs.editDialogRoute(ID);
+    }
+
+    @ClientCallable
+    public void editStorage(String ID) {
+        System.out.println("editStorage: " + ID);
+        mapDialogs.editDialogStorage(ID);
     }
 
 
