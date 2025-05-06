@@ -45,7 +45,7 @@ public class Storage extends MapObject{
 
         LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
 
-        this.markerObj = new LMarker(reg, new LLatLng(reg, this.getLatitude(), this.getLongitude()), options);
+        this.markerObj = new LMarker(reg, new LLatLng(reg, latitude, longitude), options);
     }
 
     @Override
