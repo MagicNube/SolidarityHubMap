@@ -228,21 +228,25 @@ public class DashboardBuilderDirector {
                         new YAxis(DataType.NUMBER)
                 )
         );
+
         for (int i = 0; i < labels.length; i++) {
             int v = completedTasks[i] != null ? completedTasks[i] : 0;
-            Color c = new Color(
-                    (int)(Math.random()*256),
-                    (int)(Math.random()*256),
-                    (int)(Math.random()*256)
-            );
-            d.addData(
-                    new Object[]{ labels[i] },
-                    new Object[]{ labels[i] },
-                    new Object[]{ v },
-                    tasks.toArray(),
-                    labels[i],
-                    new Color[]{ c }
-            );
+            // Solo mostrar barras para tareas con valor > 0
+            if (v > 0) {
+                Color c = new Color(
+                        (int)(Math.random()*256),
+                        (int)(Math.random()*256),
+                        (int)(Math.random()*256)
+                );
+                d.addData(
+                        new Object[]{labels[i]},      // Categoría en eje X
+                        new Object[]{"Tareas"},       // Nombre consistente para serie
+                        new Object[]{v},              // Valor
+                        tasks.toArray(),              // Datos asociados
+                        labels[i],                    // Tooltip
+                        new Color[]{c}               // Color
+                );
+            }
         }
         return d;
     }
@@ -286,8 +290,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildVolunteersByTaskTypeChart() {
-        List<VolunteerDTO> volunteer = calculateVolunteersByTaskType();
-
+        List<VolunteerDTO> volunteers = calculateVolunteersByTaskType();
         String[] labels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
                 .toArray(String[]::new);
@@ -301,31 +304,41 @@ public class DashboardBuilderDirector {
                 )
         );
         for (int i = 0; i < labels.length; i++) {
-            int v = volunteersCountByType[i] != null ? volunteersCountByType[i] : 0;
-            Color c = new Color(
-                    (int)(Math.random()*256),
-                    (int)(Math.random()*256),
-                    (int)(Math.random()*256)
-            );
-            d.addData(
-                    new Object[]{ labels[i] },
-                    new Object[]{ labels[i] },
-                    new Object[]{ v },
-                    volunteer.toArray(),
-                    labels[i],
-                    new Color[]{ c }
-            );
+            int value = volunteersCountByType[i] != null ? volunteersCountByType[i] : 0;
+            if (value > 0) {
+                Color c = generateColorForType(labels[i]);
+                d.addData(
+                        new Object[]{labels[i]},
+                        new Object[]{"Voluntarios"},
+                        new Object[]{value},
+                        volunteers.toArray(),
+                        labels[i],
+                        new Color[]{c}
+                );
+            }
         }
         return d;
     }
 
     public Dashboard buildVolunteersByTaskTypePieChart() {
-        List<VolunteerDTO> volunteer = calculateVolunteersByTaskType();
-
-        String[] labels = Arrays.stream(TaskType.values())
+        List<VolunteerDTO> volunteers = calculateVolunteersByTaskType();
+        String[] allLabels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
                 .toArray(String[]::new);
-        Integer[] values = volunteersCountByType;
+
+        // Filtrar igual que en el Bar Chart (solo valores > 0)
+        List<String> filteredLabels = new ArrayList<>();
+        List<Integer> filteredValues = new ArrayList<>();
+        List<Color> filteredColors = new ArrayList<>();
+
+        for (int i = 0; i < allLabels.length; i++) {
+            int value = volunteersCountByType[i] != null ? volunteersCountByType[i] : 0;
+            if (value > 0) {
+                filteredLabels.add(allLabels[i]);
+                filteredValues.add(value);
+                filteredColors.add(generateColorForType(allLabels[i]));
+            }
+        }
 
         Dashboard d = Dashboard.createSimpleDashboard(
                 "Voluntarios por tipo de tarea",
@@ -335,15 +348,22 @@ public class DashboardBuilderDirector {
                         new YAxis(DataType.NUMBER)
                 )
         );
+
         d.addData(
-                labels,
-                labels,
-                values,
-                volunteer.toArray(),
-                "Voluntarios",
-                generateColorPalette(labels.length)
+                filteredLabels.toArray(new String[0]),
+                filteredLabels.toArray(new String[0]),
+                filteredValues.toArray(new Integer[0]),
+                volunteers.toArray(),
+                "Distribución de voluntarios",
+                filteredColors.toArray(new Color[0])
         );
         return d;
+    }
+
+    // Método auxiliar para generar colores consistentes
+    private Color generateColorForType(String type) {
+        // Implementación que devuelve el mismo color para el mismo tipo de tarea
+        return generateColorPalette(1)[0];
     }
 
     public Dashboard buildVolunteersVSAffectedChart() {
