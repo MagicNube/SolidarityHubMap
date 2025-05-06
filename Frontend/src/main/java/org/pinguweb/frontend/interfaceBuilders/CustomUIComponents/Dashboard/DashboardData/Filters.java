@@ -113,15 +113,16 @@ public class Filters extends InterfaceComponent {
                             .filter(filtro::test)
                             .map(ChartPoint::getXValue)
                             .toList();
+
                     AbstractDataProvider<?> xFiltrado = new AbstractDataStream<>(
                             dashboard.getCoordinateConfiguration().getAxis(0).getDataType(),
-                            filteredX.stream()
-                    );
+                            filteredX.stream());
 
                     List<Object> filteredY = pair._2().flatten().stream()
                             .filter(filtro::test)
                             .map(ChartPoint::getYValue)
                             .toList();
+
                     AbstractDataProvider<?> yFiltrado = new AbstractDataStream<>(
                             dashboard.getCoordinateConfiguration().getAxis(1).getDataType(),
                             filteredY.stream()
@@ -197,19 +198,20 @@ public class Filters extends InterfaceComponent {
                 data.add(bar);
             }
             case PIE -> {
-                PieChart pie = (PieChart) pair._1();
-                pie.setItemNames(xFiltrado);
-
-                Number[] nums = yFiltrado.stream()
-                        .map(v -> (Number) v)
-                        .toArray(Number[]::new);
-
-                pie.setData(new Data(nums));
-                data.add(pie);
+//                PieChart pie = (PieChart) pair._1();
+//                pie.setItemNames(xFiltrado);
+//
+//                Number[] nums = yFiltrado.stream()
+//                        .map(v -> (Number) v)
+//                        .toArray(Number[]::new);
+//
+//                pie.setData(new Data(nums));
+//                data.add(pie);
             }
         }
     }
 
+    // TODO: No pilla si es enum porque los DTOs lo guardan como string
     private Component createFieldByType(Class<?> type) {
         if (type.isEnum()) {
             log.debug("Es enum");

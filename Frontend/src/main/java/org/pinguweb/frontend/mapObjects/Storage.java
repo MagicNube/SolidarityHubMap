@@ -33,7 +33,19 @@ public class Storage extends MapObject{
     private boolean full;
 
     public Storage(LComponentManagementRegistry reg, Double latitude, Double longitude){
-        this.markerObj = new LMarker(reg, new LLatLng(reg, latitude, longitude));
+
+        LIcon icon = new LIcon(reg, new LIconOptions()
+                .withIconUrl("https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png")
+                .withShadowUrl("https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png")
+                .withIconSize(new LPoint(reg, 25, 41))
+                .withIconAnchor(new LPoint(reg, 12, 41))
+                .withPopupAnchor(new LPoint(reg, 1, -34))
+                .withShadowSize(new LPoint(reg, 41, 41))
+        );
+
+        LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
+
+        this.markerObj = new LMarker(reg, new LLatLng(reg, this.getLatitude(), this.getLongitude()), options);
     }
 
     @Override
