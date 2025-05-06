@@ -212,6 +212,7 @@ public class Filters extends InterfaceComponent {
 
     private Component createFieldByType(Class<?> type) {
         if (type.isEnum()) {
+            log.debug("Es enum");
             Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) type;
             ComboBox<Enum<?>> combo = new ComboBox<>();
             combo.setItems(enumType.getEnumConstants());
@@ -236,6 +237,7 @@ public class Filters extends InterfaceComponent {
             return new DateTimePicker();
         }
         else {
+            log.debug("No enum?");
             return new TextField();
         }
     }

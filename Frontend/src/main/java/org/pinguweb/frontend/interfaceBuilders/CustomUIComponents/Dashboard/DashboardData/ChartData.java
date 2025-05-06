@@ -25,7 +25,9 @@ public class ChartData<T, J> {
     public List<ChartPoint<?, ?>> flatten(){
         List<ChartPoint<?, ?>> points = new LinkedList<>();
 
-        for (int i = 0; i < labelObjects.length; i++){
+        //TODO : APAÑAR ESTO
+
+        for (int i = 0; i < Math.min(pointObjects.length,Math.min(labelValues.length, pointValues.length)); i++){
             ChartPoint<T, J> point = new ChartPoint<>(labelObjects[i], labelValues[i], pointObjects[i], pointValues[i]);
             points.add(point);
         }

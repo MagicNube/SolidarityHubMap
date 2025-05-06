@@ -35,6 +35,11 @@ public class DashboardBuilderDirector {
     private Integer[] volunteersCountByType = new Integer[TaskType.values().length];
     private Integer[] resourcesByType = new Integer[ResourceType.values().length];
 
+    private List<TaskDTO> tasks = new ArrayList<>();
+    private List<VolunteerDTO> volunteers = new ArrayList<>();
+    private List<AffectedDTO> affecteds = new ArrayList<>();
+    private List<NeedDTO> needs = new ArrayList<>();
+
     public Interface get(){
         return builder.build();
     }
@@ -43,6 +48,11 @@ public class DashboardBuilderDirector {
         builder.reset();
         builder.setTile("Dashboards pingu web");
         builder.setSubtitle("Solidarity Hub");
+
+        volunteers = Volunteer.getAllFromServer();
+        affecteds = Affected.getAllFromServer();
+        needs = Need.getAllFromServer();
+        tasks = Task.getAllFromServer();
 
         List<InterfaceComponent> fisrtPair = List.of(new Dashboard[]{buildCompletedTasksChart(), buildCompletedTasksPieChart()});
         List<InterfaceComponent> secondPair = List.of(new Dashboard[]{buildUncoveredNeedsChart(), buildUncoveredNeedsPieChart()});
@@ -337,8 +347,8 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildVolunteersVSAffectedChart() {
-        List<VolunteerDTO> volunteers = Volunteer.getAllFromServer();
-        List<AffectedDTO> affected = Affected.getAllFromServer();
+        List<VolunteerDTO> volunteers = this.volunteers;
+        List<AffectedDTO> affected = this.affecteds;
 
         String[] labels = {"Voluntarios", "Afectados"};
         Integer[] values = {volunteers.size(), affected.size()};
@@ -370,8 +380,8 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildVolunteersVSAffectedPieChart() {
-        List<VolunteerDTO> volunteers = Volunteer.getAllFromServer();
-        List<AffectedDTO> affected = Affected.getAllFromServer();
+        List<VolunteerDTO> volunteers = this.volunteers;
+        List<AffectedDTO> affected = this.affecteds;
 
         String[] labels = {"Voluntarios", "Afectados"};
         Integer[] values = {volunteers.size(), affected.size()};
@@ -489,7 +499,7 @@ public class DashboardBuilderDirector {
 //
 //    */
     public List<TaskDTO> calculateCompletedTasksPerDay() {
-        List<TaskDTO> list = Task.getAllFromServer();
+        List<TaskDTO> list = this.tasks;
         Arrays.fill(completedTasksPerDay, 0);
         for (TaskDTO task : list) {
             if ("FINISHED".equals(task.getStatus()) && task.getEstimatedEndTimeDate() != null) {
@@ -503,7 +513,7 @@ public class DashboardBuilderDirector {
     public List<NeedDTO> calculateNeedsPerType() {
         Arrays.fill(needsByTaskType, 0);
         Map<TaskType, Integer> map = new EnumMap<>(TaskType.class);
-        List<NeedDTO> needs = Need.getAllFromServer();
+        List<NeedDTO> needs = this.needs;
         for (NeedDTO need : needs) {
             if (!"FINISHED".equals(need.getStatus())) {
                 TaskType type = TaskType.valueOf(need.getNeedType());
@@ -519,7 +529,7 @@ public class DashboardBuilderDirector {
     public List<TaskDTO> calculateCompletedTasksPerType() {
         Arrays.fill(completedTasks, 0);
         Map<TaskType, Integer> map = new EnumMap<>(TaskType.class);
-        List<TaskDTO> tasks = Task.getAllFromServer();
+        List<TaskDTO> tasks = this.tasks;
         for (TaskDTO task : tasks) {
             if (!"FINISHED".equals(task.getStatus())) {
                 TaskType type = TaskType.valueOf(task.getType());
@@ -535,7 +545,7 @@ public class DashboardBuilderDirector {
     public List<VolunteerDTO> calculateVolunteersByTaskType() {
         Arrays.fill(volunteersCountByType, 0);
         Map<TaskType, Integer> map = new EnumMap<>(TaskType.class);
-        List<VolunteerDTO> volunteers = Volunteer.getAllFromServer();
+        List<VolunteerDTO> volunteers = this.volunteers;
         for (VolunteerDTO v : volunteers) {
             for (String pref : v.getTaskPreferences()) {
                 TaskType type = TaskType.valueOf(pref);
