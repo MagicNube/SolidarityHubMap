@@ -144,12 +144,12 @@ public class DashboardBuilderDirector {
     public Dashboard buildUncoveredNeedsChart() {
         List<NeedDTO> needs = calculateNeedsPerType();
 
-        String[] labels = Arrays.stream(TaskType.values())
+        String[] allLabels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
                 .toArray(String[]::new);
 
         Dashboard d = Dashboard.createSimpleDashboard(
-                "Necesidades cubiertas",                       // <-- título interno vacío
+                "Necesidades no cubiertas",  // Título más descriptivo
                 ChartType.BAR,
                 new RectangularCoordinate(
                         new XAxis(DataType.CATEGORY),
@@ -157,21 +157,20 @@ public class DashboardBuilderDirector {
                 )
         );
 
-        for (int i = 0; i < labels.length; i++) {
-            int v = needsByTaskType[i] != null ? needsByTaskType[i] : 0;
-            Color c = new Color(
-                    (int) (Math.random() * 256),
-                    (int) (Math.random() * 256),
-                    (int) (Math.random() * 256)
-            );
-            d.addData(
-                    new Object[]{ labels[i] },
-                    new Object[]{ labels[i] },
-                    new Object[]{v},
-                    needs.toArray(),
-                    labels[i],
-                    new Color[]{ c }
-            );
+        for (int i = 0; i < allLabels.length; i++) {
+            int value = needsByTaskType[i] != null ? needsByTaskType[i] : 0;
+            if (value > 0) {  // Solo mostrar barras con valores positivos
+                Color c = generateColorForType(allLabels[i]);  // Color consistente
+
+                d.addData(
+                        new Object[]{allLabels[i]},  // Categoría en eje X
+                        new Object[]{"Necesidades"}, // Nombre consistente para serie
+                        new Object[]{value},        // Valor
+                        needs.toArray(),            // Datos asociados
+                        allLabels[i],              // Tooltip
+                        new Color[]{c}             // Color
+                );
+            }
         }
         return d;
     }
@@ -221,7 +220,7 @@ public class DashboardBuilderDirector {
                 .toArray(String[]::new);
 
         Dashboard d = Dashboard.createSimpleDashboard(
-                "Tareas no terminadas por tipo",
+                "Tareas no terminadas ",
                 ChartType.BAR,
                 new RectangularCoordinate(
                         new XAxis(DataType.CATEGORY),
