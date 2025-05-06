@@ -1,9 +1,6 @@
 package org.pinguweb.frontend.interfaceBuilders.Directors;
 
 import com.storedobject.chart.*;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.AffectedDTO;
 import org.pingu.domain.DTO.NeedDTO;
@@ -15,15 +12,15 @@ import org.pinguweb.frontend.interfaceBuilders.Builders.Interface;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.Filters;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.Etiqueta;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 import org.pinguweb.frontend.mapObjects.Affected;
 import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.Task;
 import org.pinguweb.frontend.mapObjects.Volunteer;
 import org.example.coordinacionbdsolidarityhub.model.enums.ResourceType;
-import org.pinguweb.frontend.view.DashboardNewView;
-import org.pinguweb.frontend.view.DashboardView;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 @Slf4j
@@ -64,13 +61,13 @@ public class DashboardBuilderDirector {
         Filters secondPairFilters = Filters.builder().build();
         Filters thirdPairFilters = Filters.builder().build();
         Filters fourthPairFilters = Filters.builder().build();
-        //Filters fifthPairFilters = Filters.builder().build();
+        Filters fifthPairFilters = Filters.builder().build();
 
         firstPairFilters.addDashboard(fisrtPair);
         secondPairFilters.addDashboard(secondPair);
         thirdPairFilters.addDashboard(thirdPair);
         fourthPairFilters.addDashboard(fourthPair);
-        //fifthPairFilters.addDashboard(fifthPair); <--- Habría que ver como apañarlo
+//        fifthPairFilters.addDashboard(fifthPair); <--- Habría que ver como apañarlo
 
         builder.addBelow(firstPairFilters);
         builder.addSide(fisrtPair);
@@ -85,7 +82,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildCompletedTasksChart() {
-        List<TaskDTO> tasks = calculateCompletedTasksPerDay();
+        List<List<TaskDTO>> tasks = calculateCompletedTasksPerDay();
 
         String[] labels = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
 
@@ -104,12 +101,15 @@ public class DashboardBuilderDirector {
                     (int)(Math.random()*256),
                     (int)(Math.random()*256)
             );
+
             d.addData(
                     new Object[]{ labels[i] },
-                    new Object[]{ labels[i] },
+                    new Etiqueta[][]{new Etiqueta[]{ new Etiqueta(labels[i]) }},
                     new Object[]{ v },
-                    tasks.toArray(),
-                    labels[i],
+                    new TaskDTO[][] {
+                    tasks.get(i).toArray(new TaskDTO[0])
+                    },
+            labels[i],
                     new Color[]{ c }
             );
         }
@@ -117,7 +117,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildCompletedTasksPieChart() {
-        List<TaskDTO> tasks = calculateCompletedTasksPerDay();
+        List<List<TaskDTO>> tasks = calculateCompletedTasksPerDay();
 
         String[] labels = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
         Integer[] values = completedTasksPerDay;
@@ -132,9 +132,14 @@ public class DashboardBuilderDirector {
         );
         d.addData(
                 labels,
-                labels,
+                Arrays.stream(labels)
+                        .map(Etiqueta::new)
+                        .map(fs -> new Etiqueta[]{ fs })
+                        .toArray(Etiqueta[][]::new),
                 values,
-                tasks.toArray(),
+                tasks.stream()
+                .map(lista -> lista.toArray(TaskDTO[]::new))
+                .toArray(TaskDTO[][]::new),
                 "Tareas Completadas",
                 generateColorPalette(labels.length)
         );
@@ -142,7 +147,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildUncoveredNeedsChart() {
-        List<NeedDTO> needs = calculateNeedsPerType();
+        List<List<NeedDTO>> needs = calculateNeedsPerType();
 
         String[] allLabels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
@@ -164,9 +169,11 @@ public class DashboardBuilderDirector {
 
                 d.addData(
                         new Object[]{allLabels[i]},  // Categoría en eje X
-                        new Object[]{"Necesidades"}, // Nombre consistente para serie
+                        new Etiqueta[][]{new Etiqueta[]{new Etiqueta(allLabels[i])}}, // Nombre consistente para serie
                         new Object[]{value},        // Valor
-                        needs.toArray(),            // Datos asociados
+                        new NeedDTO[][] {
+                                needs.get(i).toArray(new NeedDTO[0])
+                        },      // Datos asociados
                         allLabels[i],              // Tooltip
                         new Color[]{c}             // Color
                 );
@@ -176,7 +183,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildUncoveredNeedsPieChart() {
-        List<NeedDTO> needs = calculateNeedsPerType();
+        List<List<NeedDTO>> needs = calculateNeedsPerType();
 
         String[] allLabels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
@@ -203,9 +210,14 @@ public class DashboardBuilderDirector {
         );
         d.addData(
                 labels,
-                labels,
+                Arrays.stream(labels)
+                        .map(Etiqueta::new)
+                        .map(fs -> new Etiqueta[]{ fs })
+                        .toArray(Etiqueta[][]::new),
                 values,
-                needs.toArray(),
+                needs.stream()
+                        .map(lista -> lista.toArray(NeedDTO[]::new))
+                        .toArray(NeedDTO[][]::new),
                 "Necesidades No Cubiertas",
                 generateColorPalette(labels.length)
         );
@@ -213,7 +225,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildUncoveredTaskTypeChart() {
-        List<TaskDTO> tasks = calculateCompletedTasksPerType();
+        List<List<TaskDTO>> tasks = calculateCompletedTasksPerType();
 
         String[] labels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
@@ -239,9 +251,11 @@ public class DashboardBuilderDirector {
                 );
                 d.addData(
                         new Object[]{labels[i]},      // Categoría en eje X
-                        new Object[]{"Tareas"},       // Nombre consistente para serie
+                        new Etiqueta[][]{new Etiqueta[]{new Etiqueta(labels[i])}},       // Nombre consistente para serie
                         new Object[]{v},              // Valor
-                        tasks.toArray(),              // Datos asociados
+                        new TaskDTO[][] {
+                                tasks.get(i).toArray(new TaskDTO[0])
+                        },              // Datos asociados
                         labels[i],                    // Tooltip
                         new Color[]{c}               // Color
                 );
@@ -251,7 +265,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildUncoveredTaskTypePieChart() {
-        List<TaskDTO> tasks = calculateCompletedTasksPerType();
+        List<List<TaskDTO>> tasks = calculateCompletedTasksPerType();
 
         String[] allLabels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
@@ -279,9 +293,14 @@ public class DashboardBuilderDirector {
         );
         d.addData(
                 labels,
-                labels,
+                Arrays.stream(labels)
+                        .map(Etiqueta::new)
+                        .map(fs -> new Etiqueta[]{ fs })
+                        .toArray(Etiqueta[][]::new),
                 values,
-                tasks.toArray(),
+                tasks.stream()
+                        .map(lista -> lista.toArray(TaskDTO[]::new))
+                        .toArray(TaskDTO[][]::new),
                 "Tareas No Terminadas",
                 generateColorPalette(labels.length)
         );
@@ -289,7 +308,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildVolunteersByTaskTypeChart() {
-        List<VolunteerDTO> volunteers = calculateVolunteersByTaskType();
+        List<List<VolunteerDTO>> volunteers = calculateVolunteersByTaskType();
         String[] labels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
                 .toArray(String[]::new);
@@ -308,9 +327,14 @@ public class DashboardBuilderDirector {
                 Color c = generateColorForType(labels[i]);
                 d.addData(
                         new Object[]{labels[i]},
-                        new Object[]{"Voluntarios"},
+                        Arrays.stream(labels)
+                                .map(Etiqueta::new)
+                                .map(fs -> new Etiqueta[]{ fs })
+                                .toArray(Etiqueta[][]::new),
                         new Object[]{value},
-                        volunteers.toArray(),
+                        new VolunteerDTO[][] {
+                                volunteers.get(i).toArray(new VolunteerDTO[0])
+                        },              // Datos asociados,
                         labels[i],
                         new Color[]{c}
                 );
@@ -320,7 +344,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildVolunteersByTaskTypePieChart() {
-        List<VolunteerDTO> volunteers = calculateVolunteersByTaskType();
+        List<List<VolunteerDTO>> volunteers = calculateVolunteersByTaskType();
         String[] allLabels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
                 .toArray(String[]::new);
@@ -350,19 +374,18 @@ public class DashboardBuilderDirector {
 
         d.addData(
                 filteredLabels.toArray(new String[0]),
-                filteredLabels.toArray(new String[0]),
+                filteredLabels.stream()
+                        .map(Etiqueta::new)
+                        .map(e -> new Etiqueta[]{ e })
+                        .toArray(Etiqueta[][]::new),
                 filteredValues.toArray(new Integer[0]),
-                volunteers.toArray(),
+                volunteers.stream()
+                        .map(lista -> lista.toArray(VolunteerDTO[]::new))
+                        .toArray(VolunteerDTO[][]::new),
                 "Distribución de voluntarios",
                 filteredColors.toArray(new Color[0])
         );
         return d;
-    }
-
-    // Método auxiliar para generar colores consistentes
-    private Color generateColorForType(String type) {
-        // Implementación que devuelve el mismo color para el mismo tipo de tarea
-        return generateColorPalette(1)[0];
     }
 
     public Dashboard buildVolunteersVSAffectedChart() {
@@ -388,9 +411,12 @@ public class DashboardBuilderDirector {
             );
             d.addData(
                     new Object[]{ labels[i] },
-                    new Object[]{ labels[i] },
+                    Arrays.stream(labels)
+                            .map(Etiqueta::new)
+                            .map(fs -> new Etiqueta[]{ fs })
+                            .toArray(Etiqueta[][]::new),
                     new Object[]{ values[i] },
-                    new Integer[]{ values[i] },
+                    new Integer[][]{ new Integer[]{values[i]} },
                     labels[i],
                     new Color[]{ c }
             );
@@ -415,14 +441,20 @@ public class DashboardBuilderDirector {
         );
         d.addData(
                 labels,
-                labels,
+                Arrays.stream(labels)
+                        .map(Etiqueta::new)
+                        .map(fs -> new Etiqueta[]{ fs })
+                        .toArray(Etiqueta[][]::new),
                 values,
-                values,
+                Arrays.stream(values)
+                .map(i -> new Integer[]{ i })
+                .toArray(Integer[][]::new),
                 "Comparación",
                 generateColorPalette(labels.length)
         );
         return d;
     }
+
 //    //*
 //    //TODO: Nico necesitamos los controles de Resource que no están
 //    public Component buildResourcesByTypeChart() {
@@ -517,64 +549,97 @@ public class DashboardBuilderDirector {
 //    }*/
 //
 //    */
-    public List<TaskDTO> calculateCompletedTasksPerDay() {
-        List<TaskDTO> list = this.tasks;
+
+    // Método auxiliar para generar colores consistentes
+    private Color generateColorForType(String type) {
+        // Implementación que devuelve el mismo color para el mismo tipo de tarea
+        return generateColorPalette(1)[0];
+    }
+
+    public List<List<TaskDTO>> calculateCompletedTasksPerDay() {
         Arrays.fill(completedTasksPerDay, 0);
-        for (TaskDTO task : list) {
-            if ("FINISHED".equals(task.getStatus()) && task.getEstimatedEndTimeDate() != null) {
-                int index = task.getEstimatedEndTimeDate().getDayOfWeek().getValue() - 1;
-                completedTasksPerDay[index]++;
+
+        List<List<TaskDTO>> finishedTasks = new ArrayList<>(7);
+        for (int i = 0; i < 7; i++) {
+            finishedTasks.add(new ArrayList<>());
+        }
+
+        for (TaskDTO task : this.tasks) {
+            if ("FINISHED".equals(task.getStatus())
+                    && task.getEstimatedEndTimeDate() != null) {
+
+                int dowIndex = task.getEstimatedEndTimeDate()
+                        .getDayOfWeek()
+                        .getValue() - 1;
+
+                completedTasksPerDay[dowIndex]++;
+                finishedTasks.get(dowIndex).add(task);
             }
         }
-        return list;
+
+        return finishedTasks;
     }
 
-    public List<NeedDTO> calculateNeedsPerType() {
+    public List<List<NeedDTO>> calculateNeedsPerType() {
         Arrays.fill(needsByTaskType, 0);
-        Map<TaskType, Integer> map = new EnumMap<>(TaskType.class);
-        List<NeedDTO> needs = this.needs;
-        for (NeedDTO need : needs) {
-            if (!"FINISHED".equals(need.getStatus())) {
+
+        int typesCount = TaskType.values().length;
+        List<List<NeedDTO>> needsPerType = new ArrayList<>(typesCount);
+        for (int i = 0; i < typesCount; i++) {
+            needsPerType.add(new ArrayList<>());
+        }
+
+        for (NeedDTO need : this.needs) {
+            if (!"FINISHED".equals(need.getStatus())
+                    && need.getNeedType() != null) {
+
                 TaskType type = TaskType.valueOf(need.getNeedType());
-                map.put(type, map.getOrDefault(type, 0) + 1);
+                int idx = type.ordinal();
+
+                needsByTaskType[idx]++;
+                needsPerType.get(idx).add(need);
             }
         }
-        for (int i = 0; i < TaskType.values().length; i++) {
-            needsByTaskType[i] = map.getOrDefault(TaskType.values()[i], 0);
-        }
-        return needs;
+        return needsPerType;
     }
 
-    public List<TaskDTO> calculateCompletedTasksPerType() {
+    public List<List<TaskDTO>> calculateCompletedTasksPerType() {
         Arrays.fill(completedTasks, 0);
-        Map<TaskType, Integer> map = new EnumMap<>(TaskType.class);
-        List<TaskDTO> tasks = this.tasks;
-        for (TaskDTO task : tasks) {
-            if (!"FINISHED".equals(task.getStatus())) {
+        int typesCount = TaskType.values().length;
+        List<List<TaskDTO>> tasksByType = new ArrayList<>(typesCount);
+        for (int i = 0; i < typesCount; i++) {
+            tasksByType.add(new ArrayList<>());
+        }
+        for (TaskDTO task : this.tasks) {
+            if ("FINISHED".equals(task.getStatus())
+                    && task.getType() != null) {
                 TaskType type = TaskType.valueOf(task.getType());
-                map.put(type, map.getOrDefault(type, 0) + 1);
+                int idx = type.ordinal();
+                completedTasks[idx]++;
+                tasksByType.get(idx).add(task);
             }
         }
-        for (int i = 0; i < TaskType.values().length; i++) {
-            completedTasks[i] = map.getOrDefault(TaskType.values()[i], 0);
-        }
-        return tasks;
+        return tasksByType;
     }
 
-    public List<VolunteerDTO> calculateVolunteersByTaskType() {
+    public List<List<VolunteerDTO>> calculateVolunteersByTaskType() {
         Arrays.fill(volunteersCountByType, 0);
-        Map<TaskType, Integer> map = new EnumMap<>(TaskType.class);
-        List<VolunteerDTO> volunteers = this.volunteers;
-        for (VolunteerDTO v : volunteers) {
-            for (String pref : v.getTaskPreferences()) {
-                TaskType type = TaskType.valueOf(pref);
-                map.put(type, map.getOrDefault(type, 0) + 1);
+        int typesCount = TaskType.values().length;
+        List<List<VolunteerDTO>> volunteersByType = new ArrayList<>(typesCount);
+        for (int i = 0; i < typesCount; i++) {
+            volunteersByType.add(new ArrayList<>());
+        }
+        for (VolunteerDTO v : this.volunteers) {
+            if (v.getTaskPreferences() != null) {
+                for (String pref : v.getTaskPreferences()) {
+                    TaskType type = TaskType.valueOf(pref);
+                    int idx = type.ordinal();
+                    volunteersCountByType[idx]++;
+                    volunteersByType.get(idx).add(v);
+                }
             }
         }
-        for (int i = 0; i < TaskType.values().length; i++) {
-            volunteersCountByType[i] = map.getOrDefault(TaskType.values()[i], 0);
-        }
-        return volunteers;
+        return volunteersByType;
     }
 
     private Color[] generateColorPalette(int size) {

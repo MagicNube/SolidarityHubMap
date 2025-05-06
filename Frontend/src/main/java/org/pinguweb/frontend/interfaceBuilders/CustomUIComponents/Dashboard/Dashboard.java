@@ -205,9 +205,9 @@ public class Dashboard extends InterfaceComponent {
      */
     public <T, J> void addData(
             Object[] XData,
-            T[] XObjects,
+            T[][] XObjects,
             Object[] YData,
-            J[] YObjects,
+            J[][] YObjects,
             String name,
             Color[] color
     ) {

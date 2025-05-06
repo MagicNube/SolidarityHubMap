@@ -14,10 +14,10 @@ public class ChartData<T, J> {
     private final Object[] pointValues;
 
     /// La clase de la que sacas el dato de label
-    private final T[] labelObjects;
+    private final T[][] labelObjects;
 
     /// La clase de la que sacas el dato de value
-    private final J[] pointObjects;
+    private final J[][] pointObjects;
 
     private Color[] color;
     private String label;
@@ -27,7 +27,7 @@ public class ChartData<T, J> {
 
         //TODO : APAÑAR ESTO
 
-        for (int i = 0; i < Math.min(pointObjects.length,Math.min(labelValues.length, pointValues.length)); i++){
+        for (int i = 0; i < labelValues.length; i++){
             ChartPoint<T, J> point = new ChartPoint<>(labelObjects[i], labelValues[i], pointObjects[i], pointValues[i]);
             points.add(point);
         }

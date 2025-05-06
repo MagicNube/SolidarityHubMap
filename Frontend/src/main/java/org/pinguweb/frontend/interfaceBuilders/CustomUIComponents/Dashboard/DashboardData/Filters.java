@@ -65,10 +65,9 @@ public class Filters extends InterfaceComponent {
 
         Set<Class<?>> classes = new HashSet<>();
 
-        for (ChartData<?,?> d : firstData){
-            classes.add(d.getLabelObjects()[0].getClass());
-            classes.add(d.getPointObjects()[0].getClass());
-        }
+        ChartData<?,?> d = firstData.get(0);
+        classes.add(d.getLabelObjects()[0][0].getClass());
+        classes.add(d.getPointObjects()[0][0].getClass());
 
         classname.setItems(
             classes
@@ -198,15 +197,16 @@ public class Filters extends InterfaceComponent {
                 data.add(bar);
             }
             case PIE -> {
-//                PieChart pie = (PieChart) pair._1();
-//                pie.setItemNames(xFiltrado);
-//
-//                Number[] nums = yFiltrado.stream()
-//                        .map(v -> (Number) v)
-//                        .toArray(Number[]::new);
-//
-//                pie.setData(new Data(nums));
-//                data.add(pie);
+                PieChart pie = (PieChart) pair._1();
+                pie.setItemNames(xFiltrado);
+
+                Number[] nums = yFiltrado.stream()
+                        .map(v -> (Number) v)
+                        .toArray(Number[]::new);
+
+                pie.setData(new Data(nums));
+
+                data.add(pie);
             }
         }
     }
@@ -233,7 +233,7 @@ public class Filters extends InterfaceComponent {
                 return new NumberField();
             }
         }
-        else if (LocalDate.class.equals(type) || java.util.Date.class.equals(type)) {
+        else if (LocalDate.class.equals(type) || Date.class.equals(type)) {
             return new DatePicker();
         } else if (LocalDateTime.class.equals(type)) {
             return new DateTimePicker();
@@ -277,18 +277,34 @@ public class Filters extends InterfaceComponent {
             String rawValue) {
 
         return cp -> {
-            Object target = cp.getXObject().getClass().getName().equals(className)
-                    ? cp.getXObject()
-                    : cp.getYObject();
+            Object target = cp.getXObject()[0].getClass().getName().equals(className)
+                    ? cp.getXObject()[0]
+                    : cp.getYObject()[0];
 
-            PropertyDescriptor pd;
+            PropertyDescriptor pd = null;
+            Object fieldValue;
+
             try {
+                // 1. Intentamos con JavaBeans
                 pd = new PropertyDescriptor(propertyName, target.getClass());
-            } catch (IntrospectionException e) {
+                Method getter = pd.getReadMethod();
+                fieldValue = getter.invoke(target);
+            } catch (IntrospectionException ex) {
+                try {
+                    Field f = target.getClass().getDeclaredField(propertyName);
+                    f.setAccessible(true);
+                    fieldValue = f.get(target);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    throw new RuntimeException(
+                            "No se pudo acceder a la propiedad '" + propertyName + "' en " +
+                                    target.getClass().getName(), e);
+                }
+            } catch (InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
+
+            assert pd != null;
             Method getter = pd.getReadMethod();
-            Object fieldValue;
             try {
                 fieldValue = getter.invoke(target);
             } catch (IllegalAccessException | InvocationTargetException e) {
