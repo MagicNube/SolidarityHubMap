@@ -279,7 +279,9 @@ public class Filters extends InterfaceComponent {
         return cp -> {
             Object target = cp.getXObject()[0].getClass().getName().equals(className)
                     ? cp.getXObject()[0]
-                    : cp.getYObject()[0];
+                    : cp.getYObject().length > 0 ? cp.getYObject()[0] : null;
+
+            if (target == null) {return false;}
 
             PropertyDescriptor pd = null;
             Object fieldValue;
