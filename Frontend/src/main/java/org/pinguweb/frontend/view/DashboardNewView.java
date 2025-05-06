@@ -4,12 +4,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.pinguweb.frontend.interfaceBuilders.Directors.DashboardBuilderDirector;
 
-@Route("test")
-public class builderTest extends VerticalLayout {
+@Route("dashboard")
+public class DashboardNewView extends VerticalLayout {
 
-    public builderTest(){
+    public DashboardNewView(){
         DashboardBuilderDirector director = new DashboardBuilderDirector();
-        this.add(director.buildAllChartsGrid());
+        director.buildComplete();
+        this.add(director.get().getInterface());
     }
 
 }

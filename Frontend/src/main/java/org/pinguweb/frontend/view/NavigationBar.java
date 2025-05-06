@@ -15,7 +15,7 @@ public class NavigationBar {
         SideNavItem taskLink = new SideNavItem("Tareas", "http://localhost:8083/",
                 VaadinIcon.TASKS.create());
         SideNavItem dashboardLink = new SideNavItem("Dashboard",
-                DashboardView.class, VaadinIcon.DASHBOARD.create());
+                DashboardNewView.class, VaadinIcon.DASHBOARD.create());
         SideNavItem resourcesLink = new SideNavItem("Recursos",
                 "http://localhost:8083/recursos", VaadinIcon.TOOLBOX.create());
         SideNavItem contactLink = new SideNavItem("Contacto",

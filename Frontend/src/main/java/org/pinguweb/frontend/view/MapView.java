@@ -40,7 +40,6 @@ public class MapView extends HorizontalLayout {
 
         MapBuilderDirector director = new MapBuilderDirector();
 
-        this.add(NavigationBar.createNavBar());
         this.add(director.createFullMap());
 
         this.generateLayers();

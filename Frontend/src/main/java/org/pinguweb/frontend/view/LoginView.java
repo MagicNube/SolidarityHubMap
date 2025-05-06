@@ -61,7 +61,7 @@ public class LoginView extends VerticalLayout {
             if (authenticate(new LoginRequest(e.getUsername(), e.getPassword()))) {
                 SecurityContextHolder.getContext()
                         .setAuthentication(new UsernamePasswordAuthenticationToken(e.getUsername(), null, null));
-                getUI().ifPresent(ui -> ui.navigate("dashboard"));
+                getUI().ifPresent(ui -> ui.navigate("map"));
             } else {
                 loginForm.setError(true);
             }

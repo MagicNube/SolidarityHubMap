@@ -43,8 +43,17 @@ public class Filters extends InterfaceComponent {
         super(b);
     }
 
-    public void addDashboard(Dashboard dashboard){
-        this.dashboards.add(dashboard);
+    public void addDashboard(InterfaceComponent dashboard){
+        if (!(dashboard instanceof Dashboard)){return;}
+        this.dashboards.add((Dashboard) dashboard);
+    }
+
+    public void addDashboard(List<InterfaceComponent> dashboards){
+        for (InterfaceComponent d : dashboards){
+            if (d instanceof Dashboard){
+                this.dashboards.add((Dashboard) d);
+            }
+        }
     }
 
     public Component generateFilter(List<ChartData<?, ?> > firstData) {

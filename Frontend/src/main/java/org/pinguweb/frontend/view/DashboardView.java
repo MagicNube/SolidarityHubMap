@@ -7,7 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.pinguweb.frontend.utils.AuthUtils;
 
-@Route("dashboard")
+@Route("test")
 public class DashboardView extends VerticalLayout {
 
     public DashboardView() {
