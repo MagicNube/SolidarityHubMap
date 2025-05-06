@@ -54,13 +54,13 @@ public class DashboardBuilderDirector {
         Filters secondPairFilters = Filters.builder().build();
         Filters thirdPairFilters = Filters.builder().build();
         Filters fourthPairFilters = Filters.builder().build();
-        Filters fifthPairFilters = Filters.builder().build();
+        //Filters fifthPairFilters = Filters.builder().build();
 
         firstPairFilters.addDashboard(fisrtPair);
         secondPairFilters.addDashboard(secondPair);
         thirdPairFilters.addDashboard(thirdPair);
         fourthPairFilters.addDashboard(fourthPair);
-        fifthPairFilters.addDashboard(fifthPair);
+        //fifthPairFilters.addDashboard(fifthPair); <--- Habría que ver como apañarlo
 
         builder.addBelow(firstPairFilters);
         builder.addSide(fisrtPair);
@@ -70,12 +70,12 @@ public class DashboardBuilderDirector {
         builder.addSide(thirdPair);
         builder.addBelow(fourthPairFilters);
         builder.addSide(fourthPair);
-        builder.addBelow(fifthPairFilters);
+        //builder.addBelow(fifthPairFilters);
         builder.addSide(fifthPair);
     }
 
     public Dashboard buildCompletedTasksChart() {
-        calculateCompletedTasksPerDay();
+        List<TaskDTO> tasks = calculateCompletedTasksPerDay();
 
         String[] labels = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
 
@@ -98,7 +98,7 @@ public class DashboardBuilderDirector {
                     new Object[]{ labels[i] },
                     new Object[]{ labels[i] },
                     new Object[]{ v },
-                    new Integer[]{ v },
+                    tasks.toArray(),
                     labels[i],
                     new Color[]{ c }
             );
@@ -107,7 +107,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildCompletedTasksPieChart() {
-        calculateCompletedTasksPerDay();
+        List<TaskDTO> tasks = calculateCompletedTasksPerDay();
 
         String[] labels = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
         Integer[] values = completedTasksPerDay;
@@ -124,7 +124,7 @@ public class DashboardBuilderDirector {
                 labels,
                 labels,
                 values,
-                values,
+                tasks.toArray(),
                 "Tareas Completadas",
                 generateColorPalette(labels.length)
         );
@@ -132,7 +132,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildUncoveredNeedsChart() {
-        calculateNeedsPerType();
+        List<NeedDTO> needs = calculateNeedsPerType();
 
         String[] labels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
@@ -157,8 +157,8 @@ public class DashboardBuilderDirector {
             d.addData(
                     new Object[]{ labels[i] },
                     new Object[]{ labels[i] },
-                    new Object[]{ v },
-                    new Integer[]{ v },
+                    new Object[]{v},
+                    needs.toArray(),
                     labels[i],
                     new Color[]{ c }
             );
@@ -167,7 +167,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildUncoveredNeedsPieChart() {
-        calculateNeedsPerType();
+        List<NeedDTO> needs = calculateNeedsPerType();
 
         String[] allLabels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
@@ -196,7 +196,7 @@ public class DashboardBuilderDirector {
                 labels,
                 labels,
                 values,
-                values,
+                needs.toArray(),
                 "Necesidades No Cubiertas",
                 generateColorPalette(labels.length)
         );
@@ -204,7 +204,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildUncoveredTaskTypeChart() {
-        calculateCompletedTasksPerType();
+        List<TaskDTO> tasks = calculateCompletedTasksPerType();
 
         String[] labels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
@@ -229,7 +229,7 @@ public class DashboardBuilderDirector {
                     new Object[]{ labels[i] },
                     new Object[]{ labels[i] },
                     new Object[]{ v },
-                    new Integer[]{ v },
+                    tasks.toArray(),
                     labels[i],
                     new Color[]{ c }
             );
@@ -238,7 +238,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildUncoveredTaskTypePieChart() {
-        calculateCompletedTasksPerType();
+        List<TaskDTO> tasks = calculateCompletedTasksPerType();
 
         String[] allLabels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
@@ -268,7 +268,7 @@ public class DashboardBuilderDirector {
                 labels,
                 labels,
                 values,
-                values,
+                tasks.toArray(),
                 "Tareas No Terminadas",
                 generateColorPalette(labels.length)
         );
@@ -276,7 +276,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildVolunteersByTaskTypeChart() {
-        calculateVolunteersByTaskType();
+        List<VolunteerDTO> volunteer = calculateVolunteersByTaskType();
 
         String[] labels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
@@ -301,7 +301,7 @@ public class DashboardBuilderDirector {
                     new Object[]{ labels[i] },
                     new Object[]{ labels[i] },
                     new Object[]{ v },
-                    new Integer[]{ v },
+                    volunteer.toArray(),
                     labels[i],
                     new Color[]{ c }
             );
@@ -310,7 +310,7 @@ public class DashboardBuilderDirector {
     }
 
     public Dashboard buildVolunteersByTaskTypePieChart() {
-        calculateVolunteersByTaskType();
+        List<VolunteerDTO> volunteer = calculateVolunteersByTaskType();
 
         String[] labels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
@@ -329,7 +329,7 @@ public class DashboardBuilderDirector {
                 labels,
                 labels,
                 values,
-                values,
+                volunteer.toArray(),
                 "Voluntarios",
                 generateColorPalette(labels.length)
         );
@@ -488,7 +488,7 @@ public class DashboardBuilderDirector {
 //    }*/
 //
 //    */
-    public void calculateCompletedTasksPerDay() {
+    public List<TaskDTO> calculateCompletedTasksPerDay() {
         List<TaskDTO> list = Task.getAllFromServer();
         Arrays.fill(completedTasksPerDay, 0);
         for (TaskDTO task : list) {
@@ -497,9 +497,10 @@ public class DashboardBuilderDirector {
                 completedTasksPerDay[index]++;
             }
         }
+        return list;
     }
 
-    public void calculateNeedsPerType() {
+    public List<NeedDTO> calculateNeedsPerType() {
         Arrays.fill(needsByTaskType, 0);
         Map<TaskType, Integer> map = new EnumMap<>(TaskType.class);
         List<NeedDTO> needs = Need.getAllFromServer();
@@ -512,12 +513,14 @@ public class DashboardBuilderDirector {
         for (int i = 0; i < TaskType.values().length; i++) {
             needsByTaskType[i] = map.getOrDefault(TaskType.values()[i], 0);
         }
+        return needs;
     }
 
-    public void calculateCompletedTasksPerType() {
+    public List<TaskDTO> calculateCompletedTasksPerType() {
         Arrays.fill(completedTasks, 0);
         Map<TaskType, Integer> map = new EnumMap<>(TaskType.class);
-        for (TaskDTO task : Task.getAllFromServer()) {
+        List<TaskDTO> tasks = Task.getAllFromServer();
+        for (TaskDTO task : tasks) {
             if (!"FINISHED".equals(task.getStatus())) {
                 TaskType type = TaskType.valueOf(task.getType());
                 map.put(type, map.getOrDefault(type, 0) + 1);
@@ -526,12 +529,14 @@ public class DashboardBuilderDirector {
         for (int i = 0; i < TaskType.values().length; i++) {
             completedTasks[i] = map.getOrDefault(TaskType.values()[i], 0);
         }
+        return tasks;
     }
 
-    public void calculateVolunteersByTaskType() {
+    public List<VolunteerDTO> calculateVolunteersByTaskType() {
         Arrays.fill(volunteersCountByType, 0);
         Map<TaskType, Integer> map = new EnumMap<>(TaskType.class);
-        for (VolunteerDTO v : Volunteer.getAllFromServer()) {
+        List<VolunteerDTO> volunteers = Volunteer.getAllFromServer();
+        for (VolunteerDTO v : volunteers) {
             for (String pref : v.getTaskPreferences()) {
                 TaskType type = TaskType.valueOf(pref);
                 map.put(type, map.getOrDefault(type, 0) + 1);
@@ -540,6 +545,7 @@ public class DashboardBuilderDirector {
         for (int i = 0; i < TaskType.values().length; i++) {
             volunteersCountByType[i] = map.getOrDefault(TaskType.values()[i], 0);
         }
+        return volunteers;
     }
 
     private Color[] generateColorPalette(int size) {
