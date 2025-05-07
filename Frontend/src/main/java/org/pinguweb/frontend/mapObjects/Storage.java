@@ -28,10 +28,11 @@ import java.util.List;
 public class Storage extends MapObject{
 
     LMarker markerObj;
+    private String name;
+    private int zoneID;
+    private boolean full;
 
     public Storage(LComponentManagementRegistry reg, Double latitude, Double longitude){
-        this.setLatitude(latitude);
-        this.setLongitude(longitude);
 
         LIcon icon = new LIcon(reg, new LIconOptions()
                 .withIconUrl("https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png")
@@ -44,7 +45,7 @@ public class Storage extends MapObject{
 
         LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
 
-        this.markerObj = new LMarker(reg, new LLatLng(reg, this.getLatitude(), this.getLongitude()), options);
+        this.markerObj = new LMarker(reg, new LLatLng(reg, latitude, longitude), options);
     }
 
     @Override
@@ -58,28 +59,34 @@ public class Storage extends MapObject{
     }
 
     @Override
-    public void pushToServer(){
+    public int pushToServer(){
         StorageDTO storageDTO = new StorageDTO();
+        storageDTO.setLatitude(this.getLatitude());
+        storageDTO.setLongitude(this.getLongitude());
+        storageDTO.setName(this.getName());
+        storageDTO.setZone(this.getZoneID());
+        storageDTO.setFull(this.isFull());
 
         // TODO: AGREGAR LO QUE QUIERAS GUARDAR
 
         String finurl = "/api/storages";
         try{
-            BackendObject<StorageDTO> status = BackendService.postToBackend(finurl, storageDTO, StorageDTO.class);
+            BackendObject<StorageDTO> status = BackendService.postToBackend(BackendService.BACKEND+finurl, storageDTO, StorageDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
-                //TODO: Se añadio exitosamente
+                return status.getData().getID();
             }
         }
         catch (Exception e){
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
+        return 0;
     }
 
     @Override
-    public void deleteFromServer() {
+    public int deleteFromServer() {
         String finurl = "/api/storages/" + this.getID();
         try{
-            HttpStatusCode status = BackendService.deleteFromBackend(finurl);
+            HttpStatusCode status = BackendService.deleteFromBackend(BackendService.BACKEND+finurl);
             if (status == HttpStatus.OK){
                 //TODO: Eliminar del mapa
             }
@@ -87,6 +94,29 @@ public class Storage extends MapObject{
         catch (Exception e){
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
+        return 0;
+    }
+
+    @Override
+    public int updateToServer() {
+        StorageDTO storageDTO = new StorageDTO();
+        storageDTO.setLatitude(this.getLatitude());
+        storageDTO.setLongitude(this.getLongitude());
+        storageDTO.setName(this.getName());
+        storageDTO.setZone(this.getZoneID());
+        storageDTO.setFull(this.isFull());
+
+        String finurl = "/api/storages/" + this.getID();
+        try{
+            HttpStatus status = (HttpStatus) BackendService.putToBackend(BackendService.BACKEND+finurl, storageDTO);
+            if (status == HttpStatus.OK){
+
+            }
+        }
+        catch (Exception e){
+            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
+        }
+        return 0;
     }
 
     public static List<StorageDTO> getAllFromServer() {

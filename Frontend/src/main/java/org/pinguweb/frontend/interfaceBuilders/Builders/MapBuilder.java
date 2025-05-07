@@ -8,7 +8,6 @@ import lombok.NonNull;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 
-import java.util.LinkedList;
 import java.util.List;
 
 @NoArgsConstructor

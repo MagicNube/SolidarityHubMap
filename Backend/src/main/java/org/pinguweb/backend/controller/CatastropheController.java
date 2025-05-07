@@ -10,10 +10,7 @@ import org.pinguweb.backend.controller.common.ServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +35,14 @@ public class CatastropheController {
 
         List<CatastropheDTO> catastrophes = service.findAll().stream().map(factory::createDTO).collect(Collectors.toList());
         return CompletableFuture.completedFuture(ResponseEntity.ok(catastrophes));
+    }
+
+    @Async
+    @PostMapping("/catastrophes")
+    public CompletableFuture<ResponseEntity<CatastropheDTO>> addCatastrophe(@RequestBody CatastropheDTO catastrophe) {
+        if (ServerException.isServerClosed(service.getCatastropheRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
+
+        return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveCatastrophe(dtoFactory.createFromDTO(catastrophe)))));
     }
 
     @Async

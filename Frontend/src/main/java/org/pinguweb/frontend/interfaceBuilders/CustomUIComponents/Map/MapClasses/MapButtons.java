@@ -4,8 +4,11 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import lombok.Getter;
+import lombok.Setter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 
+@Setter
+@Getter
 public class MapButtons {
     private final Button zone = new Button("Crear zona");
     private final Button route = new Button("Crear ruta");
@@ -38,6 +41,11 @@ public class MapButtons {
             if (map.getState() == MapState.IDLE) {
                 enableButtons();
             }
+        });
+
+        storage.addClickListener(event -> {
+            disableButtons(null);
+            toggleStorageCreation(this);
         });
 
         edit.addClickListener(event -> {
@@ -95,6 +103,19 @@ public class MapButtons {
         enableButtons();
     }
 
+    private void toggleStorageCreation(MapButtons mapButtons) {
+        if (this.map.getState() == MapState.IDLE) {
+            this.map.setState(MapState.CREATING_STORAGE);
+            mapDialogs.createDialogAlmacen(this.map.getState(), mapButtons);
+        }
+    }
+
+    public void cancelStorageCreation() {
+        this.map.setState(MapState.IDLE);
+        this.storage.setText("Crear almacen");
+        enableButtons();
+    }
+
     private void toggleEdit() {
         if (this.map.getState() == MapState.IDLE) {
             this.map.setState(MapState.EDITING);
@@ -136,20 +157,21 @@ public class MapButtons {
     }
 
 
-    public HorizontalLayout generateButtonRow(){
+    public HorizontalLayout generateButtonRow() {
         HorizontalLayout hlayout = new HorizontalLayout();
 
-        if (this.map.isCanCreateZones()){
-            hlayout.add(this.zone);
-        }
-        if (this.map.isCanCreateStorages()){
-            hlayout.add(this.storage);
-        }
-        if (this.map.isCanCreateRoutes()){
-            hlayout.add(this.route);
-        }
 
-        if (hlayout.getChildren().findAny().isPresent()){
+        hlayout.add(this.zone);
+
+
+        hlayout.add(this.storage);
+
+
+        hlayout.add(this.route);
+
+
+
+        if (hlayout.getChildren().findAny().isPresent()) {
             hlayout.add(this.edit, this.delete);
         }
 

@@ -4,7 +4,6 @@ import com.storedobject.chart.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.charts.model.DataProviderSeries;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -21,8 +20,6 @@ import com.vaadin.flow.function.SerializablePredicate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartData;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartPoint;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 import org.yaml.snakeyaml.util.Tuple;
 
@@ -46,8 +43,17 @@ public class Filters extends InterfaceComponent {
         super(b);
     }
 
-    public void addDashboard(Dashboard dashboard){
-        this.dashboards.add(dashboard);
+    public void addDashboard(InterfaceComponent dashboard){
+        if (!(dashboard instanceof Dashboard)){return;}
+        this.dashboards.add((Dashboard) dashboard);
+    }
+
+    public void addDashboard(List<InterfaceComponent> dashboards){
+        for (InterfaceComponent d : dashboards){
+            if (d instanceof Dashboard){
+                this.dashboards.add((Dashboard) d);
+            }
+        }
     }
 
     public Component generateFilter(List<ChartData<?, ?> > firstData) {
@@ -59,9 +65,13 @@ public class Filters extends InterfaceComponent {
 
         Set<Class<?>> classes = new HashSet<>();
 
-        for (ChartData<?,?> d : firstData){
-            classes.add(d.getLabelObjects()[0].getClass());
-            classes.add(d.getPointObjects()[0].getClass());
+        ChartData<?,?> d = firstData.get(0);
+
+        if (d.getLabelObjects().length > 0 && d.getLabelObjects()[0].length > 0) {
+            classes.add(d.getLabelObjects()[0][0].getClass());
+        }
+        if (d.getPointObjects().length > 0 && d.getPointObjects()[0].length > 0) {
+            classes.add(d.getPointObjects()[0][0].getClass());
         }
 
         classname.setItems(
@@ -107,15 +117,16 @@ public class Filters extends InterfaceComponent {
                             .filter(filtro::test)
                             .map(ChartPoint::getXValue)
                             .toList();
+
                     AbstractDataProvider<?> xFiltrado = new AbstractDataStream<>(
                             dashboard.getCoordinateConfiguration().getAxis(0).getDataType(),
-                            filteredX.stream()
-                    );
+                            filteredX.stream());
 
                     List<Object> filteredY = pair._2().flatten().stream()
                             .filter(filtro::test)
                             .map(ChartPoint::getYValue)
                             .toList();
+
                     AbstractDataProvider<?> yFiltrado = new AbstractDataStream<>(
                             dashboard.getCoordinateConfiguration().getAxis(1).getDataType(),
                             filteredY.stream()
@@ -124,6 +135,7 @@ public class Filters extends InterfaceComponent {
                     addUpdatedChart(dashboard, pair, xFiltrado, yFiltrado, data);
                 }
                 dashboard.update(data.toArray(AbstractChart[]::new));
+                data.clear();
             }
         });
 
@@ -181,7 +193,7 @@ public class Filters extends InterfaceComponent {
         );
         return hmain;
     }
-//a
+
     private void addUpdatedChart(Dashboard dashboard, Tuple<AbstractChart, ChartData<?, ?>> pair, AbstractDataProvider<?> xFiltrado, AbstractDataProvider<?> yFiltrado, List<AbstractChart> data) {
         switch (dashboard.getType()) {
             case BAR, STACKED_BAR -> {
@@ -199,29 +211,40 @@ public class Filters extends InterfaceComponent {
                         .toArray(Number[]::new);
 
                 pie.setData(new Data(nums));
+
                 data.add(pie);
             }
         }
     }
 
-    /** Crea un campo de input acorde al tipo */
+    // TODO: No pilla si es enum porque los DTOs lo guardan como string
     private Component createFieldByType(Class<?> type) {
-        if (Boolean.class.equals(type) || boolean.class.equals(type)) {
+        if (type.isEnum()) {
+            log.debug("Es enum");
+            Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) type;
+            ComboBox<Enum<?>> combo = new ComboBox<>();
+            combo.setItems(enumType.getEnumConstants());
+            combo.setItemLabelGenerator(Enum::name);
+            return combo;
+        }
+        else if (Boolean.class.equals(type) || boolean.class.equals(type)) {
             return new Checkbox();
-        } else if (Number.class.isAssignableFrom(type)
-                || (type.isPrimitive() && !boolean.class.equals(type))) {
+        }
+        else if (Number.class.isAssignableFrom(type) || type.isPrimitive()) {
+
             if (Integer.class.equals(type) || int.class.equals(type)) {
                 return new IntegerField();
-            } else if (Double.class.equals(type) || double.class.equals(type)
-                    || Float.class.equals(type) || float.class.equals(type)) {
+            } else {
                 return new NumberField();
             }
-            return new NumberField();
-        } else if (LocalDate.class.equals(type) || Date.class.equals(type)) {
+        }
+        else if (LocalDate.class.equals(type) || Date.class.equals(type)) {
             return new DatePicker();
         } else if (LocalDateTime.class.equals(type)) {
             return new DateTimePicker();
-        } else {
+        }
+        else {
+            log.debug("No enum?");
             return new TextField();
         }
     }
@@ -259,18 +282,36 @@ public class Filters extends InterfaceComponent {
             String rawValue) {
 
         return cp -> {
-            Object target = cp.getXObject().getClass().getName().equals(className)
-                    ? cp.getXObject()
-                    : cp.getYObject();
+            Object target = cp.getXObject()[0].getClass().getName().equals(className)
+                    ? cp.getXObject()[0]
+                    : cp.getYObject().length > 0 ? cp.getYObject()[0] : null;
 
-            PropertyDescriptor pd;
+            if (target == null) {return false;}
+
+            PropertyDescriptor pd = null;
+            Object fieldValue;
+
             try {
+                // 1. Intentamos con JavaBeans
                 pd = new PropertyDescriptor(propertyName, target.getClass());
-            } catch (IntrospectionException e) {
+                Method getter = pd.getReadMethod();
+                fieldValue = getter.invoke(target);
+            } catch (IntrospectionException ex) {
+                try {
+                    Field f = target.getClass().getDeclaredField(propertyName);
+                    f.setAccessible(true);
+                    fieldValue = f.get(target);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    throw new RuntimeException(
+                            "No se pudo acceder a la propiedad '" + propertyName + "' en " +
+                                    target.getClass().getName(), e);
+                }
+            } catch (InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
+
+            assert pd != null;
             Method getter = pd.getReadMethod();
-            Object fieldValue;
             try {
                 fieldValue = getter.invoke(target);
             } catch (IllegalAccessException | InvocationTargetException e) {
@@ -323,5 +364,3 @@ public class Filters extends InterfaceComponent {
         return hlayout;
     }
 }
-
-

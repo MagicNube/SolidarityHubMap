@@ -1,13 +1,16 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses;
 
+import com.vaadin.flow.component.UI;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RouteDTO;
+import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.frontend.mapObjects.*;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Slf4j
 @Setter
@@ -25,6 +28,38 @@ public class MapBuild {
         clickFuncReferenceCreateRoute = service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute";
     }
 
+    public void createStorage(StorageDTO storageDTO, MapButtons mapButtons) {
+        this.service.setTempStorageDTO(storageDTO);
+        service.setClickFuncReferenceCreateStorage(service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateNeed");
+        service.getReg().execJs(service.getClickFuncReferenceCreateStorage() + "=e => document.getElementById('" + service.getID() + "').$server.mapStorage(e.latlng)");
+        service.getMap().on("click", service.getClickFuncReferenceCreateStorage());
+
+        UI ui = UI.getCurrent();
+        if (ui != null) {
+            service.setUi(ui);
+        }
+
+        new Thread(() -> {
+            synchronized (service.getLock()) {
+                try {
+                    System.out.println("Esperando clic en el mapa...");
+                    service.getLock().wait();
+
+                    UI uiThread = service.getUi();
+                    if (uiThread != null) {
+                        uiThread.access(mapButtons::enableButtons);
+                        mapButtons.getMap().setState(MapState.IDLE);
+                    } else {
+                        System.err.println("No se pudo acceder a la UI desde el hilo");
+                    }
+                } catch (InterruptedException e) {
+                    System.out.println("Error esperando clic en el mapa" + e);
+                }
+            }
+        }).start();
+    }
+
+
     public void startZoneConstruction(ZoneDTO zoneDTO) {
         service.setTempZoneDTO(zoneDTO);
         log.debug("Registrando puntos para la zona");
@@ -36,7 +71,11 @@ public class MapBuild {
         service.getMap().off("click", clickFuncReferenceCreateZone);
         log.debug("Zona terminada");
         Zone zona = this.service.createZone(service.getTempZoneDTO());
-        zona.pushToServer();
+
+        int newID = zona.pushToServer();
+        service.getZones().stream().filter(z -> z.getID() == service.getTempZoneDTO().getID()).findFirst().ifPresent(z -> {
+            z.setID(newID);
+        });
 
         for (ZoneMarker zoneMarker : service.getZoneMarkers().values()) {
             zoneMarker.removeFromMap(service.getMap());
@@ -44,6 +83,16 @@ public class MapBuild {
 
         service.getZoneMarkers().clear();
         service.getZoneMarkerPoints().clear();
+    }
+
+    public void editZone(Zone zone) {
+        log.debug("Zona editada");
+        zone.updateToServer();
+        service.getZones().stream().filter(z -> Objects.equals(z.getID(), zone.getID())).findFirst().ifPresent(z -> {
+            service.getZones().remove(z);
+            service.getZones().add(zone);
+        });
+        service.updateZone(zone);
     }
 
     public void startRouteConstruction(RouteDTO routeDTO) {
@@ -56,20 +105,41 @@ public class MapBuild {
     public void endRouteConstruction() {
         service.getMap().off("click", clickFuncReferenceCreateRoute);
         log.debug("Ruta terminada");
-        Route ruta = this.service.createRoute(service.getTempRouteDTO(), service.getRoutePoint());
-        ruta.pushToServer();
+        ArrayList<RoutePoint> routePoints = new ArrayList<>(service.getRoutePoint());
+        ArrayList<Integer> pointsID = new ArrayList<>();
+        for (RoutePoint routePoint : routePoints) {
+            pointsID.add(routePoint.pushToServer());
+        }
 
-        for (int i = service.getRoutePoints().size() - 2; i > 0; i--) {
+        Route ruta = this.service.createRoute(service.getTempRouteDTO(), service.getRoutePoint());
+        ruta.setPointsID(pointsID);
+        int tempID = ruta.pushToServer();
+
+        service.getRoutes().stream().filter(r -> r.getID() == service.getTempRouteDTO().getID()).findFirst().ifPresent(r -> {
+            service.getRoutes().remove(r);
+            service.getRoutes().add(ruta);
+        });
+        service.getRoutePoints().put(tempID, new ArrayList<>(service.getRoutePoint()));
+
+
+        for (int i = service.getRoutePoint().size() - 2; i > 0; i--) {
             RoutePoint routePoint = service.getRoutePoint().get(i);
             routePoint.removeFromMap(service.getMap());
-            service.getRoutePoints().remove(routePoint.getID());
+            service.getRoutePoint().remove(routePoint);
         }
 
-        service.getRoutePoints().put(service.getTempRouteDTO().getID(), new ArrayList<>(service.getRoutePoint()));
 
-        for (RoutePoint routePoint : service.getRoutePoint()) {
-            routePoint.removeFromMap(service.getMap());
-        }
+        service.getRoutePoint().clear();
+    }
+
+    public void editRoute(org.pinguweb.frontend.mapObjects.Route route) {
+        log.debug("Ruta editada");
+        route.updateToServer();
+        service.getRoutes().stream().filter(r -> Objects.equals(r.getID(), route.getID())).findFirst().ifPresent(r -> {
+            service.getRoutes().remove(r);
+            service.getRoutes().add(route);
+        });
+        service.updateRoute(route);
     }
 
     public void startEdit() {
@@ -88,6 +158,11 @@ public class MapBuild {
             this.service.getReg().execJs(clickFuncReferenceEditRoute + "=e => document.getElementById('" + this.service.getID() + "').$server.editRoute('" + route.getID() + "') ");
             route.getPolygon().on("click", clickFuncReferenceEditRoute);
         }
+        for (Storage storage : this.service.getStorages()) {
+            String clickFuncReferenceEditStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
+            this.service.getReg().execJs(clickFuncReferenceEditStorage + "=e => document.getElementById('" + this.service.getID() + "').$server.editStorage('" + storage.getID() + "') ");
+            storage.getMarkerObj().on("click", clickFuncReferenceEditStorage);
+        }
     }
 
     public void endEdit() {
@@ -102,6 +177,10 @@ public class MapBuild {
         for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
             String clickFuncReferenceEditRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditRoute" + route.getID();
             route.getPolygon().off("click", clickFuncReferenceEditRoute);
+        }
+        for (Storage storage : this.service.getStorages()) {
+            String clickFuncReferenceEditStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
+            storage.getMarkerObj().off("click", clickFuncReferenceEditStorage);
         }
     }
 
@@ -121,6 +200,11 @@ public class MapBuild {
             this.service.getReg().execJs(clickFuncReferenceDeleteRoute + "=e => document.getElementById('" + this.service.getID() + "').$server.removeRoute('" + route.getID() + "') ");
             route.getPolygon().on("click", clickFuncReferenceDeleteRoute);
         }
+        for (Storage storage : this.service.getStorages()) {
+            String clickFuncReferenceDeleteStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteStorage" + storage.getID();
+            this.service.getReg().execJs(clickFuncReferenceDeleteStorage + "=e => document.getElementById('" + this.service.getID() + "').$server.removeStorage('" + storage.getID() + "') ");
+            storage.getMarkerObj().on("click", clickFuncReferenceDeleteStorage);
+        }
     }
 
     public void endDelete() {
@@ -136,5 +220,20 @@ public class MapBuild {
             String clickFuncReferenceDeleteRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
             route.getPolygon().off("click", clickFuncReferenceDeleteRoute);
         }
+        for (Storage storage : this.service.getStorages()) {
+            String clickFuncReferenceDeleteStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteStorage" + storage.getID();
+            storage.getMarkerObj().off("click", clickFuncReferenceDeleteStorage);
+        }
+    }
+
+
+    public void editStorage(Storage storage) {
+        log.debug("Almacen editado");
+        storage.updateToServer();
+        service.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
+            service.getStorages().remove(s);
+            service.getStorages().add(storage);
+        });
+        service.updateStorage(storage);
     }
 }

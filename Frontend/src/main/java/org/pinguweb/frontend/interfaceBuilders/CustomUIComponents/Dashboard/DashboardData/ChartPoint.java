@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ChartPoint<X, Y> {
-    private X XObject;
+    private X[] XObject;
     private final Object XValue;
 
-    private Y YObject;
+    private Y[] YObject;
     private final Object YValue;
 }

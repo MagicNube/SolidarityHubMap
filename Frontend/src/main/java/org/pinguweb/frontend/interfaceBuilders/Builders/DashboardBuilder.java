@@ -12,7 +12,6 @@ import lombok.NonNull;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 
-import java.util.LinkedList;
 import java.util.List;
 
 @NoArgsConstructor
