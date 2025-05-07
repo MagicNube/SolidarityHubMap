@@ -44,7 +44,6 @@ public class ChartGenerator {
         List<List<TaskDTO>> tasks = dataGenerator.calculateCompletedTasksPerDay(completedTasksPerDay, this.tasks);
 
         String[] labels = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
-        Integer[] values = completedTasksPerDay;
 
         List<InterfaceComponent> dashboards = new ArrayList<>();
 
@@ -65,7 +64,7 @@ public class ChartGenerator {
                             .map(Etiqueta::new)
                             .map(fs -> new Etiqueta[]{fs})
                             .toArray(Etiqueta[][]::new),
-                    values,
+                    completedTasksPerDay,
                     tasks.stream()
                             .map(lista -> lista.toArray(TaskDTO[]::new))
                             .toArray(TaskDTO[][]::new),
