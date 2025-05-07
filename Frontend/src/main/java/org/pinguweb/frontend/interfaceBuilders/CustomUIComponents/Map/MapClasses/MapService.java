@@ -141,7 +141,7 @@ public class MapService {
                         ui.access(() -> {
                             RoutePoint point = (RoutePoint) routePointFactory.createMapObject(reg, lat, lon);
                             point.setID(id);
-                            point.getMarkerObj().bindPopup(route.getName());
+                            point.getMarkerObj().bindPopup("Ruta: " + route.getName());
                             this.routePoints.computeIfAbsent(route.getID(), k -> new ArrayList<>()).add(point);
                             if (isEdge) {
                                 point.addToMap(this.map);
@@ -168,10 +168,6 @@ public class MapService {
         }
 
 
-
-
-
-
     }
 
 
@@ -184,9 +180,9 @@ public class MapService {
         storageObj.setFull(storage.isFull());
         storageObj.setLatitude(storage.getLatitude());
         storageObj.setLongitude(storage.getLongitude());
-        storageObj.setZoneID(storage.getZone());
+        storageObj.setZoneID(storage.getZone() != null ? storage.getZone() : -1);
         storageObj.addToMap(this.map);
-        storageObj.getMarkerObj().bindPopup(storage.getName());
+        storageObj.getMarkerObj().bindPopup("Almacen: " + storage.getName());
 
         storages.add(storageObj);
         lLayerGroupStorages.addLayer(storageObj.getMarkerObj());
@@ -231,8 +227,8 @@ public class MapService {
     public ZoneMarker createZoneMarker(double lat, double lng) {
         ZoneMarker zoneMarker = (ZoneMarker) zoneMarkerFactory.createMapObject(reg, lat, lng);
 
-        String clickFuncReferenceDragStart = this.map.clientComponentJsAccessor() + ".myClickFuncDragStart"+zoneMarker.getID();
-        String clickFuncReferenceDragEnd = this.map.clientComponentJsAccessor() + ".myClickFuncDragEnd"+zoneMarker.getID();
+        String clickFuncReferenceDragStart = this.map.clientComponentJsAccessor() + ".myClickFuncDragStart" + zoneMarker.getID();
+        String clickFuncReferenceDragEnd = this.map.clientComponentJsAccessor() + ".myClickFuncDragEnd" + zoneMarker.getID();
 
         reg.execJs(clickFuncReferenceDragStart + "=e => document.getElementById('" + ID + "').$server.routePointStart(e.target.getLatLng())");
         reg.execJs(clickFuncReferenceDragEnd + "=e => document.getElementById('" + ID + "').$server.routePointEnd(e.target.getLatLng())");
@@ -248,8 +244,8 @@ public class MapService {
     public RoutePoint createRoutePoint(double lat, double lng) {
         RoutePoint routePoint = (RoutePoint) routePointFactory.createMapObject(reg, lat, lng);
 
-        String clickFuncReferenceDragStart = this.map.clientComponentJsAccessor() + ".myClickFuncDragStart"+routePoint.getID();
-        String clickFuncReferenceDragEnd = this.map.clientComponentJsAccessor() + ".myClickFuncDragEnd"+routePoint.getID();
+        String clickFuncReferenceDragStart = this.map.clientComponentJsAccessor() + ".myClickFuncDragStart" + routePoint.getID();
+        String clickFuncReferenceDragEnd = this.map.clientComponentJsAccessor() + ".myClickFuncDragEnd" + routePoint.getID();
 
         reg.execJs(clickFuncReferenceDragStart + "=e => document.getElementById('" + ID + "').$server.routePointStart(e.target.getLatLng())");
         reg.execJs(clickFuncReferenceDragEnd + "=e => document.getElementById('" + ID + "').$server.routePointEnd(e.target.getLatLng())");
@@ -298,7 +294,7 @@ public class MapService {
             default:
                 zone.generatePolygon(reg, "grey", "blue");
         }
-        zone.getPolygon().bindPopup(zone.getName());
+        zone.getPolygon().bindPopup("Zona: " + zone.getName());
         zone.setID(zoneDTO.getID());
         zone.addToMap(this.map);
 
@@ -356,12 +352,14 @@ public class MapService {
         route.setCatastrophe(routeDTO.getCatastrophe() != null ? routeDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
         route.setPointsID(routeDTO.getPoints() != null ? (ArrayList<Integer>) routeDTO.getPoints() : new ArrayList<>());
 
-        route.getPolygon().bindPopup(route.getName());
+        route.getPolygon().bindPopup("Ruta: " + route.getName());
         routes.add(route);
 
         lLayerGroupRoutes.addLayer(route.getPolygon());
         lLayerGroupRoutes.addLayer(routePoints.get(0).getMarkerObj());
         lLayerGroupRoutes.addLayer(routePoints.get(routePoints.size() - 1).getMarkerObj());
+        routePoints.get(0).getMarkerObj().bindPopup("Ruta: " + route.getName());
+        routePoints.get(routePoints.size() - 1).getMarkerObj().bindPopup("Ruta: " + route.getName());
         this.map.addLayer(lLayerGroupRoutes);
 
         return route;
@@ -432,7 +430,7 @@ public class MapService {
             default:
                 zone.generatePolygon(reg, "grey", "blue");
         }
-        zone.getPolygon().bindPopup(zone.getName());
+        zone.getPolygon().bindPopup("Zona: " + zone.getName());
         zone.getPolygon().addTo(this.map);
     }
 
@@ -457,10 +455,10 @@ public class MapService {
             default:
                 route.generatePolygon(reg, "blue", "blue");
         }
-        route.getPolygon().bindPopup(route.getName());
+        route.getPolygon().bindPopup("Ruta: " + route.getName());
         route.getPolygon().addTo(this.map);
         for (RoutePoint routePoint : this.routePoints.get(route.getID())) {
-            routePoint.getMarkerObj().bindPopup(route.getName());
+            routePoint.getMarkerObj().bindPopup("Ruta: " + route.getName());
         }
     }
 
@@ -487,7 +485,7 @@ public class MapService {
 
     public void updateStorage(Storage storage) {
         storage.getMarkerObj().removeFrom(this.map);
-        storage.getMarkerObj().bindPopup(storage.getName());
+        storage.getMarkerObj().bindPopup("Almacen: " + storage.getName());
         storage.getMarkerObj().addTo(this.map);
     }
 }
