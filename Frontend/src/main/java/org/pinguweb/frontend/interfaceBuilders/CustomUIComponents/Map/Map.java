@@ -12,20 +12,11 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapState;
 import org.pinguweb.frontend.view.MapView;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
-import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
-import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
-import software.xdev.vaadin.maps.leaflet.controls.LControlScale;
-import software.xdev.vaadin.maps.leaflet.controls.LControlScaleOptions;
 import software.xdev.vaadin.maps.leaflet.layer.LLayer;
-import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 @Getter
 @SuperBuilder

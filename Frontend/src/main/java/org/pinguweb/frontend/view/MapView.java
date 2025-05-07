@@ -7,7 +7,6 @@ import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
-import org.pingu.domain.DTO.StorageDTO;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapDialogs;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
@@ -17,8 +16,6 @@ import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
-import software.xdev.vaadin.maps.leaflet.controls.LControlScale;
-import software.xdev.vaadin.maps.leaflet.controls.LControlScaleOptions;
 import software.xdev.vaadin.maps.leaflet.layer.LLayer;
 import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 
