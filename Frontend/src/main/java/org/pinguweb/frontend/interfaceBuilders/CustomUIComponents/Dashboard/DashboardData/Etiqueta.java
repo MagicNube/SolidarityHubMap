@@ -8,5 +8,5 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class Etiqueta {
-    public String value;
+    public String valor;
 }

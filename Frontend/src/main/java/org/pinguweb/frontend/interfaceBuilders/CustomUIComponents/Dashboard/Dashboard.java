@@ -73,8 +73,8 @@ public class Dashboard extends InterfaceComponent {
         try{
             this.chart.updateData(data);
             this.chart.update(false);
-            UI.getCurrent().push();
         } catch (Exception e) {
+            log.error(e.getMessage(), Arrays.toString(e.getStackTrace()));
             throw new RuntimeException(e);
         }
     }

@@ -1,30 +1,19 @@
-package org.pinguweb.frontend.interfaceBuilders.Directors;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData;
 
 import com.storedobject.chart.*;
-import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.AffectedDTO;
 import org.pingu.domain.DTO.NeedDTO;
 import org.pingu.domain.DTO.TaskDTO;
 import org.pingu.domain.DTO.VolunteerDTO;
 import org.pingu.domain.enums.TaskType;
-import org.pinguweb.frontend.interfaceBuilders.Builders.DashboardBuilder;
-import org.pinguweb.frontend.interfaceBuilders.Builders.Interface;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartGenerator;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.Filters;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.Etiqueta;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import org.pinguweb.frontend.mapObjects.Affected;
-import org.pinguweb.frontend.mapObjects.Need;
-import org.pinguweb.frontend.mapObjects.Task;
-import org.pinguweb.frontend.mapObjects.Volunteer;
-import org.example.coordinacionbdsolidarityhub.model.enums.ResourceType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-@Slf4j
-public class DashboardBuilderDirector {
+public class ChartGenerator {
 
     private Integer[] completedTasksPerDay = new Integer[7];
     private Integer[] needsByTaskType = new Integer[TaskType.values().length];
@@ -36,50 +25,6 @@ public class DashboardBuilderDirector {
     private List<VolunteerDTO> volunteers = new ArrayList<>();
     private List<AffectedDTO> affecteds = new ArrayList<>();
     private List<NeedDTO> needs = new ArrayList<>();
-
-
-    private final DashboardBuilder builder = new DashboardBuilder();
-
-    public Interface get(){
-        return builder.build();
-    }
-
-    public void buildComplete(){
-        builder.reset();
-        builder.setTile("Dashboards pingu web");
-        builder.setSubtitle("Solidarity Hub");
-
-        volunteers = Volunteer.getAllFromServer();
-        affecteds = Affected.getAllFromServer();
-        needs = Need.getAllFromServer();
-        tasks = Task.getAllFromServer();
-
-        List<InterfaceComponent> fisrtPair = List.of(new Dashboard[]{buildCompletedTasksChart(), buildCompletedTasksPieChart()});
-        List<InterfaceComponent> secondPair = List.of(new Dashboard[]{buildUncoveredNeedsChart(), buildUncoveredNeedsPieChart()});
-        List<InterfaceComponent> thirdPair = List.of(new Dashboard[]{buildUncoveredTaskTypeChart(), buildUncoveredTaskTypePieChart()});
-        List<InterfaceComponent> fourthPair = List.of(new Dashboard[]{buildVolunteersByTaskTypeChart(), buildVolunteersByTaskTypePieChart()});
-        List<InterfaceComponent> fifthPair = List.of(new Dashboard[]{buildVolunteersVSAffectedChart(), buildVolunteersVSAffectedPieChart()});
-
-        Filters firstPairFilters = Filters.builder().build();
-        Filters secondPairFilters = Filters.builder().build();
-        Filters thirdPairFilters = Filters.builder().build();
-        Filters fourthPairFilters = Filters.builder().build();
-
-        firstPairFilters.addDashboard(fisrtPair);
-        secondPairFilters.addDashboard(secondPair);
-        thirdPairFilters.addDashboard(thirdPair);
-        fourthPairFilters.addDashboard(fourthPair);
-
-        builder.addBelow(firstPairFilters);
-        builder.addSide(fisrtPair);
-        builder.addBelow(secondPairFilters);
-        builder.addSide(secondPair);
-        builder.addBelow(thirdPairFilters);;
-        builder.addSide(thirdPair);
-        builder.addBelow(fourthPairFilters);
-        builder.addSide(fourthPair);
-        builder.addSide(fifthPair);
-    }
 
     public Dashboard buildCompletedTasksChart() {
         List<List<TaskDTO>> tasks = calculateCompletedTasksPerDay();
@@ -662,4 +607,5 @@ public class DashboardBuilderDirector {
         }
         return palette;
     }
+
 }

@@ -66,8 +66,13 @@ public class Filters extends InterfaceComponent {
         Set<Class<?>> classes = new HashSet<>();
 
         ChartData<?,?> d = firstData.get(0);
-        classes.add(d.getLabelObjects()[0][0].getClass());
-        classes.add(d.getPointObjects()[0][0].getClass());
+
+        if (d.getLabelObjects().length > 0 && d.getLabelObjects()[0].length > 0) {
+            classes.add(d.getLabelObjects()[0][0].getClass());
+        }
+        if (d.getPointObjects().length > 0 && d.getPointObjects()[0].length > 0) {
+            classes.add(d.getPointObjects()[0][0].getClass());
+        }
 
         classname.setItems(
             classes
@@ -130,6 +135,7 @@ public class Filters extends InterfaceComponent {
                     addUpdatedChart(dashboard, pair, xFiltrado, yFiltrado, data);
                 }
                 dashboard.update(data.toArray(AbstractChart[]::new));
+                data.clear();
             }
         });
 
@@ -187,7 +193,7 @@ public class Filters extends InterfaceComponent {
         );
         return hmain;
     }
-//a
+
     private void addUpdatedChart(Dashboard dashboard, Tuple<AbstractChart, ChartData<?, ?>> pair, AbstractDataProvider<?> xFiltrado, AbstractDataProvider<?> yFiltrado, List<AbstractChart> data) {
         switch (dashboard.getType()) {
             case BAR, STACKED_BAR -> {
@@ -224,8 +230,7 @@ public class Filters extends InterfaceComponent {
         else if (Boolean.class.equals(type) || boolean.class.equals(type)) {
             return new Checkbox();
         }
-        else if (Number.class.isAssignableFrom(type)
-                || (type.isPrimitive() && !boolean.class.equals(type))) {
+        else if (Number.class.isAssignableFrom(type) || type.isPrimitive()) {
 
             if (Integer.class.equals(type) || int.class.equals(type)) {
                 return new IntegerField();
@@ -359,5 +364,3 @@ public class Filters extends InterfaceComponent {
         return hlayout;
     }
 }
-
-
