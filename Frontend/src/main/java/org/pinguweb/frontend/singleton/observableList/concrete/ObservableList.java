@@ -13,7 +13,6 @@ public class ObservableList<T> extends ConcreteSubject implements List<T> {
 
     @Override
     public void notifyObservers(ObserverChange change) {
-        log.info("Notifcando");
         for (Observer o : this.subscribers){
             o.update(change);
         }
