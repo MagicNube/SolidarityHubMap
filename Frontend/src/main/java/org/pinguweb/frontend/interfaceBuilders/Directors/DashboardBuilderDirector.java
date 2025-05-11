@@ -19,18 +19,6 @@ import java.util.List;
 @Slf4j
 public class DashboardBuilderDirector {
 
-    private Integer[] completedTasksPerDay = new Integer[7];
-    private Integer[] needsByTaskType = new Integer[TaskType.values().length];
-    private Integer[] completedTasks = new Integer[TaskType.values().length];
-    private Integer[] volunteersCountByType = new Integer[TaskType.values().length];
-    private Integer[] resourcesByType = new Integer[org.example.coordinacionbdsolidarityhub.model.enums.ResourceType.values().length];
-
-    private List<TaskDTO> tasks = new ArrayList<>();
-    private List<VolunteerDTO> volunteers = new ArrayList<>();
-    private List<AffectedDTO> affecteds = new ArrayList<>();
-    private List<NeedDTO> needs = new ArrayList<>();
-
-
     private final DashboardBuilder builder = new DashboardBuilder();
 
     public Interface get(){
