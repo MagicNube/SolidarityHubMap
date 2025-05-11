@@ -1,44 +1,41 @@
-package org.pinguweb.frontend.observableList;
+package org.pinguweb.frontend.singleton.observableList.concrete;
+
+import lombok.extern.slf4j.Slf4j;
+import org.pinguweb.frontend.singleton.observableList.Observer;
+import org.pinguweb.frontend.singleton.observableList.ObserverChange;
+import org.pinguweb.frontend.singleton.observableList.ConcreteSubject;
 
 import java.util.*;
 
-public class ObservableList<T> implements List<T> {
-    private final List<T> delegate = new ArrayList<>();
-    private final List<ListChangeListener<T>> listeners = new ArrayList<>();
+@Slf4j
+public class ObservableList<T> extends ConcreteSubject implements List<T> {
+    protected final List<T> delegate = new ArrayList<>();
 
-    public void addListener(ListChangeListener<T> listener) {
-        listeners.add(listener);
-    }
-
-    public void removeListener(ListChangeListener<T> listener) {
-        listeners.remove(listener);
-    }
-
-    private void notifyListeners(ListChangeListener.ChangeType type, int index, T oldValue, T newValue) {
-        for (ListChangeListener<T> l : listeners) {
-            l.onChanged(type, index, oldValue, newValue);
+    @Override
+    public void notifyObservers(ObserverChange change) {
+        log.info("Notifcando");
+        for (Observer o : this.subscribers){
+            o.update(change);
         }
     }
-
-    // List interface methods with notifications
 
     @Override
     public boolean add(T element) {
         delegate.add(element);
-        notifyListeners(ListChangeListener.ChangeType.ADD, delegate.size() - 1, null, element);
+        notifyObservers(ObserverChange.ADD);
         return true;
     }
 
     @Override
     public void add(int index, T element) {
         delegate.add(index, element);
-        notifyListeners(ListChangeListener.ChangeType.ADD, index, null, element);
+        notifyObservers(ObserverChange.ADD);
     }
 
     @Override
     public T remove(int index) {
         T old = delegate.remove(index);
-        notifyListeners(ListChangeListener.ChangeType.REMOVE, index, old, null);
+        notifyObservers(ObserverChange.REMOVE);
         return old;
     }
 
@@ -46,8 +43,8 @@ public class ObservableList<T> implements List<T> {
     public boolean remove(Object o) {
         int index = delegate.indexOf(o);
         if (index >= 0 && index < delegate.size()) {
-            T old = delegate.remove(index);
-            notifyListeners(ListChangeListener.ChangeType.REMOVE, index, old, null);
+            delegate.remove(index);
+            notifyObservers(ObserverChange.REMOVE);
             return true;
         }
         return false;
@@ -56,14 +53,14 @@ public class ObservableList<T> implements List<T> {
     @Override
     public T set(int index, T element) {
         T old = delegate.set(index, element);
-        notifyListeners(ListChangeListener.ChangeType.UPDATE, index, old, element);
+        notifyObservers(ObserverChange.SET);
         return old;
     }
 
     @Override
     public void clear() {
         delegate.clear();
-        notifyListeners(ListChangeListener.ChangeType.CLEAR, -1, null, null);
+        notifyObservers(ObserverChange.CLEAR);
     }
 
     @Override
@@ -84,9 +81,8 @@ public class ObservableList<T> implements List<T> {
     @Override public boolean containsAll(Collection<?> c) { return delegate.containsAll(c); }
     @Override public boolean addAll(Collection<? extends T> c) {
         boolean changed = false;
-        int init = delegate.size() - 1;
         for (T e : c) changed |= add(e);
-        notifyListeners(ListChangeListener.ChangeType.ADD_ALL, init, null, null);
+        notifyObservers(ObserverChange.ADD_ALL);
         return changed;
     }
     @Override public boolean addAll(int index, Collection<? extends T> c) {
@@ -96,13 +92,13 @@ public class ObservableList<T> implements List<T> {
             add(idx++, e);
             changed = true;
         }
-        notifyListeners(ListChangeListener.ChangeType.ADD_ALL, index, null, null);
+        notifyObservers(ObserverChange.ADD_ALL);
         return changed;
     }
     @Override public boolean removeAll(Collection<?> c) {
         boolean changed = false;
         for (Object o : c) changed |= remove(o);
-        notifyListeners(ListChangeListener.ChangeType.REMOVE_ALL, 0, null, null);
+        notifyObservers(ObserverChange.REMOVE_ALL);
         return changed;
     }
     @Override public boolean retainAll(Collection<?> c) {
