@@ -147,22 +147,4 @@ public class Zone extends MapObject{
         }
         return 0;
     }
-
-    public static List<ZoneDTO> getAllFromServer() {
-        BackendObject<List<ZoneDTO>> zones = BackendService.getListFromBackend(BackendService.BACKEND + "/api/zones",
-                new ParameterizedTypeReference<>() {
-                });
-
-        if (zones.getStatusCode() == HttpStatus.OK) {
-            return zones.getData();
-        } else if (zones.getStatusCode() == HttpStatus.NO_CONTENT) {
-            log.error("FALLO: No se ha encontrado contenido en la petición: /api/zones");
-            return new ArrayList<>();
-        } else if (zones.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE) {
-            log.error("FALLO: Petición /api/zones devolvió servicio no disponible. ¿El backend funciona?");
-            return new ArrayList<>();
-        } else {
-            throw new RuntimeException("Backend object return unexpected status code");
-        }
-    }
 }

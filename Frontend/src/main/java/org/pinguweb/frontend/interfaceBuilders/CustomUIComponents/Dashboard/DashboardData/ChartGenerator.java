@@ -9,10 +9,8 @@ import org.pingu.domain.enums.TaskType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import org.pinguweb.frontend.mapObjects.Affected;
 import org.pinguweb.frontend.mapObjects.Need;
-import org.pinguweb.frontend.mapObjects.Task;
-import org.pinguweb.frontend.mapObjects.Volunteer;
+import org.pinguweb.frontend.singleton.BackendDTOObservableService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,11 +30,14 @@ public class ChartGenerator {
     private final List<NeedDTO> needs;
     private final ChartDatasetGenerator dataGenerator;
 
+    //TODO: Recuerda convertirlo en observador
+
     public ChartGenerator(){
-        volunteers = Volunteer.getAllFromServer();
-        affecteds = Affected.getAllFromServer();
-        needs = Need.getAllFromServer();
-        tasks = Task.getAllFromServer();
+        BackendDTOObservableService service = BackendDTOObservableService.GetInstancia();
+        volunteers = service.getVolunteerList().getValues();
+        affecteds = service.getAffectedList().getValues();
+        needs = service.getNeedList().getValues();
+        tasks = service.getTaskList().getValues();
         dataGenerator = new ChartDatasetGenerator();
     }
 

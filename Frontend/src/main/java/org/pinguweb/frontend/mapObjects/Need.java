@@ -89,25 +89,4 @@ public class Need extends MapObject{
         }
         return 0;
     }
-
-    public static List<NeedDTO> getAllFromServer() {
-        BackendObject<List<NeedDTO>> needs = BackendService.getListFromBackend(BackendService.BACKEND + "/api/needs",
-                new ParameterizedTypeReference<>() {
-                });
-
-        if (needs.getStatusCode() == HttpStatus.OK){
-            return needs.getData();
-        }
-        else if (needs.getStatusCode() == HttpStatus.NO_CONTENT){
-            log.error("FALLO: No se ha encontrado contenido en la petición: /api/needs");
-            return new ArrayList<>();
-        }
-        else if (needs.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE){
-            log.error("FALLO: Petición /api/needs devolvió servicio no disponible. ¿El backend funciona?");
-            return new ArrayList<>();
-        }
-        else{
-            throw new RuntimeException("Backend object return unexpected status code");
-        }
-    }
 }

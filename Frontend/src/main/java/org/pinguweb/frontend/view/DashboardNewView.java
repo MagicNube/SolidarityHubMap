@@ -1,6 +1,5 @@
 package org.pinguweb.frontend.view;
 
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,7 @@ import java.util.Arrays;
 public class DashboardNewView extends VerticalLayout implements Observer {
 
     public DashboardNewView(){
-        BackendDTOObservableService.GetInstancia().getNeedServerList().getValues().attach(this);
+        BackendDTOObservableService.GetInstancia().getNeedList().getValues().attach(this);
         DashboardBuilderDirector director = new DashboardBuilderDirector();
         director.buildComplete();
         this.add(director.get().getInterface());
@@ -26,7 +25,7 @@ public class DashboardNewView extends VerticalLayout implements Observer {
     public void update(ObserverChange change) {
         if (change == ObserverChange.MANUAL || change == ObserverChange.ADD_ALL) {
             log.info("Datos actualizados! {}", change);
-            log.info(Arrays.toString(BackendDTOObservableService.GetInstancia().getNeedServerList().getValues().toArray()));
+            log.info(Arrays.toString(BackendDTOObservableService.GetInstancia().getNeedList().getValues().toArray()));
         }
     }
 }

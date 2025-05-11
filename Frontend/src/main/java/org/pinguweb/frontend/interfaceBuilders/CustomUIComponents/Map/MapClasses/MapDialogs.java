@@ -16,10 +16,10 @@ import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.domain.enums.EmergencyLevel;
 import org.pingu.domain.enums.RouteType;
-import org.pinguweb.frontend.mapObjects.Catastrophe;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
+import org.pinguweb.frontend.singleton.BackendDTOObservableService;
 import org.pinguweb.frontend.view.MapView;
 
 import java.util.ArrayList;
@@ -34,6 +34,8 @@ public class MapDialogs {
     private final MapBuild mapBuild;
     private final MapButtons mapButtons;
 
+    private final BackendDTOObservableService backendService = BackendDTOObservableService.GetInstancia();
+
     public MapDialogs(MapService service, MapButtons mapButtons) {
         this.service = service;
         this.mapButtons = mapButtons;
@@ -43,8 +45,8 @@ public class MapDialogs {
 
     public void createDialogZona(MapState mapState) {
         if (mapState == MapState.CREATING_ZONE) {
-            List<CatastropheDTO> catastropheDTOList = Catastrophe.getAllFromServer();
-            List<StorageDTO> storageDTOList = Storage.getAllFromServer();
+            List<CatastropheDTO> catastropheDTOList = backendService.getCatastropheList().getValues();
+            List<StorageDTO> storageDTOList = backendService.getStorageList().getValues();
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
             dialog.setCloseOnEsc(false);
@@ -155,7 +157,7 @@ public class MapDialogs {
         if (mapState == MapState.CREATING_ROUTE) {
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
-            List<CatastropheDTO> catastropheDTOList = Catastrophe.getAllFromServer();
+            List<CatastropheDTO> catastropheDTOList = backendService.getCatastropheList().getValues();
             dialog.setCloseOnEsc(false);
             dialog.setCloseOnOutsideClick(false);
             dialog.setDraggable(true);
@@ -242,7 +244,7 @@ public class MapDialogs {
             nameTextArea.setHeight("5vh");
 
             ComboBox<String> zoneComboBox = new ComboBox<>("Zona");
-            zoneComboBox.setItems(Zone.getAllFromServer().stream().map(ZoneDTO::getName).toList());
+            zoneComboBox.setItems(backendService.getZoneList().getValues().stream().map(ZoneDTO::getName).toList());
 
             ComboBox<String> llenoComboBox = new ComboBox<>("Estado");
             String[] llenoOptions = {"Lleno", "Vacio"};
@@ -255,7 +257,7 @@ public class MapDialogs {
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
-                int zoneID = zoneComboBox.getValue() != null ? Zone.getAllFromServer().stream()
+                int zoneID = zoneComboBox.getValue() != null ? backendService.getZoneList().getValues().stream()
                         .filter(zoneDTO -> zoneDTO.getName().equals(zoneComboBox.getValue()))
                         .findFirst()
                         .map(ZoneDTO::getID)
@@ -313,13 +315,13 @@ public class MapDialogs {
         severityComboBox.setValue(zone.getEmergencyLevel());
 
         ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
-        catastropheComboBox.setItems(Catastrophe.getAllFromServer().stream().map(CatastropheDTO::getName).toList());
+        catastropheComboBox.setItems(backendService.getCatastropheList().getValues().stream().map(CatastropheDTO::getName).toList());
 
         MultiSelectListBox<String> storageComboBox = new MultiSelectListBox<>();
-        storageComboBox.setItems(Storage.getAllFromServer().stream().map(StorageDTO::getName).toList());
+        storageComboBox.setItems(backendService.getStorageList().getValues().stream().map(StorageDTO::getName).toList());
 
         Set<String> selectedStorageNames = zone.getStorages().stream()
-                .map(storageID -> Storage.getAllFromServer().stream()
+                .map(storageID -> backendService.getStorageList().getValues().stream()
                         .filter(storageDTO -> storageDTO.getID() == storageID)
                         .findFirst()
                         .map(StorageDTO::getName)
@@ -340,7 +342,7 @@ public class MapDialogs {
             dialog.close();
         });
         Button acceptButton = new Button("Aceptar", event -> {
-            int catastropheID = catastropheComboBox.getValue() != null ? Catastrophe.getAllFromServer().stream()
+            int catastropheID = catastropheComboBox.getValue() != null ? backendService.getCatastropheList().getValues().stream()
                     .filter(catastropheDTO -> catastropheDTO.getName().equals(catastropheComboBox.getValue()))
                     .findFirst()
                     .map(CatastropheDTO::getID)
@@ -349,7 +351,7 @@ public class MapDialogs {
             Set<String> seleccionados = storageComboBox.getSelectedItems();
             List<Integer> selectedStorageIDs = new ArrayList<>();
             for (String seleccionado : seleccionados) {
-                for (StorageDTO storageDTO : Storage.getAllFromServer()) {
+                for (StorageDTO storageDTO : backendService.getStorageList().getValues()) {
                     if (storageDTO.getName().equals(seleccionado)) {
                         selectedStorageIDs.add(storageDTO.getID());
                     }
@@ -415,14 +417,14 @@ public class MapDialogs {
         routeTypeComboBox.setValue(route.getRouteType());
 
         ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
-        catastropheComboBox.setItems(Catastrophe.getAllFromServer().stream().map(CatastropheDTO::getName).toList());
+        catastropheComboBox.setItems(backendService.getCatastropheList().getValues().stream().map(CatastropheDTO::getName).toList());
 
         Button cancelButton = new Button("Cancelar");
         cancelButton.addClickListener(event -> {
             dialog.close();
         });
         Button acceptButton = new Button("Aceptar", event -> {
-            int catastropheID = catastropheComboBox.getValue() != null ? Catastrophe.getAllFromServer().stream()
+            int catastropheID = catastropheComboBox.getValue() != null ? backendService.getCatastropheList().getValues().stream()
                     .filter(catastropheDTO -> catastropheDTO.getName().equals(catastropheComboBox.getValue()))
                     .findFirst()
                     .map(CatastropheDTO::getID)
@@ -476,7 +478,7 @@ public class MapDialogs {
         nameTextArea.setValue(storage.getName());
 
         ComboBox<String> zoneComboBox = new ComboBox<>("Zona");
-        zoneComboBox.setItems(Zone.getAllFromServer().stream().map(ZoneDTO::getName).toList());
+        zoneComboBox.setItems(backendService.getZoneList().getValues().stream().map(ZoneDTO::getName).toList());
 
         ComboBox<String> llenoComboBox = new ComboBox<>("Estado");
         String[] llenoOptions = {"Lleno", "Vacio"};
@@ -488,7 +490,7 @@ public class MapDialogs {
             dialog.close();
         });
         Button acceptButton = new Button("Aceptar", event -> {
-            int zoneID = zoneComboBox.getValue() != null ? Zone.getAllFromServer().stream()
+            int zoneID = zoneComboBox.getValue() != null ? backendService.getZoneList().getValues().stream()
                     .filter(zoneDTO -> zoneDTO.getName().equals(zoneComboBox.getValue()))
                     .findFirst()
                     .map(ZoneDTO::getID)

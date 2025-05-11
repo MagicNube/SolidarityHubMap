@@ -118,22 +118,4 @@ public class Storage extends MapObject{
         }
         return 0;
     }
-
-    public static List<StorageDTO> getAllFromServer() {
-        BackendObject<List<StorageDTO>> storages = BackendService.getListFromBackend(BackendService.BACKEND + "/api/storages",
-                new ParameterizedTypeReference<>() {
-                });
-
-        if (storages.getStatusCode() == HttpStatus.OK) {
-            return storages.getData();
-        } else if (storages.getStatusCode() == HttpStatus.NO_CONTENT) {
-            log.error("FALLO: No se ha encontrado contenido en la petición: /api/storages");
-            return new ArrayList<>();
-        } else if (storages.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE) {
-            log.error("FALLO: Petición /api/storages devolvió servicio no disponible. ¿El backend funciona?");
-            return new ArrayList<>();
-        } else {
-            throw new RuntimeException("Backend object return unexpected status code");
-        }
-    }
 }

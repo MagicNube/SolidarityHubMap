@@ -117,38 +117,4 @@ public class RoutePoint extends MapObject {
         }
         return 0;
     }
-
-    public static List<RoutePointDTO> getAllFromServer() {
-        BackendObject<List<RoutePointDTO>> routepoints = BackendService.getListFromBackend(BackendService.BACKEND + "/api/routepoints",
-                new ParameterizedTypeReference<>() {
-                });
-
-        if (routepoints.getStatusCode() == HttpStatus.OK) {
-            return routepoints.getData();
-        } else if (routepoints.getStatusCode() == HttpStatus.NO_CONTENT) {
-            log.error("FALLO: No se ha encontrado contenido en la petición: /api/routepoints");
-            return new ArrayList<>();
-        } else if (routepoints.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE) {
-            log.error("FALLO: Petición /api/routepoints devolvió servicio no disponible. ¿El backend funciona?");
-            return new ArrayList<>();
-        } else {
-            throw new RuntimeException("Backend object return unexpected status code");
-        }
-    }
-
-    public static RoutePointDTO getFromServerById(Integer integer) {
-        BackendObject<RoutePointDTO> routepoints = BackendService.getFromBackend(BackendService.BACKEND + "/api/routepoints/" + integer, RoutePointDTO.class);
-
-        if (routepoints.getStatusCode() == HttpStatus.OK) {
-            return routepoints.getData();
-        } else if (routepoints.getStatusCode() == HttpStatus.NO_CONTENT) {
-            log.error("FALLO: No se ha encontrado contenido en la petición: /api/routepoints");
-            return new RoutePointDTO();
-        } else if (routepoints.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE) {
-            log.error("FALLO: Petición /api/routepoints devolvió servicio no disponible. ¿El backend funciona?");
-            return new RoutePointDTO();
-        } else {
-            throw new RuntimeException("Backend object return unexpected status code");
-        }
-    }
 }

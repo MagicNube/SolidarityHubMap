@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.*;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
+import org.pinguweb.frontend.singleton.BackendDTOObservableService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
@@ -78,6 +79,8 @@ public class MapService {
     private RoutePointFactory routePointFactory;
     private StorageFactory storageFactory;
 
+    private final BackendDTOObservableService backendService = BackendDTOObservableService.GetInstancia();
+
     public MapService() {
         this.needFactory = new NeedFactory();
         this.zoneFactory = new ZoneFactory();
@@ -102,7 +105,7 @@ public class MapService {
     }
 
     private void loadNeeds(UI ui) {
-        for (NeedDTO need : Need.getAllFromServer()) {
+        for (NeedDTO need : backendService.getNeedList().getValues()) {
             if (need.getLatitude() != null && need.getLongitude() != null) {
                 ui.access(() -> {
                     log.debug(need.toString());
@@ -113,7 +116,7 @@ public class MapService {
     }
 
     private void loadZones(UI ui) {
-        for (ZoneDTO zone : Zone.getAllFromServer()) {
+        for (ZoneDTO zone : backendService.getZoneList().getValues()) {
             if (!zone.getLatitudes().isEmpty() && !zone.getLongitudes().isEmpty()) {
                 ui.access(() -> createZone(zone));
             }
@@ -121,7 +124,7 @@ public class MapService {
     }
 
     private void loadStorages(UI ui) {
-        for (StorageDTO storage : Storage.getAllFromServer()) {
+        for (StorageDTO storage : backendService.getStorageList().getValues()) {
             if (storage.getLatitude() != null && storage.getLongitude() != null) {
                 ui.access(() -> createStorage(storage));
             }
@@ -129,11 +132,13 @@ public class MapService {
     }
 
     private void loadRoutes(UI ui) {
-        for (RouteDTO route : Route.getAllFromServer()) {
+        for (RouteDTO route : backendService.getRouteList().getValues()) {
             if (!route.getPoints().isEmpty()) {
                 List<RoutePoint> routePoints = new ArrayList<>();
-                for (int i = 0; i < route.getPoints().size(); i++) {
-                    RoutePointDTO routePoint = RoutePoint.getFromServerById(route.getPoints().get(i));
+                for (Integer i : route.getPoints()) {
+                    RoutePointDTO routePoint = backendService.getRoutePointList().getValues().stream().filter(
+                            routePointDTO ->  route.getPoints().get(i) == routePointDTO.getID()
+                    ).toList().get(0);
                     if (routePoint != null) {
                         double lat = routePoint.getLatitude();
                         double lon = routePoint.getLongitude();
@@ -163,7 +168,7 @@ public class MapService {
 
         }
 
-        for (StorageDTO storage : Storage.getAllFromServer()) {
+        for (StorageDTO storage : backendService.getStorageList().getValues()) {
             if (storage.getLatitude() != null && storage.getLongitude() != null) {
                 createStorage(storage);
             }
