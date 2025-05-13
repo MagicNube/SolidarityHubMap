@@ -14,6 +14,8 @@ public class BackendDTOObservableService extends Singleton implements BackendObs
 
     private static final BackendDTOObservableService s_pInstancia = new BackendDTOObservableService();
 
+    public static final String BACKEND = "http://localhost:8081";
+
     public static BackendDTOObservableService GetInstancia() {
         return s_pInstancia;
     }
@@ -21,31 +23,31 @@ public class BackendDTOObservableService extends Singleton implements BackendObs
     protected BackendDTOObservableService() {
         try {
             log.info("Iniciando los observadores del backend");
-            NeedList = new BackendDTOObservableList<>("/api/needs", 3, new ParameterizedTypeReference<>() {});
+            NeedList = new BackendDTOObservableList<>(BACKEND + "/api/needs", 3, new ParameterizedTypeReference<>() {});
             Thread.sleep(1000); // Espera entre servicios para no explotar el back
 
-            AffectedList = new BackendDTOObservableList<>("/api/affecteds", 3,  new ParameterizedTypeReference<>() {});
+            AffectedList = new BackendDTOObservableList<>(BACKEND + "/api/affecteds", 3,  new ParameterizedTypeReference<>() {});
             Thread.sleep(1000);
 
-            CatastropheList = new BackendDTOObservableList<>("/api/catastrophes", 5,  new ParameterizedTypeReference<>() {});
+            CatastropheList = new BackendDTOObservableList<>(BACKEND + "/api/catastrophes", 5,  new ParameterizedTypeReference<>() {});
             Thread.sleep(1000);
 
-            RouteList = new BackendDTOObservableList<>("/api/routes", 3,  new ParameterizedTypeReference<>() {});
+            RouteList = new BackendDTOObservableList<>(BACKEND + "/api/routes", 3,  new ParameterizedTypeReference<>() {});
             Thread.sleep(1000);
 
-            RoutePointList = new BackendDTOObservableList<>("/api/routepoints", 3,  new ParameterizedTypeReference<>() {});
+            RoutePointList = new BackendDTOObservableList<>(BACKEND + "/api/routepoints", 3,  new ParameterizedTypeReference<>() {});
             Thread.sleep(1000);
 
-            StorageList = new BackendDTOObservableList<>("/api/storages", 5,  new ParameterizedTypeReference<>() {});
+            StorageList = new BackendDTOObservableList<>(BACKEND + "/api/storages", 5,  new ParameterizedTypeReference<>() {});
             Thread.sleep(1000);
 
-            TaskList = new BackendDTOObservableList<>("/api/tasks", 3, new ParameterizedTypeReference<>() {});
+            TaskList = new BackendDTOObservableList<>(BACKEND + "/api/tasks", 3, new ParameterizedTypeReference<>() {});
             Thread.sleep(1000);
 
-            VolunteerList = new BackendDTOObservableList<>("/api/volunteers", 3,  new ParameterizedTypeReference<>() {});
+            VolunteerList = new BackendDTOObservableList<>(BACKEND + "/api/volunteers", 3,  new ParameterizedTypeReference<>() {});
             Thread.sleep(1000);
 
-            ZoneList = new BackendDTOObservableList<>("/api/zones", 3,  new ParameterizedTypeReference<>() {});
+            ZoneList = new BackendDTOObservableList<>(BACKEND + "/api/zones", 3,  new ParameterizedTypeReference<>() {});
         }
         catch (InterruptedException e){
             log.error("Error en una pausa del servicio {} {}", e.getMessage(), e.getStackTrace());

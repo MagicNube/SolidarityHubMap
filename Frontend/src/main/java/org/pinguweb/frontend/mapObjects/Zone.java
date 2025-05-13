@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.web.BackendObject;
 import org.pingu.web.BackendService;
+import org.pinguweb.frontend.services.BackendDTOObservableService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.yaml.snakeyaml.util.Tuple;
@@ -71,7 +72,7 @@ public class Zone extends MapObject{
         //System.out.println("ZoneDTO: " + zoneDTO.getCatastrophe() + " " + zoneDTO.getStorages());
         String finurl = "/api/zones";
         try{
-            BackendObject<ZoneDTO> status = BackendService.postToBackend(BackendService.BACKEND + finurl, zoneDTO, ZoneDTO.class);
+            BackendObject<ZoneDTO> status = BackendService.postToBackend(BackendDTOObservableService.BACKEND + finurl, zoneDTO, ZoneDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
                 log.debug("Zona creada satisfactoriamente");
                 return status.getData().getID();
@@ -91,7 +92,7 @@ public class Zone extends MapObject{
     public int deleteFromServer() {
         String finurl = "/api/zones/" + this.getID();
         try{
-            HttpStatusCode status = BackendService.deleteFromBackend(BackendService.BACKEND + finurl);
+            HttpStatusCode status = BackendService.deleteFromBackend(BackendDTOObservableService.BACKEND + finurl);
             if (status == HttpStatus.OK){
                 log.debug("Zona eliminada satisfactoriamente");
                 return status.value();
@@ -126,7 +127,7 @@ public class Zone extends MapObject{
 
         String finurl = "/api/zones";
         try{
-            HttpStatusCode status = BackendService.putToBackend(BackendService.BACKEND + finurl, zoneDTO);
+            HttpStatusCode status = BackendService.putToBackend(BackendDTOObservableService.BACKEND + finurl, zoneDTO);
             if (status == HttpStatus.OK){
                 log.debug("Zona actualizada satisfactoriamente");
                 return status.value();
