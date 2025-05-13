@@ -12,10 +12,10 @@ import java.util.Arrays;
 
 @Slf4j
 @Route("dashboard")
-public class DashboardNewView extends VerticalLayout implements Observer {
+public class DashboardView extends VerticalLayout implements Observer {
 
-    public DashboardNewView(){
-        BackendDTOObservableService.GetInstancia().getNeedList().getValues().attach(this);
+    public DashboardView(){
+        BackendDTOObservableService.GetInstancia().getNeedList().getValues().attach(this, ObserverChange.ADD_ALL);
         DashboardBuilderDirector director = new DashboardBuilderDirector();
         director.buildComplete();
         this.add(director.get().getInterface());
@@ -23,9 +23,7 @@ public class DashboardNewView extends VerticalLayout implements Observer {
 
     @Override
     public void update(ObserverChange change) {
-        if (change == ObserverChange.MANUAL || change == ObserverChange.ADD_ALL) {
-            log.info("Datos actualizados! {}", change);
-            log.info(Arrays.toString(BackendDTOObservableService.GetInstancia().getNeedList().getValues().toArray()));
-        }
+        log.info("Datos actualizados! {}", change);
+        log.info(Arrays.toString(BackendDTOObservableService.GetInstancia().getNeedList().getValues().toArray()));
     }
 }

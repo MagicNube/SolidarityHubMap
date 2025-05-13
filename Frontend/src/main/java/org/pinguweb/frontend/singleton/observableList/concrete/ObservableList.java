@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.singleton.observableList.Observer;
 import org.pinguweb.frontend.singleton.observableList.ObserverChange;
 import org.pinguweb.frontend.singleton.observableList.ConcreteSubject;
+import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.*;
 
@@ -13,8 +14,10 @@ public class ObservableList<T> extends ConcreteSubject implements List<T> {
 
     @Override
     public void notifyObservers(ObserverChange change) {
-        for (Observer o : this.subscribers){
-            o.update(change);
+        for (Tuple<Observer, ObserverChange> tuple : this.subscribers){
+            if (change == tuple._2() || tuple._2() == ObserverChange.ALL){
+                tuple._1().update(change);
+            }
         }
     }
 
