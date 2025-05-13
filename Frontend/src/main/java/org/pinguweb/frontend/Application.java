@@ -6,7 +6,7 @@ import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.pingu.web.BackendObservableService.BackendDTOObservableService;
+import org.pinguweb.frontend.services.BackendDTOObservableService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.core.context.SecurityContextHolder;

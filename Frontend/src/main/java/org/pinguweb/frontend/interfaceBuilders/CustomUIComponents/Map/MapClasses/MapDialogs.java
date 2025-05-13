@@ -19,7 +19,7 @@ import org.pingu.domain.enums.RouteType;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
-import org.pingu.web.BackendObservableService.BackendDTOObservableService;
+import org.pinguweb.frontend.services.BackendDTOObservableService;
 import org.pinguweb.frontend.view.MapView;
 
 import java.util.ArrayList;

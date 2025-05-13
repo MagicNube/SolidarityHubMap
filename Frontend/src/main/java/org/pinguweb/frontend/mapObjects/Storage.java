@@ -68,7 +68,7 @@ public class Storage extends MapObject{
 
         String finurl = "/api/storages";
         try{
-            BackendObject<StorageDTO> status = BackendService.postToBackend(BackendService.BACKEND+finurl, storageDTO, StorageDTO.class);
+            BackendObject<StorageDTO> status = BackendService.postToBackend(finurl, storageDTO, StorageDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
                 return status.getData().getID();
             }
@@ -83,7 +83,7 @@ public class Storage extends MapObject{
     public int deleteFromServer() {
         String finurl = "/api/storages/" + this.getID();
         try{
-            HttpStatusCode status = BackendService.deleteFromBackend(BackendService.BACKEND+finurl);
+            HttpStatusCode status = BackendService.deleteFromBackend(finurl);
             if (status == HttpStatus.OK){
                 //TODO: Eliminar del mapa
             }
@@ -105,7 +105,7 @@ public class Storage extends MapObject{
 
         String finurl = "/api/storages/" + this.getID();
         try{
-            HttpStatus status = (HttpStatus) BackendService.putToBackend(BackendService.BACKEND+finurl, storageDTO);
+            HttpStatus status = (HttpStatus) BackendService.putToBackend(finurl, storageDTO);
             if (status == HttpStatus.OK){
 
             }

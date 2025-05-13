@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.*;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
-import org.pingu.web.BackendObservableService.BackendDTOObservableService;
+import org.pinguweb.frontend.services.BackendDTOObservableService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
