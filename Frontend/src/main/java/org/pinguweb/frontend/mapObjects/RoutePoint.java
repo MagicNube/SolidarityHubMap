@@ -4,9 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RoutePointDTO;
-import org.pinguweb.frontend.services.backend.BackendObject;
-import org.pinguweb.frontend.services.backend.BackendService;
-import org.springframework.core.ParameterizedTypeReference;
+import org.pingu.web.BackendObject;
+import org.pingu.web.BackendService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIcon;
@@ -18,9 +17,7 @@ import software.xdev.vaadin.maps.leaflet.layer.ui.LMarkerOptions;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.registry.LComponentManagementRegistry;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @Setter

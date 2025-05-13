@@ -4,9 +4,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.interfaceBuilders.Directors.DashboardBuilderDirector;
-import org.pinguweb.frontend.singleton.BackendDTOObservableService;
-import org.pinguweb.frontend.singleton.observableList.Observer;
-import org.pinguweb.frontend.singleton.observableList.ObserverChange;
+import org.pingu.web.BackendObservableService.BackendDTOObservableService;
+import org.pingu.web.BackendObservableService.observableList.Observer;
+import org.pingu.web.BackendObservableService.observableList.ObserverChange;
 
 import java.util.Arrays;
 

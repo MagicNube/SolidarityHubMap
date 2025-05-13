@@ -9,7 +9,7 @@ import org.pingu.domain.enums.TaskType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import org.pinguweb.frontend.singleton.BackendDTOObservableService;
+import org.pingu.web.BackendObservableService.BackendDTOObservableService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
