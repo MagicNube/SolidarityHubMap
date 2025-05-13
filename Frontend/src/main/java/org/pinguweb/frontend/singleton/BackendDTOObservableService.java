@@ -3,6 +3,7 @@ package org.pinguweb.frontend.singleton;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.*;
+import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.singleton.observableList.concrete.BackendDTOObservableList;
 
 @Getter
@@ -18,7 +19,7 @@ public class BackendDTOObservableService extends Singleton {
     protected BackendDTOObservableService() {
         try {
             log.info("Iniciando los observadores del backend");
-            needList = new BackendDTOObservableList<>("/api/needs", 2);
+            NeedList = new BackendDTOObservableList<>("/api/needs", 2);
             Thread.sleep(200); // Espera entre servicios para no explotar el back
 
             AffectedList = new BackendDTOObservableList<>("/api/affecteds", 2);
@@ -50,7 +51,7 @@ public class BackendDTOObservableService extends Singleton {
         }
     }
 
-    private final BackendDTOObservableList<NeedDTO> needList;
+    private final BackendDTOObservableList<NeedDTO> NeedList;
     private final BackendDTOObservableList<AffectedDTO> AffectedList;
     private final BackendDTOObservableList<CatastropheDTO> CatastropheList;
     private final BackendDTOObservableList<RouteDTO> RouteList;
@@ -61,6 +62,14 @@ public class BackendDTOObservableService extends Singleton {
     private final BackendDTOObservableList<ZoneDTO> ZoneList;
 
     public void shutdown(){
-        needList.shutdown();
+        NeedList.shutdown();
+        AffectedList.shutdown();
+        CatastropheList.shutdown();
+        RouteList.shutdown();
+        RoutePointList.shutdown();
+        StorageList.shutdown();
+        TaskList.shutdown();;
+        VolunteerList.shutdown();
+        ZoneList.shutdown();
     }
 }
