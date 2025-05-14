@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.*;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
-import org.pinguweb.frontend.services.BackendDTOObservableService;
+import org.pinguweb.frontend.services.BackendDTOService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
@@ -79,7 +79,7 @@ public class MapService {
     private RoutePointFactory routePointFactory;
     private StorageFactory storageFactory;
 
-    private final BackendDTOObservableService backendService = BackendDTOObservableService.GetInstancia();
+    private final BackendDTOService backendService = BackendDTOService.GetInstancia();
 
     public MapService() {
         this.needFactory = new NeedFactory();

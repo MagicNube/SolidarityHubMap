@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RoutePointDTO;
 import org.pingu.web.BackendObject;
 import org.pingu.web.BackendService;
-import org.pinguweb.frontend.services.BackendDTOObservableService;
+import org.pinguweb.frontend.services.BackendDTOService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIcon;
@@ -68,7 +68,7 @@ public class RoutePoint extends MapObject {
 
         String finurl = "/api/routepoints";
         try {
-            BackendObject<RoutePointDTO> status = BackendService.postToBackend(BackendDTOObservableService.BACKEND + finurl, routePointDTO, RoutePointDTO.class);
+            BackendObject<RoutePointDTO> status = BackendService.postToBackend(BackendDTOService.BACKEND + finurl, routePointDTO, RoutePointDTO.class);
             if (status.getStatusCode() == HttpStatus.OK) {
                 this.setID(status.getData().getID());
                 return status.getData().getID();
@@ -89,7 +89,7 @@ public class RoutePoint extends MapObject {
     public int deleteFromServer() {
         String finurl = "/api/routepoints/" + this.getID();
         try {
-            HttpStatusCode status = BackendService.deleteFromBackend(BackendDTOObservableService.BACKEND + finurl);
+            HttpStatusCode status = BackendService.deleteFromBackend(BackendDTOService.BACKEND + finurl);
             if (status == HttpStatus.OK) {
                 return 0;
             } else {

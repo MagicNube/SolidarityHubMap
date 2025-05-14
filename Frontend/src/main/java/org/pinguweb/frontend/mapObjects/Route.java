@@ -5,9 +5,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.web.BackendObject;
-import org.pingu.web.BackendObservableService.observableList.concrete.BackendDTOObservableList;
 import org.pingu.web.BackendService;
-import org.pinguweb.frontend.services.BackendDTOObservableService;
+import org.pinguweb.frontend.services.BackendDTOService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.yaml.snakeyaml.util.Tuple;
@@ -66,7 +65,7 @@ public class Route extends MapObject{
 
         String finurl = "/api/routes";
         try{
-            BackendObject<RouteDTO> status = BackendService.postToBackend(BackendDTOObservableService.BACKEND + finurl, routeDTO, RouteDTO.class);
+            BackendObject<RouteDTO> status = BackendService.postToBackend(BackendDTOService.BACKEND + finurl, routeDTO, RouteDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
                 this.setID(status.getData().getID());
                 return status.getData().getID();
@@ -91,7 +90,7 @@ public class Route extends MapObject{
     public int deleteFromServer() {
         String finurl = "/api/routes/" + this.getID();
         try{
-            HttpStatusCode status = BackendService.deleteFromBackend(BackendDTOObservableService.BACKEND + finurl);
+            HttpStatusCode status = BackendService.deleteFromBackend(BackendDTOService.BACKEND + finurl);
             if (status == HttpStatus.OK){
                 return this.getID();
             }
@@ -122,7 +121,7 @@ public class Route extends MapObject{
         System.out.println(routeDTO.getPoints());
         String finurl = "/api/routes";
         try{
-            HttpStatusCode status = BackendService.putToBackend(BackendDTOObservableService.BACKEND + finurl, routeDTO);
+            HttpStatusCode status = BackendService.putToBackend(BackendDTOService.BACKEND + finurl, routeDTO);
             if (status == HttpStatus.OK){
                 return this.getID();
             }

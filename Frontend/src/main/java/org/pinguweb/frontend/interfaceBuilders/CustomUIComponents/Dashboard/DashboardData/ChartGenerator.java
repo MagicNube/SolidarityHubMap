@@ -9,7 +9,7 @@ import org.pingu.domain.enums.TaskType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import org.pinguweb.frontend.services.BackendDTOObservableService;
+import org.pinguweb.frontend.services.BackendDTOService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ public class ChartGenerator {
     //TODO: Recuerda convertirlo en observador
 
     public ChartGenerator(){
-        BackendDTOObservableService service = BackendDTOObservableService.GetInstancia();
+        BackendDTOService service = BackendDTOService.GetInstancia();
         volunteers = service.getVolunteerList().getValues();
         affecteds = service.getAffectedList().getValues();
         needs = service.getNeedList().getValues();

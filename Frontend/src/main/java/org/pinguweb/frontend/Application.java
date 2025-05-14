@@ -6,7 +6,7 @@ import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.pinguweb.frontend.services.BackendDTOObservableService;
+import org.pinguweb.frontend.services.BackendDTOService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,7 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Push
 public class Application implements AppShellConfigurator {
 
-    private BackendDTOObservableService service;
+    private BackendDTOService service;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -25,7 +25,7 @@ public class Application implements AppShellConfigurator {
 
     @PostConstruct
     public void generateBackendDTOService(){
-        service = BackendDTOObservableService.GetInstancia();
+        service = BackendDTOService.GetInstancia();
     }
 
     @PreDestroy

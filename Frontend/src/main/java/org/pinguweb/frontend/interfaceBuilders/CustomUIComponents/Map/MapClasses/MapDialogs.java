@@ -19,7 +19,7 @@ import org.pingu.domain.enums.RouteType;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
-import org.pinguweb.frontend.services.BackendDTOObservableService;
+import org.pinguweb.frontend.services.BackendDTOService;
 import org.pinguweb.frontend.view.MapView;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class MapDialogs {
     private final MapBuild mapBuild;
     private final MapButtons mapButtons;
 
-    private final BackendDTOObservableService backendService = BackendDTOObservableService.GetInstancia();
+    private final BackendDTOService backendService = BackendDTOService.GetInstancia();
 
     public MapDialogs(MapService service, MapButtons mapButtons) {
         this.service = service;
