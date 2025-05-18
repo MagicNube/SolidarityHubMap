@@ -32,9 +32,7 @@ public class CreateZoneCommand implements Command {
 
     @Override
     public void redo() {
-
-        //TODO: Redibujar en el mapa
-        zone.pushToServer();
+        buttonReceiver.getService().createZone(zone.toDto());
         Notification notification = new Notification("Zona creada exitosamente", 3000);
         notification.open();
     }

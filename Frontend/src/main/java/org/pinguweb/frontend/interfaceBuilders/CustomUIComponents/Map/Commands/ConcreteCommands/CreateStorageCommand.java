@@ -32,8 +32,7 @@ public class CreateStorageCommand implements Command {
 
     @Override
     public void redo() {
-        //TODO: Redibujar en el mapa
-        storage.pushToServer();
+        buttonReceiver.getService().createStorage(storage.toDto());
         Notification notification = new Notification("Almacén creado exitosamente", 3000);
         notification.open();
     }

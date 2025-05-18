@@ -32,20 +32,13 @@ public class CreateRouteCommand implements Command {
     @Override
     public void undo() {
         buttonReceiver.deleteRoute(this.route);
-
         Notification notification = new Notification("Creación de la ruta deshecha", 3000);
         notification.open();
     }
 
     @Override
     public void redo() {
-        //TODO: Redibujar en el mapa
-        for (RoutePoint p : points){
-            p.pushToServer();
-        }
-
-        route.pushToServer();
-
+        buttonReceiver.getService().createRoute(route.toDto(), points);
         Notification notification = new Notification("Ruta creada exitosamente", 3000);
         notification.open();
     }
