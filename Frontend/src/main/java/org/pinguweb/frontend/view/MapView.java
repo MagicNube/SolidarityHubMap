@@ -7,12 +7,17 @@ import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.pingu.web.BackendObservableService.BackendObservableService;
+import org.pingu.web.BackendObservableService.observableList.Observer;
+import org.pingu.web.BackendObservableService.observableList.ObserverChange;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapDialogs;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
+import org.pinguweb.frontend.services.BackendDTOService;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
@@ -22,9 +27,10 @@ import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 
+@Slf4j
 @Route("map")
 @PageTitle("Visor del mapa")
-public class MapView extends HorizontalLayout {
+public class MapView extends HorizontalLayout implements Observer {
 
     @Getter
     private static String mapId = "MapView";
@@ -35,18 +41,26 @@ public class MapView extends HorizontalLayout {
         this.setSizeFull();
         this.setId(mapId);
 
+        BackendDTOService.GetInstancia().getNeedList().attach(this);
+        BackendDTOService.GetInstancia().getZoneList().attach(this);
+        BackendDTOService.GetInstancia().getStorageList().attach(this);
+        BackendDTOService.GetInstancia().getRouteList().attach(this);
+        BackendDTOService.GetInstancia().getRoutePointList().attach(this);
+
         MapBuilderDirector director = new MapBuilderDirector();
-
         this.add(director.createFullMap());
-
         this.generateLayers();
 
         controller.load();
+    }
 
+    @Override
+    public void update(ObserverChange change) {
+        controller.load();
+        log.info("Mapa actualizado");
     }
 
     private void generateLayers() {
-
         controller.setLLayerGroupNeeds(new LLayerGroup(controller.getReg()));
         controller.setLLayerGroupZones(new LLayerGroup(controller.getReg()));
         controller.setLLayerGroupRoutes(new LLayerGroup(controller.getReg()));
@@ -57,7 +71,6 @@ public class MapView extends HorizontalLayout {
                 controller.getLLayerGroupRoutes(),
                 controller.getLLayerGroupStorages()
         );
-
     }
 
     public void addControls(
@@ -259,6 +272,4 @@ public class MapView extends HorizontalLayout {
         System.out.println("editStorage: " + ID);
         mapDialogs.editDialogStorage(ID);
     }
-
-
 }

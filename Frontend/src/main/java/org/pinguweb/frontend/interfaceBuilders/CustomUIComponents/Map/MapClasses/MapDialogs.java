@@ -82,7 +82,7 @@ public class MapDialogs {
 
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
-                mapButtons.cancelZoneCreation();
+                mapButtons.getMapActions().cancelZoneCreation();
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
@@ -143,7 +143,7 @@ public class MapDialogs {
             dialog.open();
 
             icoClose.addClickListener(iev -> {
-                mapButtons.cancelZoneCreation();
+                mapButtons.getMapActions().cancelZoneCreation();
                 dialog.close();
             });
 
@@ -182,7 +182,7 @@ public class MapDialogs {
 
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
-                mapButtons.cancelRouteCreation();
+                mapButtons.getMapActions().cancelRouteCreation();
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
@@ -219,7 +219,7 @@ public class MapDialogs {
             dialog.add(dialogLayout);
             dialog.open();
             icoClose.addClickListener(iev -> {
-                mapButtons.cancelRouteCreation();
+                mapButtons.getMapActions().cancelRouteCreation();
                 dialog.close();
             });
         } else {
@@ -253,7 +253,7 @@ public class MapDialogs {
 
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
-                mapButtons.cancelStorageCreation();
+                mapButtons.getMapActions().cancelStorageCreation();
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
@@ -282,7 +282,7 @@ public class MapDialogs {
             dialog.add(dialogLayout);
             dialog.open();
             icoClose.addClickListener(iev -> {
-                mapButtons.cancelStorageCreation();
+                mapButtons.getMapActions().cancelStorageCreation();
                 dialog.close();
             });
         }

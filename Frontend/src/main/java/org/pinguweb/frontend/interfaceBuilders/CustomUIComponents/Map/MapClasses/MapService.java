@@ -28,28 +28,13 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class MapService {
 
-    @Setter
     private LComponentManagementRegistry reg;
-
-    @Setter
     private LMap map;
-
-    @Setter
     private String ID;
-
-    @Getter
     private HashSet<Storage> storages = new HashSet<>();
-
-    @Getter
     private HashSet<Need> needs = new HashSet<>();
-
-    @Getter
     private HashSet<Zone> zones = new HashSet<>();
-
-    @Getter
     private HashSet<Route> routes = new HashSet<>();
-
-    @Getter
     private HashMap<Integer, List<RoutePoint>> routePoints = new HashMap<>();
 
     private Object lock = new Object();
@@ -92,6 +77,8 @@ public class MapService {
 
     @Async
     public void load() {
+        this.reg.clearAll();
+
         UI ui = UI.getCurrent();
         if (ui == null) {
             log.warn("UI is null, cannot update UI components.");
@@ -174,9 +161,7 @@ public class MapService {
             }
         }
 
-
     }
-
 
     public Storage createStorage(StorageDTO storage) {
         double lat = storage.getLatitude();

@@ -5,139 +5,40 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import lombok.Getter;
 import lombok.Setter;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.CommandButton;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.*;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
+
+import java.util.LinkedList;
 
 @Setter
 @Getter
 public class MapButtons {
-    private final Button zone = new Button("Crear zona");
-    private final Button route = new Button("Crear ruta");
-    private final Button storage = new Button("Crear Almacen");
-    private final Button edit = new Button("Editar");
-    private final Button delete = new Button("Borrar");
+    private final CommandButton zone = new CommandButton("Crear zona");
+    private final CommandButton route = new CommandButton("Crear ruta");
+    private final CommandButton storage = new CommandButton("Crear Almacen");
+    private final CommandButton edit = new CommandButton("Editar");
+    private final CommandButton delete = new CommandButton("Borrar");
 
     private final Map map;
 
     private final MapDialogs mapDialogs;
     private final MapBuild mapBuild;
+    private final MapActions mapActions;
 
     public MapButtons(MapService service, Map map) {
         this.map = map;
         this.map.setState(MapState.IDLE);
         this.mapDialogs = new MapDialogs(service, this);
         this.mapBuild = new MapBuild(service);
+        this.mapActions = new MapActions(this);
 
-        zone.addClickListener(event -> {
-            disableButtons(zone);
-            toggleZoneCreation();
-            if (map.getState() == MapState.IDLE) {
-                enableButtons();
-            }
-        });
-
-        route.addClickListener(event -> {
-            disableButtons(route);
-            toggleRouteCreation();
-            if (map.getState() == MapState.IDLE) {
-                enableButtons();
-            }
-        });
-
-        storage.addClickListener(event -> {
-            disableButtons(null);
-            toggleStorageCreation(this);
-        });
-
-        edit.addClickListener(event -> {
-            disableButtons(edit);
-            toggleEdit();
-            if (map.getState() == MapState.IDLE) {
-                enableButtons();
-            }
-        });
-
-        delete.addClickListener(event -> {
-            disableButtons(delete);
-            toggleDelete();
-            if (map.getState() == MapState.IDLE) {
-                enableButtons();
-            }
-        });
-    }
-
-
-    private void toggleZoneCreation() {
-        if (this.map.getState() == MapState.IDLE) {
-            this.map.setState(MapState.CREATING_ZONE);
-            mapDialogs.createDialogZona(this.map.getState());
-            this.zone.setText("Terminar zona");
-        } else {
-            this.map.setState(MapState.IDLE);
-            mapDialogs.createDialogZona(this.map.getState());
-            this.zone.setText("Crear zona");
-        }
-    }
-
-    public void cancelZoneCreation() {
-        this.map.setState(MapState.IDLE);
-        System.out.println("Cancelando zona");
-        this.zone.setText("Crear zona");
-        enableButtons();
-    }
-
-    private void toggleRouteCreation() {
-        if (this.map.getState() == MapState.IDLE) {
-            this.map.setState(MapState.CREATING_ROUTE);
-            mapDialogs.createDialogRuta(this.map.getState());
-            this.route.setText("Terminar ruta");
-        } else {
-            this.map.setState(MapState.IDLE);
-            mapDialogs.createDialogRuta(this.map.getState());
-            this.route.setText("Crear ruta");
-        }
-    }
-
-    public void cancelRouteCreation() {
-        this.map.setState(MapState.IDLE);
-        this.route.setText("Crear ruta");
-        enableButtons();
-    }
-
-    private void toggleStorageCreation(MapButtons mapButtons) {
-        if (this.map.getState() == MapState.IDLE) {
-            this.map.setState(MapState.CREATING_STORAGE);
-            mapDialogs.createDialogAlmacen(this.map.getState(), mapButtons);
-        }
-    }
-
-    public void cancelStorageCreation() {
-        this.map.setState(MapState.IDLE);
-        this.storage.setText("Crear almacen");
-        enableButtons();
-    }
-
-    private void toggleEdit() {
-        if (this.map.getState() == MapState.IDLE) {
-            this.map.setState(MapState.EDITING);
-            mapBuild.startEdit();
-            this.edit.setText("Terminar edición");
-        } else {
-            this.map.setState(MapState.IDLE);
-            mapBuild.endEdit();
-            this.edit.setText("Editar");
-        }
-    }
-
-    private void toggleDelete() {
-        if (this.map.getState() == MapState.IDLE) {
-            this.map.setState(MapState.DELETING);
-            mapBuild.startDelete();
-            this.delete.setText("Terminar borrado");
-        } else {
-            this.map.setState(MapState.IDLE);
-            mapBuild.endDelete();
-            this.delete.setText("Borrar");
-        }
+        zone.setCommand(new CreateZoneCommand(this.mapActions));
+        route.setCommand(new CreateRouteCommand(this.mapActions));
+        storage.setCommand(new CreateStorageCommand(this.mapActions));
+        edit.setCommand(new CreateEditCommand(this.mapActions));
+        delete.setCommand(new CreateDeleteCommand(this.mapActions));
     }
 
     public void disableButtons(Button button) {
@@ -159,17 +60,7 @@ public class MapButtons {
 
     public HorizontalLayout generateButtonRow() {
         HorizontalLayout hlayout = new HorizontalLayout();
-
-
-        hlayout.add(this.zone);
-
-
-        hlayout.add(this.storage);
-
-
-        hlayout.add(this.route);
-
-
+        hlayout.add(this.zone,this.storage,this.route);
 
         if (hlayout.getChildren().findAny().isPresent()) {
             hlayout.add(this.edit, this.delete);
@@ -180,24 +71,4 @@ public class MapButtons {
 
         return hlayout;
     }
-
-    /*private void toggleEdit() {
-        if (mapState == MapState.IDLE) {
-            mapState = MapState.EDITING;
-            mapDialogs.createDialogEditar();
-        } else {
-            mapState = MapState.IDLE;
-            mapDialogs.createDialogEditar();
-        }
-    }*/
-
-    /*private void toggleDelete() {
-        if (mapState == MapState.IDLE) {
-            mapState = MapState.DELETING;
-            mapDialogs.createDialogBorrar();
-        } else {
-            mapState = MapState.IDLE;
-            mapDialogs.createDialogBorrar();
-        }
-    }*/
 }
