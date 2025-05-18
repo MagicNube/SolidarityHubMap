@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.*;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
 import org.pinguweb.frontend.services.BackendDTOService;
@@ -49,6 +50,7 @@ public class MapService {
     private ZoneDTO tempZoneDTO;
     private RouteDTO tempRouteDTO;
     private StorageDTO tempStorageDTO;
+    private CreateStorageCommand tempStorageCommand;
 
     private HashMap<Tuple<Double, Double>, ZoneMarker> zoneMarkers = new HashMap<>();
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
@@ -157,13 +159,6 @@ public class MapService {
             }
 
         }
-
-        for (StorageDTO storage : backendService.getStorageList().getValues()) {
-            if (storage.getLatitude() != null && storage.getLongitude() != null) {
-                createStorage(storage);
-            }
-        }
-
     }
 
     public Storage createStorage(StorageDTO storage) {

@@ -19,6 +19,7 @@ import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.pinguweb.frontend.services.BackendDTOService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
@@ -35,6 +36,7 @@ public class MapView extends HorizontalLayout implements Observer {
 
     @Getter
     private static String mapId = "MapView";
+    @Autowired
     private static MapService controller;
     private static MapDialogs mapDialogs;
     UI ui;
@@ -219,6 +221,7 @@ public class MapView extends HorizontalLayout implements Observer {
         controller.getTempStorageDTO().setLatitude(obj.getNumber("lat"));
         controller.getTempStorageDTO().setLongitude(obj.getNumber("lng"));
         Storage storage = controller.createStorage(controller.getTempStorageDTO());
+        controller.getTempStorageCommand().setStorage(storage);
         int tempId = storage.pushToServer();
         storage.setID(tempId);
         controller.getStorages().stream().filter(s -> s.getID() == storage.getID()).findFirst().ifPresent(s -> {

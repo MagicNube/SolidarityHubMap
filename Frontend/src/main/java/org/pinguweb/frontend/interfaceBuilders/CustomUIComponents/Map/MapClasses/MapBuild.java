@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.mapObjects.*;
 
 import java.util.ArrayList;
@@ -28,8 +30,9 @@ public class MapBuild {
         clickFuncReferenceCreateRoute = service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute";
     }
 
-    public void createStorage(StorageDTO storageDTO, MapButtons mapButtons) {
+    public void createStorage(StorageDTO storageDTO, MapButtons mapButtons, CreateStorageCommand c) {
         this.service.setTempStorageDTO(storageDTO);
+        this.service.setTempStorageCommand(c);
         service.setClickFuncReferenceCreateStorage(service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateNeed");
         service.getReg().execJs(service.getClickFuncReferenceCreateStorage() + "=e => document.getElementById('" + service.getID() + "').$server.mapStorage(e.latlng)");
         service.getMap().on("click", service.getClickFuncReferenceCreateStorage());
@@ -66,7 +69,7 @@ public class MapBuild {
         service.getMap().on("click", clickFuncReferenceCreateZone);
     }
 
-    public void endZoneConstruction() {
+    public void endZoneConstruction(CreateZoneCommand c) {
         service.getMap().off("click", clickFuncReferenceCreateZone);
         log.debug("Zona terminada");
         Zone zona = this.service.createZone(service.getTempZoneDTO());
@@ -82,6 +85,7 @@ public class MapBuild {
 
         service.getZoneMarkers().clear();
         service.getZoneMarkerPoints().clear();
+        c.setZone(zona);
     }
 
     public void editZone(Zone zone) {

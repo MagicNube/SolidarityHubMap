@@ -2,19 +2,26 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasse
 
 import lombok.Getter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
+import org.pinguweb.frontend.mapObjects.Storage;
+import org.pinguweb.frontend.mapObjects.Zone;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.LinkedList;
 
-public class MapActions {
 
+public class MapActions {
+    private final MapService service;
     private final MapButtons buttons;
     @Getter
     private final LinkedList<Command> comandosRealizados = new LinkedList<>();
     @Getter
     private final LinkedList<Command> comandosDeshechos = new LinkedList<>();
 
-    public MapActions(MapButtons buttons){
+    public MapActions(MapService service, MapButtons buttons){
         this.buttons = buttons;
+        this.service = service;
     }
 
     public void addExecutedCommand(Command c){
@@ -36,16 +43,16 @@ public class MapActions {
         comandosRealizados.push(c);
     }
 
-    public void toggleZoneCreation() {
+    public void toggleZoneCreation(CreateZoneCommand c) {
         this.buttons.disableButtons(this.buttons.getZone());
 
         if (buttons.getMap().getState() == MapState.IDLE) {
             buttons.getMap().setState(MapState.CREATING_ZONE);
-            this.buttons.getMapDialogs().createDialogZona(buttons.getMap().getState());
+            this.buttons.getMapDialogs().createDialogZona(buttons.getMap().getState(), c);
             this.buttons.getZone().setText("Terminar zona");
         } else {
             buttons.getMap().setState(MapState.IDLE);
-            this.buttons.getMapDialogs().createDialogZona(buttons.getMap().getState());
+            this.buttons.getMapDialogs().createDialogZona(buttons.getMap().getState(), c);
             this.buttons.getZone().setText("Crear zona");
         }
 
@@ -85,12 +92,12 @@ public class MapActions {
         this.buttons.enableButtons();
     }
 
-    public void toggleStorageCreation() {
+    public void toggleStorageCreation(CreateStorageCommand c) {
         this.buttons.disableButtons(null);
 
         if (buttons.getMap().getState() == MapState.IDLE) {
             buttons.getMap().setState(MapState.CREATING_STORAGE);
-            this.buttons.getMapDialogs().createDialogAlmacen(buttons.getMap().getState(), this.buttons);
+            this.buttons.getMapDialogs().createDialogAlmacen(buttons.getMap().getState(), this.buttons, c);
         }
     }
 
@@ -134,5 +141,13 @@ public class MapActions {
         if (this.buttons.getMap().getState() == MapState.IDLE) {
             this.buttons.enableButtons();
         }
+    }
+
+    public void deleteZone(Zone zone){
+        service.deleteZone(zone.getID());
+    }
+
+    public void deleteStorage(Storage storage){
+        service.deleteZone(storage.getID());
     }
 }

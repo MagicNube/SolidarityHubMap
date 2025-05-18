@@ -16,6 +16,8 @@ import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.domain.enums.EmergencyLevel;
 import org.pingu.domain.enums.RouteType;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
@@ -43,7 +45,7 @@ public class MapDialogs {
         MapView.setMapDialogs(this);
     }
 
-    public void createDialogZona(MapState mapState) {
+    public void createDialogZona(MapState mapState, CreateZoneCommand c) {
         if (mapState == MapState.CREATING_ZONE) {
             List<CatastropheDTO> catastropheDTOList = backendService.getCatastropheList().getValues();
             List<StorageDTO> storageDTOList = backendService.getStorageList().getValues();
@@ -147,7 +149,7 @@ public class MapDialogs {
             });
 
         } else {
-            mapBuild.endZoneConstruction();
+            mapBuild.endZoneConstruction(c);
         }
 
     }
@@ -226,7 +228,7 @@ public class MapDialogs {
         }
     }
 
-    public void createDialogAlmacen(MapState mapState, MapButtons mapButtons) {
+    public void createDialogAlmacen(MapState mapState, MapButtons mapButtons, CreateStorageCommand c) {
         if (mapState == MapState.CREATING_STORAGE) {
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
@@ -267,7 +269,7 @@ public class MapDialogs {
                 storageDTO.setZone(zoneID);
                 storageDTO.setFull(llenoComboBox.getValue().equals("Lleno"));
 
-                mapBuild.createStorage(storageDTO, mapButtons);
+                mapBuild.createStorage(storageDTO, mapButtons, c);
                 dialog.close();
             });
 

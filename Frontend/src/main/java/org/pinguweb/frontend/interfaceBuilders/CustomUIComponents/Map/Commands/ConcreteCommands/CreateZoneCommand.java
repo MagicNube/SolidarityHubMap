@@ -1,10 +1,14 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands;
 
+import lombok.Setter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapActions;
+import org.pinguweb.frontend.mapObjects.Zone;
 
 public class CreateZoneCommand implements Command {
     MapActions buttonReceiver;
+    @Setter
+    private Zone zone;
 
     public CreateZoneCommand(MapActions receiver){
         buttonReceiver = receiver;
@@ -12,12 +16,12 @@ public class CreateZoneCommand implements Command {
 
     @Override
     public void execute() {
+        buttonReceiver.toggleZoneCreation(this);
         buttonReceiver.addExecutedCommand(this);
-        buttonReceiver.toggleZoneCreation();
     }
 
     @Override
     public void undo() {
-        buttonReceiver.undoCommand();
+        buttonReceiver.deleteZone(zone);
     }
 }
