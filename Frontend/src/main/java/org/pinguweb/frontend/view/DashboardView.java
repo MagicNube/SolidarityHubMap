@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class DashboardView extends VerticalLayout implements Observer {
 
     public DashboardView(){
-        BackendDTOService.GetInstancia().getNeedList().getValues().attach(this, ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getNeedList().attach(this, ObserverChange.ADD_ALL);
         DashboardBuilderDirector director = new DashboardBuilderDirector();
         director.buildComplete();
         this.add(director.get().getInterface());

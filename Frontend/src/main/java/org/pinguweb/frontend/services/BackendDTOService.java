@@ -12,47 +12,25 @@ import org.springframework.core.ParameterizedTypeReference;
 @Slf4j
 public class BackendDTOService extends Singleton implements BackendObservableService {
 
+    // Lazy loading + gestor de carga?
+
     private static final BackendDTOService s_pInstancia = new BackendDTOService();
-
     public static final String BACKEND = "http://localhost:8081";
-
     public static BackendDTOService GetInstancia() {
         return s_pInstancia;
     }
 
     protected BackendDTOService() {
-        try {
-            log.info("Iniciando los observadores del backend");
-            NeedList = new DTOObservableList<>(BACKEND + "/api/needs", 3, new ParameterizedTypeReference<>() {});
-            Thread.sleep(1000); // Espera entre servicios para no explotar el back
-
-            AffectedList = new DTOObservableList<>(BACKEND + "/api/affecteds", 3,  new ParameterizedTypeReference<>() {});
-            Thread.sleep(1000);
-
-            CatastropheList = new DTOObservableList<>(BACKEND + "/api/catastrophes", 5,  new ParameterizedTypeReference<>() {});
-            Thread.sleep(1000);
-
-            RouteList = new DTOObservableList<>(BACKEND + "/api/routes", 3,  new ParameterizedTypeReference<>() {});
-            Thread.sleep(1000);
-
-            RoutePointList = new DTOObservableList<>(BACKEND + "/api/routepoints", 3,  new ParameterizedTypeReference<>() {});
-            Thread.sleep(1000);
-
-            StorageList = new DTOObservableList<>(BACKEND + "/api/storages", 5,  new ParameterizedTypeReference<>() {});
-            Thread.sleep(1000);
-
-            TaskList = new DTOObservableList<>(BACKEND + "/api/tasks", 3, new ParameterizedTypeReference<>() {});
-            Thread.sleep(1000);
-
-            VolunteerList = new DTOObservableList<>(BACKEND + "/api/volunteers", 3,  new ParameterizedTypeReference<>() {});
-            Thread.sleep(1000);
-
-            ZoneList = new DTOObservableList<>(BACKEND + "/api/zones", 3,  new ParameterizedTypeReference<>() {});
-        }
-        catch (InterruptedException e){
-            log.error("Error en una pausa del servicio {} {}", e.getMessage(), e.getStackTrace());
-            throw new RuntimeException();
-        }
+        log.info("Iniciando los observadores del backend");
+        NeedList = new DTOObservableList<>(BACKEND + "/api/needs", 3, new ParameterizedTypeReference<>() {});
+        AffectedList = new DTOObservableList<>(BACKEND + "/api/affecteds", 3,  new ParameterizedTypeReference<>() {});
+        CatastropheList = new DTOObservableList<>(BACKEND + "/api/catastrophes", 5,  new ParameterizedTypeReference<>() {});
+        RouteList = new DTOObservableList<>(BACKEND + "/api/routes", 3,  new ParameterizedTypeReference<>() {});
+        RoutePointList = new DTOObservableList<>(BACKEND + "/api/routepoints", 3,  new ParameterizedTypeReference<>() {});
+        StorageList = new DTOObservableList<>(BACKEND + "/api/storages", 5,  new ParameterizedTypeReference<>() {});
+        TaskList = new DTOObservableList<>(BACKEND + "/api/tasks", 3, new ParameterizedTypeReference<>() {});
+        VolunteerList = new DTOObservableList<>(BACKEND + "/api/volunteers", 3,  new ParameterizedTypeReference<>() {});
+        ZoneList = new DTOObservableList<>(BACKEND + "/api/zones", 3,  new ParameterizedTypeReference<>() {});
     }
 
     private final DTOObservableList<NeedDTO> NeedList;
