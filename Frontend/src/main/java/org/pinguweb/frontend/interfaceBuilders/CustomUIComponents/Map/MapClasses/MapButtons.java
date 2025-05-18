@@ -38,8 +38,8 @@ public class MapButtons {
         zone.setCommand(new CreateZoneCommand(this.mapActions));
         route.setCommand(new CreateRouteCommand(this.mapActions));
         storage.setCommand(new CreateStorageCommand(this.mapActions));
-        edit.setCommand(new CreateEditCommand(this.mapActions));
-        delete.setCommand(new CreateDeleteCommand(this.mapActions));
+        edit.setCommand(new EditCommand(this.mapActions));
+        delete.setCommand(new DeleteCommand(this.mapActions));
 
         undo.addClickListener(e -> this.mapActions.undoCommand());
         redo.addClickListener(e -> this.mapActions.redoCommand());

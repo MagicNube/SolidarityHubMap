@@ -15,6 +15,7 @@ import org.pingu.web.BackendObservableService.observableList.ObserverChange;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapDialogs;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
+import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
@@ -260,27 +261,21 @@ public class MapView extends HorizontalLayout implements Observer {
         controller.deleteStorage(Integer.parseInt(ID));
     }
 
-    /*@ClientCallable
-    public void editMarker(Need need) {
-        System.out.println("editMarker: " + need.getID());
-        controller.editNeed(need);
-    }*/
-
     @ClientCallable
     public void editPolygon(String ID) {
         System.out.println("editPolygon: " + ID);
-        mapDialogs.editDialogZone(ID);
+        mapDialogs.editDialogZone(ID, controller.getTempEditCommand());
     }
 
     @ClientCallable
     public void editRoute(String ID) {
         System.out.println("editRoute: " + ID);
-        mapDialogs.editDialogRoute(ID);
+        mapDialogs.editDialogRoute(ID, controller.getTempEditCommand());
     }
 
     @ClientCallable
     public void editStorage(String ID) {
         System.out.println("editStorage: " + ID);
-        mapDialogs.editDialogStorage(ID);
+        mapDialogs.editDialogStorage(ID, controller.getTempEditCommand());
     }
 }

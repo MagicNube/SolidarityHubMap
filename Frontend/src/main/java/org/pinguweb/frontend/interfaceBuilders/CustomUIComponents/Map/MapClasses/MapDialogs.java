@@ -16,6 +16,7 @@ import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.domain.enums.EmergencyLevel;
 import org.pingu.domain.enums.RouteType;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
@@ -288,7 +289,7 @@ public class MapDialogs {
         }
     }
 
-    public void editDialogZone(String zoneID) {
+    public void editDialogZone(String zoneID, EditCommand c) {
         Zone zone = service.getZoneByID(zoneID);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
@@ -392,7 +393,7 @@ public class MapDialogs {
         });
     }
 
-    public void editDialogRoute(String routeID) {
+    public void editDialogRoute(String routeID, EditCommand c) {
         Route route = service.getRouteByID(routeID);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
@@ -460,7 +461,7 @@ public class MapDialogs {
         });
     }
 
-    public void editDialogStorage(String id) {
+    public void editDialogStorage(String id, EditCommand c) {
         Storage storage = service.getStorageByID(id);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);

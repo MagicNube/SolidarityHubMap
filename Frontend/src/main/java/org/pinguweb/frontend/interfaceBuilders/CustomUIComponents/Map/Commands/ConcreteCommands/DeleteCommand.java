@@ -3,20 +3,25 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapActions;
 
-public class CreateEditCommand implements Command {
+public class DeleteCommand implements Command {
     MapActions buttonReceiver;
 
-    public CreateEditCommand(MapActions receiver){
+    public DeleteCommand(MapActions receiver){
         buttonReceiver = receiver;
     }
 
     @Override
     public void execute() {
         buttonReceiver.addExecutedCommand(this);
-        buttonReceiver.toggleEdit();
+        buttonReceiver.toggleDelete();
     }
 
     @Override
     public void undo() {
+    }
+
+    @Override
+    public void redo() {
+
     }
 }

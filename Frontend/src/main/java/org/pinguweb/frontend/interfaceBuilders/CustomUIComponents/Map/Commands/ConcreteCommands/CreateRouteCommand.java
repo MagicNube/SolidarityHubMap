@@ -15,6 +15,8 @@ public class CreateRouteCommand implements Command {
     @Setter
     Route route;
 
+    @Setter
+    List<RoutePoint> points;
     public CreateRouteCommand(MapActions receiver){
         buttonReceiver = receiver;
     }
@@ -32,6 +34,18 @@ public class CreateRouteCommand implements Command {
         buttonReceiver.deleteRoute(this.route);
 
         Notification notification = new Notification("Creación de la ruta deshecha", 3000);
+        notification.open();
+    }
+
+    @Override
+    public void redo() {
+        for (RoutePoint p : points){
+            p.pushToServer();
+        }
+
+        route.pushToServer();
+
+        Notification notification = new Notification("Ruta creada exitosamente", 3000);
         notification.open();
     }
 }

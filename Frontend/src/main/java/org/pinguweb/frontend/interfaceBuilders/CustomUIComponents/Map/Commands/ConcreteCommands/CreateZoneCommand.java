@@ -29,4 +29,11 @@ public class CreateZoneCommand implements Command {
         Notification notification = new Notification("Creación de la zona deshecha", 3000);
         notification.open();
     }
+
+    @Override
+    public void redo() {
+        zone.pushToServer();
+        Notification notification = new Notification("Zona creada exitosamente", 3000);
+        notification.open();
+    }
 }

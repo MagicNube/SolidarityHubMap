@@ -4,36 +4,34 @@ import com.vaadin.flow.component.notification.Notification;
 import lombok.Setter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapActions;
-import org.pinguweb.frontend.mapObjects.Storage;
+import org.pinguweb.frontend.mapObjects.MapObject;
 
-public class CreateStorageCommand implements Command {
+public class EditCommand implements Command {
     MapActions buttonReceiver;
 
     @Setter
-    Storage storage;
-    public CreateStorageCommand(MapActions receiver){
+    MapObject lastObject;
+
+    public EditCommand(MapActions receiver){
         buttonReceiver = receiver;
     }
 
     @Override
     public void execute() {
-        buttonReceiver.toggleStorageCreation(this);
+        buttonReceiver.toggleEdit(this);
         buttonReceiver.addExecutedCommand(this);
-        Notification notification = new Notification("Almacén creado exitosamente", 3000);
+
+        Notification notification = new Notification("Edición realizada exitosamente", 3000);
         notification.open();
     }
 
     @Override
     public void undo() {
-        buttonReceiver.deleteStorage(this.storage);
-        Notification notification = new Notification("Creación del almacén deshecha", 3000);
+        Notification notification = new Notification("Edición deshecha", 3000);
         notification.open();
     }
 
     @Override
     public void redo() {
-        storage.pushToServer();
-        Notification notification = new Notification("Almacén creado exitosamente", 3000);
-        notification.open();
     }
 }

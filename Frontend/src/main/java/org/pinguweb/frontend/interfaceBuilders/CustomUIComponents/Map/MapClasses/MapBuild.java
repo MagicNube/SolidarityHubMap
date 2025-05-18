@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
@@ -115,6 +116,8 @@ public class MapBuild {
             pointsID.add(routePoint.pushToServer());
         }
 
+        c.setPoints(routePoints);
+
         Route ruta = this.service.createRoute(service.getTempRouteDTO(), service.getRoutePoint());
         ruta.setPointsID(pointsID);
         int tempID = ruta.pushToServer();
@@ -169,11 +172,9 @@ public class MapBuild {
         }
     }
 
-    public void endEdit() {
-        for (Need need : this.service.getNeeds()) {
-            String clickFuncReferenceEditMarker = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditMarker" + need.getID();
-            need.getMarkerObj().off("click", clickFuncReferenceEditMarker);
-        }
+    public void endEdit(EditCommand c) {
+        this.service.setTempEditCommand(c);
+
         for (Zone zone : this.service.getZones()) {
             String clickFuncReferenceEditZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
             zone.getPolygon().off("click", clickFuncReferenceEditZone);

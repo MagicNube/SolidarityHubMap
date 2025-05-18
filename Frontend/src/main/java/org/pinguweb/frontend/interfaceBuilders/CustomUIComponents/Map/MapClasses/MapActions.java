@@ -2,18 +2,19 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasse
 
 import lombok.Getter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.LinkedList;
 
 
 public class MapActions {
+    @Getter
     private final MapService service;
     private final MapButtons buttons;
     @Getter
@@ -41,7 +42,7 @@ public class MapActions {
     public void redoCommand(){
         Command c = comandosDeshechos.poll();
         if (c == null) {return;}
-        c.execute();
+        c.redo();
         comandosRealizados.push(c);
     }
 
@@ -109,7 +110,7 @@ public class MapActions {
         this.buttons.enableButtons();
     }
 
-    public void toggleEdit() {
+    public void toggleEdit(EditCommand c) {
         this.buttons.disableButtons(this.buttons.getEdit());
 
         if (buttons.getMap().getState() == MapState.IDLE) {
@@ -118,7 +119,7 @@ public class MapActions {
             this.buttons.getEdit().setText("Terminar edición");
         } else {
             buttons.getMap().setState(MapState.IDLE);
-            this.buttons.getMapBuild().endEdit();
+            this.buttons.getMapBuild().endEdit(c);
             this.buttons.getEdit().setText("Editar");
         }
 
