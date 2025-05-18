@@ -236,13 +236,6 @@ public class MapView extends HorizontalLayout implements Observer {
         //controller.getUi().push();
     }
 
-
-    @ClientCallable
-    public void removeMarker(String ID) {
-        System.out.println("removeMarker: " + ID);
-        controller.deleteNeed(Integer.parseInt(ID));
-    }
-
     @ClientCallable
     public void removePolygon(String ID) {
         System.out.println("removePolygon: " + ID);

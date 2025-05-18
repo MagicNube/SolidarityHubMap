@@ -7,10 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.*;
 import org.pinguweb.frontend.mapObjects.*;
 
 import java.util.ArrayList;
@@ -212,11 +209,8 @@ public class MapBuild {
         }
     }
 
-    public void endDelete() {
-        for (Need need : this.service.getNeeds()) {
-            String clickFuncReferenceDeleteMarker = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + need.getID();
-            need.getMarkerObj().off("click", clickFuncReferenceDeleteMarker);
-        }
+    public void endDelete(DeleteCommand c) {
+        this.service.setTempDeleteCommand(c);
         for (Zone zone : this.service.getZones()) {
             String clickFuncReferenceDeleteZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
             zone.getPolygon().off("click", clickFuncReferenceDeleteZone);

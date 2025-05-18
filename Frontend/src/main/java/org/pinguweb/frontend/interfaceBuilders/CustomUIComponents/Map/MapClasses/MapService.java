@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.*;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.DeleteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.mapObjects.*;
@@ -53,6 +54,7 @@ public class MapService {
     private StorageDTO tempStorageDTO;
     private CreateStorageCommand tempStorageCommand;
     private EditCommand tempEditCommand;
+    private DeleteCommand tempDeleteCommand;
 
     private HashMap<Tuple<Double, Double>, ZoneMarker> zoneMarkers = new HashMap<>();
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
@@ -303,6 +305,7 @@ public class MapService {
                 .findFirst()
                 .orElse(null);
         if (zone != null) {
+            if (tempDeleteCommand != null){tempDeleteCommand.setElement(zone);}
             zone.removeFromMap(this.map);
             zone.deleteFromServer();
             zones.remove(zone);
@@ -362,11 +365,14 @@ public class MapService {
                 .filter(r -> r.getID() == ID)
                 .findFirst()
                 .orElse(null);
+
         if (route != null) {
+            if (tempDeleteCommand != null) {tempDeleteCommand.setElement(route);}
             route.removeFromMap(this.map);
             route.deleteFromServer();
             List<RoutePoint> routePoints = this.routePoints.get(route.getID());
             if (routePoints != null) {
+                if (tempDeleteCommand != null) {tempDeleteCommand.setPoints(routePoints);}
                 for (RoutePoint routePoint : routePoints) {
                     routePoint.deleteFromServer();
                     routePoint.removeFromMap(this.map);
@@ -460,6 +466,7 @@ public class MapService {
                 .findFirst()
                 .orElse(null);
         if (storage != null) {
+            if (tempDeleteCommand != null) {tempDeleteCommand.setElement(storage);}
             storage.removeFromMap(this.map);
             storage.deleteFromServer();
             storages.remove(storage);

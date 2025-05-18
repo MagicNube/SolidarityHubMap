@@ -2,10 +2,7 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasse
 
 import lombok.Getter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.*;
 import org.pinguweb.frontend.mapObjects.MapObject;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Storage;
@@ -131,7 +128,7 @@ public class MapActions {
         }
     }
 
-    public void toggleDelete() {
+    public void toggleDelete(DeleteCommand c) {
         this.buttons.disableButtons(this.buttons.getDelete());
 
         if (buttons.getMap().getState() == MapState.IDLE) {
@@ -140,7 +137,7 @@ public class MapActions {
             this.buttons.getDelete().setText("Terminar borrado");
         } else {
             buttons.getMap().setState(MapState.IDLE);
-            this.buttons.getMapBuild().endDelete();
+            this.buttons.getMapBuild().endDelete(c);
             this.buttons.getDelete().setText("Borrar");
         }
 

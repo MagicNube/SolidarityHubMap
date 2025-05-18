@@ -39,6 +39,7 @@ public class CreateRouteCommand implements Command {
 
     @Override
     public void redo() {
+        //TODO: Redibujar en el mapa
         for (RoutePoint p : points){
             p.pushToServer();
         }
