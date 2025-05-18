@@ -15,6 +15,7 @@ public class MapActions {
     @Getter
     private final MapService service;
     private final MapButtons buttons;
+    @Getter
     private final MapBuild build;
     @Getter
     private final LinkedList<Command> comandosRealizados = new LinkedList<>();
@@ -37,6 +38,7 @@ public class MapActions {
         if (c == null) {return;}
         c.undo();
         comandosDeshechos.push(c);
+        this.buttons.enableButtons();
     }
 
     public void redoCommand(){
@@ -44,6 +46,7 @@ public class MapActions {
         if (c == null) {return;}
         c.redo();
         comandosRealizados.push(c);
+        this.buttons.enableButtons();
     }
 
     public void toggleZoneCreation(CreateZoneCommand c) {

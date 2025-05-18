@@ -7,9 +7,11 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.listbox.MultiSelectListBox;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import lombok.Getter;
 import org.pingu.domain.DTO.CatastropheDTO;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.StorageDTO;
@@ -35,6 +37,7 @@ import java.util.stream.Collectors;
 public class MapDialogs {
 
     private final MapService service;
+    @Getter
     private final MapBuild mapBuild;
     private final MapButtons mapButtons;
 
@@ -152,6 +155,9 @@ public class MapDialogs {
 
         } else {
             mapBuild.endZoneConstruction(c);
+
+            Notification notification = new Notification("Zona creada exitosamente", 3000);
+            notification.open();
         }
 
     }
@@ -225,6 +231,9 @@ public class MapDialogs {
             });
         } else {
             mapBuild.endRouteConstruction(c);
+
+            Notification notification = new Notification("Ruta creada exitosamente", 3000);
+            notification.open();
         }
     }
 

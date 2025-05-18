@@ -19,8 +19,6 @@ public class CreateStorageCommand implements Command {
     public void execute() {
         buttonReceiver.toggleStorageCreation(this);
         buttonReceiver.addExecutedCommand(this);
-        Notification notification = new Notification("Almacén creado exitosamente", 3000);
-        notification.open();
     }
 
     @Override
@@ -32,7 +30,9 @@ public class CreateStorageCommand implements Command {
 
     @Override
     public void redo() {
-        buttonReceiver.getService().createStorage(storage.toDto());
+        buttonReceiver.getService().setTempStorageDTO(storage.toDto());
+        buttonReceiver.getService().setTempStorageCommand(this);
+        buttonReceiver.getBuild().endStorageConstruction();
         Notification notification = new Notification("Almacén creado exitosamente", 3000);
         notification.open();
     }

@@ -25,8 +25,6 @@ public class CreateRouteCommand implements Command {
     public void execute() {
         buttonReceiver.toggleRouteCreation(this);
         buttonReceiver.addExecutedCommand(this);
-        Notification notification = new Notification("Ruta creada exitosamente", 3000);
-        notification.open();
     }
 
     @Override
@@ -38,7 +36,9 @@ public class CreateRouteCommand implements Command {
 
     @Override
     public void redo() {
-        buttonReceiver.getService().createRoute(route.toDto(), points);
+        buttonReceiver.getService().setTempRouteDTO(route.toDto());
+        buttonReceiver.getService().setRoutePoint(points);
+        buttonReceiver.getBuild().endRouteConstruction(this);
         Notification notification = new Notification("Ruta creada exitosamente", 3000);
         notification.open();
     }

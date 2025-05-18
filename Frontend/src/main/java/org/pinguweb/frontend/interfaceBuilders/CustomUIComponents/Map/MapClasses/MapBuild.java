@@ -1,6 +1,7 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses;
 
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -135,6 +136,25 @@ public class MapBuild {
 
         service.getRoutePoint().clear();
     }
+
+    public void endStorageConstruction(){
+        Storage storage = service.createStorage(service.getTempStorageDTO());
+        service.getTempStorageCommand().setStorage(storage);
+        int tempId = storage.pushToServer();
+        storage.setID(tempId);
+        service.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
+            service.getStorages().remove(s);
+        });
+        System.out.println(service.getStorages());
+        synchronized (service.getLock()) {
+            service.getLock().notify();
+        }
+        service.getMap().off("click", service.getClickFuncReferenceCreateStorage());
+
+        Notification notification = new Notification("Almacén creado exitosamente", 3000);
+        notification.open();
+    }
+
 
     public void editRoute(org.pinguweb.frontend.mapObjects.Route route) {
         log.debug("Ruta editada");

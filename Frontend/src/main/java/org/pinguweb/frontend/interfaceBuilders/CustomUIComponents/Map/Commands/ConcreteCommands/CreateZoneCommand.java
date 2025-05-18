@@ -19,8 +19,6 @@ public class CreateZoneCommand implements Command {
     public void execute() {
         buttonReceiver.toggleZoneCreation(this);
         buttonReceiver.addExecutedCommand(this);
-        Notification notification = new Notification("Zona creada exitosamente", 3000);
-        notification.open();
     }
 
     @Override
@@ -32,7 +30,8 @@ public class CreateZoneCommand implements Command {
 
     @Override
     public void redo() {
-        buttonReceiver.getService().createZone(zone.toDto());
+        buttonReceiver.getService().setTempZoneDTO(zone.toDto());
+        buttonReceiver.getBuild().endZoneConstruction(this);
         Notification notification = new Notification("Zona creada exitosamente", 3000);
         notification.open();
     }

@@ -2,6 +2,7 @@ package org.pinguweb.frontend.view;
 
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -213,7 +214,6 @@ public class MapView extends HorizontalLayout implements Observer {
         controller.getRoutePoint().set(index, t);
     }
 
-
     @ClientCallable
     public void mapStorage(final JsonValue input) {
         if (!(input instanceof final JsonObject obj)) {
@@ -221,19 +221,7 @@ public class MapView extends HorizontalLayout implements Observer {
         }
         controller.getTempStorageDTO().setLatitude(obj.getNumber("lat"));
         controller.getTempStorageDTO().setLongitude(obj.getNumber("lng"));
-        Storage storage = controller.createStorage(controller.getTempStorageDTO());
-        controller.getTempStorageCommand().setStorage(storage);
-        int tempId = storage.pushToServer();
-        storage.setID(tempId);
-        controller.getStorages().stream().filter(s -> s.getID() == storage.getID()).findFirst().ifPresent(s -> {
-            controller.getStorages().remove(s);
-        });
-        System.out.println(controller.getStorages());
-        synchronized (controller.getLock()) {
-            controller.getLock().notify();
-        }
-        controller.getMap().off("click", controller.getClickFuncReferenceCreateStorage());
-        //controller.getUi().push();
+        mapDialogs.getMapBuild().endStorageConstruction();
     }
 
     @ClientCallable
