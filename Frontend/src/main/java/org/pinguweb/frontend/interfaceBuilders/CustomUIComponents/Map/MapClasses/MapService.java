@@ -77,7 +77,10 @@ public class MapService {
 
     @Async
     public void load() {
-        this.reg.clearAll();
+        lLayerGroupNeeds.clearLayers();
+        lLayerGroupRoutes.clearLayers();
+        lLayerGroupStorages.clearLayers();
+        lLayerGroupZones.clearLayers();
 
         UI ui = UI.getCurrent();
         if (ui == null) {

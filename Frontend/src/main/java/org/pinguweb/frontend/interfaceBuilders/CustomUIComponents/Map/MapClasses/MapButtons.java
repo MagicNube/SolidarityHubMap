@@ -5,12 +5,11 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import lombok.Getter;
 import lombok.Setter;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
+
+import com.vaadin.flow.component.icon.VaadinIcon;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.CommandButton;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.*;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
-
-import java.util.LinkedList;
 
 @Setter
 @Getter
@@ -20,6 +19,8 @@ public class MapButtons {
     private final CommandButton storage = new CommandButton("Crear Almacen");
     private final CommandButton edit = new CommandButton("Editar");
     private final CommandButton delete = new CommandButton("Borrar");
+    private final Button undo = new Button(VaadinIcon.ARROW_BACKWARD.create());
+    private final Button redo = new Button(VaadinIcon.ARROW_FORWARD.create());
 
     private final Map map;
 
@@ -39,6 +40,11 @@ public class MapButtons {
         storage.setCommand(new CreateStorageCommand(this.mapActions));
         edit.setCommand(new CreateEditCommand(this.mapActions));
         delete.setCommand(new CreateDeleteCommand(this.mapActions));
+
+        undo.addClickListener(e -> this.mapActions.undoCommand());
+        redo.addClickListener(e -> this.mapActions.redoCommand());
+        this.undo.setEnabled(!this.mapActions.getComandosRealizados().isEmpty());
+        this.redo.setEnabled(!this.mapActions.getComandosDeshechos().isEmpty());
     }
 
     public void disableButtons(Button button) {
@@ -47,6 +53,8 @@ public class MapButtons {
         this.storage.setEnabled(button == this.storage);
         this.edit.setEnabled(button == this.edit);
         this.delete.setEnabled(button == this.delete);
+        this.undo.setEnabled(button == this.undo);
+        this.redo.setEnabled(button == this.redo);
     }
 
     public void enableButtons() {
@@ -55,15 +63,16 @@ public class MapButtons {
         this.storage.setEnabled(true);
         this.edit.setEnabled(true);
         this.delete.setEnabled(true);
+        this.undo.setEnabled(!this.mapActions.getComandosRealizados().isEmpty());
+        this.redo.setEnabled(!this.mapActions.getComandosDeshechos().isEmpty());
     }
-
 
     public HorizontalLayout generateButtonRow() {
         HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.add(this.zone,this.storage,this.route);
 
         if (hlayout.getChildren().findAny().isPresent()) {
-            hlayout.add(this.edit, this.delete);
+            hlayout.add(this.edit, this.delete, undo, redo);
         }
 
         hlayout.setWidthFull();

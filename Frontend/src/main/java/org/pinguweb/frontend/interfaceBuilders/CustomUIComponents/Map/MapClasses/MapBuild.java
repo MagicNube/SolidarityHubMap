@@ -59,7 +59,6 @@ public class MapBuild {
         }).start();
     }
 
-
     public void startZoneConstruction(ZoneDTO zoneDTO) {
         service.setTempZoneDTO(zoneDTO);
         log.debug("Registrando puntos para la zona");
@@ -225,7 +224,6 @@ public class MapBuild {
             storage.getMarkerObj().off("click", clickFuncReferenceDeleteStorage);
         }
     }
-
 
     public void editStorage(Storage storage) {
         log.debug("Almacen editado");

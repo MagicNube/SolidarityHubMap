@@ -1,6 +1,7 @@
 package org.pinguweb.frontend.view;
 
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -36,27 +37,34 @@ public class MapView extends HorizontalLayout implements Observer {
     private static String mapId = "MapView";
     private static MapService controller;
     private static MapDialogs mapDialogs;
+    UI ui;
 
     public MapView() {
         this.setSizeFull();
         this.setId(mapId);
 
-        BackendDTOService.GetInstancia().getNeedList().attach(this);
-        BackendDTOService.GetInstancia().getZoneList().attach(this);
-        BackendDTOService.GetInstancia().getStorageList().attach(this);
-        BackendDTOService.GetInstancia().getRouteList().attach(this);
-        BackendDTOService.GetInstancia().getRoutePointList().attach(this);
+        BackendDTOService.GetInstancia().getNeedList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getZoneList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getStorageList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getRouteList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getRoutePointList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getCatastropheList().attach(this, ObserverChange.ADD_ALL);
 
         MapBuilderDirector director = new MapBuilderDirector();
         this.add(director.createFullMap());
         this.generateLayers();
+
+        this.ui = UI.getCurrent();
+        if (ui == null) {
+            log.warn("UI is null, cannot update UI components.");
+        }
 
         controller.load();
     }
 
     @Override
     public void update(ObserverChange change) {
-        controller.load();
+        ui.access(() -> controller.load());
         log.info("Mapa actualizado");
     }
 

@@ -2,7 +2,6 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.
 
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapActions;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapButtons;
 
 public class CreateEditCommand implements Command {
     MapActions buttonReceiver;
@@ -13,7 +12,7 @@ public class CreateEditCommand implements Command {
 
     @Override
     public void execute() {
-        buttonReceiver.executedCommand(this);
+        buttonReceiver.addExecutedCommand(this);
         buttonReceiver.toggleEdit();
     }
 

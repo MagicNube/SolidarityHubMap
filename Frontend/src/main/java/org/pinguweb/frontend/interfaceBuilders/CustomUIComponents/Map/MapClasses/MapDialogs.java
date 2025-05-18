@@ -113,7 +113,6 @@ public class MapDialogs {
                 zoneDTO.setLongitudes(new ArrayList<>());
                 zoneDTO.setStorages(selectedStorageIDs);
 
-
                 mapBuild.startZoneConstruction(zoneDTO);
                 dialog.close();
             });

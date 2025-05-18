@@ -40,7 +40,7 @@ public class Storage extends MapObject{
                 .withShadowSize(new LPoint(reg, 41, 41))
         );
 
-        LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
+        LMarkerOptions options = new LMarkerOptions().withDraggable(false).withIcon(icon);
 
         this.markerObj = new LMarker(reg, new LLatLng(reg, latitude, longitude), options);
     }
