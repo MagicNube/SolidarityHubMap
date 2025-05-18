@@ -10,7 +10,10 @@ public class EditCommand implements Command {
     MapActions buttonReceiver;
 
     @Setter
-    MapObject lastObject;
+    MapObject originalObject;
+
+    @Setter
+    MapObject resultObject;
 
     public EditCommand(MapActions receiver){
         buttonReceiver = receiver;
@@ -27,11 +30,16 @@ public class EditCommand implements Command {
 
     @Override
     public void undo() {
+        buttonReceiver.editMapObject(originalObject);
         Notification notification = new Notification("Edición deshecha", 3000);
         notification.open();
     }
 
     @Override
     public void redo() {
+        buttonReceiver.editMapObject(resultObject);
+
+        Notification notification = new Notification("Edición realizada exitosamente", 3000);
+        notification.open();
     }
 }

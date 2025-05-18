@@ -480,4 +480,5 @@ public class MapService {
         storage.getMarkerObj().bindPopup("Almacen: " + storage.getName());
         storage.getMarkerObj().addTo(this.map);
     }
+
 }

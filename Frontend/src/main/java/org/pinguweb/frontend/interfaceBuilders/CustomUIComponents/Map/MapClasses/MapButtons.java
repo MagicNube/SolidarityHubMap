@@ -33,7 +33,7 @@ public class MapButtons {
         this.map.setState(MapState.IDLE);
         this.mapDialogs = new MapDialogs(service, this);
         this.mapBuild = new MapBuild(service);
-        this.mapActions = new MapActions(service, this);
+        this.mapActions = new MapActions(mapBuild, service, this);
 
         zone.setCommand(new CreateZoneCommand(this.mapActions));
         route.setCommand(new CreateRouteCommand(this.mapActions));

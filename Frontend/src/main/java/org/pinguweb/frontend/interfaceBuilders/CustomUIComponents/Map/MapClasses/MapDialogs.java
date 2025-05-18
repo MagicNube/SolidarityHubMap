@@ -291,6 +291,7 @@ public class MapDialogs {
 
     public void editDialogZone(String zoneID, EditCommand c) {
         Zone zone = service.getZoneByID(zoneID);
+        c.setOriginalObject(zone);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setCloseOnEsc(false);
@@ -364,6 +365,7 @@ public class MapDialogs {
             zone.setEmergencyLevel(severityComboBox.getValue());
             zone.setStorages(selectedStorageIDs);
             mapBuild.editZone(zone);
+            c.setResultObject(zone);
             dialog.close();
         });
 
@@ -395,6 +397,7 @@ public class MapDialogs {
 
     public void editDialogRoute(String routeID, EditCommand c) {
         Route route = service.getRouteByID(routeID);
+        c.setOriginalObject(route);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setCloseOnEsc(false);
@@ -437,6 +440,7 @@ public class MapDialogs {
             route.setPointsID(service.getRouteByID(routeID).getPointsID());
             route.updateToServer();
             mapBuild.editRoute(route);
+            c.setResultObject(route);
             dialog.close();
         });
 
@@ -451,7 +455,6 @@ public class MapDialogs {
             acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
         });
 
-
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
         VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, routeTypeComboBox, catastropheComboBox, buttonLayout);
         dialog.add(dialogLayout);
@@ -463,6 +466,7 @@ public class MapDialogs {
 
     public void editDialogStorage(String id, EditCommand c) {
         Storage storage = service.getStorageByID(id);
+        c.setOriginalObject(storage);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setCloseOnEsc(false);
@@ -501,6 +505,7 @@ public class MapDialogs {
             storage.setFull(llenoComboBox.getValue().equals("Lleno"));
             storage.updateToServer();
             mapBuild.editStorage(storage);
+            c.setResultObject(storage);
             dialog.close();
         });
 

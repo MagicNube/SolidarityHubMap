@@ -6,6 +6,7 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
+import org.pinguweb.frontend.mapObjects.MapObject;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
@@ -17,14 +18,16 @@ public class MapActions {
     @Getter
     private final MapService service;
     private final MapButtons buttons;
+    private final MapBuild build;
     @Getter
     private final LinkedList<Command> comandosRealizados = new LinkedList<>();
     @Getter
     private final LinkedList<Command> comandosDeshechos = new LinkedList<>();
 
-    public MapActions(MapService service, MapButtons buttons){
+    public MapActions(MapBuild build, MapService service, MapButtons buttons){
         this.buttons = buttons;
         this.service = service;
+        this.build = build;
     }
 
     public void addExecutedCommand(Command c){
@@ -156,5 +159,17 @@ public class MapActions {
 
     public void deleteRoute(Route route){
         service.deleteRoute(route.getID());
+    }
+
+    public void editMapObject(MapObject object){
+        if(object instanceof Route){
+            build.editRoute((Route) object);
+        }
+        else if(object instanceof Zone){
+            build.editZone((Zone) object);
+        }
+        else if(object instanceof Storage){
+            build.editStorage((Storage) object);
+        }
     }
 }
