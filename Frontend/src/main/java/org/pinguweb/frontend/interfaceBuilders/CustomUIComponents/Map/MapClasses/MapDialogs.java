@@ -16,6 +16,7 @@ import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.domain.enums.EmergencyLevel;
 import org.pingu.domain.enums.RouteType;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.mapObjects.Route;
@@ -154,7 +155,7 @@ public class MapDialogs {
 
     }
 
-    public void createDialogRuta(MapState mapState) {
+    public void createDialogRuta(MapState mapState, CreateRouteCommand c) {
         if (mapState == MapState.CREATING_ROUTE) {
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
@@ -180,7 +181,6 @@ public class MapDialogs {
             ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
             catastropheComboBox.setItems(catastropheDTOList.stream().map(CatastropheDTO::getName).toList());
 
-
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
                 mapButtons.getMapActions().cancelRouteCreation();
@@ -199,7 +199,6 @@ public class MapDialogs {
                 routeDTO.setPoints(new ArrayList<>());
                 routeDTO.setID(0);
                 routeDTO.setRouteType(routeTypeComboBox.getValue());
-
 
                 mapBuild.startRouteConstruction(routeDTO);
                 dialog.close();
@@ -224,7 +223,7 @@ public class MapDialogs {
                 dialog.close();
             });
         } else {
-            mapBuild.endRouteConstruction();
+            mapBuild.endRouteConstruction(c);
         }
     }
 

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.mapObjects.*;
@@ -105,7 +106,7 @@ public class MapBuild {
         service.getMap().on("click", clickFuncReferenceCreateRoute);
     }
 
-    public void endRouteConstruction() {
+    public void endRouteConstruction(CreateRouteCommand c) {
         service.getMap().off("click", clickFuncReferenceCreateRoute);
         log.debug("Ruta terminada");
         ArrayList<RoutePoint> routePoints = new ArrayList<>(service.getRoutePoint());
@@ -118,19 +119,19 @@ public class MapBuild {
         ruta.setPointsID(pointsID);
         int tempID = ruta.pushToServer();
 
+        c.setRoute(ruta);
+
         service.getRoutes().stream().filter(r -> r.getID() == service.getTempRouteDTO().getID()).findFirst().ifPresent(r -> {
             service.getRoutes().remove(r);
             service.getRoutes().add(ruta);
         });
         service.getRoutePoints().put(tempID, new ArrayList<>(service.getRoutePoint()));
 
-
         for (int i = service.getRoutePoint().size() - 2; i > 0; i--) {
             RoutePoint routePoint = service.getRoutePoint().get(i);
             routePoint.removeFromMap(service.getMap());
             service.getRoutePoint().remove(routePoint);
         }
-
 
         service.getRoutePoint().clear();
     }

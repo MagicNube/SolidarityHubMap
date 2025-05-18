@@ -2,8 +2,10 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasse
 
 import lombok.Getter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
+import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,16 +70,16 @@ public class MapActions {
         this.buttons.enableButtons();
     }
 
-    public void toggleRouteCreation() {
+    public void toggleRouteCreation(CreateRouteCommand c) {
         this.buttons.disableButtons(this.buttons.getRoute());
 
         if (buttons.getMap().getState() == MapState.IDLE) {
             buttons.getMap().setState(MapState.CREATING_ROUTE);
-            this.buttons.getMapDialogs().createDialogRuta(buttons.getMap().getState());
+            this.buttons.getMapDialogs().createDialogRuta(buttons.getMap().getState(), c);
             this.buttons.getRoute().setText("Terminar ruta");
         } else {
             buttons.getMap().setState(MapState.IDLE);
-            this.buttons.getMapDialogs().createDialogRuta(buttons.getMap().getState());
+            this.buttons.getMapDialogs().createDialogRuta(buttons.getMap().getState(), c);
             this.buttons.getRoute().setText("Crear ruta");
         }
 
@@ -149,5 +151,9 @@ public class MapActions {
 
     public void deleteStorage(Storage storage){
         service.deleteZone(storage.getID());
+    }
+
+    public void deleteRoute(Route route){
+        service.deleteRoute(route.getID());
     }
 }
