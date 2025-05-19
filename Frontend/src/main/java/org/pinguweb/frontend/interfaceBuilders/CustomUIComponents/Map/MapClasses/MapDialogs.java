@@ -7,15 +7,21 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.listbox.MultiSelectListBox;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import lombok.Getter;
 import org.pingu.domain.DTO.CatastropheDTO;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.domain.enums.EmergencyLevel;
 import org.pingu.domain.enums.RouteType;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
@@ -31,6 +37,7 @@ import java.util.stream.Collectors;
 public class MapDialogs {
 
     private final MapService service;
+    @Getter
     private final MapBuild mapBuild;
     private final MapButtons mapButtons;
 
@@ -43,7 +50,7 @@ public class MapDialogs {
         MapView.setMapDialogs(this);
     }
 
-    public void createDialogZona(MapState mapState) {
+    public void createDialogZona(MapState mapState, CreateZoneCommand c) {
         if (mapState == MapState.CREATING_ZONE) {
             List<CatastropheDTO> catastropheDTOList = backendService.getCatastropheList().getValues();
             List<StorageDTO> storageDTOList = backendService.getStorageList().getValues();
@@ -82,7 +89,7 @@ public class MapDialogs {
 
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
-                mapButtons.cancelZoneCreation();
+                mapButtons.getMapActions().cancelZoneCreation();
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
@@ -113,7 +120,6 @@ public class MapDialogs {
                 zoneDTO.setLongitudes(new ArrayList<>());
                 zoneDTO.setStorages(selectedStorageIDs);
 
-
                 mapBuild.startZoneConstruction(zoneDTO);
                 dialog.close();
             });
@@ -143,17 +149,20 @@ public class MapDialogs {
             dialog.open();
 
             icoClose.addClickListener(iev -> {
-                mapButtons.cancelZoneCreation();
+                mapButtons.getMapActions().cancelZoneCreation();
                 dialog.close();
             });
 
         } else {
-            mapBuild.endZoneConstruction();
+            mapBuild.endZoneConstruction(c);
+
+            Notification notification = new Notification("Zona creada exitosamente", 3000);
+            notification.open();
         }
 
     }
 
-    public void createDialogRuta(MapState mapState) {
+    public void createDialogRuta(MapState mapState, CreateRouteCommand c) {
         if (mapState == MapState.CREATING_ROUTE) {
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
@@ -179,10 +188,9 @@ public class MapDialogs {
             ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
             catastropheComboBox.setItems(catastropheDTOList.stream().map(CatastropheDTO::getName).toList());
 
-
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
-                mapButtons.cancelRouteCreation();
+                mapButtons.getMapActions().cancelRouteCreation();
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
@@ -198,7 +206,6 @@ public class MapDialogs {
                 routeDTO.setPoints(new ArrayList<>());
                 routeDTO.setID(0);
                 routeDTO.setRouteType(routeTypeComboBox.getValue());
-
 
                 mapBuild.startRouteConstruction(routeDTO);
                 dialog.close();
@@ -219,15 +226,18 @@ public class MapDialogs {
             dialog.add(dialogLayout);
             dialog.open();
             icoClose.addClickListener(iev -> {
-                mapButtons.cancelRouteCreation();
+                mapButtons.getMapActions().cancelRouteCreation();
                 dialog.close();
             });
         } else {
-            mapBuild.endRouteConstruction();
+            mapBuild.endRouteConstruction(c);
+
+            Notification notification = new Notification("Ruta creada exitosamente", 3000);
+            notification.open();
         }
     }
 
-    public void createDialogAlmacen(MapState mapState, MapButtons mapButtons) {
+    public void createDialogAlmacen(MapState mapState, MapButtons mapButtons, CreateStorageCommand c) {
         if (mapState == MapState.CREATING_STORAGE) {
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
@@ -253,7 +263,7 @@ public class MapDialogs {
 
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
-                mapButtons.cancelStorageCreation();
+                mapButtons.getMapActions().cancelStorageCreation();
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
@@ -268,7 +278,7 @@ public class MapDialogs {
                 storageDTO.setZone(zoneID);
                 storageDTO.setFull(llenoComboBox.getValue().equals("Lleno"));
 
-                mapBuild.createStorage(storageDTO, mapButtons);
+                mapBuild.createStorage(storageDTO, mapButtons, c);
                 dialog.close();
             });
 
@@ -282,14 +292,15 @@ public class MapDialogs {
             dialog.add(dialogLayout);
             dialog.open();
             icoClose.addClickListener(iev -> {
-                mapButtons.cancelStorageCreation();
+                mapButtons.getMapActions().cancelStorageCreation();
                 dialog.close();
             });
         }
     }
 
-    public void editDialogZone(String zoneID) {
+    public void editDialogZone(String zoneID, EditCommand c) {
         Zone zone = service.getZoneByID(zoneID);
+        c.setOriginalObject(zone);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setCloseOnEsc(false);
@@ -363,6 +374,7 @@ public class MapDialogs {
             zone.setEmergencyLevel(severityComboBox.getValue());
             zone.setStorages(selectedStorageIDs);
             mapBuild.editZone(zone);
+            c.setResultObject(zone);
             dialog.close();
         });
 
@@ -392,8 +404,9 @@ public class MapDialogs {
         });
     }
 
-    public void editDialogRoute(String routeID) {
+    public void editDialogRoute(String routeID, EditCommand c) {
         Route route = service.getRouteByID(routeID);
+        c.setOriginalObject(route);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setCloseOnEsc(false);
@@ -436,6 +449,7 @@ public class MapDialogs {
             route.setPointsID(service.getRouteByID(routeID).getPointsID());
             route.updateToServer();
             mapBuild.editRoute(route);
+            c.setResultObject(route);
             dialog.close();
         });
 
@@ -450,7 +464,6 @@ public class MapDialogs {
             acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
         });
 
-
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
         VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, routeTypeComboBox, catastropheComboBox, buttonLayout);
         dialog.add(dialogLayout);
@@ -460,8 +473,9 @@ public class MapDialogs {
         });
     }
 
-    public void editDialogStorage(String id) {
+    public void editDialogStorage(String id, EditCommand c) {
         Storage storage = service.getStorageByID(id);
+        c.setOriginalObject(storage);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setCloseOnEsc(false);
@@ -500,6 +514,7 @@ public class MapDialogs {
             storage.setFull(llenoComboBox.getValue().equals("Lleno"));
             storage.updateToServer();
             mapBuild.editStorage(storage);
+            c.setResultObject(storage);
             dialog.close();
         });
 

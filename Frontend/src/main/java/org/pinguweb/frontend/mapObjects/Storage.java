@@ -40,9 +40,19 @@ public class Storage extends MapObject{
                 .withShadowSize(new LPoint(reg, 41, 41))
         );
 
-        LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
+        LMarkerOptions options = new LMarkerOptions().withDraggable(false).withIcon(icon);
 
         this.markerObj = new LMarker(reg, new LLatLng(reg, latitude, longitude), options);
+    }
+
+    public StorageDTO toDto(){
+        StorageDTO storageDTO = new StorageDTO();
+        storageDTO.setLatitude(this.getLatitude());
+        storageDTO.setLongitude(this.getLongitude());
+        storageDTO.setName(this.getName());
+        storageDTO.setZone(this.getZoneID());
+        storageDTO.setFull(this.isFull());
+        return storageDTO;
     }
 
     @Override
@@ -57,14 +67,7 @@ public class Storage extends MapObject{
 
     @Override
     public int pushToServer(){
-        StorageDTO storageDTO = new StorageDTO();
-        storageDTO.setLatitude(this.getLatitude());
-        storageDTO.setLongitude(this.getLongitude());
-        storageDTO.setName(this.getName());
-        storageDTO.setZone(this.getZoneID());
-        storageDTO.setFull(this.isFull());
-
-        // TODO: AGREGAR LO QUE QUIERAS GUARDAR
+        StorageDTO storageDTO = toDto();
 
         String finurl = "/api/storages";
         try{
@@ -96,12 +99,7 @@ public class Storage extends MapObject{
 
     @Override
     public int updateToServer() {
-        StorageDTO storageDTO = new StorageDTO();
-        storageDTO.setLatitude(this.getLatitude());
-        storageDTO.setLongitude(this.getLongitude());
-        storageDTO.setName(this.getName());
-        storageDTO.setZone(this.getZoneID());
-        storageDTO.setFull(this.isFull());
+        StorageDTO storageDTO = toDto();
 
         String finurl = "/api/storages/" + this.getID();
         try{

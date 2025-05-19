@@ -5,6 +5,7 @@ import org.pingu.domain.DTO.AffectedDTO;
 import org.pingu.domain.DTO.NeedDTO;
 import org.pingu.domain.DTO.TaskDTO;
 import org.pingu.domain.DTO.VolunteerDTO;
+import org.pingu.domain.enums.ResourceType;
 import org.pingu.domain.enums.TaskType;
 import org.pingu.domain.enums.ResourceType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;

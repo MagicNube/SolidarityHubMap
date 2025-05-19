@@ -132,7 +132,7 @@ public class Filters extends InterfaceComponent {
                             filteredY.stream()
                     );
 
-                    addUpdatedChart(dashboard, pair, xFiltrado, yFiltrado, data);
+                    data.add(addUpdatedChart(dashboard, pair, xFiltrado, yFiltrado));
                 }
                 dashboard.update(data.toArray(AbstractChart[]::new));
                 data.clear();
@@ -150,7 +150,7 @@ public class Filters extends InterfaceComponent {
                     AbstractDataProvider<?> xAxis = Dashboard.castObjectByCoordinateType(dashboard.getCoordinateConfiguration().getAxis(0).getDataType(), pair._2().flatten().stream().map(ChartPoint::getXValue).toArray());
                     AbstractDataProvider<?> yAxis = Dashboard.castObjectByCoordinateType(dashboard.getCoordinateConfiguration().getAxis(1).getDataType(), pair._2().flatten().stream().map(ChartPoint::getYValue).toArray());
 
-                    addUpdatedChart(dashboard, pair, xAxis, yAxis, data);
+                    data.add(addUpdatedChart(dashboard, pair, xAxis, yAxis));
                 }
 
                 dashboard.update(data.toArray(AbstractChart[]::new));
@@ -194,13 +194,13 @@ public class Filters extends InterfaceComponent {
         return hmain;
     }
 
-    private void addUpdatedChart(Dashboard dashboard, Tuple<AbstractChart, ChartData<?, ?>> pair, AbstractDataProvider<?> xFiltrado, AbstractDataProvider<?> yFiltrado, List<AbstractChart> data) {
+    public static AbstractChart addUpdatedChart(Dashboard dashboard, Tuple<AbstractChart, ChartData<?, ?>> pair, AbstractDataProvider<?> xFiltrado, AbstractDataProvider<?> yFiltrado) {
         switch (dashboard.getType()) {
             case BAR, STACKED_BAR -> {
                 BarChart bar = (BarChart) pair._1();
                 bar.setXData(xFiltrado);
                 bar.setYData(yFiltrado);
-                data.add(bar);
+                return bar;
             }
             case PIE -> {
                 PieChart pie = (PieChart) pair._1();
@@ -212,9 +212,10 @@ public class Filters extends InterfaceComponent {
 
                 pie.setData(new Data(nums));
 
-                data.add(pie);
+                return pie;
             }
         }
+        return null;
     }
 
     // TODO: No pilla si es enum porque los DTOs lo guardan como string

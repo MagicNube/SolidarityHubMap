@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.*;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.DeleteCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
 import org.pinguweb.frontend.services.BackendDTOService;
@@ -28,28 +31,13 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class MapService {
 
-    @Setter
     private LComponentManagementRegistry reg;
-
-    @Setter
     private LMap map;
-
-    @Setter
     private String ID;
-
-    @Getter
     private HashSet<Storage> storages = new HashSet<>();
-
-    @Getter
     private HashSet<Need> needs = new HashSet<>();
-
-    @Getter
     private HashSet<Zone> zones = new HashSet<>();
-
-    @Getter
     private HashSet<Route> routes = new HashSet<>();
-
-    @Getter
     private HashMap<Integer, List<RoutePoint>> routePoints = new HashMap<>();
 
     private Object lock = new Object();
@@ -64,6 +52,9 @@ public class MapService {
     private ZoneDTO tempZoneDTO;
     private RouteDTO tempRouteDTO;
     private StorageDTO tempStorageDTO;
+    private CreateStorageCommand tempStorageCommand;
+    private EditCommand tempEditCommand;
+    private DeleteCommand tempDeleteCommand;
 
     private HashMap<Tuple<Double, Double>, ZoneMarker> zoneMarkers = new HashMap<>();
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
@@ -92,6 +83,11 @@ public class MapService {
 
     @Async
     public void load() {
+        lLayerGroupNeeds.clearLayers();
+        lLayerGroupRoutes.clearLayers();
+        lLayerGroupStorages.clearLayers();
+        lLayerGroupZones.clearLayers();
+
         UI ui = UI.getCurrent();
         if (ui == null) {
             log.warn("UI is null, cannot update UI components.");
@@ -167,16 +163,7 @@ public class MapService {
             }
 
         }
-
-        for (StorageDTO storage : backendService.getStorageList().getValues()) {
-            if (storage.getLatitude() != null && storage.getLongitude() != null) {
-                createStorage(storage);
-            }
-        }
-
-
     }
-
 
     public Storage createStorage(StorageDTO storage) {
         double lat = storage.getLatitude();
@@ -318,6 +305,7 @@ public class MapService {
                 .findFirst()
                 .orElse(null);
         if (zone != null) {
+            if (tempDeleteCommand != null){tempDeleteCommand.setElement(zone);}
             zone.removeFromMap(this.map);
             zone.deleteFromServer();
             zones.remove(zone);
@@ -377,11 +365,14 @@ public class MapService {
                 .filter(r -> r.getID() == ID)
                 .findFirst()
                 .orElse(null);
+
         if (route != null) {
+            if (tempDeleteCommand != null) {tempDeleteCommand.setElement(route);}
             route.removeFromMap(this.map);
             route.deleteFromServer();
             List<RoutePoint> routePoints = this.routePoints.get(route.getID());
             if (routePoints != null) {
+                if (tempDeleteCommand != null) {tempDeleteCommand.setPoints(routePoints);}
                 for (RoutePoint routePoint : routePoints) {
                     routePoint.deleteFromServer();
                     routePoint.removeFromMap(this.map);
@@ -475,6 +466,7 @@ public class MapService {
                 .findFirst()
                 .orElse(null);
         if (storage != null) {
+            if (tempDeleteCommand != null) {tempDeleteCommand.setElement(storage);}
             storage.removeFromMap(this.map);
             storage.deleteFromServer();
             storages.remove(storage);
@@ -495,4 +487,5 @@ public class MapService {
         storage.getMarkerObj().bindPopup("Almacen: " + storage.getName());
         storage.getMarkerObj().addTo(this.map);
     }
+
 }

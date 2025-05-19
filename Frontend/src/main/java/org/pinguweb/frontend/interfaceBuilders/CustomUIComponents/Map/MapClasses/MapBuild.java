@@ -1,12 +1,14 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses;
 
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.*;
 import org.pinguweb.frontend.mapObjects.*;
 
 import java.util.ArrayList;
@@ -28,8 +30,9 @@ public class MapBuild {
         clickFuncReferenceCreateRoute = service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute";
     }
 
-    public void createStorage(StorageDTO storageDTO, MapButtons mapButtons) {
+    public void createStorage(StorageDTO storageDTO, MapButtons mapButtons, CreateStorageCommand c) {
         this.service.setTempStorageDTO(storageDTO);
+        this.service.setTempStorageCommand(c);
         service.setClickFuncReferenceCreateStorage(service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateNeed");
         service.getReg().execJs(service.getClickFuncReferenceCreateStorage() + "=e => document.getElementById('" + service.getID() + "').$server.mapStorage(e.latlng)");
         service.getMap().on("click", service.getClickFuncReferenceCreateStorage());
@@ -59,7 +62,6 @@ public class MapBuild {
         }).start();
     }
 
-
     public void startZoneConstruction(ZoneDTO zoneDTO) {
         service.setTempZoneDTO(zoneDTO);
         log.debug("Registrando puntos para la zona");
@@ -67,7 +69,7 @@ public class MapBuild {
         service.getMap().on("click", clickFuncReferenceCreateZone);
     }
 
-    public void endZoneConstruction() {
+    public void endZoneConstruction(CreateZoneCommand c) {
         service.getMap().off("click", clickFuncReferenceCreateZone);
         log.debug("Zona terminada");
         Zone zona = this.service.createZone(service.getTempZoneDTO());
@@ -83,6 +85,7 @@ public class MapBuild {
 
         service.getZoneMarkers().clear();
         service.getZoneMarkerPoints().clear();
+        c.setZone(zona);
     }
 
     public void editZone(Zone zone) {
@@ -102,7 +105,7 @@ public class MapBuild {
         service.getMap().on("click", clickFuncReferenceCreateRoute);
     }
 
-    public void endRouteConstruction() {
+    public void endRouteConstruction(CreateRouteCommand c) {
         service.getMap().off("click", clickFuncReferenceCreateRoute);
         log.debug("Ruta terminada");
         ArrayList<RoutePoint> routePoints = new ArrayList<>(service.getRoutePoint());
@@ -111,9 +114,13 @@ public class MapBuild {
             pointsID.add(routePoint.pushToServer());
         }
 
+        c.setPoints(routePoints);
+
         Route ruta = this.service.createRoute(service.getTempRouteDTO(), service.getRoutePoint());
         ruta.setPointsID(pointsID);
         int tempID = ruta.pushToServer();
+
+        c.setRoute(ruta);
 
         service.getRoutes().stream().filter(r -> r.getID() == service.getTempRouteDTO().getID()).findFirst().ifPresent(r -> {
             service.getRoutes().remove(r);
@@ -121,16 +128,33 @@ public class MapBuild {
         });
         service.getRoutePoints().put(tempID, new ArrayList<>(service.getRoutePoint()));
 
-
         for (int i = service.getRoutePoint().size() - 2; i > 0; i--) {
             RoutePoint routePoint = service.getRoutePoint().get(i);
             routePoint.removeFromMap(service.getMap());
             service.getRoutePoint().remove(routePoint);
         }
 
-
         service.getRoutePoint().clear();
     }
+
+    public void endStorageConstruction(){
+        Storage storage = service.createStorage(service.getTempStorageDTO());
+        service.getTempStorageCommand().setStorage(storage);
+        int tempId = storage.pushToServer();
+        storage.setID(tempId);
+        service.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
+            service.getStorages().remove(s);
+        });
+        System.out.println(service.getStorages());
+        synchronized (service.getLock()) {
+            service.getLock().notify();
+        }
+        service.getMap().off("click", service.getClickFuncReferenceCreateStorage());
+
+        Notification notification = new Notification("Almacén creado exitosamente", 3000);
+        notification.open();
+    }
+
 
     public void editRoute(org.pinguweb.frontend.mapObjects.Route route) {
         log.debug("Ruta editada");
@@ -165,11 +189,9 @@ public class MapBuild {
         }
     }
 
-    public void endEdit() {
-        for (Need need : this.service.getNeeds()) {
-            String clickFuncReferenceEditMarker = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditMarker" + need.getID();
-            need.getMarkerObj().off("click", clickFuncReferenceEditMarker);
-        }
+    public void endEdit(EditCommand c) {
+        this.service.setTempEditCommand(c);
+
         for (Zone zone : this.service.getZones()) {
             String clickFuncReferenceEditZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
             zone.getPolygon().off("click", clickFuncReferenceEditZone);
@@ -207,11 +229,8 @@ public class MapBuild {
         }
     }
 
-    public void endDelete() {
-        for (Need need : this.service.getNeeds()) {
-            String clickFuncReferenceDeleteMarker = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + need.getID();
-            need.getMarkerObj().off("click", clickFuncReferenceDeleteMarker);
-        }
+    public void endDelete(DeleteCommand c) {
+        this.service.setTempDeleteCommand(c);
         for (Zone zone : this.service.getZones()) {
             String clickFuncReferenceDeleteZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
             zone.getPolygon().off("click", clickFuncReferenceDeleteZone);
@@ -225,7 +244,6 @@ public class MapBuild {
             storage.getMarkerObj().off("click", clickFuncReferenceDeleteStorage);
         }
     }
-
 
     public void editStorage(Storage storage) {
         log.debug("Almacen editado");

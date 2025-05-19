@@ -48,6 +48,18 @@ public class Zone extends MapObject{
         this.polygon = new LPolygon(reg, points, new LPolylineOptions().withColor(lineColor).withFillColor(fillColor));
     }
 
+    public ZoneDTO toDto(){
+        ZoneDTO zoneDTO = new ZoneDTO();
+        zoneDTO.setName(this.name);
+        zoneDTO.setDescription(this.description);
+        zoneDTO.setEmergencyLevel(this.emergencyLevel);
+        zoneDTO.setCatastrophe(this.catastrophe);
+        zoneDTO.setStorages(this.storages);
+        zoneDTO.setLatitudes(this.latitudes);
+        zoneDTO.setLongitudes(this.longitudes);
+        return zoneDTO;
+    }
+
     @Override
     public void addToMap(LMap map){
         this.getPolygon().addTo(map);
@@ -60,14 +72,7 @@ public class Zone extends MapObject{
 
     @Override
     public int pushToServer(){
-        ZoneDTO zoneDTO = new ZoneDTO();
-        zoneDTO.setName(this.name);
-        zoneDTO.setDescription(this.description);
-        zoneDTO.setEmergencyLevel(this.emergencyLevel);
-        zoneDTO.setCatastrophe(this.catastrophe);
-        zoneDTO.setStorages(this.storages);
-        zoneDTO.setLatitudes(this.latitudes);
-        zoneDTO.setLongitudes(this.longitudes);
+        ZoneDTO zoneDTO = toDto();
 
         //System.out.println("ZoneDTO: " + zoneDTO.getCatastrophe() + " " + zoneDTO.getStorages());
         String finurl = "/api/zones";
@@ -115,15 +120,7 @@ public class Zone extends MapObject{
 
     @Override
     public int updateToServer() {
-        ZoneDTO zoneDTO = new ZoneDTO();
-        zoneDTO.setID(this.getID());
-        zoneDTO.setName(this.name);
-        zoneDTO.setDescription(this.description);
-        zoneDTO.setEmergencyLevel(this.emergencyLevel);
-        zoneDTO.setCatastrophe(this.catastrophe);
-        zoneDTO.setStorages(this.storages);
-        zoneDTO.setLatitudes(this.latitudes);
-        zoneDTO.setLongitudes(this.longitudes);
+        ZoneDTO zoneDTO = toDto();
 
         String finurl = "/api/zones";
         try{

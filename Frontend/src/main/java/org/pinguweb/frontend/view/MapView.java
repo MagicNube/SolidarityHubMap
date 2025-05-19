@@ -1,18 +1,27 @@
 package org.pinguweb.frontend.view;
 
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.pingu.web.BackendObservableService.BackendObservableService;
+import org.pingu.web.BackendObservableService.observableList.Observer;
+import org.pingu.web.BackendObservableService.observableList.ObserverChange;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapDialogs;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
+import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
+import org.pinguweb.frontend.services.BackendDTOService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
@@ -22,31 +31,48 @@ import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 
+@Slf4j
 @Route("map")
 @PageTitle("Visor del mapa")
-public class MapView extends HorizontalLayout {
+public class MapView extends HorizontalLayout implements Observer {
 
     @Getter
     private static String mapId = "MapView";
+    @Autowired
     private static MapService controller;
     private static MapDialogs mapDialogs;
+    UI ui;
 
     public MapView() {
         this.setSizeFull();
         this.setId(mapId);
 
+        BackendDTOService.GetInstancia().getNeedList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getZoneList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getStorageList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getRouteList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getRoutePointList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getCatastropheList().attach(this, ObserverChange.ADD_ALL);
+
         MapBuilderDirector director = new MapBuilderDirector();
-
         this.add(director.createFullMap());
-
         this.generateLayers();
 
-        controller.load();
+        this.ui = UI.getCurrent();
+        if (ui == null) {
+            log.warn("UI is null, cannot update UI components.");
+        }
 
+        controller.load();
+    }
+
+    @Override
+    public void update(ObserverChange change) {
+        ui.access(() -> controller.load());
+        log.info("Mapa actualizado");
     }
 
     private void generateLayers() {
-
         controller.setLLayerGroupNeeds(new LLayerGroup(controller.getReg()));
         controller.setLLayerGroupZones(new LLayerGroup(controller.getReg()));
         controller.setLLayerGroupRoutes(new LLayerGroup(controller.getReg()));
@@ -57,7 +83,6 @@ public class MapView extends HorizontalLayout {
                 controller.getLLayerGroupRoutes(),
                 controller.getLLayerGroupStorages()
         );
-
     }
 
     public void addControls(
@@ -189,7 +214,6 @@ public class MapView extends HorizontalLayout {
         controller.getRoutePoint().set(index, t);
     }
 
-
     @ClientCallable
     public void mapStorage(final JsonValue input) {
         if (!(input instanceof final JsonObject obj)) {
@@ -197,25 +221,7 @@ public class MapView extends HorizontalLayout {
         }
         controller.getTempStorageDTO().setLatitude(obj.getNumber("lat"));
         controller.getTempStorageDTO().setLongitude(obj.getNumber("lng"));
-        Storage storage = controller.createStorage(controller.getTempStorageDTO());
-        int tempId = storage.pushToServer();
-        storage.setID(tempId);
-        controller.getStorages().stream().filter(s -> s.getID() == storage.getID()).findFirst().ifPresent(s -> {
-            controller.getStorages().remove(s);
-        });
-        System.out.println(controller.getStorages());
-        synchronized (controller.getLock()) {
-            controller.getLock().notify();
-        }
-        controller.getMap().off("click", controller.getClickFuncReferenceCreateStorage());
-        //controller.getUi().push();
-    }
-
-
-    @ClientCallable
-    public void removeMarker(String ID) {
-        System.out.println("removeMarker: " + ID);
-        controller.deleteNeed(Integer.parseInt(ID));
+        mapDialogs.getMapBuild().endStorageConstruction();
     }
 
     @ClientCallable
@@ -236,29 +242,21 @@ public class MapView extends HorizontalLayout {
         controller.deleteStorage(Integer.parseInt(ID));
     }
 
-    /*@ClientCallable
-    public void editMarker(Need need) {
-        System.out.println("editMarker: " + need.getID());
-        controller.editNeed(need);
-    }*/
-
     @ClientCallable
     public void editPolygon(String ID) {
         System.out.println("editPolygon: " + ID);
-        mapDialogs.editDialogZone(ID);
+        mapDialogs.editDialogZone(ID, controller.getTempEditCommand());
     }
 
     @ClientCallable
     public void editRoute(String ID) {
         System.out.println("editRoute: " + ID);
-        mapDialogs.editDialogRoute(ID);
+        mapDialogs.editDialogRoute(ID, controller.getTempEditCommand());
     }
 
     @ClientCallable
     public void editStorage(String ID) {
         System.out.println("editStorage: " + ID);
-        mapDialogs.editDialogStorage(ID);
+        mapDialogs.editDialogStorage(ID, controller.getTempEditCommand());
     }
-
-
 }
