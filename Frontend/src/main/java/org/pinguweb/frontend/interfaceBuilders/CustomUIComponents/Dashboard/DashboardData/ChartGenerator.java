@@ -6,6 +6,7 @@ import org.pingu.domain.DTO.NeedDTO;
 import org.pingu.domain.DTO.TaskDTO;
 import org.pingu.domain.DTO.VolunteerDTO;
 import org.pingu.domain.enums.TaskType;
+import org.pingu.domain.enums.ResourceType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
@@ -21,7 +22,7 @@ public class ChartGenerator {
     private final Integer[] needsByTaskType = new Integer[TaskType.values().length];
     private final Integer[] completedTasks = new Integer[TaskType.values().length];
     private final Integer[] volunteersCountByType = new Integer[TaskType.values().length];
-    private final Integer[] resourcesByType = new Integer[org.example.coordinacionbdsolidarityhub.model.enums.ResourceType.values().length];
+    private final Integer[] resourcesByType = new Integer[ResourceType.values().length];
 
     private final List<TaskDTO> tasks;
     private final List<VolunteerDTO> volunteers;
