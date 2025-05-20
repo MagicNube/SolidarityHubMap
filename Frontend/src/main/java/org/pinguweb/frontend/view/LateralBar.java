@@ -1,17 +1,23 @@
 package org.pinguweb.frontend.view;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.applayout.AppLayout.Section;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Footer;
+import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Route;
@@ -29,12 +35,15 @@ public class LateralBar extends AppLayout {
     private Button logoButton;
     private Button minimizeButton;
     private Div selectedCatastropheInfo;
+    private Select<String> languageSelect;
+    // 1) pasamos footerLayout a campo de clase
+    private HorizontalLayout footerLayout;
 
     public LateralBar() {
         setPrimarySection(Section.DRAWER);
         getElement().setAttribute("class", "main-layout");
         addDrawerContent();
-        UI.getCurrent().addAfterNavigationListener(event -> updateSelectedCatastropheInfo());
+        UI.getCurrent().addAfterNavigationListener(e -> updateSelectedCatastropheInfo());
     }
 
     private void addDrawerContent() {
@@ -72,20 +81,32 @@ public class LateralBar extends AppLayout {
         Scroller scroller = new Scroller(sideNav);
         scroller.getElement().setAttribute("class", "nav-scroller");
 
+        languageSelect = new Select<>();
+        languageSelect.setItems("Castellano", "Valencià", "English");
+        languageSelect.setValue("Castellano");
+        languageSelect.getElement().setAttribute("class", "language-select");
+        languageSelect.addValueChangeListener(e -> {
+            VaadinSession.getCurrent().setAttribute("locale", e.getValue());
+            UI.getCurrent().getPage().reload();
+        });
+
         minimizeButton = new Button(VaadinIcon.ANGLE_DOUBLE_LEFT.create());
         minimizeButton.getElement().setAttribute("class", "minimize-button");
         minimizeButton.addClickListener(e -> toggleDrawerMinimized());
 
         Footer footer = new Footer();
+        footer.setWidthFull();
         footer.getElement().setAttribute("class", "drawer-footer");
-        HorizontalLayout footerLayout = new HorizontalLayout(minimizeButton);
-        footerLayout.setWidthFull();
-        footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        Span version = new Span("v1.0");
-        version.getElement().setAttribute("class", "version-info");
-        footer.add(footerLayout, version);
 
-        drawerContent.add(header, selectedCatastropheInfo, scroller, footer);
+        // 2) creamos footerLayout como campo
+        footerLayout = new HorizontalLayout(minimizeButton);
+        footerLayout.setWidthFull();
+        footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        footerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        footer.add(footerLayout);
+
+        drawerContent.add(header, selectedCatastropheInfo, scroller, languageSelect, footer);
         addToDrawer(drawerContent);
     }
 
@@ -130,8 +151,12 @@ public class LateralBar extends AppLayout {
             );
             appName.setVisible(false);
             selectedCatastropheInfo.setVisible(false);
+            languageSelect.setVisible(false);
             UI.getCurrent().access(() -> sideNav.getItems().forEach(item -> item.setLabel("")));
             minimizeButton.setIcon(VaadinIcon.ANGLE_DOUBLE_RIGHT.create());
+            // 3) al minimizar centramos
+            footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
         } else {
             drawerContent.getElement().setAttribute("class", "drawer-content");
             getElement().executeJs(
@@ -141,17 +166,26 @@ public class LateralBar extends AppLayout {
             appName.setVisible(true);
             updateSelectedCatastropheInfo();
             selectedCatastropheInfo.setVisible(true);
+            languageSelect.setVisible(true);
             updateNavigationTexts();
             minimizeButton.setIcon(VaadinIcon.ANGLE_DOUBLE_LEFT.create());
+            // volvemos a alineación a la derecha
+            footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         }
-        UI.getCurrent().getPage().executeJs("setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 100);");
+        UI.getCurrent().getPage().executeJs(
+                "setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 100);"
+        );
     }
 
     private void updateNavigationTexts() {
-        String[] labels = {"Tareas", "Mapa", "Dashboard", "Recursos", "Crear recurso", "Crear donación", "Crear almacén", "Contacto", "Sobre nosotros", "Cambiar idioma", "Log Out"};
-        int index = 0;
+        String[] labels = {"Inicio",
+                "Tareas", "Mapa", "Dashboard", "Recursos",
+                "Crear recurso", "Crear donación", "Crear almacén",
+                "Contacto", "Sobre nosotros", "Log Out"
+        };
+        int i = 0;
         for (SideNavItem item : sideNav.getItems()) {
-            item.setLabel(labels[index++]);
+            item.setLabel(labels[i++]);
         }
     }
 
@@ -159,6 +193,7 @@ public class LateralBar extends AppLayout {
         SideNav nav = new SideNav();
         nav.getElement().setAttribute("class", "side-nav");
         nav.addItem(
+                createNavItem("Inicio", VaadinIcon.HOME, "/inicio"),
                 createNavItem("Tareas", VaadinIcon.TASKS, "/tasks"),
                 createNavItem("Mapa", VaadinIcon.MAP_MARKER, "/map"),
                 createNavItem("Dashboard", VaadinIcon.DASHBOARD, "/dashboard"),
@@ -168,7 +203,6 @@ public class LateralBar extends AppLayout {
                 createNavItem("Crear almacén", VaadinIcon.DATABASE, "/new-storage"),
                 createNavItem("Contacto", VaadinIcon.PHONE, "/contact"),
                 createNavItem("Sobre nosotros", VaadinIcon.INFO_CIRCLE, "/about-us"),
-                createNavItem("Cambiar idioma", VaadinIcon.GLOBE, "/lang"),
                 createNavItem("Log Out", VaadinIcon.SIGN_OUT, "/logout")
         );
         return nav;
@@ -176,7 +210,7 @@ public class LateralBar extends AppLayout {
 
     private SideNavItem createNavItem(String label, VaadinIcon icon, String url) {
         SideNavItem item = new SideNavItem(label, url);
-        item.setPrefixComponent(new Icon(icon));
+        item.setPrefixComponent(icon.create());
         item.getElement().setAttribute("class", "nav-item");
         item.getElement().setAttribute("title", label);
         item.setLabel(label);
