@@ -85,7 +85,7 @@ public class MapBuild {
 
         service.getZoneMarkers().clear();
         service.getZoneMarkerPoints().clear();
-        c.setZone(zona);
+        if (c != null) {c.setZone(zona);}
     }
 
     public void editZone(Zone zone) {
@@ -114,13 +114,13 @@ public class MapBuild {
             pointsID.add(routePoint.pushToServer());
         }
 
-        c.setPoints(routePoints);
+        if (c != null) {c.setPoints(routePoints);}
 
         Route ruta = this.service.createRoute(service.getTempRouteDTO(), service.getRoutePoint());
         ruta.setPointsID(pointsID);
         int tempID = ruta.pushToServer();
 
-        c.setRoute(ruta);
+        if (c != null) {c.setRoute(ruta);}
 
         service.getRoutes().stream().filter(r -> r.getID() == service.getTempRouteDTO().getID()).findFirst().ifPresent(r -> {
             service.getRoutes().remove(r);
@@ -139,7 +139,7 @@ public class MapBuild {
 
     public void endStorageConstruction(){
         Storage storage = service.createStorage(service.getTempStorageDTO());
-        service.getTempStorageCommand().setStorage(storage);
+         if (service.getTempStorageCommand() != null ) {service.getTempStorageCommand().setStorage(storage);}
         int tempId = storage.pushToServer();
         storage.setID(tempId);
         service.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
@@ -204,6 +204,9 @@ public class MapBuild {
             String clickFuncReferenceEditStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
             storage.getMarkerObj().off("click", clickFuncReferenceEditStorage);
         }
+
+        Notification notification = new Notification("Edición realizada exitosamente", 3000);
+        notification.open();
     }
 
     public void startDelete() {

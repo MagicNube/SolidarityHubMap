@@ -3,6 +3,7 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.
 import com.vaadin.flow.component.notification.Notification;
 import lombok.Getter;
 import lombok.Setter;
+import org.pingu.domain.DTO.StorageDTO;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapActions;
 import org.pinguweb.frontend.mapObjects.*;
@@ -26,9 +27,8 @@ public class DeleteCommand implements Command {
     @Override
     public void execute() {
         buttonReceiver.toggleDelete(this);
-        buttonReceiver.addExecutedCommand(this);
+        //buttonReceiver.addExecutedCommand(this);
         buttonReceiver.getService().setTempDeleteCommand(null);
-
         Notification notification = new Notification("Elemento eliminado exitosamente", 3000);
         notification.open();
     }
@@ -36,13 +36,18 @@ public class DeleteCommand implements Command {
     @Override
     public void undo() {
         if(element instanceof Route){
-            buttonReceiver.getService().createRoute(((Route) element).toDto(), points);
+            buttonReceiver.getService().setTempRouteDTO(((Route) element).toDto());
+            buttonReceiver.getService().setRoutePoint(points);
+            buttonReceiver.getBuild().endRouteConstruction(null);
         }
         else if(element instanceof Zone){
-            buttonReceiver.getService().createZone(((Zone) element).toDto());
+            buttonReceiver.getService().setTempZoneDTO(((Zone) element).toDto());
+            buttonReceiver.getBuild().endZoneConstruction(null);
         }
         else if(element instanceof Storage){
-            buttonReceiver.getService().createStorage(((Storage) element).toDto());
+            buttonReceiver.getService().setTempStorageDTO(((Storage) element).toDto());
+            buttonReceiver.getService().setTempStorageCommand(null);
+            buttonReceiver.getBuild().endStorageConstruction();
         }
 
         Notification notification = new Notification("Borrado deshecho exitosamente", 3000);
@@ -60,8 +65,5 @@ public class DeleteCommand implements Command {
         else if(element instanceof Storage){
             buttonReceiver.deleteStorage((Storage) element);
         }
-
-        Notification notification = new Notification("Elemento eliminado exitosamente", 3000);
-        notification.open();
     }
 }

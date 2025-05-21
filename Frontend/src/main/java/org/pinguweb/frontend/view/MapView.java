@@ -142,13 +142,6 @@ public class MapView extends HorizontalLayout implements Observer {
         controller.getTempRouteDTO().getPoints().add(routePoint.getID());
 
         controller.getRoutePoint().add(routePoint);
-
-
-        /*if (routePoints.size() > 1) {
-            ruta.setEnabled(true);
-        }*/
-
-
     }
 
     @ClientCallable

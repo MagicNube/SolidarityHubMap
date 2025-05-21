@@ -22,10 +22,7 @@ public class EditCommand implements Command {
     @Override
     public void execute() {
         buttonReceiver.toggleEdit(this);
-        buttonReceiver.addExecutedCommand(this);
-
-        Notification notification = new Notification("Edición realizada exitosamente", 3000);
-        notification.open();
+        //buttonReceiver.addExecutedCommand(this);
     }
 
     @Override
