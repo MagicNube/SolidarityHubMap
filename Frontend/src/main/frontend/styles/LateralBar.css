@@ -28,13 +28,6 @@ vaadin-app-layout::part(content) {
     height: 40px;
 }
 
-.language-selector {
-    margin-right: 1.5rem;
-    max-width: 120px;
-    min-width: 120px;
-    --lumo-font-size-s: 14px;
-}
-
 /* Ajuste para el contenido principal con la barra superior */
 vaadin-app-layout::part(navbar) {
     min-height: 40px;
@@ -198,14 +191,29 @@ vaadin-app-layout::part(content) {
     transform var(--transition-duration) var(--transition-easing);
 }
 
+.drawer-minimized .drawer-footer {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    justify-content: center !important;
+}
+
 /* Footer */
 .drawer-footer {
+    padding: 0px 16px;
     padding: var(--lumo-space-s) var(--lumo-space-m);
     border-top: 1px solid var(--lumo-contrast-10pct);
     color: var(--lumo-tertiary-text-color);
     font-size: var(--lumo-font-size-xs);
     display: flex;
     justify-content: center;
+}
+
+.drawer-minimized {
+    overflow-x: hidden !important;
+}
+
+.drawer-minimized .drawer-footer {
+    overflow-x: hidden !important;
 }
 
 .version-info {

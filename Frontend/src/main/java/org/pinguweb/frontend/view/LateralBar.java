@@ -24,6 +24,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import org.pingu.domain.DTO.CatastropheDTO;
 
+import java.util.Locale;
+
 @Route("bar")
 @CssImport("./styles/LateralBar.css")
 public class LateralBar extends AppLayout {
@@ -36,7 +38,6 @@ public class LateralBar extends AppLayout {
     private Button minimizeButton;
     private Div selectedCatastropheInfo;
     private Select<String> languageSelect;
-    // 1) pasamos footerLayout a campo de clase
     private HorizontalLayout footerLayout;
 
     public LateralBar() {
@@ -49,7 +50,7 @@ public class LateralBar extends AppLayout {
     private void addDrawerContent() {
         drawerContent = new VerticalLayout();
         drawerContent.setPadding(false);
-        drawerContent.setSpacing(false);
+        drawerContent.setSpacing(true);
         drawerContent.setSizeFull();
         drawerContent.getElement().setAttribute("class", "drawer-content");
 
@@ -83,30 +84,46 @@ public class LateralBar extends AppLayout {
 
         languageSelect = new Select<>();
         languageSelect.setItems("Castellano", "Valencià", "English");
-        languageSelect.setValue("Castellano");
+
+
+        if (VaadinSession.getCurrent().getLocale().equals(new Locale("val", "ES"))) {
+            languageSelect.setValue("Valencià");
+        } else if (VaadinSession.getCurrent().getLocale().equals(Locale.ENGLISH)) {
+            languageSelect.setValue("English");
+        } else {
+            languageSelect.setValue("Castellano");
+        }
+
+        languageSelect.setWidth("150px");
         languageSelect.getElement().setAttribute("class", "language-select");
         languageSelect.addValueChangeListener(e -> {
-            VaadinSession.getCurrent().setAttribute("locale", e.getValue());
+            Locale selectedLocale = switch (e.getValue()) {
+                case "Valencià" -> new Locale("val", "ES");
+                case "English" -> Locale.ENGLISH;
+                default -> new Locale("es", "ES");
+            };
+            VaadinSession.getCurrent().setLocale(selectedLocale);
             UI.getCurrent().getPage().reload();
         });
+
 
         minimizeButton = new Button(VaadinIcon.ANGLE_DOUBLE_LEFT.create());
         minimizeButton.getElement().setAttribute("class", "minimize-button");
         minimizeButton.addClickListener(e -> toggleDrawerMinimized());
-
+        minimizeButton.getStyle().set("margin-right", "25px");
         Footer footer = new Footer();
         footer.setWidthFull();
         footer.getElement().setAttribute("class", "drawer-footer");
 
-        // 2) creamos footerLayout como campo
-        footerLayout = new HorizontalLayout(minimizeButton);
+        footerLayout = new HorizontalLayout(languageSelect, minimizeButton);
+        footerLayout.setSpacing(true);
         footerLayout.setWidthFull();
-        footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         footerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         footer.add(footerLayout);
 
-        drawerContent.add(header, selectedCatastropheInfo, scroller, languageSelect, footer);
+        drawerContent.add(header, selectedCatastropheInfo, scroller, footer);
         addToDrawer(drawerContent);
     }
 
@@ -127,14 +144,14 @@ public class LateralBar extends AppLayout {
             catastropheName.addClassName("selected-catastrophe-name");
             Button changeButton = new Button("Cambiar", VaadinIcon.EXCHANGE.create());
             changeButton.addClassName("change-catastrophe-button");
-            changeButton.addClickListener(e -> UI.getCurrent().navigate("/catastrofes"));
+            changeButton.addClickListener(e -> UI.getCurrent().getPage().setLocation("http://localhost:8083/catastrophes"));
             infoLayout.add(title, catastropheName, changeButton);
             selectedCatastropheInfo.add(infoLayout);
             selectedCatastropheInfo.setVisible(true);
         } else {
             Button selectButton = new Button("Seleccionar catástrofe", VaadinIcon.PLUS.create());
-            selectButton.addClassName("select-catastrophe-button");
-            selectButton.addClickListener(e -> UI.getCurrent().navigate("/catastrofes"));
+            selectButton.addClassName("select-catástrofe-button");
+            selectButton.addClickListener(e -> UI.getCurrent().getPage().setLocation("http://localhost:8083/catastrophes"));
             selectedCatastropheInfo.add(new H4("No hay catástrofe seleccionada"), selectButton);
             selectedCatastropheInfo.setVisible(true);
         }
@@ -152,11 +169,12 @@ public class LateralBar extends AppLayout {
             appName.setVisible(false);
             selectedCatastropheInfo.setVisible(false);
             languageSelect.setVisible(false);
+
             UI.getCurrent().access(() -> sideNav.getItems().forEach(item -> item.setLabel("")));
             minimizeButton.setIcon(VaadinIcon.ANGLE_DOUBLE_RIGHT.create());
-            // 3) al minimizar centramos
-            footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
+            minimizeButton.getElement().getStyle().set("margin-right", "0px");
+            footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         } else {
             drawerContent.getElement().setAttribute("class", "drawer-content");
             getElement().executeJs(
@@ -169,18 +187,20 @@ public class LateralBar extends AppLayout {
             languageSelect.setVisible(true);
             updateNavigationTexts();
             minimizeButton.setIcon(VaadinIcon.ANGLE_DOUBLE_LEFT.create());
-            // volvemos a alineación a la derecha
-            footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+
+            minimizeButton.getElement().getStyle().set("margin-right", "25px");
+            footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         }
         UI.getCurrent().getPage().executeJs(
                 "setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 100);"
         );
     }
 
+
+
     private void updateNavigationTexts() {
-        String[] labels = {"Inicio",
-                "Tareas", "Mapa", "Dashboard", "Recursos",
-                "Crear recurso", "Crear donación", "Crear almacén",
+        String[] labels = {"Inicio", "Tareas", "Mapa", "Dashboard", "Recursos",
+                "Crear recurso", "Crear donación", "Crear almacén", "Encuestas",
                 "Contacto", "Sobre nosotros", "Log Out"
         };
         int i = 0;
@@ -189,21 +209,24 @@ public class LateralBar extends AppLayout {
         }
     }
 
+
+    //TODO Probar rutas con grupo cohesionado
     public SideNav createNavigation() {
         SideNav nav = new SideNav();
         nav.getElement().setAttribute("class", "side-nav");
         nav.addItem(
-                createNavItem("Inicio", VaadinIcon.HOME, "/inicio"),
-                createNavItem("Tareas", VaadinIcon.TASKS, "/tasks"),
-                createNavItem("Mapa", VaadinIcon.MAP_MARKER, "/map"),
-                createNavItem("Dashboard", VaadinIcon.DASHBOARD, "/dashboard"),
-                createNavItem("Recursos", VaadinIcon.TOOLBOX, "/resources"),
-                createNavItem("Crear recurso", VaadinIcon.PLUS_CIRCLE, "/"),
-                createNavItem("Crear donación", VaadinIcon.MONEY, "/"),
-                createNavItem("Crear almacén", VaadinIcon.DATABASE, "/new-storage"),
-                createNavItem("Contacto", VaadinIcon.PHONE, "/contact"),
-                createNavItem("Sobre nosotros", VaadinIcon.INFO_CIRCLE, "/about-us"),
-                createNavItem("Log Out", VaadinIcon.SIGN_OUT, "/logout")
+                createNavItem("Inicio", VaadinIcon.HOME, "http://localhost:8083/home"),
+                createNavItem("Tareas", VaadinIcon.TASKS, "http://localhost:8083/tasks"),
+                createNavItem("Mapa", VaadinIcon.MAP_MARKER, "http://localhost:8080/map"),
+                createNavItem("Dashboard", VaadinIcon.DASHBOARD, "http://localhost:8080/dashboard"),
+                createNavItem("Recursos", VaadinIcon.TOOLBOX, "http://localhost:8083/resources"),
+                createNavItem("Crear recurso", VaadinIcon.PLUS_CIRCLE, "http://localhost:8080/new-resource"),
+                createNavItem("Crear donación", VaadinIcon.MONEY, "http://localhost:8080/new-donation"),
+                createNavItem("Crear almacén", VaadinIcon.DATABASE, "http://localhost:8080/new-storage"),
+                createNavItem("Encuestas", VaadinIcon.CLIPBOARD_CHECK, "http://localhost:8080/surveys"),
+                createNavItem("Contacto", VaadinIcon.PHONE, "http://localhost:8080/contact"),
+                createNavItem("Sobre nosotros", VaadinIcon.INFO_CIRCLE, "http://localhost:8080/about-us"),
+                createNavItem("Log Out", VaadinIcon.SIGN_OUT, "http://localhost:8080/logout")
         );
         return nav;
     }

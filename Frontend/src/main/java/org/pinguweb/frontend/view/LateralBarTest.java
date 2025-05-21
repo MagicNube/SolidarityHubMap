@@ -85,6 +85,7 @@ public class LateralBarTest extends AppLayout {
         languageSelect.setValue("Castellano");
         languageSelect.getElement().setAttribute("class", "language-select");
         languageSelect.addValueChangeListener(e -> {
+            languageSelect.setValue(e.getValue());
             VaadinSession.getCurrent().setAttribute("locale", e.getValue());
             UI.getCurrent().getPage().reload();
         });
@@ -112,31 +113,47 @@ public class LateralBarTest extends AppLayout {
     private void updateSelectedCatastropheInfo() {
         CatastropheDTO selectedCatastrophe = (CatastropheDTO) VaadinSession.getCurrent().getAttribute("selectedCatastrophe");
         selectedCatastropheInfo.removeAll();
+
         if (minimized) {
             selectedCatastropheInfo.setVisible(false);
             return;
         }
+
+        VerticalLayout container = new VerticalLayout();
+        container.setPadding(false);
+        container.setSpacing(true);
+        container.setWidthFull();
+        container.getStyle().set("padding-left", "10px");
+        container.getStyle().set("padding-right", "10px");
+
+        H4 title = new H4("Catástrofe seleccionada");
+        title.getStyle().set("margin-bottom", "5px");
+        title.addClassName("selected-catastrophe-title");
+
         if (selectedCatastrophe != null) {
-            VerticalLayout infoLayout = new VerticalLayout();
-            infoLayout.setSpacing(false);
-            infoLayout.setPadding(false);
-            H4 title = new H4("Catástrofe seleccionada:");
-            title.addClassName("selected-catastrophe-title");
-            Paragraph catastropheName = new Paragraph(selectedCatastrophe.getName());
-            catastropheName.addClassName("selected-catastrophe-name");
+            Paragraph name = new Paragraph(selectedCatastrophe.getName());
+            name.addClassName("selected-catastrophe-name");
+
             Button changeButton = new Button("Cambiar", VaadinIcon.EXCHANGE.create());
             changeButton.addClassName("change-catastrophe-button");
-            changeButton.addClickListener(e -> UI.getCurrent().navigate("/catastrofes"));
-            infoLayout.add(title, catastropheName, changeButton);
-            selectedCatastropheInfo.add(infoLayout);
-            selectedCatastropheInfo.setVisible(true);
+            changeButton.getStyle().set("margin-top", "5px");
+            changeButton.addClickListener(e -> UI.getCurrent().navigate("http://localhost:8083/localhost"));
+
+            container.add(title, name, changeButton);
         } else {
+            Paragraph noCatastrophe = new Paragraph("No hay catástrofe seleccionada");
+            noCatastrophe.addClassName("no-catastrophe-text");
+
             Button selectButton = new Button("Seleccionar catástrofe", VaadinIcon.PLUS.create());
             selectButton.addClassName("select-catástrofe-button");
-            selectButton.addClickListener(e -> UI.getCurrent().navigate("/catastrofes"));
-            selectedCatastropheInfo.add(new H4("No hay catástrofe seleccionada"), selectButton);
-            selectedCatastropheInfo.setVisible(true);
+            selectButton.getStyle().set("margin-top", "5px");
+            selectButton.addClickListener(e -> UI.getCurrent().navigate("http://localhost:8083/localhost"));
+
+            container.add(title, noCatastrophe, selectButton);
         }
+
+        selectedCatastropheInfo.add(container);
+        selectedCatastropheInfo.setVisible(true);
     }
 
     private void toggleDrawerMinimized() {
@@ -166,7 +183,7 @@ public class LateralBarTest extends AppLayout {
             languageSelect.setVisible(true);
             updateNavigationTexts();
             minimizeButton.setIcon(VaadinIcon.ANGLE_DOUBLE_LEFT.create());
-            minimizeButton.getElement().getStyle().set("margin-right", "20px");
+            minimizeButton.getElement().getStyle().set("margin-right", "30px");
             footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         }
         UI.getCurrent().getPage().executeJs(
@@ -176,7 +193,7 @@ public class LateralBarTest extends AppLayout {
 
     private void updateNavigationTexts() {
         String[] labels = {"Inicio", "Tareas", "Mapa", "Dashboard", "Recursos",
-                "Crear recurso", "Crear donación", "Crear almacén",
+                "Crear recurso", "Crear donación", "Crear almacén", "Encuestas",
                 "Contacto", "Sobre nosotros", "Log Out"
         };
         int i = 0;
@@ -185,21 +202,24 @@ public class LateralBarTest extends AppLayout {
         }
     }
 
+
+    //TODO Probar rutas con grupo cohesionado
     public SideNav createNavigation() {
         SideNav nav = new SideNav();
         nav.getElement().setAttribute("class", "side-nav");
         nav.addItem(
-                createNavItem("Inicio", VaadinIcon.HOME, "/inicio"),
-                createNavItem("Tareas", VaadinIcon.TASKS, "/tasks"),
-                createNavItem("Mapa", VaadinIcon.MAP_MARKER, "/map"),
-                createNavItem("Dashboard", VaadinIcon.DASHBOARD, "/dashboard"),
-                createNavItem("Recursos", VaadinIcon.TOOLBOX, "/resources"),
-                createNavItem("Crear recurso", VaadinIcon.PLUS_CIRCLE, "/"),
-                createNavItem("Crear donación", VaadinIcon.MONEY, "/"),
-                createNavItem("Crear almacén", VaadinIcon.DATABASE, "/new-storage"),
-                createNavItem("Contacto", VaadinIcon.PHONE, "/contact"),
-                createNavItem("Sobre nosotros", VaadinIcon.INFO_CIRCLE, "/about-us"),
-                createNavItem("Log Out", VaadinIcon.SIGN_OUT, "/logout")
+                createNavItem("Inicio", VaadinIcon.HOME, "http://localhost:8083/home"),
+                createNavItem("Tareas", VaadinIcon.TASKS, "http://localhost:8083/tasks"),
+                createNavItem("Mapa", VaadinIcon.MAP_MARKER, "http://localhost:8080/map"),
+                createNavItem("Dashboard", VaadinIcon.DASHBOARD, "http://localhost:8080/dashboard"),
+                createNavItem("Recursos", VaadinIcon.TOOLBOX, "http://localhost:8083/resources"),
+                createNavItem("Crear recurso", VaadinIcon.PLUS_CIRCLE, "http://localhost:8080/new-resource"),
+                createNavItem("Crear donación", VaadinIcon.MONEY, "http://localhost:8080/new-donation"),
+                createNavItem("Crear almacén", VaadinIcon.DATABASE, "http://localhost:8080/new-storage"),
+                createNavItem("Encuestas", VaadinIcon.CLIPBOARD_CHECK, "http://localhost:8080/surveys"),
+                createNavItem("Contacto", VaadinIcon.PHONE, "http://localhost:8080/contact"),
+                createNavItem("Sobre nosotros", VaadinIcon.INFO_CIRCLE, "http://localhost:8080/about-us"),
+                createNavItem("Log Out", VaadinIcon.SIGN_OUT, "http://localhost:8080/logout")
         );
         return nav;
     }
