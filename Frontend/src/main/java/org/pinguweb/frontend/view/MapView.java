@@ -2,26 +2,25 @@ package org.pinguweb.frontend.view;
 
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.pingu.web.BackendObservableService.BackendObservableService;
 import org.pingu.web.BackendObservableService.observableList.Observer;
 import org.pingu.web.BackendObservableService.observableList.ObserverChange;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapDialogs;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
-import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
-import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.pinguweb.frontend.services.BackendDTOService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.pinguweb.frontend.utils.Mediador.Colleague;
+import org.pinguweb.frontend.utils.Mediador.Event;
+import org.pinguweb.frontend.utils.Mediador.Mediator;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
@@ -34,13 +33,16 @@ import java.util.Objects;
 @Slf4j
 @Route("map")
 @PageTitle("Visor del mapa")
-public class MapView extends HorizontalLayout implements Observer {
+public class MapView extends HorizontalLayout implements Observer, Colleague {
 
     @Getter
     private static String mapId = "MapView";
-    @Autowired
-    private static MapService controller;
-    private static MapDialogs mapDialogs;
+
+    @Setter
+    private Map map;
+    @Setter
+    private Mediator mediator;
+
     UI ui;
 
     public MapView() {
@@ -55,65 +57,33 @@ public class MapView extends HorizontalLayout implements Observer {
         BackendDTOService.GetInstancia().getCatastropheList().attach(this, ObserverChange.ADD_ALL);
 
         MapBuilderDirector director = new MapBuilderDirector();
-        this.add(director.createFullMap());
-        this.generateLayers();
+        this.add(director.createFullMap(this));
 
         this.ui = UI.getCurrent();
         if (ui == null) {
             log.warn("UI is null, cannot update UI components.");
         }
 
-        controller.load();
+        register();
+    }
+
+
+    @Override
+    public void register() {
+
+    }
+
+    @Override
+    public <T> void receive(Event<T> event) {
+
     }
 
     @Override
     public void update(ObserverChange change) {
-        ui.access(() -> controller.load());
+        ui.access(() -> this.mediator.publish(new LoadEvent<>()));
         log.info("Mapa actualizado");
     }
 
-    private void generateLayers() {
-        controller.setLLayerGroupNeeds(new LLayerGroup(controller.getReg()));
-        controller.setLLayerGroupZones(new LLayerGroup(controller.getReg()));
-        controller.setLLayerGroupRoutes(new LLayerGroup(controller.getReg()));
-        controller.setLLayerGroupStorages(new LLayerGroup(controller.getReg()));
-        addControls(
-                controller.getLLayerGroupZones(),
-                controller.getLLayerGroupNeeds(),
-                controller.getLLayerGroupRoutes(),
-                controller.getLLayerGroupStorages()
-        );
-    }
-
-    public void addControls(
-            final LLayerGroup lLayerGroupZones,
-            final LLayerGroup lLayerGroupNeeds,
-            final LLayerGroup lLayerGroupRoutes,
-            final LLayerGroup lLayerGroupStorages
-    ) {
-        // Use LinkedHashMap for order
-        final LinkedHashMap<String, LLayer<?>> baseLayers = new LinkedHashMap<>();
-        final LControlLayers lControlLayers = new LControlLayers(
-                controller.getReg(),
-                baseLayers,
-                new LControlLayersOptions().withCollapsed(true))
-                .addOverlay(lLayerGroupNeeds, "Necesidades")
-                .addOverlay(lLayerGroupZones, "Zonas")
-                .addOverlay(lLayerGroupRoutes, "Rutas")
-                .addOverlay(lLayerGroupStorages, "Almacenes")
-                .addTo(controller.getMap());
-
-        controller.getMap().addControl(lControlLayers);
-        controller.getMap().addLayer(lLayerGroupZones).addLayer(lLayerGroupNeeds).addLayer(lLayerGroupRoutes).addLayer(lLayerGroupStorages);
-    }
-
-    public static void setMapService(MapService controller) {
-        MapView.controller = controller;
-    }
-
-    public static void setMapDialogs(MapDialogs mapDialogs) {
-        MapView.mapDialogs = mapDialogs;
-    }
 
     @ClientCallable
     public void mapZona(final JsonValue input) {

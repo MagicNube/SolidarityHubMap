@@ -3,42 +3,47 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.
 import com.vaadin.flow.component.notification.Notification;
 import lombok.Setter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapActions;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.DialogsNames;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.DeleteEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
+import org.pinguweb.frontend.utils.Mediador.EventType;
 
 import java.util.List;
 
-public class CreateRouteCommand implements Command {
-    MapActions buttonReceiver;
+public class CreateRouteCommand implements Command{
+    MapButtons buttonController;
 
     @Setter
     Route route;
 
     @Setter
     List<RoutePoint> points;
-    public CreateRouteCommand(MapActions receiver){
-        buttonReceiver = receiver;
+    public CreateRouteCommand(MapButtons receiver){
+        buttonController = receiver;
     }
 
     @Override
     public void execute() {
-        buttonReceiver.toggleRouteCreation(this);
-        buttonReceiver.addExecutedCommand(this);
+        buttonController.getMediator().publish(new ShowEvent<>(EventType.SHOW, DialogsNames.ROUTE));
+//        buttonController.toggleRouteCreation(this);
+        buttonController.addExecutedCommand(this);
     }
 
     @Override
     public void undo() {
-        buttonReceiver.deleteRoute(this.route);
+        buttonController.getMediator().publish(new DeleteEvent<>(this.route, this));
+//        buttonReceiver.deleteRoute(this.route);
         Notification notification = new Notification("Creación de la ruta deshecha", 3000);
         notification.open();
     }
 
     @Override
     public void redo() {
-        buttonReceiver.getService().setTempRouteDTO(route.toDto());
-        buttonReceiver.getService().setRoutePoint(points);
-        buttonReceiver.getBuild().endRouteConstruction(this);
+        buttonController.getMediator().publish(new CreationEvent<>(EventType.BUILD, route, this, points));
         Notification notification = new Notification("Ruta creada exitosamente", 3000);
         notification.open();
     }

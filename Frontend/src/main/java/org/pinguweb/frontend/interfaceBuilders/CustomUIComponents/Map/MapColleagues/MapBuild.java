@@ -1,4 +1,4 @@
-package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
@@ -9,30 +9,54 @@ import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.*;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.mapObjects.*;
+import org.pinguweb.frontend.utils.Mediador.Colleague;
+import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
+import org.pinguweb.frontend.utils.Mediador.Event;
+import org.pinguweb.frontend.utils.Mediador.EventType;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
 @Setter
 @Getter
-public class MapBuild {
+public class MapBuild extends ComponentColleague {
 
-    MapService service;
+    //MapService service;
 
     private String clickFuncReferenceCreateZone;
     private String clickFuncReferenceCreateRoute;
 
-    public MapBuild(MapService service) {
-        this.service = service;
+    public MapBuild(Map map) {
+        super(map);
         clickFuncReferenceCreateZone = service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone";
         clickFuncReferenceCreateRoute = service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute";
     }
 
-    public void createStorage(StorageDTO storageDTO, MapButtons mapButtons, CreateStorageCommand c) {
-        this.service.setTempStorageDTO(storageDTO);
-        this.service.setTempStorageCommand(c);
+    @Override
+    public void register() {
+        mediator.subscribe(EventType.BUILD, (Colleague) this);
+    }
+
+    @Override
+    public <T> void receive(Event<T> event) {
+        if (event.getPayload() instanceof StorageDTO){
+            createStorage((StorageDTO) event.getPayload(), (CreateStorageCommand) event.getCommand());
+        }
+        else if (event.getPayload() instanceof ZoneDTO){
+            createZone((ZoneDTO) event.getPayload(), (CreateZoneCommand) event.getCommand());
+        }
+        else if (event.getPayload() instanceof RouteDTO){
+            createRoute((RouteDTO) event.getPayload(), ((CreationEvent<T>) event).getExtraData(), (CreateRouteCommand) event.getCommand());
+        }
+
+    }
+
+    public void createStorage(StorageDTO storageDTO, CreateStorageCommand c) {
         service.setClickFuncReferenceCreateStorage(service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateNeed");
         service.getReg().execJs(service.getClickFuncReferenceCreateStorage() + "=e => document.getElementById('" + service.getID() + "').$server.mapStorage(e.latlng)");
         service.getMap().on("click", service.getClickFuncReferenceCreateStorage());
@@ -62,6 +86,43 @@ public class MapBuild {
         }).start();
     }
 
+    private Storage createStorage(StorageDTO storage) {
+        double lat = storage.getLatitude();
+        double lng = storage.getLongitude();
+        Storage storageObj = (Storage) storageFactory.createMapObject(this.map.getReg(), lat, lng);
+        storageObj.setID(storage.getID());
+        storageObj.setName(storage.getName() != null ? storage.getName() : "Sin nombre");
+        storageObj.setFull(storage.isFull());
+        storageObj.setLatitude(storage.getLatitude());
+        storageObj.setLongitude(storage.getLongitude());
+        storageObj.setZoneID(storage.getZone() != null ? storage.getZone() : -1);
+        storageObj.addToMap(this.map.getMap());
+        storageObj.getMarkerObj().bindPopup("Almacen: " + storage.getName());
+
+        storages.add(storageObj);
+        lLayerGroupStorages.addLayer(storageObj.getMarkerObj());
+        this.map.getMap().addLayer(lLayerGroupStorages);
+        return storageObj;
+    }
+
+    public void endStorageConstruction(){
+        Storage storage = service.createStorage(service.getTempStorageDTO());
+        if (service.getTempStorageCommand() != null ) {service.getTempStorageCommand().setStorage(storage);}
+        int tempId = storage.pushToServer();
+        storage.setID(tempId);
+        service.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
+            service.getStorages().remove(s);
+        });
+        System.out.println(service.getStorages());
+        synchronized (service.getLock()) {
+            service.getLock().notify();
+        }
+        service.getMap().off("click", service.getClickFuncReferenceCreateStorage());
+
+        Notification notification = new Notification("Almacén creado exitosamente", 3000);
+        notification.open();
+    }
+
     public void startZoneConstruction(ZoneDTO zoneDTO) {
         service.setTempZoneDTO(zoneDTO);
         log.debug("Registrando puntos para la zona");
@@ -69,10 +130,10 @@ public class MapBuild {
         service.getMap().on("click", clickFuncReferenceCreateZone);
     }
 
-    public void endZoneConstruction(CreateZoneCommand c) {
+    public void createZone(ZoneDTO zone, CreateZoneCommand c) {
         service.getMap().off("click", clickFuncReferenceCreateZone);
         log.debug("Zona terminada");
-        Zone zona = this.service.createZone(service.getTempZoneDTO());
+        Zone zona = this.service.createZone(zone);
 
         int newID = zona.pushToServer();
         service.getZones().stream().filter(z -> z.getID() == service.getTempZoneDTO().getID()).findFirst().ifPresent(z -> {
@@ -105,10 +166,10 @@ public class MapBuild {
         service.getMap().on("click", clickFuncReferenceCreateRoute);
     }
 
-    public void endRouteConstruction(CreateRouteCommand c) {
+    public void createRoute(RouteDTO route, List<RoutePoint> points, CreateRouteCommand c) {
         service.getMap().off("click", clickFuncReferenceCreateRoute);
         log.debug("Ruta terminada");
-        ArrayList<RoutePoint> routePoints = new ArrayList<>(service.getRoutePoint());
+        ArrayList<RoutePoint> routePoints = points;
         ArrayList<Integer> pointsID = new ArrayList<>();
         for (RoutePoint routePoint : routePoints) {
             pointsID.add(routePoint.pushToServer());
@@ -135,24 +196,6 @@ public class MapBuild {
         }
 
         service.getRoutePoint().clear();
-    }
-
-    public void endStorageConstruction(){
-        Storage storage = service.createStorage(service.getTempStorageDTO());
-         if (service.getTempStorageCommand() != null ) {service.getTempStorageCommand().setStorage(storage);}
-        int tempId = storage.pushToServer();
-        storage.setID(tempId);
-        service.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
-            service.getStorages().remove(s);
-        });
-        System.out.println(service.getStorages());
-        synchronized (service.getLock()) {
-            service.getLock().notify();
-        }
-        service.getMap().off("click", service.getClickFuncReferenceCreateStorage());
-
-        Notification notification = new Notification("Almacén creado exitosamente", 3000);
-        notification.open();
     }
 
 
@@ -257,4 +300,5 @@ public class MapBuild {
         });
         service.updateStorage(storage);
     }
+
 }

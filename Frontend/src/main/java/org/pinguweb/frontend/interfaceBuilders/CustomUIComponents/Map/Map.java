@@ -1,41 +1,67 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.pingu.persistence.model.GPSCoordinates;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapButtons;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapState;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapService;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapState;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
+import org.pinguweb.frontend.mapObjects.*;
+import org.pinguweb.frontend.utils.Mediador.Colleague;
+import org.pinguweb.frontend.utils.Mediador.Event;
+import org.pinguweb.frontend.utils.Mediador.EventType;
+import org.pinguweb.frontend.utils.Mediador.Mediator;
 import org.pinguweb.frontend.view.MapView;
+import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.MapContainer;
 import software.xdev.vaadin.maps.leaflet.layer.LLayer;
+import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 import software.xdev.vaadin.maps.leaflet.layer.raster.LTileLayer;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+
 @Getter
 @SuperBuilder
-public class Map extends InterfaceComponent {
-
-    protected final GPSCoordinates startingPosition;
+public class Map extends InterfaceComponent implements Mediator {
+    private final List<Tuple<Colleague, EventType>> suscribers = new ArrayList<>();
 
     private LDefaultComponentManagementRegistry reg;
     private LMap map;
-    private VerticalLayout component;
+
     private MapService service;
 
     @Setter
     private MapState state;
 
-    @Override
-    public final Component getComponent() {
-        return component;
-    }
+    @Getter
+    private VerticalLayout component;
+
+    private HashSet<Storage> storages = new HashSet<>();
+    private HashSet<Need> needs = new HashSet<>();
+    private HashSet<Zone> zones = new HashSet<>();
+    private HashSet<Route> routes = new HashSet<>();
+    private HashMap<Integer, List<RoutePoint>> routePoints = new HashMap<>();
+
+    @Setter
+    private LLayerGroup lLayerGroupZones;
+    @Setter
+    private LLayerGroup lLayerGroupNeeds;
+    @Setter
+    private LLayerGroup lLayerGroupRoutes;
+    @Setter
+    private LLayerGroup lLayerGroupStorages;
+
 
     public void loadView() {
         this.component = new VerticalLayout();
@@ -51,21 +77,25 @@ public class Map extends InterfaceComponent {
 
         this.map.locate(new LMapLocateOptions().withSetView(true).withMaxZoom(16));
 
-        this.service = new MapService();
-        this.service.setReg(reg);
-        this.service.setMap(map);
+        this.service = new MapService(this);
         this.service.setID(MapView.getMapId());
-        MapView.setMapService(this.service);
 
         component.add(mapContainer);
-        component.add(new MapButtons(this.service, this).generateButtonRow());
+        component.add(new MapButtons(this).generateButtonRow());
 
+        state = MapState.IDLE;
+        publish(new LoadEvent<>());
+        publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS, null));
     }
 
+    @Override
+    public void subscribe(EventType eventType, Colleague colleague) {
+        suscribers.add(new Tuple<>(colleague, eventType));
+    }
 
-
-
-
-
-
+    @Override
+    public <T> void publish(Event<T> event) {
+        suscribers.stream().filter(x -> x._2() == event.getType())
+                            .forEach(x -> x._1().receive(event));
+    }
 }

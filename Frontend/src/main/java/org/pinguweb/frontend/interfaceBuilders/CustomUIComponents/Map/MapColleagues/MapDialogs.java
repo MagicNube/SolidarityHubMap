@@ -1,4 +1,4 @@
-package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -11,7 +11,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
-import lombok.Getter;
 import org.pingu.domain.DTO.CatastropheDTO;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.StorageDTO;
@@ -22,10 +21,12 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.services.BackendDTOService;
+import org.pinguweb.frontend.utils.Mediador.Colleague;
 import org.pinguweb.frontend.view.MapView;
 
 import java.util.ArrayList;
@@ -34,16 +35,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MapDialogs {
+public class MapDialogs extends Colleague {
 
-    private final MapService service;
-    @Getter
-    private final MapBuild mapBuild;
-    private final MapButtons mapButtons;
+//    private final MapService service;
+//    @Getter
+//    private final MapBuild mapBuild;
+//    private final MapButtons mapButtons;
 
     private final BackendDTOService backendService = BackendDTOService.GetInstancia();
 
-    public MapDialogs(MapService service, MapButtons mapButtons) {
+    public MapDialogs(Map map) {
+        super(map);
         this.service = service;
         this.mapButtons = mapButtons;
         this.mapBuild = new MapBuild(service);
