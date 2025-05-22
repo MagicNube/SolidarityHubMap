@@ -31,7 +31,7 @@ public class Route extends MapObject{
     private String name;
     private String routeType;
     private int catastrophe;
-    private ArrayList<Integer> pointsID;
+    private List<Integer> pointsID;
 
     public Route(){
         this.points = new ArrayList<>();

@@ -35,9 +35,12 @@ public class MapButtons extends ComponentColleague {
     @Getter
     private final LinkedList<Command> comandosDeshechos = new LinkedList<>();
 
+    private Map map;
+
     public MapButtons(Map map) {
         super(map);
 
+        this.map = map;
         zone.setCommand(new CreateZoneCommand(this));
         route.setCommand(new CreateRouteCommand(this));
         storage.setCommand(new CreateStorageCommand(this));
@@ -54,6 +57,7 @@ public class MapButtons extends ComponentColleague {
     public void register() {
         mediator.subscribe(EventType.ENABLE_BUTTONS, (Colleague) this);
         mediator.subscribe(EventType.DISABLE_BUTTONS, (Colleague) this);
+        mediator.subscribe(EventType.CANCEL_CREATE, (Colleague) this);
     }
 
     @Override
@@ -63,6 +67,10 @@ public class MapButtons extends ComponentColleague {
         }
         else if (event.getType() == EventType.DISABLE_BUTTONS){
             disableButtons((ButtonNames) event.getPayload());
+        }
+        else if (event.getType() == EventType.CANCEL_CREATE){
+            map.setState(MapState.IDLE);
+            enableButtons();
         }
     }
 

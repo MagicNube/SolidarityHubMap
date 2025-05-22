@@ -10,9 +10,16 @@ import elemental.json.JsonValue;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.pingu.domain.DTO.RouteDTO;
+import org.pingu.domain.DTO.StorageDTO;
+import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.web.BackendObservableService.observableList.Observer;
 import org.pingu.web.BackendObservableService.observableList.ObserverChange;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ClickedElement;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapState;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ClickedEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
@@ -20,6 +27,7 @@ import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.pinguweb.frontend.services.BackendDTOService;
 import org.pinguweb.frontend.utils.Mediador.Colleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
+import org.pinguweb.frontend.utils.Mediador.EventType;
 import org.pinguweb.frontend.utils.Mediador.Mediator;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
@@ -43,6 +51,10 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
     @Setter
     private Mediator mediator;
 
+    private String clickFuncReferenceCreateZone;
+    private String clickFuncReferenceCreateRoute;
+    private String clickFuncReferenceCreateStorage;
+
     UI ui;
 
     public MapView() {
@@ -64,6 +76,10 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
             log.warn("UI is null, cannot update UI components.");
         }
 
+        clickFuncReferenceCreateZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone";
+        clickFuncReferenceCreateRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute";
+        clickFuncReferenceCreateRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateStorage";
+
         register();
     }
 
@@ -84,6 +100,20 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         log.info("Mapa actualizado");
     }
 
+    public void startZoneConstruction() {
+        map.getReg().execJs(clickFuncReferenceCreateZone + "=e => document.getElementById('" + mapId + "').$server.mapZona(e.latlng)");
+        map.getMap().on("click", clickFuncReferenceCreateZone);
+    }
+
+    public void startRouteConstruction() {
+        map.getReg().execJs(clickFuncReferenceCreateRoute + "=e => document.getElementById('" + mapId + "').$server.mapRoute(e.latlng)");
+        map.getMap().on("click", clickFuncReferenceCreateRoute);
+    }
+
+    public void createStorage(StorageDTO storageDTO, CreateStorageCommand c) {
+        map.getReg().execJs(clickFuncReferenceCreateStorage + "=e => document.getElementById('" + mapId + "').$server.mapStorage(e.latlng)");
+        map.getMap().on("click", clickFuncReferenceCreateStorage);
+    }
 
     @ClientCallable
     public void mapZona(final JsonValue input) {
@@ -91,15 +121,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
             return;
         }
 
-        ZoneMarker zoneMarker = controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
-        controller.getTempZoneDTO().getLatitudes().add(obj.getNumber("lat"));
-        controller.getTempZoneDTO().getLongitudes().add(obj.getNumber("lng"));
-        controller.getZoneMarkerPoints().add(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
-        controller.getZoneMarkers().put(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")), zoneMarker);
-
-        /*if (zoneMarkerPoints.size() > 2) {
-            zona.setEnabled(true);
-        }*/
+        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ZONE_MARKER));
     }
 
     @ClientCallable
@@ -107,11 +129,8 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
-        RoutePoint routePoint = controller.createRoutePoint(obj.getNumber("lat"), obj.getNumber("lng"));
 
-        controller.getTempRouteDTO().getPoints().add(routePoint.getID());
-
-        controller.getRoutePoint().add(routePoint);
+        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ROUTE_POINT));
     }
 
     @ClientCallable
@@ -120,7 +139,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
             return;
         }
 
-        controller.setZoneMarkerStartingPoint(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
+        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ZONE_MARKER_START));
     }
 
     @ClientCallable
@@ -129,19 +148,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
             return;
         }
 
-        Tuple<Double, Double> point = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
-
-        int index = -1;
-        for (int i = 0; i < controller.getZoneMarkerPoints().size(); i++) {
-            Tuple<Double, Double> t = controller.getZoneMarkerPoints().get(i);
-
-            if (t._1().equals(controller.getZoneMarkerStartingPoint()._1()) && t._2().equals(controller.getZoneMarkerStartingPoint()._2())) {
-                index = i;
-                break;
-            }
-        }
-
-        controller.getZoneMarkerPoints().set(index, point);
+        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ZONE));
     }
 
     @ClientCallable
@@ -150,7 +157,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
             return;
         }
 
-        controller.setRoutePointStartingPoint(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
+        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ROUTE_POINT_START));
     }
 
     @ClientCallable
@@ -159,22 +166,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
             return;
         }
 
-        Tuple<Double, Double> point = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
-
-        int index = -1;
-        for (int i = 0; i < controller.getRoutePoint().size(); i++) {
-            RoutePoint t = controller.getRoutePoint().get(i);
-
-            if (Objects.equals(t.getLatitude(), controller.getRoutePointStartingPoint()._1()) && Objects.equals(t.getLongitude(), controller.getRoutePointStartingPoint()._2())) {
-                index = i;
-                break;
-            }
-        }
-
-        RoutePoint t = controller.getRoutePoint().get(index);
-        t.setLatitude(point._1());
-        t.setLongitude(point._2());
-        controller.getRoutePoint().set(index, t);
+        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ROUTE_POINT_END));
     }
 
     @ClientCallable
@@ -182,44 +174,43 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
-        controller.getTempStorageDTO().setLatitude(obj.getNumber("lat"));
-        controller.getTempStorageDTO().setLongitude(obj.getNumber("lng"));
-        mapDialogs.getMapBuild().endStorageConstruction();
+
+        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.STORAGE));
     }
 
-    @ClientCallable
-    public void removePolygon(String ID) {
-        System.out.println("removePolygon: " + ID);
-        controller.deleteZone(Integer.parseInt(ID));
-    }
-
-    @ClientCallable
-    public void removeRoute(String ID) {
-        System.out.println("removeRoute: " + ID);
-        controller.deleteRoute(Integer.parseInt(ID));
-    }
-
-    @ClientCallable
-    public void removeStorage(String ID) {
-        System.out.println("removeStorage: " + ID);
-        controller.deleteStorage(Integer.parseInt(ID));
-    }
-
-    @ClientCallable
-    public void editPolygon(String ID) {
-        System.out.println("editPolygon: " + ID);
-        mapDialogs.editDialogZone(ID, controller.getTempEditCommand());
-    }
-
-    @ClientCallable
-    public void editRoute(String ID) {
-        System.out.println("editRoute: " + ID);
-        mapDialogs.editDialogRoute(ID, controller.getTempEditCommand());
-    }
-
-    @ClientCallable
-    public void editStorage(String ID) {
-        System.out.println("editStorage: " + ID);
-        mapDialogs.editDialogStorage(ID, controller.getTempEditCommand());
-    }
+//    @ClientCallable
+//    public void removePolygon(String ID) {
+//        System.out.println("removePolygon: " + ID);
+//        controller.deleteZone(Integer.parseInt(ID));
+//    }
+//
+//    @ClientCallable
+//    public void removeRoute(String ID) {
+//        System.out.println("removeRoute: " + ID);
+//        controller.deleteRoute(Integer.parseInt(ID));
+//    }
+//
+//    @ClientCallable
+//    public void removeStorage(String ID) {
+//        System.out.println("removeStorage: " + ID);
+//        controller.deleteStorage(Integer.parseInt(ID));
+//    }
+//
+//    @ClientCallable
+//    public void editPolygon(String ID) {
+//        System.out.println("editPolygon: " + ID);
+//        mapDialogs.editDialogZone(ID, controller.getTempEditCommand());
+//    }
+//
+//    @ClientCallable
+//    public void editRoute(String ID) {
+//        System.out.println("editRoute: " + ID);
+//        mapDialogs.editDialogRoute(ID, controller.getTempEditCommand());
+//    }
+//
+//    @ClientCallable
+//    public void editStorage(String ID) {
+//        System.out.println("editStorage: " + ID);
+//        mapDialogs.editDialogStorage(ID, controller.getTempEditCommand());
+//    }
 }

@@ -22,11 +22,13 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.services.BackendDTOService;
-import org.pinguweb.frontend.utils.Mediador.Colleague;
+import org.pinguweb.frontend.utils.Mediador.*;
 import org.pinguweb.frontend.view.MapView;
 
 import java.util.ArrayList;
@@ -35,25 +37,43 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MapDialogs extends Colleague {
-
-//    private final MapService service;
-//    @Getter
-//    private final MapBuild mapBuild;
-//    private final MapButtons mapButtons;
+public class MapDialogs extends ComponentColleague {
 
     private final BackendDTOService backendService = BackendDTOService.GetInstancia();
 
+    private final Map map;
+    private final Mediator mediator;
+
     public MapDialogs(Map map) {
         super(map);
-        this.service = service;
-        this.mapButtons = mapButtons;
-        this.mapBuild = new MapBuild(service);
-        MapView.setMapDialogs(this);
+        this.map = map;
+        this.mediator = map;
     }
 
-    public void createDialogZona(MapState mapState, CreateZoneCommand c) {
-        if (mapState == MapState.CREATING_ZONE) {
+    @Override
+    public void register() {
+        mediator.subscribe(EventType.SHOW, (Colleague) this);
+        mediator.subscribe(EventType.SHOW_EDIT, (Colleague) this);
+        mediator.subscribe(EventType.CLOSE, (Colleague) this);
+    }
+
+    @Override
+    public <T> void receive(Event<T> event) {
+        if (event.getType() == EventType.SHOW){
+            if (event.getPayload() == DialogsNames.ZONE){
+                createDialogZona((CreateZoneCommand) event.getCommand());
+            }
+            else if (event.getPayload() == DialogsNames.ROUTE){
+                createDialogRuta((CreateRouteCommand) event.getCommand());
+            }
+            else if (event.getPayload() == DialogsNames.STORAGE){
+                createDialogAlmacen((CreateStorageCommand) event.getCommand());
+            }
+        }
+    }
+
+    public void createDialogZona(CreateZoneCommand c) {
+        if (this.map.getState() == MapState.CREATING_ZONE) {
             List<CatastropheDTO> catastropheDTOList = backendService.getCatastropheList().getValues();
             List<StorageDTO> storageDTOList = backendService.getStorageList().getValues();
             final Icon icoClose = VaadinIcon.CLOSE.create();
@@ -91,7 +111,7 @@ public class MapDialogs extends Colleague {
 
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
-                mapButtons.getMapActions().cancelZoneCreation();
+                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
@@ -122,7 +142,7 @@ public class MapDialogs extends Colleague {
                 zoneDTO.setLongitudes(new ArrayList<>());
                 zoneDTO.setStorages(selectedStorageIDs);
 
-                mapBuild.startZoneConstruction(zoneDTO);
+                mediator.publish(new CreationEvent<>(EventType.CREATE, zoneDTO, c, null));
                 dialog.close();
             });
             acceptButton.setEnabled(false);
@@ -151,12 +171,12 @@ public class MapDialogs extends Colleague {
             dialog.open();
 
             icoClose.addClickListener(iev -> {
-                mapButtons.getMapActions().cancelZoneCreation();
+                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
                 dialog.close();
             });
 
         } else {
-            mapBuild.endZoneConstruction(c);
+            //mapBuild.endZoneConstruction(c);
 
             Notification notification = new Notification("Zona creada exitosamente", 3000);
             notification.open();
@@ -164,8 +184,8 @@ public class MapDialogs extends Colleague {
 
     }
 
-    public void createDialogRuta(MapState mapState, CreateRouteCommand c) {
-        if (mapState == MapState.CREATING_ROUTE) {
+    public void createDialogRuta(CreateRouteCommand c) {
+        if (this.map.getState() == MapState.CREATING_ROUTE) {
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
             List<CatastropheDTO> catastropheDTOList = backendService.getCatastropheList().getValues();
@@ -192,7 +212,7 @@ public class MapDialogs extends Colleague {
 
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
-                mapButtons.getMapActions().cancelRouteCreation();
+                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
@@ -209,7 +229,7 @@ public class MapDialogs extends Colleague {
                 routeDTO.setID(0);
                 routeDTO.setRouteType(routeTypeComboBox.getValue());
 
-                mapBuild.startRouteConstruction(routeDTO);
+                mediator.publish(new CreationEvent<>(EventType.CREATE, routeDTO, c, null));
                 dialog.close();
             });
 
@@ -228,19 +248,19 @@ public class MapDialogs extends Colleague {
             dialog.add(dialogLayout);
             dialog.open();
             icoClose.addClickListener(iev -> {
-                mapButtons.getMapActions().cancelRouteCreation();
+                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
                 dialog.close();
             });
         } else {
-            mapBuild.endRouteConstruction(c);
+//            mapBuild.endRouteConstruction(c);
 
             Notification notification = new Notification("Ruta creada exitosamente", 3000);
             notification.open();
         }
     }
 
-    public void createDialogAlmacen(MapState mapState, MapButtons mapButtons, CreateStorageCommand c) {
-        if (mapState == MapState.CREATING_STORAGE) {
+    public void createDialogAlmacen(CreateStorageCommand c) {
+        if (this.map.getState() == MapState.CREATING_STORAGE) {
             final Icon icoClose = VaadinIcon.CLOSE.create();
             final Dialog dialog = new Dialog(icoClose);
             dialog.setCloseOnEsc(false);
@@ -265,7 +285,7 @@ public class MapDialogs extends Colleague {
 
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
-                mapButtons.getMapActions().cancelStorageCreation();
+                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
@@ -280,7 +300,7 @@ public class MapDialogs extends Colleague {
                 storageDTO.setZone(zoneID);
                 storageDTO.setFull(llenoComboBox.getValue().equals("Lleno"));
 
-                mapBuild.createStorage(storageDTO, mapButtons, c);
+                mediator.publish(new CreationEvent<>(EventType.CREATE, storageDTO, c,null));
                 dialog.close();
             });
 
@@ -294,243 +314,244 @@ public class MapDialogs extends Colleague {
             dialog.add(dialogLayout);
             dialog.open();
             icoClose.addClickListener(iev -> {
-                mapButtons.getMapActions().cancelStorageCreation();
+                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
                 dialog.close();
             });
         }
     }
+//
+//    public void editDialogZone(String zoneID, EditCommand c) {
+//        Zone zone = service.getZoneByID(zoneID);
+//        c.setOriginalObject(zone);
+//        final Icon icoClose = VaadinIcon.CLOSE.create();
+//        final Dialog dialog = new Dialog(icoClose);
+//        dialog.setCloseOnEsc(false);
+//        dialog.setCloseOnOutsideClick(false);
+//        dialog.setDraggable(true);
+//        dialog.setResizable(true);
+//        dialog.setWidth("70vw");
+//        dialog.setHeight("70vh");
+//
+//        H3 title = new H3("Editar zona");
+//
+//        TextArea nameTextArea = new TextArea();
+//        nameTextArea.setPlaceholder("Nombre");
+//        nameTextArea.setWidth("50vw");
+//        nameTextArea.setHeight("5vh");
+//        nameTextArea.setValue(zone.getName());
+//
+//        ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
+//        String[] severityOptions = Arrays.stream(EmergencyLevel.values())
+//                .map(EmergencyLevel::name)
+//                .toArray(String[]::new);
+//        severityComboBox.setItems(severityOptions);
+//        severityComboBox.setValue(zone.getEmergencyLevel());
+//
+//        ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
+//        catastropheComboBox.setItems(backendService.getCatastropheList().getValues().stream().map(CatastropheDTO::getName).toList());
+//
+//        MultiSelectListBox<String> storageComboBox = new MultiSelectListBox<>();
+//        storageComboBox.setItems(backendService.getStorageList().getValues().stream().map(StorageDTO::getName).toList());
+//
+//        Set<String> selectedStorageNames = zone.getStorages().stream()
+//                .map(storageID -> backendService.getStorageList().getValues().stream()
+//                        .filter(storageDTO -> storageDTO.getID() == storageID)
+//                        .findFirst()
+//                        .map(StorageDTO::getName)
+//                        .orElse(null))
+//                .filter(name -> name != null)
+//                .collect(Collectors.toSet());
+//
+//        storageComboBox.setValue(selectedStorageNames);
+//
+//        TextArea descriptionTextArea = new TextArea();
+//        descriptionTextArea.setPlaceholder("Descripcion");
+//        descriptionTextArea.setWidthFull();
+//        descriptionTextArea.setHeight("50vh");
+//        descriptionTextArea.setValue(zone.getDescription());
+//
+//        Button cancelButton = new Button("Cancelar");
+//        cancelButton.addClickListener(event -> {
+//            dialog.close();
+//        });
+//        Button acceptButton = new Button("Aceptar", event -> {
+//            int catastropheID = catastropheComboBox.getValue() != null ? backendService.getCatastropheList().getValues().stream()
+//                    .filter(catastropheDTO -> catastropheDTO.getName().equals(catastropheComboBox.getValue()))
+//                    .findFirst()
+//                    .map(CatastropheDTO::getID)
+//                    .orElse(0) : 0;
+//
+//            Set<String> seleccionados = storageComboBox.getSelectedItems();
+//            List<Integer> selectedStorageIDs = new ArrayList<>();
+//            for (String seleccionado : seleccionados) {
+//                for (StorageDTO storageDTO : backendService.getStorageList().getValues()) {
+//                    if (storageDTO.getName().equals(seleccionado)) {
+//                        selectedStorageIDs.add(storageDTO.getID());
+//                    }
+//                }
+//            }
+//            zone.setDescription(descriptionTextArea.getValue());
+//            zone.setName(nameTextArea.getValue());
+//            zone.setCatastrophe(catastropheID);
+//            zone.setEmergencyLevel(severityComboBox.getValue());
+//            zone.setStorages(selectedStorageIDs);
+//            mapBuild.editZone(zone);
+//            c.setResultObject(zone);
+//            dialog.close();
+//        });
+//
+//        acceptButton.setEnabled(false);
+//        nameTextArea.addValueChangeListener(event -> {
+//            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !descriptionTextArea.getValue().isEmpty() && !catastropheComboBox.getValue().isEmpty() && !storageComboBox.getValue().isEmpty());
+//        });
+//        descriptionTextArea.addValueChangeListener(event -> {
+//            acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !nameTextArea.getValue().isEmpty() && !catastropheComboBox.getValue().isEmpty() && !storageComboBox.getValue().isEmpty());
+//        });
+//        severityComboBox.addValueChangeListener(event -> {
+//            acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !nameTextArea.getValue().isEmpty() && !catastropheComboBox.getValue().isEmpty() && !storageComboBox.getValue().isEmpty());
+//        });
+//        catastropheComboBox.addValueChangeListener(event -> {
+//            acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !nameTextArea.getValue().isEmpty() && !catastropheComboBox.getValue().isEmpty() && !storageComboBox.getValue().isEmpty());
+//        });
+//        storageComboBox.addValueChangeListener(event -> {
+//            acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !nameTextArea.getValue().isEmpty() && !catastropheComboBox.getValue().isEmpty() && !storageComboBox.getValue().isEmpty());
+//        });
+//
+//        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
+//        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, severityComboBox, catastropheComboBox, storageComboBox, descriptionTextArea, buttonLayout);
+//        dialog.add(dialogLayout);
+//        dialog.open();
+//        icoClose.addClickListener(iev -> {
+//            dialog.close();
+//        });
+//    }
+//
+//    public void editDialogRoute(String routeID, EditCommand c) {
+//        Route route = service.getRouteByID(routeID);
+//        c.setOriginalObject(route);
+//        final Icon icoClose = VaadinIcon.CLOSE.create();
+//        final Dialog dialog = new Dialog(icoClose);
+//        dialog.setCloseOnEsc(false);
+//        dialog.setCloseOnOutsideClick(false);
+//        dialog.setDraggable(true);
+//        dialog.setResizable(true);
+//        dialog.setWidth("70vw");
+//        dialog.setHeight("40vh");
+//        H3 title = new H3("Editar ruta");
+//        TextArea nameTextArea = new TextArea();
+//        nameTextArea.setPlaceholder("nombre");
+//        nameTextArea.setWidth("50vw");
+//        nameTextArea.setHeight("5vh");
+//        nameTextArea.setValue(route.getName());
+//
+//        ComboBox<String> routeTypeComboBox = new ComboBox<>("Tipo de ruta");
+//        String[] routeTypeOptions = Arrays.stream(RouteType.values())
+//                .map(RouteType::name)
+//                .toArray(String[]::new);
+//        routeTypeComboBox.setItems(routeTypeOptions);
+//        routeTypeComboBox.setValue(route.getRouteType());
+//
+//        ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
+//        catastropheComboBox.setItems(backendService.getCatastropheList().getValues().stream().map(CatastropheDTO::getName).toList());
+//
+//        Button cancelButton = new Button("Cancelar");
+//        cancelButton.addClickListener(event -> {
+//            dialog.close();
+//        });
+//        Button acceptButton = new Button("Aceptar", event -> {
+//            int catastropheID = catastropheComboBox.getValue() != null ? backendService.getCatastropheList().getValues().stream()
+//                    .filter(catastropheDTO -> catastropheDTO.getName().equals(catastropheComboBox.getValue()))
+//                    .findFirst()
+//                    .map(CatastropheDTO::getID)
+//                    .orElse(0) : 0;
+//
+//            route.setName(nameTextArea.getValue());
+//            route.setRouteType(routeTypeComboBox.getValue());
+//            route.setCatastrophe(catastropheID);
+//            route.setPointsID(service.getRouteByID(routeID).getPointsID());
+//            route.updateToServer();
+//            mapBuild.editRoute(route);
+//            c.setResultObject(route);
+//            dialog.close();
+//        });
+//
+//        acceptButton.setEnabled(false);
+//        nameTextArea.addValueChangeListener(event -> {
+//            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
+//        });
+//        routeTypeComboBox.addValueChangeListener(event -> {
+//            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
+//        });
+//        catastropheComboBox.addValueChangeListener(event -> {
+//            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
+//        });
+//
+//        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
+//        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, routeTypeComboBox, catastropheComboBox, buttonLayout);
+//        dialog.add(dialogLayout);
+//        dialog.open();
+//        icoClose.addClickListener(iev -> {
+//            dialog.close();
+//        });
+//    }
+//
+//    public void editDialogStorage(String id, EditCommand c) {
+//        Storage storage = service.getStorageByID(id);
+//        c.setOriginalObject(storage);
+//        final Icon icoClose = VaadinIcon.CLOSE.create();
+//        final Dialog dialog = new Dialog(icoClose);
+//        dialog.setCloseOnEsc(false);
+//        dialog.setCloseOnOutsideClick(false);
+//        dialog.setDraggable(true);
+//        dialog.setResizable(true);
+//        dialog.setWidth("70vw");
+//        dialog.setHeight("40vh");
+//        H3 title = new H3("Editar almacen");
+//        TextArea nameTextArea = new TextArea();
+//        nameTextArea.setPlaceholder("nombre");
+//        nameTextArea.setWidth("50vw");
+//        nameTextArea.setHeight("5vh");
+//        nameTextArea.setValue(storage.getName());
+//
+//        ComboBox<String> zoneComboBox = new ComboBox<>("Zona");
+//        zoneComboBox.setItems(backendService.getZoneList().getValues().stream().map(ZoneDTO::getName).toList());
+//
+//        ComboBox<String> llenoComboBox = new ComboBox<>("Estado");
+//        String[] llenoOptions = {"Lleno", "Vacio"};
+//        llenoComboBox.setItems(llenoOptions);
+//        llenoComboBox.setValue(storage.isFull() ? "Lleno" : "Vacio");
+//
+//        Button cancelButton = new Button("Cancelar");
+//        cancelButton.addClickListener(event -> {
+//            dialog.close();
+//        });
+//        Button acceptButton = new Button("Aceptar", event -> {
+//            int zoneID = zoneComboBox.getValue() != null ? backendService.getZoneList().getValues().stream()
+//                    .filter(zoneDTO -> zoneDTO.getName().equals(zoneComboBox.getValue()))
+//                    .findFirst()
+//                    .map(ZoneDTO::getID)
+//                    .orElse(0) : 0;
+//            storage.setName(nameTextArea.getValue());
+//            storage.setZoneID(zoneID);
+//            storage.setFull(llenoComboBox.getValue().equals("Lleno"));
+//            storage.updateToServer();
+//            mapBuild.editStorage(storage);
+//            c.setResultObject(storage);
+//            dialog.close();
+//        });
+//
+//        acceptButton.setEnabled(false);
+//        nameTextArea.addValueChangeListener(event -> {
+//            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty());
+//        });
+//
+//        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
+//        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, zoneComboBox, llenoComboBox, buttonLayout);
+//        dialog.add(dialogLayout);
+//        dialog.open();
+//        icoClose.addClickListener(iev -> {
+//            dialog.close();
+//        });
+//    }
 
-    public void editDialogZone(String zoneID, EditCommand c) {
-        Zone zone = service.getZoneByID(zoneID);
-        c.setOriginalObject(zone);
-        final Icon icoClose = VaadinIcon.CLOSE.create();
-        final Dialog dialog = new Dialog(icoClose);
-        dialog.setCloseOnEsc(false);
-        dialog.setCloseOnOutsideClick(false);
-        dialog.setDraggable(true);
-        dialog.setResizable(true);
-        dialog.setWidth("70vw");
-        dialog.setHeight("70vh");
-
-        H3 title = new H3("Editar zona");
-
-        TextArea nameTextArea = new TextArea();
-        nameTextArea.setPlaceholder("Nombre");
-        nameTextArea.setWidth("50vw");
-        nameTextArea.setHeight("5vh");
-        nameTextArea.setValue(zone.getName());
-
-        ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
-        String[] severityOptions = Arrays.stream(EmergencyLevel.values())
-                .map(EmergencyLevel::name)
-                .toArray(String[]::new);
-        severityComboBox.setItems(severityOptions);
-        severityComboBox.setValue(zone.getEmergencyLevel());
-
-        ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
-        catastropheComboBox.setItems(backendService.getCatastropheList().getValues().stream().map(CatastropheDTO::getName).toList());
-
-        MultiSelectListBox<String> storageComboBox = new MultiSelectListBox<>();
-        storageComboBox.setItems(backendService.getStorageList().getValues().stream().map(StorageDTO::getName).toList());
-
-        Set<String> selectedStorageNames = zone.getStorages().stream()
-                .map(storageID -> backendService.getStorageList().getValues().stream()
-                        .filter(storageDTO -> storageDTO.getID() == storageID)
-                        .findFirst()
-                        .map(StorageDTO::getName)
-                        .orElse(null))
-                .filter(name -> name != null)
-                .collect(Collectors.toSet());
-
-        storageComboBox.setValue(selectedStorageNames);
-
-        TextArea descriptionTextArea = new TextArea();
-        descriptionTextArea.setPlaceholder("Descripcion");
-        descriptionTextArea.setWidthFull();
-        descriptionTextArea.setHeight("50vh");
-        descriptionTextArea.setValue(zone.getDescription());
-
-        Button cancelButton = new Button("Cancelar");
-        cancelButton.addClickListener(event -> {
-            dialog.close();
-        });
-        Button acceptButton = new Button("Aceptar", event -> {
-            int catastropheID = catastropheComboBox.getValue() != null ? backendService.getCatastropheList().getValues().stream()
-                    .filter(catastropheDTO -> catastropheDTO.getName().equals(catastropheComboBox.getValue()))
-                    .findFirst()
-                    .map(CatastropheDTO::getID)
-                    .orElse(0) : 0;
-
-            Set<String> seleccionados = storageComboBox.getSelectedItems();
-            List<Integer> selectedStorageIDs = new ArrayList<>();
-            for (String seleccionado : seleccionados) {
-                for (StorageDTO storageDTO : backendService.getStorageList().getValues()) {
-                    if (storageDTO.getName().equals(seleccionado)) {
-                        selectedStorageIDs.add(storageDTO.getID());
-                    }
-                }
-            }
-            zone.setDescription(descriptionTextArea.getValue());
-            zone.setName(nameTextArea.getValue());
-            zone.setCatastrophe(catastropheID);
-            zone.setEmergencyLevel(severityComboBox.getValue());
-            zone.setStorages(selectedStorageIDs);
-            mapBuild.editZone(zone);
-            c.setResultObject(zone);
-            dialog.close();
-        });
-
-        acceptButton.setEnabled(false);
-        nameTextArea.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !descriptionTextArea.getValue().isEmpty() && !catastropheComboBox.getValue().isEmpty() && !storageComboBox.getValue().isEmpty());
-        });
-        descriptionTextArea.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !nameTextArea.getValue().isEmpty() && !catastropheComboBox.getValue().isEmpty() && !storageComboBox.getValue().isEmpty());
-        });
-        severityComboBox.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !nameTextArea.getValue().isEmpty() && !catastropheComboBox.getValue().isEmpty() && !storageComboBox.getValue().isEmpty());
-        });
-        catastropheComboBox.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !nameTextArea.getValue().isEmpty() && !catastropheComboBox.getValue().isEmpty() && !storageComboBox.getValue().isEmpty());
-        });
-        storageComboBox.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!descriptionTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !nameTextArea.getValue().isEmpty() && !catastropheComboBox.getValue().isEmpty() && !storageComboBox.getValue().isEmpty());
-        });
-
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
-        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, severityComboBox, catastropheComboBox, storageComboBox, descriptionTextArea, buttonLayout);
-        dialog.add(dialogLayout);
-        dialog.open();
-        icoClose.addClickListener(iev -> {
-            dialog.close();
-        });
-    }
-
-    public void editDialogRoute(String routeID, EditCommand c) {
-        Route route = service.getRouteByID(routeID);
-        c.setOriginalObject(route);
-        final Icon icoClose = VaadinIcon.CLOSE.create();
-        final Dialog dialog = new Dialog(icoClose);
-        dialog.setCloseOnEsc(false);
-        dialog.setCloseOnOutsideClick(false);
-        dialog.setDraggable(true);
-        dialog.setResizable(true);
-        dialog.setWidth("70vw");
-        dialog.setHeight("40vh");
-        H3 title = new H3("Editar ruta");
-        TextArea nameTextArea = new TextArea();
-        nameTextArea.setPlaceholder("nombre");
-        nameTextArea.setWidth("50vw");
-        nameTextArea.setHeight("5vh");
-        nameTextArea.setValue(route.getName());
-
-        ComboBox<String> routeTypeComboBox = new ComboBox<>("Tipo de ruta");
-        String[] routeTypeOptions = Arrays.stream(RouteType.values())
-                .map(RouteType::name)
-                .toArray(String[]::new);
-        routeTypeComboBox.setItems(routeTypeOptions);
-        routeTypeComboBox.setValue(route.getRouteType());
-
-        ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
-        catastropheComboBox.setItems(backendService.getCatastropheList().getValues().stream().map(CatastropheDTO::getName).toList());
-
-        Button cancelButton = new Button("Cancelar");
-        cancelButton.addClickListener(event -> {
-            dialog.close();
-        });
-        Button acceptButton = new Button("Aceptar", event -> {
-            int catastropheID = catastropheComboBox.getValue() != null ? backendService.getCatastropheList().getValues().stream()
-                    .filter(catastropheDTO -> catastropheDTO.getName().equals(catastropheComboBox.getValue()))
-                    .findFirst()
-                    .map(CatastropheDTO::getID)
-                    .orElse(0) : 0;
-
-            route.setName(nameTextArea.getValue());
-            route.setRouteType(routeTypeComboBox.getValue());
-            route.setCatastrophe(catastropheID);
-            route.setPointsID(service.getRouteByID(routeID).getPointsID());
-            route.updateToServer();
-            mapBuild.editRoute(route);
-            c.setResultObject(route);
-            dialog.close();
-        });
-
-        acceptButton.setEnabled(false);
-        nameTextArea.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
-        });
-        routeTypeComboBox.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
-        });
-        catastropheComboBox.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
-        });
-
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
-        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, routeTypeComboBox, catastropheComboBox, buttonLayout);
-        dialog.add(dialogLayout);
-        dialog.open();
-        icoClose.addClickListener(iev -> {
-            dialog.close();
-        });
-    }
-
-    public void editDialogStorage(String id, EditCommand c) {
-        Storage storage = service.getStorageByID(id);
-        c.setOriginalObject(storage);
-        final Icon icoClose = VaadinIcon.CLOSE.create();
-        final Dialog dialog = new Dialog(icoClose);
-        dialog.setCloseOnEsc(false);
-        dialog.setCloseOnOutsideClick(false);
-        dialog.setDraggable(true);
-        dialog.setResizable(true);
-        dialog.setWidth("70vw");
-        dialog.setHeight("40vh");
-        H3 title = new H3("Editar almacen");
-        TextArea nameTextArea = new TextArea();
-        nameTextArea.setPlaceholder("nombre");
-        nameTextArea.setWidth("50vw");
-        nameTextArea.setHeight("5vh");
-        nameTextArea.setValue(storage.getName());
-
-        ComboBox<String> zoneComboBox = new ComboBox<>("Zona");
-        zoneComboBox.setItems(backendService.getZoneList().getValues().stream().map(ZoneDTO::getName).toList());
-
-        ComboBox<String> llenoComboBox = new ComboBox<>("Estado");
-        String[] llenoOptions = {"Lleno", "Vacio"};
-        llenoComboBox.setItems(llenoOptions);
-        llenoComboBox.setValue(storage.isFull() ? "Lleno" : "Vacio");
-
-        Button cancelButton = new Button("Cancelar");
-        cancelButton.addClickListener(event -> {
-            dialog.close();
-        });
-        Button acceptButton = new Button("Aceptar", event -> {
-            int zoneID = zoneComboBox.getValue() != null ? backendService.getZoneList().getValues().stream()
-                    .filter(zoneDTO -> zoneDTO.getName().equals(zoneComboBox.getValue()))
-                    .findFirst()
-                    .map(ZoneDTO::getID)
-                    .orElse(0) : 0;
-            storage.setName(nameTextArea.getValue());
-            storage.setZoneID(zoneID);
-            storage.setFull(llenoComboBox.getValue().equals("Lleno"));
-            storage.updateToServer();
-            mapBuild.editStorage(storage);
-            c.setResultObject(storage);
-            dialog.close();
-        });
-
-        acceptButton.setEnabled(false);
-        nameTextArea.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty());
-        });
-
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
-        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, zoneComboBox, llenoComboBox, buttonLayout);
-        dialog.add(dialogLayout);
-        dialog.open();
-        icoClose.addClickListener(iev -> {
-            dialog.close();
-        });
-    }
 }

@@ -1,6 +1,5 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,10 +11,13 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.mapObjects.*;
+import org.pinguweb.frontend.mapObjects.factories.*;
 import org.pinguweb.frontend.utils.Mediador.Colleague;
 import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
 import org.pinguweb.frontend.utils.Mediador.EventType;
+import org.pinguweb.frontend.view.MapView;
+import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +27,31 @@ import java.util.Objects;
 @Setter
 @Getter
 public class MapBuild extends ComponentColleague {
-
-    //MapService service;
-
     private String clickFuncReferenceCreateZone;
     private String clickFuncReferenceCreateRoute;
+    private String clickFuncReferenceCreateStorage;
+    private Map map;
+
+    private NeedFactory needFactory;
+    private ZoneFactory zoneFactory;
+    private ZoneMarkerFactory zoneMarkerFactory;
+    private RouteFactory routeFactory;
+    private RoutePointFactory routePointFactory;
+    private StorageFactory storageFactory;
 
     public MapBuild(Map map) {
         super(map);
-        clickFuncReferenceCreateZone = service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone";
-        clickFuncReferenceCreateRoute = service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute";
+        this.map = map;
+        clickFuncReferenceCreateZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone";
+        clickFuncReferenceCreateRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute";
+        clickFuncReferenceCreateRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateStorage";
+
+        this.needFactory = new NeedFactory();
+        this.zoneFactory = new ZoneFactory();
+        this.zoneMarkerFactory = new ZoneMarkerFactory();
+        this.routeFactory = new RouteFactory();
+        this.routePointFactory = new RoutePointFactory();
+        this.storageFactory = new StorageFactory();
     }
 
     @Override
@@ -53,40 +70,9 @@ public class MapBuild extends ComponentColleague {
         else if (event.getPayload() instanceof RouteDTO){
             createRoute((RouteDTO) event.getPayload(), ((CreationEvent<T>) event).getExtraData(), (CreateRouteCommand) event.getCommand());
         }
-
     }
 
-    public void createStorage(StorageDTO storageDTO, CreateStorageCommand c) {
-        service.setClickFuncReferenceCreateStorage(service.getMap().clientComponentJsAccessor() + ".myClickFuncCreateNeed");
-        service.getReg().execJs(service.getClickFuncReferenceCreateStorage() + "=e => document.getElementById('" + service.getID() + "').$server.mapStorage(e.latlng)");
-        service.getMap().on("click", service.getClickFuncReferenceCreateStorage());
-
-        UI ui = UI.getCurrent();
-        if (ui != null) {
-            service.setUi(ui);
-        }
-
-        new Thread(() -> {
-            synchronized (service.getLock()) {
-                try {
-                    System.out.println("Esperando clic en el mapa...");
-                    service.getLock().wait();
-
-                    UI uiThread = service.getUi();
-                    if (uiThread != null) {
-                        uiThread.access(mapButtons::enableButtons);
-                        mapButtons.getMap().setState(MapState.IDLE);
-                    } else {
-                        System.err.println("No se pudo acceder a la UI desde el hilo");
-                    }
-                } catch (InterruptedException e) {
-                    System.out.println("Error esperando clic en el mapa" + e);
-                }
-            }
-        }).start();
-    }
-
-    private Storage createStorage(StorageDTO storage) {
+    private Storage createStorageObject(StorageDTO storage) {
         double lat = storage.getLatitude();
         double lng = storage.getLongitude();
         Storage storageObj = (Storage) storageFactory.createMapObject(this.map.getReg(), lat, lng);
@@ -99,206 +85,315 @@ public class MapBuild extends ComponentColleague {
         storageObj.addToMap(this.map.getMap());
         storageObj.getMarkerObj().bindPopup("Almacen: " + storage.getName());
 
-        storages.add(storageObj);
-        lLayerGroupStorages.addLayer(storageObj.getMarkerObj());
-        this.map.getMap().addLayer(lLayerGroupStorages);
+        map.getStorages().add(storageObj);
+        map.getLLayerGroupStorages().addLayer(storageObj.getMarkerObj());
+//        this.map.getMap().addLayer(lLayerGroupStorages);
         return storageObj;
     }
 
-    public void endStorageConstruction(){
-        Storage storage = service.createStorage(service.getTempStorageDTO());
-        if (service.getTempStorageCommand() != null ) {service.getTempStorageCommand().setStorage(storage);}
+    public void createStorage(StorageDTO dto, CreateStorageCommand c){
+        Storage storage = createStorageObject(dto);
+
+        if (c != null ) {c.setStorage(storage);}
         int tempId = storage.pushToServer();
         storage.setID(tempId);
-        service.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
-            service.getStorages().remove(s);
+        map.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
+            map.getStorages().remove(s);
         });
-        System.out.println(service.getStorages());
-        synchronized (service.getLock()) {
-            service.getLock().notify();
-        }
-        service.getMap().off("click", service.getClickFuncReferenceCreateStorage());
+
+        map.getMap().off("click", clickFuncReferenceCreateStorage);
 
         Notification notification = new Notification("Almacén creado exitosamente", 3000);
         notification.open();
     }
 
-    public void startZoneConstruction(ZoneDTO zoneDTO) {
-        service.setTempZoneDTO(zoneDTO);
-        log.debug("Registrando puntos para la zona");
-        service.getReg().execJs(clickFuncReferenceCreateZone + "=e => document.getElementById('" + service.getID() + "').$server.mapZona(e.latlng)");
-        service.getMap().on("click", clickFuncReferenceCreateZone);
-    }
 
     public void createZone(ZoneDTO zone, CreateZoneCommand c) {
-        service.getMap().off("click", clickFuncReferenceCreateZone);
         log.debug("Zona terminada");
-        Zone zona = this.service.createZone(zone);
+        Zone zona = createZone(zone);
 
         int newID = zona.pushToServer();
-        service.getZones().stream().filter(z -> z.getID() == service.getTempZoneDTO().getID()).findFirst().ifPresent(z -> {
+        map.getZones().stream().filter(z -> z.getID() == zone.getID()).findFirst().ifPresent(z -> {
             z.setID(newID);
         });
 
-        for (ZoneMarker zoneMarker : service.getZoneMarkers().values()) {
-            zoneMarker.removeFromMap(service.getMap());
+        for (ZoneMarker zoneMarker : map.getZoneMarkers().values()) {
+            zoneMarker.removeFromMap(map.getMap());
         }
 
-        service.getZoneMarkers().clear();
-        service.getZoneMarkerPoints().clear();
+        map.getMap().off("click", clickFuncReferenceCreateZone);
+        map.getZoneMarkers().clear();
+        map.getZoneMarkerPoints().clear();
         if (c != null) {c.setZone(zona);}
     }
 
-    public void editZone(Zone zone) {
-        log.debug("Zona editada");
-        zone.updateToServer();
-        service.getZones().stream().filter(z -> Objects.equals(z.getID(), zone.getID())).findFirst().ifPresent(z -> {
-            service.getZones().remove(z);
-            service.getZones().add(zone);
-        });
-        service.updateZone(zone);
+    public Zone createZone(ZoneDTO zoneDTO) {
+        List<Tuple<Double, Double>> points = new ArrayList<>();
+
+        for (int i = 0; i < zoneDTO.getLatitudes().size(); i++) {
+            points.add(new Tuple<>(zoneDTO.getLatitudes().get(i), zoneDTO.getLongitudes().get(i)));
+        }
+
+        Zone zone = (Zone) zoneFactory.createMapObject(this.map.getReg(), 0.0, zoneDTO.getID() + 1.0);
+        for (Tuple<Double, Double> marker : points) {
+            zone.addPoint(this.map.getReg(), marker);
+        }
+
+        zone.setName(zoneDTO.getName() != null ? zoneDTO.getName() : "Sin nombre");
+        zone.setDescription(zoneDTO.getDescription() != null ? zoneDTO.getDescription() : "Sin descripción");
+        zone.setEmergencyLevel(zoneDTO.getEmergencyLevel() != null ? zoneDTO.getEmergencyLevel() : "LOW"); // Nivel por defecto: "Bajo"
+        zone.setCatastrophe(zoneDTO.getCatastrophe() != null ? zoneDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
+        zone.setStorages(zoneDTO.getStorages() != null ? zoneDTO.getStorages() : new ArrayList<>());
+        zone.setLatitudes(zoneDTO.getLatitudes() != null ? zoneDTO.getLatitudes() : List.of(0.0));
+        zone.setLongitudes(zoneDTO.getLongitudes() != null ? zoneDTO.getLongitudes() : List.of(0.0));
+
+        switch (zoneDTO.getEmergencyLevel()) {
+            case "LOW":
+                zone.generatePolygon(this.map.getReg(), "grey", "green");
+                break;
+            case "MEDIUM":
+                zone.generatePolygon(this.map.getReg(), "grey", "yellow");
+                break;
+            case "HIGH":
+                zone.generatePolygon(this.map.getReg(), "grey", "red");
+                break;
+            case "VERYHIGH":
+                zone.generatePolygon(this.map.getReg(), "grey", "black");
+                break;
+            default:
+                zone.generatePolygon(this.map.getReg(), "grey", "blue");
+        }
+        zone.getPolygon().bindPopup("Zona: " + zone.getName());
+        zone.setID(zoneDTO.getID());
+        zone.addToMap(this.map.getMap());
+
+        map.getZones().add(zone);
+        map.getLLayerGroupZones().addLayer(zone.getPolygon());
+//        this.map.getMap().addLayer(lLayerGroupZones);
+
+        return zone;
     }
 
-    public void startRouteConstruction(RouteDTO routeDTO) {
-        service.setTempRouteDTO(routeDTO);
-        log.debug("Registrando puntos para la ruta");
-        service.getReg().execJs(clickFuncReferenceCreateRoute + "=e => document.getElementById('" + service.getID() + "').$server.mapRoute(e.latlng)");
-        service.getMap().on("click", clickFuncReferenceCreateRoute);
+    public ZoneMarker createZoneMarker(double lat, double lng) {
+        ZoneMarker zoneMarker = (ZoneMarker) zoneMarkerFactory.createMapObject(this.map.getReg(), lat, lng);
+
+        String clickFuncReferenceDragStart = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragStart" + zoneMarker.getID();
+        String clickFuncReferenceDragEnd = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragEnd" + zoneMarker.getID();
+
+        this.map.getReg().execJs(clickFuncReferenceDragStart + "=e => document.getElementById('" + MapView.getMapId() + "').$server.routePointStart(e.target.getLatLng())");
+        this.map.getReg().execJs(clickFuncReferenceDragEnd + "=e => document.getElementById('" + MapView.getMapId() + "').$server.routePointEnd(e.target.getLatLng())");
+
+        zoneMarker.getMarkerObj().on("dragstart", clickFuncReferenceDragStart);
+        zoneMarker.getMarkerObj().on("dragend", clickFuncReferenceDragEnd);
+
+        zoneMarker.addToMap(this.map.getMap());
+
+        return zoneMarker;
     }
+
+//    public void editZone(Zone zone) {
+//        log.debug("Zona editada");
+//        zone.updateToServer();
+//        service.getZones().stream().filter(z -> Objects.equals(z.getID(), zone.getID())).findFirst().ifPresent(z -> {
+//            service.getZones().remove(z);
+//            service.getZones().add(zone);
+//        });
+//        service.updateZone(zone);
+//    }
+
 
     public void createRoute(RouteDTO route, List<RoutePoint> points, CreateRouteCommand c) {
-        service.getMap().off("click", clickFuncReferenceCreateRoute);
+        map.getMap().off("click", clickFuncReferenceCreateRoute);
         log.debug("Ruta terminada");
-        ArrayList<RoutePoint> routePoints = points;
-        ArrayList<Integer> pointsID = new ArrayList<>();
-        for (RoutePoint routePoint : routePoints) {
+        List<Integer> pointsID = new ArrayList<>();
+        for (RoutePoint routePoint : points) {
             pointsID.add(routePoint.pushToServer());
         }
 
-        if (c != null) {c.setPoints(routePoints);}
+        if (c != null) {c.setPoints(points);}
 
-        Route ruta = this.service.createRoute(service.getTempRouteDTO(), service.getRoutePoint());
+        Route ruta = createRoute(route, points);
         ruta.setPointsID(pointsID);
         int tempID = ruta.pushToServer();
 
         if (c != null) {c.setRoute(ruta);}
 
-        service.getRoutes().stream().filter(r -> r.getID() == service.getTempRouteDTO().getID()).findFirst().ifPresent(r -> {
-            service.getRoutes().remove(r);
-            service.getRoutes().add(ruta);
+        map.getRoutes().stream().filter(r -> r.getID() == route.getID()).findFirst().ifPresent(r -> {
+            map.getRoutes().remove(r);
+            map.getRoutes().add(ruta);
         });
-        service.getRoutePoints().put(tempID, new ArrayList<>(service.getRoutePoint()));
+        map.getRoutePoints().put(tempID, new ArrayList<>(points));
 
-        for (int i = service.getRoutePoint().size() - 2; i > 0; i--) {
-            RoutePoint routePoint = service.getRoutePoint().get(i);
-            routePoint.removeFromMap(service.getMap());
-            service.getRoutePoint().remove(routePoint);
-        }
-
-        service.getRoutePoint().clear();
-    }
-
-
-    public void editRoute(org.pinguweb.frontend.mapObjects.Route route) {
-        log.debug("Ruta editada");
-        route.updateToServer();
-        service.getRoutes().stream().filter(r -> Objects.equals(r.getID(), route.getID())).findFirst().ifPresent(r -> {
-            service.getRoutes().remove(r);
-            service.getRoutes().add(route);
-        });
-        service.updateRoute(route);
-    }
-
-    public void startEdit() {
-        for (Need need : this.service.getNeeds()) {
-            String clickFuncReferenceEditMarker = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditMarker" + need.getID();
-            this.service.getReg().execJs(clickFuncReferenceEditMarker + "=e => document.getElementById('" + this.service.getID() + "').$server.editMarker('" + need.getID() + "')");
-            need.getMarkerObj().on("click", clickFuncReferenceEditMarker);
-        }
-        for (Zone zone : this.service.getZones()) {
-            String clickFuncReferenceEditZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
-            this.service.getReg().execJs(clickFuncReferenceEditZone + "=e => document.getElementById('" + this.service.getID() + "').$server.editPolygon('" + zone.getID() + "') ");
-            zone.getPolygon().on("click", clickFuncReferenceEditZone);
-        }
-        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
-            String clickFuncReferenceEditRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditRoute" + route.getID();
-            this.service.getReg().execJs(clickFuncReferenceEditRoute + "=e => document.getElementById('" + this.service.getID() + "').$server.editRoute('" + route.getID() + "') ");
-            route.getPolygon().on("click", clickFuncReferenceEditRoute);
-        }
-        for (Storage storage : this.service.getStorages()) {
-            String clickFuncReferenceEditStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
-            this.service.getReg().execJs(clickFuncReferenceEditStorage + "=e => document.getElementById('" + this.service.getID() + "').$server.editStorage('" + storage.getID() + "') ");
-            storage.getMarkerObj().on("click", clickFuncReferenceEditStorage);
+        for (int i = points.size() - 2; i > 0; i--) {
+            RoutePoint routePoint = points.get(i);
+            routePoint.removeFromMap(map.getMap());
         }
     }
 
-    public void endEdit(EditCommand c) {
-        this.service.setTempEditCommand(c);
+    public RoutePoint createRoutePoint(double lat, double lng) {
+        RoutePoint routePoint = (RoutePoint) routePointFactory.createMapObject(this.map.getReg(), lat, lng);
 
-        for (Zone zone : this.service.getZones()) {
-            String clickFuncReferenceEditZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
-            zone.getPolygon().off("click", clickFuncReferenceEditZone);
-        }
-        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
-            String clickFuncReferenceEditRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditRoute" + route.getID();
-            route.getPolygon().off("click", clickFuncReferenceEditRoute);
-        }
-        for (Storage storage : this.service.getStorages()) {
-            String clickFuncReferenceEditStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
-            storage.getMarkerObj().off("click", clickFuncReferenceEditStorage);
-        }
+        String clickFuncReferenceDragStart = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragStart" + routePoint.getID();
+        String clickFuncReferenceDragEnd = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragEnd" + routePoint.getID();
 
-        Notification notification = new Notification("Edición realizada exitosamente", 3000);
-        notification.open();
+        this.map.getReg().execJs(clickFuncReferenceDragStart + "=e => document.getElementById('" + MapView.getMapId() + "').$server.routePointStart(e.target.getLatLng())");
+        this.map.getReg().execJs(clickFuncReferenceDragEnd + "=e => document.getElementById('" + MapView.getMapId() + "').$server.routePointEnd(e.target.getLatLng())");
+
+        routePoint.getMarkerObj().on("dragstart", clickFuncReferenceDragStart);
+        routePoint.getMarkerObj().on("dragend", clickFuncReferenceDragEnd);
+
+        routePoint.addToMap(this.map.getMap());
+
+        return routePoint;
     }
 
-    public void startDelete() {
-        for (Need need : this.service.getNeeds()) {
-            String clickFuncReferenceDeleteMarker = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + need.getID();
-            this.service.getReg().execJs(clickFuncReferenceDeleteMarker + "=e => document.getElementById('" + this.service.getID() + "').$server.removeMarker('" + need.getID() + "')");
-            need.getMarkerObj().on("click", clickFuncReferenceDeleteMarker);
+    public Route createRoute(RouteDTO routeDTO, List<RoutePoint> routePoints) {
+        Route route = (Route) routeFactory.createMapObject(this.map.getReg(), 0.0, routeDTO.getID() + 1.0);
+        route.setID(routeDTO.getID());
+        for (RoutePoint routePoint : routePoints) {
+            route.addPoint(this.map.getReg(), new Tuple<>(routePoint.getLatitude(), routePoint.getLongitude()));
         }
-        for (Zone zone : this.service.getZones()) {
-            String clickFuncReferenceDeleteZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
-            this.service.getReg().execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + this.service.getID() + "').$server.removePolygon('" + zone.getID() + "') ");
-            zone.getPolygon().on("click", clickFuncReferenceDeleteZone);
+
+        switch (routeDTO.getRouteType()) {
+            case "PREFERRED_ROUTE":
+                route.generatePolygon(this.map.getReg(), "green", "green");
+                break;
+            case "LOW_RISK":
+                route.generatePolygon(this.map.getReg(), "yellow", "yellow");
+                break;
+            case "MEDIUM_RISK":
+                route.generatePolygon(this.map.getReg(), "red", "red");
+                break;
+            case "HIGH_RISK":
+                route.generatePolygon(this.map.getReg(), "black", "black");
+                break;
+            case "CLOSED":
+                route.generatePolygon(this.map.getReg(), "blue", "blue");
+                break;
+            default:
+                route.generatePolygon(this.map.getReg(), "black", "black");
         }
-        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
-            String clickFuncReferenceDeleteRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
-            this.service.getReg().execJs(clickFuncReferenceDeleteRoute + "=e => document.getElementById('" + this.service.getID() + "').$server.removeRoute('" + route.getID() + "') ");
-            route.getPolygon().on("click", clickFuncReferenceDeleteRoute);
-        }
-        for (Storage storage : this.service.getStorages()) {
-            String clickFuncReferenceDeleteStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteStorage" + storage.getID();
-            this.service.getReg().execJs(clickFuncReferenceDeleteStorage + "=e => document.getElementById('" + this.service.getID() + "').$server.removeStorage('" + storage.getID() + "') ");
-            storage.getMarkerObj().on("click", clickFuncReferenceDeleteStorage);
-        }
+
+        route.setID(routeDTO.getID());
+        route.setRouteType(routeDTO.getRouteType());
+        route.setName(routeDTO.getName() != null ? routeDTO.getName() : "Sin nombre");
+        route.setCatastrophe(routeDTO.getCatastrophe() != null ? routeDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
+        route.setPointsID(routeDTO.getPoints() != null ? (ArrayList<Integer>) routeDTO.getPoints() : new ArrayList<>());
+
+        route.getPolygon().bindPopup("Ruta: " + route.getName());
+        map.getRoutes().add(route);
+
+        map.getLLayerGroupRoutes().addLayer(route.getPolygon());
+        map.getLLayerGroupRoutes().addLayer(routePoints.get(0).getMarkerObj());
+        map.getLLayerGroupRoutes().addLayer(routePoints.get(routePoints.size() - 1).getMarkerObj());
+        routePoints.get(0).getMarkerObj().bindPopup("Ruta: " + route.getName());
+        routePoints.get(routePoints.size() - 1).getMarkerObj().bindPopup("Ruta: " + route.getName());
+//        this.map.getMap().addLayer(lLayerGroupRoutes);
+
+        return route;
     }
 
-    public void endDelete(DeleteCommand c) {
-        this.service.setTempDeleteCommand(c);
-        for (Zone zone : this.service.getZones()) {
-            String clickFuncReferenceDeleteZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
-            zone.getPolygon().off("click", clickFuncReferenceDeleteZone);
-        }
-        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
-            String clickFuncReferenceDeleteRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
-            route.getPolygon().off("click", clickFuncReferenceDeleteRoute);
-        }
-        for (Storage storage : this.service.getStorages()) {
-            String clickFuncReferenceDeleteStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteStorage" + storage.getID();
-            storage.getMarkerObj().off("click", clickFuncReferenceDeleteStorage);
-        }
-    }
-
-    public void editStorage(Storage storage) {
-        log.debug("Almacen editado");
-        storage.updateToServer();
-        service.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
-            service.getStorages().remove(s);
-            service.getStorages().add(storage);
-        });
-        service.updateStorage(storage);
-    }
+//
+//    public void editRoute(org.pinguweb.frontend.mapObjects.Route route) {
+//        log.debug("Ruta editada");
+//        route.updateToServer();
+//        service.getRoutes().stream().filter(r -> Objects.equals(r.getID(), route.getID())).findFirst().ifPresent(r -> {
+//            service.getRoutes().remove(r);
+//            service.getRoutes().add(route);
+//        });
+//        service.updateRoute(route);
+//    }
+//
+//    public void startEdit() {
+//        for (Need need : this.service.getNeeds()) {
+//            String clickFuncReferenceEditMarker = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditMarker" + need.getID();
+//            this.service.getReg().execJs(clickFuncReferenceEditMarker + "=e => document.getElementById('" + this.service.getID() + "').$server.editMarker('" + need.getID() + "')");
+//            need.getMarkerObj().on("click", clickFuncReferenceEditMarker);
+//        }
+//        for (Zone zone : this.service.getZones()) {
+//            String clickFuncReferenceEditZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
+//            this.service.getReg().execJs(clickFuncReferenceEditZone + "=e => document.getElementById('" + this.service.getID() + "').$server.editPolygon('" + zone.getID() + "') ");
+//            zone.getPolygon().on("click", clickFuncReferenceEditZone);
+//        }
+//        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
+//            String clickFuncReferenceEditRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditRoute" + route.getID();
+//            this.service.getReg().execJs(clickFuncReferenceEditRoute + "=e => document.getElementById('" + this.service.getID() + "').$server.editRoute('" + route.getID() + "') ");
+//            route.getPolygon().on("click", clickFuncReferenceEditRoute);
+//        }
+//        for (Storage storage : this.service.getStorages()) {
+//            String clickFuncReferenceEditStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
+//            this.service.getReg().execJs(clickFuncReferenceEditStorage + "=e => document.getElementById('" + this.service.getID() + "').$server.editStorage('" + storage.getID() + "') ");
+//            storage.getMarkerObj().on("click", clickFuncReferenceEditStorage);
+//        }
+//    }
+//
+//    public void endEdit(EditCommand c) {
+//        this.service.setTempEditCommand(c);
+//
+//        for (Zone zone : this.service.getZones()) {
+//            String clickFuncReferenceEditZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
+//            zone.getPolygon().off("click", clickFuncReferenceEditZone);
+//        }
+//        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
+//            String clickFuncReferenceEditRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditRoute" + route.getID();
+//            route.getPolygon().off("click", clickFuncReferenceEditRoute);
+//        }
+//        for (Storage storage : this.service.getStorages()) {
+//            String clickFuncReferenceEditStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
+//            storage.getMarkerObj().off("click", clickFuncReferenceEditStorage);
+//        }
+//
+//        Notification notification = new Notification("Edición realizada exitosamente", 3000);
+//        notification.open();
+//    }
+//
+//    public void startDelete() {
+//        for (Need need : this.service.getNeeds()) {
+//            String clickFuncReferenceDeleteMarker = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + need.getID();
+//            this.service.getReg().execJs(clickFuncReferenceDeleteMarker + "=e => document.getElementById('" + this.service.getID() + "').$server.removeMarker('" + need.getID() + "')");
+//            need.getMarkerObj().on("click", clickFuncReferenceDeleteMarker);
+//        }
+//        for (Zone zone : this.service.getZones()) {
+//            String clickFuncReferenceDeleteZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
+//            this.service.getReg().execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + this.service.getID() + "').$server.removePolygon('" + zone.getID() + "') ");
+//            zone.getPolygon().on("click", clickFuncReferenceDeleteZone);
+//        }
+//        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
+//            String clickFuncReferenceDeleteRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
+//            this.service.getReg().execJs(clickFuncReferenceDeleteRoute + "=e => document.getElementById('" + this.service.getID() + "').$server.removeRoute('" + route.getID() + "') ");
+//            route.getPolygon().on("click", clickFuncReferenceDeleteRoute);
+//        }
+//        for (Storage storage : this.service.getStorages()) {
+//            String clickFuncReferenceDeleteStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteStorage" + storage.getID();
+//            this.service.getReg().execJs(clickFuncReferenceDeleteStorage + "=e => document.getElementById('" + this.service.getID() + "').$server.removeStorage('" + storage.getID() + "') ");
+//            storage.getMarkerObj().on("click", clickFuncReferenceDeleteStorage);
+//        }
+//    }
+//
+//    public void endDelete(DeleteCommand c) {
+//        this.service.setTempDeleteCommand(c);
+//        for (Zone zone : this.service.getZones()) {
+//            String clickFuncReferenceDeleteZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
+//            zone.getPolygon().off("click", clickFuncReferenceDeleteZone);
+//        }
+//        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
+//            String clickFuncReferenceDeleteRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
+//            route.getPolygon().off("click", clickFuncReferenceDeleteRoute);
+//        }
+//        for (Storage storage : this.service.getStorages()) {
+//            String clickFuncReferenceDeleteStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteStorage" + storage.getID();
+//            storage.getMarkerObj().off("click", clickFuncReferenceDeleteStorage);
+//        }
+//    }
+//
+//    public void editStorage(Storage storage) {
+//        log.debug("Almacen editado");
+//        storage.updateToServer();
+//        service.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
+//            service.getStorages().remove(s);
+//            service.getStorages().add(storage);
+//        });
+//        service.updateStorage(storage);
+//    }
 
 }

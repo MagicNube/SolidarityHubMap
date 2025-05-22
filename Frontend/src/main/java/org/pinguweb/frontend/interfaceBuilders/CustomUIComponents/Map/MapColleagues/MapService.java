@@ -34,39 +34,22 @@ import java.util.concurrent.CompletableFuture;
 @Getter
 public class MapService extends ComponentColleague {
 
-    private String ID;
-
     private Object lock = new Object();
     private UI ui;
-    private String clickFuncReferenceCreateStorage;
-
-    private HashMap<Tuple<Double, Double>, ZoneMarker> zoneMarkers = new HashMap<>();
-    private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
-    private Tuple<Double, Double> zoneMarkerStartingPoint;
 
     private Tuple<Double, Double> routePointStartingPoint;
     private List<RoutePoint> routePoint = new ArrayList<>();
 
-    private NeedFactory needFactory;
-    private ZoneFactory zoneFactory;
-    private ZoneMarkerFactory zoneMarkerFactory;
-    private RouteFactory routeFactory;
-    private RoutePointFactory routePointFactory;
-    private StorageFactory storageFactory;
-
     private Map map;
+
+    private RoutePointFactory routePointFactory;
 
     private final BackendDTOService backendService = BackendDTOService.GetInstancia();
 
     public MapService(Map mediator) {
         super(mediator);
         this.map = mediator;
-        this.needFactory = new NeedFactory();
-        this.zoneFactory = new ZoneFactory();
-        this.zoneMarkerFactory = new ZoneMarkerFactory();
-        this.routeFactory = new RouteFactory();
-        this.routePointFactory = new RoutePointFactory();
-        this.storageFactory = new StorageFactory();
+        routePointFactory = new RoutePointFactory();
     }
 
     @Override
@@ -232,87 +215,6 @@ public class MapService extends ComponentColleague {
 //        }
 //    }
 //
-//    public ZoneMarker createZoneMarker(double lat, double lng) {
-//        ZoneMarker zoneMarker = (ZoneMarker) zoneMarkerFactory.createMapObject(this.map.getReg(), lat, lng);
-//
-//        String clickFuncReferenceDragStart = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragStart" + zoneMarker.getID();
-//        String clickFuncReferenceDragEnd = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragEnd" + zoneMarker.getID();
-//
-//        this.map.getReg().execJs(clickFuncReferenceDragStart + "=e => document.getElementById('" + ID + "').$server.routePointStart(e.target.getLatLng())");
-//        this.map.getReg().execJs(clickFuncReferenceDragEnd + "=e => document.getElementById('" + ID + "').$server.routePointEnd(e.target.getLatLng())");
-//
-//        zoneMarker.getMarkerObj().on("dragstart", clickFuncReferenceDragStart);
-//        zoneMarker.getMarkerObj().on("dragend", clickFuncReferenceDragEnd);
-//
-//        zoneMarker.addToMap(this.map.getMap());
-//
-//        return zoneMarker;
-//    }
-//
-//    public RoutePoint createRoutePoint(double lat, double lng) {
-//        RoutePoint routePoint = (RoutePoint) routePointFactory.createMapObject(this.map.getReg(), lat, lng);
-//
-//        String clickFuncReferenceDragStart = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragStart" + routePoint.getID();
-//        String clickFuncReferenceDragEnd = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragEnd" + routePoint.getID();
-//
-//        this.map.getReg().execJs(clickFuncReferenceDragStart + "=e => document.getElementById('" + ID + "').$server.routePointStart(e.target.getLatLng())");
-//        this.map.getReg().execJs(clickFuncReferenceDragEnd + "=e => document.getElementById('" + ID + "').$server.routePointEnd(e.target.getLatLng())");
-//
-//        routePoint.getMarkerObj().on("dragstart", clickFuncReferenceDragStart);
-//        routePoint.getMarkerObj().on("dragend", clickFuncReferenceDragEnd);
-//
-//        routePoint.addToMap(this.map.getMap());
-//
-//        return routePoint;
-//    }
-//
-//    public Zone createZone(ZoneDTO zoneDTO) {
-//        List<Tuple<Double, Double>> points = new ArrayList<>();
-//
-//        for (int i = 0; i < zoneDTO.getLatitudes().size(); i++) {
-//            points.add(new Tuple<>(zoneDTO.getLatitudes().get(i), zoneDTO.getLongitudes().get(i)));
-//        }
-//
-//        Zone zone = (Zone) zoneFactory.createMapObject(this.map.getReg(), 0.0, zoneDTO.getID() + 1.0);
-//        for (Tuple<Double, Double> marker : points) {
-//            zone.addPoint(this.map.getReg(), marker);
-//        }
-//
-//        zone.setName(zoneDTO.getName() != null ? zoneDTO.getName() : "Sin nombre");
-//        zone.setDescription(zoneDTO.getDescription() != null ? zoneDTO.getDescription() : "Sin descripción");
-//        zone.setEmergencyLevel(zoneDTO.getEmergencyLevel() != null ? zoneDTO.getEmergencyLevel() : "LOW"); // Nivel por defecto: "Bajo"
-//        zone.setCatastrophe(zoneDTO.getCatastrophe() != null ? zoneDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
-//        zone.setStorages(zoneDTO.getStorages() != null ? zoneDTO.getStorages() : new ArrayList<>());
-//        zone.setLatitudes(zoneDTO.getLatitudes() != null ? zoneDTO.getLatitudes() : List.of(0.0));
-//        zone.setLongitudes(zoneDTO.getLongitudes() != null ? zoneDTO.getLongitudes() : List.of(0.0));
-//
-//        switch (zoneDTO.getEmergencyLevel()) {
-//            case "LOW":
-//                zone.generatePolygon(this.map.getReg(), "grey", "green");
-//                break;
-//            case "MEDIUM":
-//                zone.generatePolygon(this.map.getReg(), "grey", "yellow");
-//                break;
-//            case "HIGH":
-//                zone.generatePolygon(this.map.getReg(), "grey", "red");
-//                break;
-//            case "VERYHIGH":
-//                zone.generatePolygon(this.map.getReg(), "grey", "black");
-//                break;
-//            default:
-//                zone.generatePolygon(this.map.getReg(), "grey", "blue");
-//        }
-//        zone.getPolygon().bindPopup("Zona: " + zone.getName());
-//        zone.setID(zoneDTO.getID());
-//        zone.addToMap(this.map.getMap());
-//
-//        zones.add(zone);
-//        lLayerGroupZones.addLayer(zone.getPolygon());
-//        this.map.getMap().addLayer(lLayerGroupZones);
-//
-//        return zone;
-//    }
-//
 //    public void deleteZone(int ID) {
 //        Zone zone = zones.stream()
 //                .filter(z -> z.getID() == ID)
@@ -326,52 +228,6 @@ public class MapService extends ComponentColleague {
 //            lLayerGroupZones.removeLayer(zone.getPolygon());
 //            this.map.getMap().addLayer(lLayerGroupZones);
 //        }
-//    }
-//
-//    public Route createRoute(RouteDTO routeDTO, List<RoutePoint> routePoints) {
-//        Route route = (Route) routeFactory.createMapObject(this.map.getReg(), 0.0, routeDTO.getID() + 1.0);
-//        route.setID(routeDTO.getID());
-//        for (RoutePoint routePoint : routePoints) {
-//            route.addPoint(this.map.getReg(), new Tuple<>(routePoint.getLatitude(), routePoint.getLongitude()));
-//        }
-//
-//        switch (routeDTO.getRouteType()) {
-//            case "PREFERRED_ROUTE":
-//                route.generatePolygon(this.map.getReg(), "green", "green");
-//                break;
-//            case "LOW_RISK":
-//                route.generatePolygon(this.map.getReg(), "yellow", "yellow");
-//                break;
-//            case "MEDIUM_RISK":
-//                route.generatePolygon(this.map.getReg(), "red", "red");
-//                break;
-//            case "HIGH_RISK":
-//                route.generatePolygon(this.map.getReg(), "black", "black");
-//                break;
-//            case "CLOSED":
-//                route.generatePolygon(this.map.getReg(), "blue", "blue");
-//                break;
-//            default:
-//                route.generatePolygon(this.map.getReg(), "blue", "blue");
-//        }
-//
-//        route.setID(routeDTO.getID());
-//        route.setRouteType(routeDTO.getRouteType());
-//        route.setName(routeDTO.getName() != null ? routeDTO.getName() : "Sin nombre");
-//        route.setCatastrophe(routeDTO.getCatastrophe() != null ? routeDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
-//        route.setPointsID(routeDTO.getPoints() != null ? (ArrayList<Integer>) routeDTO.getPoints() : new ArrayList<>());
-//
-//        route.getPolygon().bindPopup("Ruta: " + route.getName());
-//        routes.add(route);
-//
-//        lLayerGroupRoutes.addLayer(route.getPolygon());
-//        lLayerGroupRoutes.addLayer(routePoints.get(0).getMarkerObj());
-//        lLayerGroupRoutes.addLayer(routePoints.get(routePoints.size() - 1).getMarkerObj());
-//        routePoints.get(0).getMarkerObj().bindPopup("Ruta: " + route.getName());
-//        routePoints.get(routePoints.size() - 1).getMarkerObj().bindPopup("Ruta: " + route.getName());
-//        this.map.getMap().addLayer(lLayerGroupRoutes);
-//
-//        return route;
 //    }
 //
 //    public void deleteRoute(int ID) {

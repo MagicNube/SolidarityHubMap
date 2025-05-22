@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapService;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapState;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.*;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
@@ -43,8 +41,6 @@ public class Map extends InterfaceComponent implements Mediator {
 
     @Setter
     private MapState state;
-
-    @Getter
     private VerticalLayout component;
 
     private HashSet<Storage> storages = new HashSet<>();
@@ -52,6 +48,10 @@ public class Map extends InterfaceComponent implements Mediator {
     private HashSet<Zone> zones = new HashSet<>();
     private HashSet<Route> routes = new HashSet<>();
     private HashMap<Integer, List<RoutePoint>> routePoints = new HashMap<>();
+
+    private HashMap<Tuple<Double, Double>, ZoneMarker> zoneMarkers = new HashMap<>();
+    private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
+    private Tuple<Double, Double> zoneMarkerStartingPoint;
 
     @Setter
     private LLayerGroup lLayerGroupZones;
@@ -67,6 +67,9 @@ public class Map extends InterfaceComponent implements Mediator {
         this.component = new VerticalLayout();
         this.component.setSizeFull();
 
+        new MapDialogs(this);
+        new MapBuild(this);
+
         this.reg = new LDefaultComponentManagementRegistry(this.component);
         MapContainer mapContainer = new MapContainer(reg);
         mapContainer.setSizeFull();
@@ -78,7 +81,6 @@ public class Map extends InterfaceComponent implements Mediator {
         this.map.locate(new LMapLocateOptions().withSetView(true).withMaxZoom(16));
 
         this.service = new MapService(this);
-        this.service.setID(MapView.getMapId());
 
         component.add(mapContainer);
         component.add(new MapButtons(this).generateButtonRow());
