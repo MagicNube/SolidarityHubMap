@@ -37,8 +37,6 @@ public class Map extends InterfaceComponent implements Mediator {
     private LDefaultComponentManagementRegistry reg;
     private LMap map;
 
-    private MapService service;
-
     @Setter
     private MapState state;
     private VerticalLayout component;
@@ -67,23 +65,20 @@ public class Map extends InterfaceComponent implements Mediator {
         this.component = new VerticalLayout();
         this.component.setSizeFull();
 
-        new MapDialogs(this);
-        new MapBuild(this);
-
         this.reg = new LDefaultComponentManagementRegistry(this.component);
         MapContainer mapContainer = new MapContainer(reg);
         mapContainer.setSizeFull();
         this.map = mapContainer.getlMap();
-
         LLayer<LTileLayer> layer = LTileLayer.createDefaultForOpenStreetMapTileServer(reg);
         this.map.addLayer(layer);
-
         this.map.locate(new LMapLocateOptions().withSetView(true).withMaxZoom(16));
-
-        this.service = new MapService(this);
 
         component.add(mapContainer);
         component.add(new MapButtons(this).generateButtonRow());
+
+        new MapService(this);
+        new MapDialogs(this);
+        new MapBuild(this);
 
         state = MapState.IDLE;
         publish(new LoadEvent<>());

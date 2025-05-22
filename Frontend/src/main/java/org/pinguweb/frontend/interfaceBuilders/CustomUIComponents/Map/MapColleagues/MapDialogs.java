@@ -42,19 +42,17 @@ public class MapDialogs extends ComponentColleague {
     private final BackendDTOService backendService = BackendDTOService.GetInstancia();
 
     private final Map map;
-    private final Mediator mediator;
 
     public MapDialogs(Map map) {
         super(map);
         this.map = map;
-        this.mediator = map;
     }
 
     @Override
     public void register() {
-        mediator.subscribe(EventType.SHOW, (Colleague) this);
-        mediator.subscribe(EventType.SHOW_EDIT, (Colleague) this);
-        mediator.subscribe(EventType.CLOSE, (Colleague) this);
+        mediator.subscribe(EventType.SHOW, this);
+        mediator.subscribe(EventType.SHOW_EDIT, this);
+        mediator.subscribe(EventType.CLOSE, this);
     }
 
     @Override

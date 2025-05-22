@@ -3,7 +3,7 @@ package org.pinguweb.frontend.utils.Mediador;
 import lombok.Getter;
 
 @Getter
-public abstract class ComponentColleague {
+public abstract class ComponentColleague implements Colleague {
     protected Mediator mediator;
 
     public ComponentColleague(Mediator mediator) {

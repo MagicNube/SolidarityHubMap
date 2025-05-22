@@ -54,7 +54,7 @@ public class MapService extends ComponentColleague {
 
     @Override
     public void register() {
-        mediator.subscribe(EventType.LOAD, (Colleague) this);
+        mediator.subscribe(EventType.LOAD, this);
     }
 
     @Override

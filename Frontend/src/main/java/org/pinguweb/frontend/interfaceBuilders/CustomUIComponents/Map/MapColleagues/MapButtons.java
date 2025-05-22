@@ -55,9 +55,9 @@ public class MapButtons extends ComponentColleague {
 
     @Override
     public void register() {
-        mediator.subscribe(EventType.ENABLE_BUTTONS, (Colleague) this);
-        mediator.subscribe(EventType.DISABLE_BUTTONS, (Colleague) this);
-        mediator.subscribe(EventType.CANCEL_CREATE, (Colleague) this);
+        mediator.subscribe(EventType.ENABLE_BUTTONS, this);
+        mediator.subscribe(EventType.DISABLE_BUTTONS, this);
+        mediator.subscribe(EventType.CANCEL_CREATE, this);
     }
 
     @Override

@@ -56,7 +56,7 @@ public class MapBuild extends ComponentColleague {
 
     @Override
     public void register() {
-        mediator.subscribe(EventType.BUILD, (Colleague) this);
+        mediator.subscribe(EventType.BUILD, this);
     }
 
     @Override
