@@ -13,6 +13,7 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dash
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 import org.pinguweb.frontend.services.BackendDTOService;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -251,12 +252,79 @@ public class ChartGenerator {
                             .map(i -> new Integer[]{i})
                             .toArray(Integer[][]::new),
                     "Comparación",
+                    palette 
+            );
+            dashboards.add(d);
+        }
+        return dashboards;
+    }
+    public List<InterfaceComponent> buildTasksByUrgencyTodayChart(ChartType[] types) {
+        // Filtrar tareas del día actual
+        LocalDate today = LocalDate.now();
+        List<TaskDTO> todayTasks = tasks.stream()
+                .filter(t -> t.getStartTimeDate() != null && t.getEstimatedEndTimeDate() != null &&
+                        !t.getStartTimeDate().toLocalDate().isAfter(today) &&
+                        !t.getEstimatedEndTimeDate().toLocalDate().isBefore(today)).toList();
+
+        // Obtener los niveles de urgencia posibles
+        String[] urgencies = {"BAJA", "MEDIA", "ALTA"}; // Ajusta según tus enums o valores reales
+        int[] counts = new int[urgencies.length];
+
+        // Contar tareas por urgencia
+        for (TaskDTO t : todayTasks) {
+            String urgency = t.getUrgency(); // Ajusta si es enum: t.getUrgency().name()
+            for (int i = 0; i < urgencies.length; i++) {
+                if (urgencies[i].equalsIgnoreCase(urgency)) {
+                    counts[i]++;
+                }
+            }
+        }
+
+        // Filtrar solo urgencias con tareas
+        List<String> filteredLabels = new ArrayList<>();
+        List<Integer> filteredCounts = new ArrayList<>();
+        List<List<TaskDTO>> groupedTasks = new ArrayList<>();
+        for (int i = 0; i < urgencies.length; i++) {
+            if (counts[i] > 0) {
+                filteredLabels.add(urgencies[i]);
+                filteredCounts.add(counts[i]);
+                List<TaskDTO> group = todayTasks.stream()
+                        .filter(t -> urgencies[i].equalsIgnoreCase(t.getUrgency()))
+                        .toList();
+                groupedTasks.add(group);
+            }
+        }
+
+        Color[] palette = dataGenerator.generateColorPalette(filteredLabels.size());
+        List<InterfaceComponent> dashboards = new ArrayList<>();
+        for (ChartType type : types) {
+            Dashboard d = Dashboard.createSimpleDashboard(
+                    "Tareas de Hoy por Urgencia",
+                    type,
+                    new RectangularCoordinate(
+                            new XAxis(DataType.CATEGORY),
+                            new YAxis(DataType.NUMBER)
+                    )
+            );
+            d.addData(
+                    filteredLabels.toArray(new String[0]),
+                    filteredLabels.stream()
+                            .map(Etiqueta::new)
+                            .map(e -> new Etiqueta[]{e})
+                            .toArray(Etiqueta[][]::new),
+                    filteredCounts.toArray(new Integer[0]),
+                    groupedTasks.stream()
+                            .map(list -> list.toArray(TaskDTO[]::new))
+                            .toArray(TaskDTO[][]::new),
+                    "Tareas por Urgencia",
                     palette
             );
             dashboards.add(d);
         }
         return dashboards;
     }
+
+
 
 //    //*
 //    //TODO: Nico necesitamos los controles de Resource que no están
@@ -353,6 +421,6 @@ public class ChartGenerator {
 //
 //    */
 
-    // Método auxiliar para generar colores consistentes
+
 
 }
