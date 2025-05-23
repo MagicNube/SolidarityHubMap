@@ -157,7 +157,7 @@ public class MapBuild extends ComponentColleague {
         }
     }
 
-    public RoutePoint showRoutePoint(double lat, double lng) {
+    public void showRoutePoint(double lat, double lng) {
         RoutePoint routePoint = (RoutePoint) new RoutePointFactory().createMapObject(this.map.getReg(), lat, lng);
 
         String clickFuncReferenceDragStart = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragStart" + routePoint.getID();
@@ -171,8 +171,6 @@ public class MapBuild extends ComponentColleague {
 
         routePoint.addToMap(this.map.getMap());
         map.getNewRoutePoints().add(routePoint);
-
-        return routePoint;
     }
 
 //

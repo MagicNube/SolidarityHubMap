@@ -147,6 +147,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         Tuple<Double, Double> coords = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
         ShowEvent<Tuple<Double, Double>> event = new ShowEvent<Tuple<Double, Double>>(EventType.SHOW_DIALOG, coords, DialogsNames.STORAGE);
         mediator.publish(event);
+        map.getMap().off("click", clickFuncReferenceCreateStorage);
     }
 
 //    @ClientCallable
