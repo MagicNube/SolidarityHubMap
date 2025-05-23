@@ -26,15 +26,17 @@ public class CreateZoneCommand implements Command {
     @Override
     public void execute() {
         if (!working) {
-            buttonController.getZone().setText("Terminar Zona");
+            buttonController.getZone().setText("Terminar zona");
             buttonController.getMediator().publish(new ButtonEvent<>(EventType.DISABLE_BUTTONS, ButtonNames.ZONE));
             buttonController.getMediator().publish(new RequestClickEvent<>(ClickedElement.ZONE));
+            working = true;
         }
         else{
             buttonController.getZone().setText("Crear zona");
             buttonController.getMediator().publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS,null));
-            buttonController.getMediator().publish(new GenericEvent<>(EventType.END_CLICK, ButtonNames.ZONE, this));
+            buttonController.getMediator().publish(new ShowEvent<>(EventType.SHOW_DIALOG, null, DialogsNames.ZONE));
             buttonController.addExecutedCommand(this);
+            working = false;
         }
     }
 

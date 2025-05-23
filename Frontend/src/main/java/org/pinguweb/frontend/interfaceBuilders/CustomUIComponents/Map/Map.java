@@ -48,10 +48,10 @@ public class Map extends InterfaceComponent implements Mediator {
     private HashSet<Zone> zones = new HashSet<>();
     private HashSet<Route> routes = new HashSet<>();
     private HashMap<Integer, List<RoutePoint>> routePoints = new HashMap<>();
+    private List<RoutePoint> newRoutePoints= new ArrayList<>();
 
     private HashMap<Tuple<Double, Double>, ZoneMarker> zoneMarkers = new HashMap<>();
     private List<Tuple<Double, Double>> zoneMarkerPoints = new ArrayList<>();
-    private Tuple<Double, Double> zoneMarkerStartingPoint;
 
     @Setter
     private LLayerGroup lLayerGroupZones;
@@ -68,6 +68,7 @@ public class Map extends InterfaceComponent implements Mediator {
          zones = new HashSet<>();
          routes = new HashSet<>();
          routePoints = new HashMap<>();
+         newRoutePoints = new ArrayList<>();
          zoneMarkers = new HashMap<>();
          zoneMarkerPoints = new ArrayList<>();
     }

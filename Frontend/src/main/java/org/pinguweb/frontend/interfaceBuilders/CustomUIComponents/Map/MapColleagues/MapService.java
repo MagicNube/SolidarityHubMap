@@ -77,10 +77,10 @@ public class MapService extends ComponentColleague {
                 createStorage((StorageDTO) event.getPayload());
             }
             else if (event.getPayload() instanceof RouteDTO){
-
+                createRoute((RouteDTO) event.getPayload(), ((CreationEvent<T>)event).getExtraData());
             }
             else if (event.getPayload() instanceof ZoneDTO){
-
+                createZone((ZoneDTO) event.getPayload());
             }
         }
     }
@@ -206,7 +206,6 @@ public class MapService extends ComponentColleague {
     }
 
 
-
     private Storage createStorage(StorageDTO storage) {
         double lat = storage.getLatitude();
         double lng = storage.getLongitude();
@@ -278,7 +277,10 @@ public class MapService extends ComponentColleague {
         route.setID(routeDTO.getID());
         for (RoutePoint routePoint : routePoints) {
             route.addPoint(this.map.getReg(), new Tuple<>(routePoint.getLatitude(), routePoint.getLongitude()));
+            route.removeFromMap(map.getMap());
         }
+
+        map.getNewRoutePoints().clear();
 
         switch (routeDTO.getRouteType()) {
             case "PREFERRED_ROUTE":

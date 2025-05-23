@@ -64,7 +64,6 @@ public class MapBuild extends ComponentColleague {
         }
     }
 
-
     public void showStorage(Storage storage, CreateStorageCommand c){
         if (c != null ) {c.setStorage(storage);}
 //        int tempId = storage.pushToServer();
@@ -113,6 +112,9 @@ public class MapBuild extends ComponentColleague {
         zoneMarker.getMarkerObj().on("dragend", clickFuncReferenceDragEnd);
 
         zoneMarker.addToMap(this.map.getMap());
+        Tuple<Double, Double> coord = new Tuple<>(lat, lng);
+        map.getZoneMarkerPoints().add(coord);
+        map.getZoneMarkers().put(coord, zoneMarker);
 
         return zoneMarker;
     }
@@ -168,6 +170,7 @@ public class MapBuild extends ComponentColleague {
         routePoint.getMarkerObj().on("dragend", clickFuncReferenceDragEnd);
 
         routePoint.addToMap(this.map.getMap());
+        map.getNewRoutePoints().add(routePoint);
 
         return routePoint;
     }

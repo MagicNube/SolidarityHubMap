@@ -3,13 +3,11 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.
 import com.vaadin.flow.component.notification.Notification;
 import lombok.Setter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ButtonNames;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ClickedElement;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.DialogsNames;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.DeleteEvent;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.RequestClickEvent;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.*;
 import org.pinguweb.frontend.mapObjects.Route;
 import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.utils.Mediador.EventType;
@@ -18,6 +16,7 @@ import java.util.List;
 
 public class CreateRouteCommand implements Command{
     MapButtons buttonController;
+    private boolean working = false;
 
     @Setter
     Route route;
@@ -30,8 +29,19 @@ public class CreateRouteCommand implements Command{
 
     @Override
     public void execute() {
-        buttonController.getMediator().publish(new RequestClickEvent<>(ClickedElement.ROUTE_POINT));
-        buttonController.addExecutedCommand(this);
+        if (!working) {
+            buttonController.getZone().setText("Terminar ruta");
+            buttonController.getMediator().publish(new ButtonEvent<>(EventType.DISABLE_BUTTONS, ButtonNames.ROUTE));
+            buttonController.getMediator().publish(new RequestClickEvent<>(ClickedElement.ROUTE_POINT));
+            working = true;
+        }
+        else{
+            buttonController.getZone().setText("Crear ruta");
+            buttonController.getMediator().publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS,null));
+            buttonController.getMediator().publish(new ShowEvent<>(EventType.SHOW_DIALOG, null, DialogsNames.ROUTE));
+            buttonController.addExecutedCommand(this);
+            working = false;
+        }
     }
 
     @Override
