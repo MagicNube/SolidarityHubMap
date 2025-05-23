@@ -24,7 +24,7 @@ import java.util.LinkedList;
 public class MapButtons extends ComponentColleague {
     private final CommandButton zone = new CommandButton("Crear zona");
     private final CommandButton route = new CommandButton("Crear ruta");
-    private final CommandButton storage = new CommandButton("Crear Almacen");
+    private final CommandButton storage = new CommandButton("Crear almacen");
     private final CommandButton edit = new CommandButton("Editar");
     private final CommandButton delete = new CommandButton("Borrar");
     private final Button undo = new Button(VaadinIcon.ARROW_BACKWARD.create());

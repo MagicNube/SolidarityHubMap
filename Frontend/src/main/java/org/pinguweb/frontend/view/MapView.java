@@ -46,7 +46,6 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
     private String clickFuncReferenceCreateStorage;
 
     Command lastCommand;
-
     UI ui;
 
     public MapView() {

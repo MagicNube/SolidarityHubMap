@@ -106,7 +106,6 @@ public class Map extends InterfaceComponent implements Mediator {
 
     @Override
     public <T> void publish(Event<T> event) {
-        log.info("Map received event of type: {}", event.getType());
         suscribers.stream().filter(x -> x._2() == event.getType())
                             .forEach(x -> x._1().receive(event));
     }

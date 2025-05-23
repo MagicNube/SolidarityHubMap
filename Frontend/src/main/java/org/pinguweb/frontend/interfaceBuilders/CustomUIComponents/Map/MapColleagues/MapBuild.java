@@ -33,7 +33,6 @@ public class MapBuild extends ComponentColleague {
         clickFuncReferenceCreateZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone";
         clickFuncReferenceCreateRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute";
         clickFuncReferenceCreateRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateStorage";
-
     }
 
     @Override
@@ -66,28 +65,19 @@ public class MapBuild extends ComponentColleague {
 
     public void showStorage(Storage storage, CreateStorageCommand c){
         if (c != null ) {c.setStorage(storage);}
-//        int tempId = storage.pushToServer();
-//        storage.setID(tempId);
         map.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
             map.getStorages().remove(s);
         });
 
+        map.getStorages().add(storage);
+        map.getLLayerGroupStorages().addLayer(storage.getMarkerObj());
+        this.map.getMap().addLayer(map.getLLayerGroupStorages());
+
         map.getMap().off("click", clickFuncReferenceCreateStorage);
-//
-//        Notification notification = new Notification("Almacén creado exitosamente", 3000);
-//        notification.open();
     }
 
 
     public void showZone(Zone zone, CreateZoneCommand c) {
-        log.debug("Zona terminada");
-//        Zone zona = createZone(zone);
-//
-//        int newID = zona.pushToServer();
-        map.getZones().stream().filter(z -> z.getID() == zone.getID()).findFirst().ifPresent(z -> {
-//            z.setID(newID);
-        });
-
         for (ZoneMarker zoneMarker : map.getZoneMarkers().values()) {
             zoneMarker.removeFromMap(map.getMap());
         }
@@ -95,7 +85,11 @@ public class MapBuild extends ComponentColleague {
         map.getMap().off("click", clickFuncReferenceCreateZone);
         map.getZoneMarkers().clear();
         map.getZoneMarkerPoints().clear();
-//        if (c != null) {c.setZone(zona);}
+
+        zone.addToMap(this.map.getMap());
+        map.getZones().add(zone);
+        map.getLLayerGroupZones().addLayer(zone.getPolygon());
+        this.map.getMap().addLayer(map.getLLayerGroupZones());
     }
 
     public ZoneMarker showZoneMarker(double lat, double lng) {
@@ -132,7 +126,6 @@ public class MapBuild extends ComponentColleague {
 
     public void showRoute(Route ruta, List<RoutePoint> points, CreateRouteCommand c) {
         map.getMap().off("click", clickFuncReferenceCreateRoute);
-        log.debug("Ruta terminada");
         List<Integer> pointsID = new ArrayList<>();
         for (RoutePoint routePoint : points) {
             pointsID.add(routePoint.pushToServer());
@@ -141,20 +134,24 @@ public class MapBuild extends ComponentColleague {
         if (c != null) {c.setPoints(points);}
 
         ruta.setPointsID(pointsID);
-//        int tempID = ruta.pushToServer();
 
         if (c != null) {c.setRoute(ruta);}
 
-        map.getRoutes().stream().filter(r -> r.getID() == ruta.getID()).findFirst().ifPresent(r -> {
+        map.getRoutes().stream().filter(r -> Objects.equals(r.getID(), ruta.getID())).findFirst().ifPresent(r -> {
             map.getRoutes().remove(r);
             map.getRoutes().add(ruta);
         });
-//        map.getRoutePoints().put(tempID, new ArrayList<>(points));
 
-        for (int i = points.size() - 2; i > 0; i--) {
-            RoutePoint routePoint = points.get(i);
-            routePoint.removeFromMap(map.getMap());
-        }
+        points.get(0).addToMap(map.getMap());
+        points.get(points.size()-1).addToMap(map.getMap());
+
+        map.getRoutes().add(ruta);
+        map.getLLayerGroupRoutes().addLayer(ruta.getPolygon());
+        map.getLLayerGroupRoutes().addLayer(points.get(0).getMarkerObj());
+        map.getLLayerGroupRoutes().addLayer(points.get(points.size() - 1).getMarkerObj());
+        points.get(0).getMarkerObj().bindPopup("Ruta: " + ruta.getName());
+        points.get(points.size() - 1).getMarkerObj().bindPopup("Ruta: " + ruta.getName());
+        this.map.getMap().addLayer(map.getLLayerGroupRoutes());
     }
 
     public void showRoutePoint(double lat, double lng) {

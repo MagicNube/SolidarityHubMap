@@ -11,6 +11,7 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
 import org.pinguweb.frontend.services.BackendDTOService;
@@ -74,13 +75,19 @@ public class MapService extends ComponentColleague {
         }
         if (event.getType() == EventType.CREATE){
             if (event.getPayload() instanceof StorageDTO){
-                createStorage((StorageDTO) event.getPayload());
+                Storage s = createStorage((StorageDTO) event.getPayload());
+                s.setID(s.pushToServer());
+                mediator.publish(new ShowEvent<>(EventType.SHOW, s, null));
             }
             else if (event.getPayload() instanceof RouteDTO){
-                createRoute((RouteDTO) event.getPayload(), ((CreationEvent<T>)event).getExtraData());
+                Route r = createRoute((RouteDTO) event.getPayload(), ((CreationEvent<T>)event).getExtraData());
+                r.setID(r.pushToServer());
+                mediator.publish(new ShowEvent<>(EventType.SHOW, r, null));
             }
             else if (event.getPayload() instanceof ZoneDTO){
-                createZone((ZoneDTO) event.getPayload());
+                Zone z = createZone((ZoneDTO) event.getPayload());
+                z.setID(z.pushToServer());
+                mediator.publish(new ShowEvent<>(EventType.SHOW, z, null));
             }
         }
     }
@@ -104,11 +111,10 @@ public class MapService extends ComponentColleague {
             return;
         }
 
-        CompletableFuture.runAsync(() -> loadNeeds(ui));
-        CompletableFuture.runAsync(() -> loadZones(ui));
-        CompletableFuture.runAsync(() -> loadRoutes(ui));
-        CompletableFuture.runAsync(() -> loadStorages(ui));
-
+        loadNeeds(ui);
+        loadZones(ui);
+        loadRoutes(ui);
+        loadStorages(ui);
     }
 
     private void loadNeeds(UI ui) {
@@ -116,7 +122,7 @@ public class MapService extends ComponentColleague {
             if (need.getLatitude() != null && need.getLongitude() != null) {
                 ui.access(() -> {
                     log.debug(need.toString());
-                    mediator.publish(new CreationEvent<>(EventType.SHOW, need, null, null));
+                    mediator.publish(new CreationEvent<>(EventType.SHOW, createNeed(need), null, null));
                 });
             }
         }
@@ -125,7 +131,7 @@ public class MapService extends ComponentColleague {
     private void loadZones(UI ui) {
         for (ZoneDTO zone : backendService.getZoneList().getValues()) {
             if (!zone.getLatitudes().isEmpty() && !zone.getLongitudes().isEmpty()) {
-                ui.access(() -> mediator.publish(new CreationEvent<>(EventType.SHOW, zone, null, null)));
+                ui.access(() -> mediator.publish(new CreationEvent<>(EventType.SHOW, createZone(zone), null, null)));
             }
         }
     }
@@ -133,48 +139,39 @@ public class MapService extends ComponentColleague {
     private void loadStorages(UI ui) {
         for (StorageDTO storage : backendService.getStorageList().getValues()) {
             if (storage.getLatitude() != null && storage.getLongitude() != null) {
-                ui.access(() -> mediator.publish(new CreationEvent<>(EventType.SHOW, storage, null, null)));
+                ui.access(() -> mediator.publish(new CreationEvent<>(EventType.SHOW, createStorage(storage), null, null)));
             }
         }
     }
 
     private void loadRoutes(UI ui) {
         for (RouteDTO route : backendService.getRouteList().getValues()) {
-            if (!route.getPoints().isEmpty()) {
+            if (!route.getPoints().isEmpty() && !backendService.getRoutePointList().isEmpty()) {
                 List<RoutePoint> routePoints = new ArrayList<>();
+
                 for (Integer i : route.getPoints()) {
-                    RoutePointDTO routePoint = backendService.getRoutePointList().getValues().stream().filter(
-                            routePointDTO ->  route.getPoints().get(i) == routePointDTO.getID()
-                    ).toList().get(0);
-                    if (routePoint != null) {
-                        double lat = routePoint.getLatitude();
-                        double lon = routePoint.getLongitude();
-                        int id = routePoint.getID();
-                        boolean isEdge = i == 0 || i == route.getPoints().size() - 1;
+                    Optional<RoutePointDTO> routePoint = backendService.getRoutePointList().getValues().stream().filter(
+                            x -> x.getID() == i
+                    ).findFirst();
 
-                        ui.access(() -> {
-                            RoutePoint point = (RoutePoint) routePointFactory.createMapObject(this.map.getReg(), lat, lon);
-                            point.setID(id);
-                            point.getMarkerObj().bindPopup("Ruta: " + route.getName());
-                            this.map.getRoutePoints().computeIfAbsent(route.getID(), k -> new ArrayList<>()).add(point);
-                            if (isEdge) {
-                                point.addToMap(this.map.getMap());
-                            }
-                            routePoints.add(point);
-                        });
+                    if (routePoint.isPresent()){
+                        double lat = routePoint.get().getLatitude();
+                        double lon = routePoint.get().getLongitude();
+                        int id = routePoint.get().getID();
 
-                    } else {
-                        log.debug("RoutePoint not found: " + route.getPoints().get(i));
+                        RoutePoint point = (RoutePoint) routePointFactory.createMapObject(this.map.getReg(), lat, lon);
+                        point.setID(id);
+                        point.getMarkerObj().bindPopup("Ruta: " + route.getName());
+                        this.map.getRoutePoints().computeIfAbsent(route.getID(), k -> new ArrayList<>()).add(point);
+
+                        routePoints.add(point);
                     }
                 }
 
                 if (!routePoints.isEmpty()) {
-                    ui.access(() -> mediator.publish(
-                            new CreationEvent<>(EventType.SHOW, route, null, routePoints))
-                    );
+                   ui.access(() -> mediator.publish(new CreationEvent<>(EventType.SHOW, createRoute(route, routePoints), null, routePoints)));
                 }
             }
-
         }
     }
 
@@ -219,9 +216,6 @@ public class MapService extends ComponentColleague {
         storageObj.addToMap(this.map.getMap());
         storageObj.getMarkerObj().bindPopup("Almacen: " + storage.getName());
 
-        map.getStorages().add(storageObj);
-        map.getLLayerGroupStorages().addLayer(storageObj.getMarkerObj());
-        this.map.getMap().addLayer(map.getLLayerGroupStorages());
         return storageObj;
     }
 
@@ -263,11 +257,6 @@ public class MapService extends ComponentColleague {
         }
         zone.getPolygon().bindPopup("Zona: " + zone.getName());
         zone.setID(zoneDTO.getID());
-        zone.addToMap(this.map.getMap());
-
-        map.getZones().add(zone);
-        map.getLLayerGroupZones().addLayer(zone.getPolygon());
-        this.map.getMap().addLayer(map.getLLayerGroupZones());
 
         return zone;
     }
@@ -277,10 +266,8 @@ public class MapService extends ComponentColleague {
         route.setID(routeDTO.getID());
         for (RoutePoint routePoint : routePoints) {
             route.addPoint(this.map.getReg(), new Tuple<>(routePoint.getLatitude(), routePoint.getLongitude()));
-            route.removeFromMap(map.getMap());
+            routePoint.removeFromMap(map.getMap());
         }
-
-        map.getNewRoutePoints().clear();
 
         switch (routeDTO.getRouteType()) {
             case "PREFERRED_ROUTE":
@@ -309,39 +296,27 @@ public class MapService extends ComponentColleague {
         route.setPointsID(routeDTO.getPoints() != null ? (ArrayList<Integer>) routeDTO.getPoints() : new ArrayList<>());
 
         route.getPolygon().bindPopup("Ruta: " + route.getName());
-        map.getRoutes().add(route);
 
-        map.getLLayerGroupRoutes().addLayer(route.getPolygon());
-        map.getLLayerGroupRoutes().addLayer(routePoints.get(0).getMarkerObj());
-        map.getLLayerGroupRoutes().addLayer(routePoints.get(routePoints.size() - 1).getMarkerObj());
-        routePoints.get(0).getMarkerObj().bindPopup("Ruta: " + route.getName());
-        routePoints.get(routePoints.size() - 1).getMarkerObj().bindPopup("Ruta: " + route.getName());
-        this.map.getMap().addLayer(map.getLLayerGroupRoutes());
+        map.getNewRoutePoints().clear();
 
         return route;
     }
 
+    public Need createNeed(NeedDTO needDTO) {
+        double lat = needDTO.getLatitude();
+        double lng = needDTO.getLongitude();
+        Need need = (Need) needFactory.createMapObject(this.map.getReg(), lat, lng);
+        need.setID(needDTO.getID());
+        need.addToMap(this.map.getMap());
 
-//
-//    public Need createNeed(NeedDTO needDTO) {
-//        double lat = needDTO.getLatitude();
-//        double lng = needDTO.getLongitude();
-//        Need need = (Need) needFactory.createMapObject(this.map.getReg(), lat, lng);
-//        need.setID(needDTO.getID());
-//        need.addToMap(this.map.getMap());
-//
-//        need.getMarkerObj().bindPopup(needDTO.getNeedType());
-//        needs.add(need);
-//        lLayerGroupNeeds.addLayer(need.getMarkerObj());
-//        this.map.getMap().addLayer(lLayerGroupNeeds);
-//
-//        for (Need m : needs) {
-//            log.debug("ID: " + m.getID() + m);
-//        }
-//        log.debug("Fin");
-//
-//        return need;
-//    }
+        need.getMarkerObj().bindPopup(needDTO.getNeedType());
+        map.getNeeds().add(need);
+        map.getLLayerGroupNeeds().addLayer(need.getMarkerObj());
+        this.map.getMap().addLayer(map.getLLayerGroupNeeds());
+
+        return need;
+    }
+
 //
 //    public void deleteNeed(int ID) {
 //        Need need = needs.stream()
