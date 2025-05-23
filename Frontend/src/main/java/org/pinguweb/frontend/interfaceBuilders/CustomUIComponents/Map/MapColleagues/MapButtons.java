@@ -57,7 +57,7 @@ public class MapButtons extends ComponentColleague {
     public void register() {
         mediator.subscribe(EventType.ENABLE_BUTTONS, this);
         mediator.subscribe(EventType.DISABLE_BUTTONS, this);
-        mediator.subscribe(EventType.CANCEL_CREATE, this);
+        mediator.subscribe(EventType.EXIT, this);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class MapButtons extends ComponentColleague {
         else if (event.getType() == EventType.DISABLE_BUTTONS){
             disableButtons((ButtonNames) event.getPayload());
         }
-        else if (event.getType() == EventType.CANCEL_CREATE){
+        else if (event.getType() == EventType.EXIT){
             map.setState(MapState.IDLE);
             enableButtons();
         }

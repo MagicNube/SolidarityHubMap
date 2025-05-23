@@ -4,6 +4,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.*;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+@Slf4j
 @Getter
 @SuperBuilder
 public class Map extends InterfaceComponent implements Mediator {
@@ -60,10 +62,21 @@ public class Map extends InterfaceComponent implements Mediator {
     @Setter
     private LLayerGroup lLayerGroupStorages;
 
+    private void init(){
+         storages = new HashSet<>();
+         needs = new HashSet<>();
+         zones = new HashSet<>();
+         routes = new HashSet<>();
+         routePoints = new HashMap<>();
+         zoneMarkers = new HashMap<>();
+         zoneMarkerPoints = new ArrayList<>();
+    }
 
     public void loadView() {
         this.component = new VerticalLayout();
         this.component.setSizeFull();
+
+        init();
 
         this.reg = new LDefaultComponentManagementRegistry(this.component);
         MapContainer mapContainer = new MapContainer(reg);
@@ -92,6 +105,7 @@ public class Map extends InterfaceComponent implements Mediator {
 
     @Override
     public <T> void publish(Event<T> event) {
+        log.info("Map received event of type: {}", event.getType());
         suscribers.stream().filter(x -> x._2() == event.getType())
                             .forEach(x -> x._1().receive(event));
     }

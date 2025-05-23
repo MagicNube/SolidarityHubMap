@@ -11,32 +11,31 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.CatastropheDTO;
 import org.pingu.domain.DTO.RouteDTO;
 import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.domain.enums.EmergencyLevel;
 import org.pingu.domain.enums.RouteType;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ClickedEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
-import org.pinguweb.frontend.mapObjects.Route;
-import org.pinguweb.frontend.mapObjects.Storage;
-import org.pinguweb.frontend.mapObjects.Zone;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
 import org.pinguweb.frontend.services.BackendDTOService;
 import org.pinguweb.frontend.utils.Mediador.*;
-import org.pinguweb.frontend.view.MapView;
+import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+@Slf4j
 public class MapDialogs extends ComponentColleague {
 
     private final BackendDTOService backendService = BackendDTOService.GetInstancia();
@@ -50,22 +49,23 @@ public class MapDialogs extends ComponentColleague {
 
     @Override
     public void register() {
-        mediator.subscribe(EventType.SHOW, this);
+        mediator.subscribe(EventType.SHOW_DIALOG, this);
         mediator.subscribe(EventType.SHOW_EDIT, this);
-        mediator.subscribe(EventType.CLOSE, this);
     }
 
     @Override
     public <T> void receive(Event<T> event) {
-        if (event.getType() == EventType.SHOW){
-            if (event.getPayload() == DialogsNames.ZONE){
+        if (event.getType() == EventType.SHOW_DIALOG){
+            ShowEvent<T> e = (ShowEvent<T>) event;
+            log.info("Received {}", ((ShowEvent<T>) event).getName());
+            if (e.getName() == DialogsNames.ZONE){
                 createDialogZona((CreateZoneCommand) event.getCommand());
             }
-            else if (event.getPayload() == DialogsNames.ROUTE){
+            else if (e.getName() == DialogsNames.ROUTE){
                 createDialogRuta((CreateRouteCommand) event.getCommand());
             }
-            else if (event.getPayload() == DialogsNames.STORAGE){
-                createDialogAlmacen((CreateStorageCommand) event.getCommand());
+            else if (e.getName() == DialogsNames.STORAGE){
+                createDialogAlmacen((Tuple<Double, Double>) e.getPayload(), (CreateStorageCommand) event.getCommand());
             }
         }
     }
@@ -109,7 +109,7 @@ public class MapDialogs extends ComponentColleague {
 
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
-                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
+                mediator.publish(new GenericEvent<>(EventType.EXIT, null, c));
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
@@ -169,7 +169,7 @@ public class MapDialogs extends ComponentColleague {
             dialog.open();
 
             icoClose.addClickListener(iev -> {
-                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
+                mediator.publish(new GenericEvent<>(EventType.EXIT, null, c));
                 dialog.close();
             });
 
@@ -179,7 +179,6 @@ public class MapDialogs extends ComponentColleague {
             Notification notification = new Notification("Zona creada exitosamente", 3000);
             notification.open();
         }
-
     }
 
     public void createDialogRuta(CreateRouteCommand c) {
@@ -210,7 +209,7 @@ public class MapDialogs extends ComponentColleague {
 
             Button cancelButton = new Button("Cancelar");
             cancelButton.addClickListener(event -> {
-                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
+                mediator.publish(new GenericEvent<>(EventType.EXIT, null, c));
                 dialog.close();
             });
             Button acceptButton = new Button("Aceptar", event -> {
@@ -246,7 +245,7 @@ public class MapDialogs extends ComponentColleague {
             dialog.add(dialogLayout);
             dialog.open();
             icoClose.addClickListener(iev -> {
-                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
+                mediator.publish(new GenericEvent<>(EventType.EXIT, null, c));
                 dialog.close();
             });
         } else {
@@ -257,65 +256,65 @@ public class MapDialogs extends ComponentColleague {
         }
     }
 
-    public void createDialogAlmacen(CreateStorageCommand c) {
-        if (this.map.getState() == MapState.CREATING_STORAGE) {
-            final Icon icoClose = VaadinIcon.CLOSE.create();
-            final Dialog dialog = new Dialog(icoClose);
-            dialog.setCloseOnEsc(false);
-            dialog.setCloseOnOutsideClick(false);
-            dialog.setDraggable(true);
-            dialog.setResizable(true);
-            dialog.setWidth("70vw");
-            dialog.setHeight("40vh");
-            H3 title = new H3("Crear almacen");
-            TextArea nameTextArea = new TextArea();
-            nameTextArea.setPlaceholder("nombre");
-            nameTextArea.setWidth("50vw");
-            nameTextArea.setHeight("5vh");
+    public void createDialogAlmacen(Tuple<Double, Double> coords, CreateStorageCommand c) {
+        final Icon icoClose = VaadinIcon.CLOSE.create();
+        final Dialog dialog = new Dialog(icoClose);
+        dialog.setCloseOnEsc(false);
+        dialog.setCloseOnOutsideClick(false);
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setWidth("70vw");
+        dialog.setHeight("40vh");
+        H3 title = new H3("Crear almacen");
+        TextArea nameTextArea = new TextArea();
+        nameTextArea.setPlaceholder("nombre");
+        nameTextArea.setWidth("50vw");
+        nameTextArea.setHeight("5vh");
 
-            ComboBox<String> zoneComboBox = new ComboBox<>("Zona");
-            zoneComboBox.setItems(backendService.getZoneList().getValues().stream().map(ZoneDTO::getName).toList());
+        ComboBox<String> zoneComboBox = new ComboBox<>("Zona");
+        zoneComboBox.setItems(backendService.getZoneList().getValues().stream().map(ZoneDTO::getName).toList());
 
-            ComboBox<String> llenoComboBox = new ComboBox<>("Estado");
-            String[] llenoOptions = {"Lleno", "Vacio"};
-            llenoComboBox.setItems(llenoOptions);
-            llenoComboBox.setValue("Vacio");
+        ComboBox<String> llenoComboBox = new ComboBox<>("Estado");
+        String[] llenoOptions = {"Lleno", "Vacio"};
+        llenoComboBox.setItems(llenoOptions);
+        llenoComboBox.setValue("Vacio");
 
-            Button cancelButton = new Button("Cancelar");
-            cancelButton.addClickListener(event -> {
-                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
-                dialog.close();
-            });
-            Button acceptButton = new Button("Aceptar", event -> {
-                int zoneID = zoneComboBox.getValue() != null ? backendService.getZoneList().getValues().stream()
-                        .filter(zoneDTO -> zoneDTO.getName().equals(zoneComboBox.getValue()))
-                        .findFirst()
-                        .map(ZoneDTO::getID)
-                        .orElse(0) : 0;
-                StorageDTO storageDTO = new StorageDTO();
-                storageDTO.setName(nameTextArea.getValue());
-                storageDTO.setID(0);
-                storageDTO.setZone(zoneID);
-                storageDTO.setFull(llenoComboBox.getValue().equals("Lleno"));
+        Button cancelButton = new Button("Cancelar");
+        cancelButton.addClickListener(event -> {
+            mediator.publish(new GenericEvent<>(EventType.EXIT, null, c));
+            dialog.close();
+        });
+        Button acceptButton = new Button("Aceptar", event -> {
+            int zoneID = zoneComboBox.getValue() != null ? backendService.getZoneList().getValues().stream()
+                    .filter(zoneDTO -> zoneDTO.getName().equals(zoneComboBox.getValue()))
+                    .findFirst()
+                    .map(ZoneDTO::getID)
+                    .orElse(0) : 0;
+            StorageDTO storageDTO = new StorageDTO();
+            storageDTO.setName(nameTextArea.getValue());
+            storageDTO.setID(0);
+            storageDTO.setZone(zoneID);
+            storageDTO.setFull(llenoComboBox.getValue().equals("Lleno"));
+            storageDTO.setLatitude(coords._1());
+            storageDTO.setLongitude(coords._2());
 
-                mediator.publish(new CreationEvent<>(EventType.CREATE, storageDTO, c,null));
-                dialog.close();
-            });
+            mediator.publish(new CreationEvent<>(EventType.CREATE, storageDTO, c,null));
+            dialog.close();
+        });
 
-            acceptButton.setEnabled(false);
-            nameTextArea.addValueChangeListener(event -> {
-                acceptButton.setEnabled(!nameTextArea.getValue().isEmpty());
-            });
+        acceptButton.setEnabled(false);
+        nameTextArea.addValueChangeListener(event -> {
+            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty());
+        });
 
-            HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
-            VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, zoneComboBox, llenoComboBox, buttonLayout);
-            dialog.add(dialogLayout);
-            dialog.open();
-            icoClose.addClickListener(iev -> {
-                mediator.publish(new GenericEvent<>(EventType.CANCEL_CREATE, null, c));
-                dialog.close();
-            });
-        }
+        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
+        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, zoneComboBox, llenoComboBox, buttonLayout);
+        dialog.add(dialogLayout);
+        dialog.open();
+        icoClose.addClickListener(iev -> {
+            mediator.publish(new GenericEvent<>(EventType.EXIT, null, c));
+            dialog.close();
+        });
     }
 //
 //    public void editDialogZone(String zoneID, EditCommand c) {

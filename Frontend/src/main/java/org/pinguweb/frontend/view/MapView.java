@@ -10,33 +10,23 @@ import elemental.json.JsonValue;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.pingu.domain.DTO.RouteDTO;
-import org.pingu.domain.DTO.StorageDTO;
-import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.web.BackendObservableService.observableList.Observer;
 import org.pingu.web.BackendObservableService.observableList.ObserverChange;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ClickedElement;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapState;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.DialogsNames;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ClickedEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
-import org.pinguweb.frontend.mapObjects.RoutePoint;
-import org.pinguweb.frontend.mapObjects.ZoneMarker;
 import org.pinguweb.frontend.services.BackendDTOService;
 import org.pinguweb.frontend.utils.Mediador.Colleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
 import org.pinguweb.frontend.utils.Mediador.EventType;
 import org.pinguweb.frontend.utils.Mediador.Mediator;
 import org.yaml.snakeyaml.util.Tuple;
-import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
-import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
-import software.xdev.vaadin.maps.leaflet.layer.LLayer;
-import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
-
-import java.util.LinkedHashMap;
-import java.util.Objects;
 
 @Slf4j
 @Route("map")
@@ -54,6 +44,8 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
     private String clickFuncReferenceCreateZone;
     private String clickFuncReferenceCreateRoute;
     private String clickFuncReferenceCreateStorage;
+
+    Command lastCommand;
 
     UI ui;
 
@@ -78,20 +70,28 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
 
         clickFuncReferenceCreateZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone";
         clickFuncReferenceCreateRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute";
-        clickFuncReferenceCreateRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateStorage";
+        clickFuncReferenceCreateStorage = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateStorage";
 
         register();
     }
 
-
     @Override
     public void register() {
-
+        mediator.subscribe(EventType.REQUEST_CLICK, this);
     }
 
     @Override
     public <T> void receive(Event<T> event) {
-
+        lastCommand = event.getCommand();
+        if (event.getPayload() == ClickedElement.ZONE){
+            startZoneConstruction();
+        }
+        else if (event.getPayload() == ClickedElement.ROUTE_POINT){
+            startRouteConstruction();
+        }
+        else if (event.getPayload() == ClickedElement.STORAGE){
+            startStorageConstruction();
+        }
     }
 
     @Override
@@ -110,7 +110,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         map.getMap().on("click", clickFuncReferenceCreateRoute);
     }
 
-    public void createStorage(StorageDTO storageDTO, CreateStorageCommand c) {
+    public void startStorageConstruction() {
         map.getReg().execJs(clickFuncReferenceCreateStorage + "=e => document.getElementById('" + mapId + "').$server.mapStorage(e.latlng)");
         map.getMap().on("click", clickFuncReferenceCreateStorage);
     }
@@ -121,7 +121,10 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
             return;
         }
 
-        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ZONE_MARKER));
+        Tuple<Double, Double> coords = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+        CreationEvent<Tuple<Double, Double>> event = new CreationEvent<Tuple<Double, Double>>(EventType.SHOW, coords, lastCommand, null);
+        event.setElement(ClickedElement.ZONE_MARKER);
+        mediator.publish(event);
     }
 
     @ClientCallable
@@ -129,44 +132,10 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
-
-        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ROUTE_POINT));
-    }
-
-    @ClientCallable
-    public void zoneMarkerStart(final JsonValue input) {
-        if (!(input instanceof final JsonObject obj)) {
-            return;
-        }
-
-        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ZONE_MARKER_START));
-    }
-
-    @ClientCallable
-    public void zoneMarkerEnd(final JsonValue input) {
-        if (!(input instanceof final JsonObject obj)) {
-            return;
-        }
-
-        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ZONE));
-    }
-
-    @ClientCallable
-    public void routePointStart(final JsonValue input) {
-        if (!(input instanceof final JsonObject obj)) {
-            return;
-        }
-
-        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ROUTE_POINT_START));
-    }
-
-    @ClientCallable
-    public void routePointEnd(final JsonValue input) {
-        if (!(input instanceof final JsonObject obj)) {
-            return;
-        }
-
-        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.ROUTE_POINT_END));
+        Tuple<Double, Double> coords = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+        CreationEvent<Tuple<Double, Double>> event = new CreationEvent<Tuple<Double, Double>>(EventType.SHOW, coords, lastCommand, null);
+        event.setElement(ClickedElement.ROUTE_POINT);
+        mediator.publish(event);
     }
 
     @ClientCallable
@@ -175,7 +144,9 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
             return;
         }
 
-        mediator.publish(new ClickedEvent<>(EventType.BUILD, obj, ClickedElement.STORAGE));
+        Tuple<Double, Double> coords = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+        ShowEvent<Tuple<Double, Double>> event = new ShowEvent<Tuple<Double, Double>>(EventType.SHOW_DIALOG, coords, DialogsNames.STORAGE);
+        mediator.publish(event);
     }
 
 //    @ClientCallable
