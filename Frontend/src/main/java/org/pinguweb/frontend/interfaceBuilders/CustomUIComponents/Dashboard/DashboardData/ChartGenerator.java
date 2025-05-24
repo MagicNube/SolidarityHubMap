@@ -25,6 +25,7 @@ public class ChartGenerator {
     private final Integer[] completedTasks = new Integer[TaskType.values().length];
     private final Integer[] volunteersCountByType = new Integer[TaskType.values().length];
     private final Integer[] resourcesByType = new Integer[ResourceType.values().length];
+    private final Integer[] tasksPerUrgency = new Integer[3];
 
     private final List<TaskDTO> tasks;
     private final List<VolunteerDTO> volunteers;
@@ -76,6 +77,45 @@ public class ChartGenerator {
             );
             dashboards.add(d);
         }
+        return dashboards;
+    }
+
+    public List<InterfaceComponent> tasksToday(ChartType[] types) {
+        List<List<TaskDTO>> tasksByUrgency = dataGenerator.calculateTaskPerUrgency(tasksPerUrgency, this.tasks);
+
+        String[] labels = {"URGENT", "MODERATE", "LOW"};
+        Integer[] values = tasksPerUrgency;
+
+        // Generar la paleta de colores
+        Color[] palette = dataGenerator.generateColorPalette(labels.length);
+
+        // Crear dashboards
+        List<InterfaceComponent> dashboards = new ArrayList<>();
+        for (ChartType type : types) {
+            Dashboard d = Dashboard.createSimpleDashboard(
+                    "Nivel de urgencia de tareas",
+                    type,
+                    new RectangularCoordinate(
+                            new XAxis(DataType.CATEGORY),
+                            new YAxis(DataType.NUMBER)
+                    )
+            );
+            d.addData(
+                    labels,
+                    Arrays.stream(labels)
+                            .map(Etiqueta::new)
+                            .map(fs -> new Etiqueta[]{fs})
+                            .toArray(Etiqueta[][]::new),
+                    values,
+                    tasksByUrgency.stream()
+                            .map(lista -> lista.toArray(TaskDTO[]::new))
+                            .toArray(TaskDTO[][]::new),
+                    "Tareas de Hoy",
+                    palette
+            );
+            dashboards.add(d);
+        }
+
         return dashboards;
     }
 
@@ -252,7 +292,7 @@ public class ChartGenerator {
                             .map(i -> new Integer[]{i})
                             .toArray(Integer[][]::new),
                     "Comparación",
-                    palette 
+                    palette
             );
             dashboards.add(d);
         }

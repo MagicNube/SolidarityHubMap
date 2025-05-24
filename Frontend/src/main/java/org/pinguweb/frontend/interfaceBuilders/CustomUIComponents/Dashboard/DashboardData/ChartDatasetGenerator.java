@@ -6,6 +6,7 @@ import org.pingu.domain.DTO.TaskDTO;
 import org.pingu.domain.DTO.VolunteerDTO;
 import org.pingu.domain.enums.TaskType;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +39,41 @@ public class ChartDatasetGenerator {
         }
 
         return finishedTasks;
+    }
+
+    public List<List<TaskDTO>> calculateTaskPerUrgency(Integer[] taskPerUrgency, List<TaskDTO> tasks) {
+        Arrays.fill(taskPerUrgency, 0);
+        List<List<TaskDTO>> tasksByUrgency = new ArrayList<>(3);
+
+
+        for (int i = 0; i < 3; i++) {
+            tasksByUrgency.add(new ArrayList<>());
+        }
+
+        LocalDate today = LocalDate.now();
+
+        for (TaskDTO task : tasks) {
+            if (today.equals(task.getEstimatedEndTimeDate())) {
+                switch (task.getPriority().toUpperCase()) {
+                    case "URGENT":
+                        taskPerUrgency[0]++;
+                        tasksByUrgency.get(0).add(task);
+                        break;
+                    case "MODERATE":
+                        taskPerUrgency[1]++;
+                        tasksByUrgency.get(1).add(task);
+                        break;
+                    case "LOW":
+                        taskPerUrgency[2]++;
+                        tasksByUrgency.get(2).add(task);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return tasksByUrgency;
     }
 
     public List<List<NeedDTO>> calculateNeedsPerType(Integer[] needsByTaskType, List<NeedDTO> needs) {

@@ -31,14 +31,17 @@ public class DashboardBuilderDirector {
 
         ChartGenerator generator = new ChartGenerator();
 
-        List<InterfaceComponent> fisrtPair = generator.buildCompletedTasksChart(new ChartType[]{ChartType.LINECHART});
-        List<InterfaceComponent> thirdPair = generator.buildUncoveredTaskTypeChart(new ChartType[]{ChartType.LINECHART});
-        List<InterfaceComponent> secondPair = generator.buildUncoveredNeedsChart(new ChartType[]{ChartType.PIE});
-        List<InterfaceComponent> fourthPair = generator.buildVolunteersByTaskTypeChart(new ChartType[]{ChartType.PIE});
+
+        List<InterfaceComponent> zero = generator.tasksToday(new ChartType[]{ChartType.BAR});
+        List<InterfaceComponent> fisrtPair = generator.buildCompletedTasksChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
+        List<InterfaceComponent> secondPair = generator.buildUncoveredNeedsChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
+        List<InterfaceComponent> thirdPair = generator.buildUncoveredTaskTypeChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
+        List<InterfaceComponent> fourthPair = generator.buildVolunteersByTaskTypeChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
         List<InterfaceComponent> fifthPair = generator.buildVolunteersVSAffectedChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
 
         dashboards.clear();
 
+        dashboards.add((Dashboard) zero.get(0));
         dashboards.add((Dashboard) fisrtPair.get(0));
         dashboards.add((Dashboard) fisrtPair.get(1));
         dashboards.add((Dashboard) secondPair.get(0));
@@ -50,11 +53,13 @@ public class DashboardBuilderDirector {
         dashboards.add((Dashboard) fifthPair.get(0));
         dashboards.add((Dashboard) fifthPair.get(1));
 
+        Filters zeroFilters = Filters.builder().build();
         Filters firstPairFilters = Filters.builder().build();
         Filters secondPairFilters = Filters.builder().build();
         Filters thirdPairFilters = Filters.builder().build();
         Filters fourthPairFilters = Filters.builder().build();
 
+        zeroFilters.addDashboard(zero);
         firstPairFilters.addDashboard(fisrtPair);
         secondPairFilters.addDashboard(secondPair);
         thirdPairFilters.addDashboard(thirdPair);
