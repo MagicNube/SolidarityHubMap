@@ -97,11 +97,11 @@ public class RouteController {
     }
 
     @Async
-    @PutMapping("/routes")
-    public CompletableFuture<ResponseEntity<RouteDTO>> updateRoute(@RequestBody RouteDTO route) {
+    @PutMapping("/routes/{ID}")
+    public CompletableFuture<ResponseEntity<RouteDTO>> updateRoute(@RequestBody RouteDTO route, @PathVariable int ID) {
         if (ServerException.isServerClosed(service.getRouteRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        Optional<Route> res = service.findByID(route.getID());
+        Optional<Route> res = service.findByID(ID);
         if (res.isPresent()) {
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveRoute(dtoFactory.createFromDTO(route)))));
         }

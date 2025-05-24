@@ -73,7 +73,7 @@ public class MapButtons extends ComponentColleague {
         }
     }
 
-    public void disableButtons(ButtonNames name) {
+    private void disableButtons(ButtonNames name) {
         this.zone.setEnabled(name == ButtonNames.ZONE);
         this.route.setEnabled(name == ButtonNames.ROUTE);
         this.storage.setEnabled(name == ButtonNames.STORAGE);
@@ -83,7 +83,7 @@ public class MapButtons extends ComponentColleague {
         this.redo.setEnabled(name == ButtonNames.REDO);
     }
 
-    public void enableButtons() {
+    private void enableButtons() {
         this.zone.setEnabled(true);
         this.route.setEnabled(true);
         this.storage.setEnabled(true);

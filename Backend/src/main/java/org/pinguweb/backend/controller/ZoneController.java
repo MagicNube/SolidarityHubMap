@@ -108,13 +108,12 @@ public class ZoneController {
     }
 
     @Async
-    @PutMapping("/zones")
-    public CompletableFuture<ResponseEntity<ZoneDTO>> updateZone(@RequestBody ZoneDTO zone) {
+    @PutMapping("/zones/{ID}")
+    public CompletableFuture<ResponseEntity<ZoneDTO>> updateZone(@RequestBody ZoneDTO zone, @PathVariable int ID) {
         if (ServerException.isServerClosed(service.getZoneRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        Optional<Zone> res = service.findByID(zone.getID());
+        Optional<Zone> res = service.findByID(ID);
         if (res.isPresent()) {
-
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveZone(dtoFactory.createFromDTO(zone)))));
         }
         else {

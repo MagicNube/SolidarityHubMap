@@ -106,7 +106,10 @@ public class Storage extends MapObject{
         try{
             HttpStatus status = (HttpStatus) BackendService.putToBackend(BackendDTOService.BACKEND + finurl, storageDTO);
             if (status == HttpStatus.OK){
-
+                log.info("Editado exitosamente");
+            }
+            else{
+                log.info("Error editando");
             }
         }
         catch (Exception e){
