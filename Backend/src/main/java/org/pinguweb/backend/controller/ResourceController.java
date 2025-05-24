@@ -26,18 +26,15 @@ public class ResourceController {
     @Async
     @GetMapping("/resources")
     public CompletableFuture<ResponseEntity<List<ResourceDTO>>> getAll(){
-       if (ServerException.isServerClosed(service.getResourceRepository())){
-              return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());
-         }
+        if (ServerException.isServerClosed(service.getResourceRepository())){
+            return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());
+        }
 
-          List<ResourceDTO> resources = service.findAll().stream()
-                 .map(factory::createDTO)
-                 .collect(Collectors.toList());
+        List<ResourceDTO> resources = service.findAll().stream()
+                .map(factory::createDTO)
+                .collect(Collectors.toList());
 
-          return CompletableFuture.completedFuture(ResponseEntity.ok(resources));
-       }
+        return CompletableFuture.completedFuture(ResponseEntity.ok(resources));
+    }
 
 }
-
-
-
