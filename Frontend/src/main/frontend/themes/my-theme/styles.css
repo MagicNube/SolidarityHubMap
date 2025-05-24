@@ -38,9 +38,9 @@ vaadin-text-field.bordered::part(input-field) {
 }
 
 .cursor-borrar {
-    cursor: cell;
+    cursor: not-allowed;
 }
 
 .cursor-editar {
-    cursor: not-allowed;
+    cursor: crosshair;
 }

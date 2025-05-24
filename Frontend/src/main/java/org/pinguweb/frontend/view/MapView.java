@@ -10,17 +10,20 @@ import elemental.json.JsonValue;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.pingu.domain.DTO.RouteDTO;
+import org.pingu.domain.DTO.StorageDTO;
+import org.pingu.domain.DTO.ZoneDTO;
 import org.pingu.web.BackendObservableService.observableList.Observer;
 import org.pingu.web.BackendObservableService.observableList.ObserverChange;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.DeleteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ClickedElement;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.DialogsNames;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ClickedEvent;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.*;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
+import org.pinguweb.frontend.mapObjects.Storage;
+import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.services.BackendDTOService;
 import org.pinguweb.frontend.utils.Mediador.Colleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
@@ -47,6 +50,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
 
     Command lastCommand;
     UI ui;
+    DeleteCommand command;
 
     public MapView() {
         this.setSizeFull();
@@ -91,14 +95,53 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         else if (event.getPayload() == ClickedElement.STORAGE){
             startStorageConstruction();
         }
-
-        log.info(map.getMapContainer().getClassNames().toString());
+        else if (event.getPayload() == ClickedElement.DELETE && event.getCommand() instanceof DeleteCommand){
+            if (((DeleteCommand) event.getCommand()).isWorking()){
+                endDelete();
+            }
+            else{
+                startDelete();
+                command = (DeleteCommand) event.getCommand();
+            }
+        }
     }
 
     @Override
     public void update(ObserverChange change) {
         ui.access(() -> this.mediator.publish(new LoadEvent<>()));
         log.info("Mapa actualizado");
+    }
+
+    public void startDelete() {
+        map.getMapContainer().getClassNames().add("cursor-borrar");
+        for (Zone zone : map.getZones()) {
+            String clickFuncReferenceDeleteZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
+            map.getReg().execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + MapView.getMapId() + "').$server.removePolygon('" + zone.getID() + "') ");
+            zone.getPolygon().on("click", clickFuncReferenceDeleteZone);
+        }
+        for (org.pinguweb.frontend.mapObjects.Route route : map.getRoutes()) {
+            String clickFuncReferenceDeleteRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
+            map.getReg().execJs(clickFuncReferenceDeleteRoute + "=e => document.getElementById('" +  MapView.getMapId() + "').$server.removeRoute('" + route.getID() + "') ");
+            route.getPolygon().on("click", clickFuncReferenceDeleteRoute);
+        }
+        for (Storage storage : map.getStorages()) {
+            String clickFuncReferenceDeleteStorage = map.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteStorage" + storage.getID();
+            map.getReg().execJs(clickFuncReferenceDeleteStorage + "=e => document.getElementById('" +  MapView.getMapId() + "').$server.removeStorage('" + storage.getID() + "') ");
+            storage.getMarkerObj().on("click", clickFuncReferenceDeleteStorage);
+        }
+    }
+
+    public void endDelete() {
+        map.getMapContainer().getClassNames().clear();
+        for (Zone zone : map.getZones()) {
+            zone.getPolygon().off("click");
+        }
+        for (org.pinguweb.frontend.mapObjects.Route route : map.getRoutes()) {
+            route.getPolygon().off("click");
+        }
+        for (Storage storage : map.getStorages()) {
+            storage.getMarkerObj().off("click");
+        }
     }
 
     public void startZoneConstruction() {
@@ -154,24 +197,33 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         map.getMap().off("click", clickFuncReferenceCreateStorage);
     }
 
-//    @ClientCallable
-//    public void removePolygon(String ID) {
-//        System.out.println("removePolygon: " + ID);
-//        controller.deleteZone(Integer.parseInt(ID));
-//    }
-//
-//    @ClientCallable
-//    public void removeRoute(String ID) {
-//        System.out.println("removeRoute: " + ID);
-//        controller.deleteRoute(Integer.parseInt(ID));
-//    }
-//
-//    @ClientCallable
-//    public void removeStorage(String ID) {
-//        System.out.println("removeStorage: " + ID);
-//        controller.deleteStorage(Integer.parseInt(ID));
-//    }
-//
+    @ClientCallable
+    public void removePolygon(String ID) {
+        endDelete();
+        ZoneDTO zone = new ZoneDTO();
+        zone.setID(Integer.parseInt(ID));
+        command.end();
+        mediator.publish(new GenericEvent<>(EventType.DELETE, zone, null));
+    }
+
+    @ClientCallable
+    public void removeRoute(String ID) {
+        endDelete();
+        RouteDTO route = new RouteDTO();
+        route.setID(Integer.parseInt(ID));
+        command.end();
+        mediator.publish(new GenericEvent<>(EventType.DELETE, route, null));
+    }
+
+    @ClientCallable
+    public void removeStorage(String ID) {
+        endDelete();
+        StorageDTO storage = new StorageDTO();
+        storage.setID(Integer.parseInt(ID));
+        command.end();
+        mediator.publish(new GenericEvent<>(EventType.DELETE, storage, null));
+    }
+
 //    @ClientCallable
 //    public void editPolygon(String ID) {
 //        System.out.println("editPolygon: " + ID);

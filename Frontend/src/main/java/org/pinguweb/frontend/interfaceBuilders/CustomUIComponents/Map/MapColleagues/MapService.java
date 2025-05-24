@@ -66,28 +66,40 @@ public class MapService extends ComponentColleague {
     public void register() {
         mediator.subscribe(EventType.LOAD, this);
         mediator.subscribe(EventType.CREATE, this);
+        mediator.subscribe(EventType.DELETE, this);
     }
 
     @Override
     public <T> void receive(Event<T> event) {
-        if(event.getType() == EventType.LOAD){
-            load();
-        }
-        if (event.getType() == EventType.CREATE){
-            if (event.getPayload() instanceof StorageDTO){
-                Storage s = createStorage((StorageDTO) event.getPayload());
-                s.setID(s.pushToServer());
-                mediator.publish(new ShowEvent<>(EventType.SHOW, s, null));
+        switch (event.getType()){
+            case LOAD -> load();
+            case CREATE -> {
+                if (event.getPayload() instanceof StorageDTO){
+                    Storage s = createStorage((StorageDTO) event.getPayload());
+                    s.setID(s.pushToServer());
+                    mediator.publish(new ShowEvent<>(EventType.SHOW, s, null));
+                }
+                else if (event.getPayload() instanceof RouteDTO){
+                    Route r = createRoute((RouteDTO) event.getPayload(), ((CreationEvent<T>)event).getExtraData());
+                    r.setID(r.pushToServer());
+                    mediator.publish(new ShowEvent<>(EventType.SHOW, r, null));
+                }
+                else if (event.getPayload() instanceof ZoneDTO){
+                    Zone z = createZone((ZoneDTO) event.getPayload());
+                    z.setID(z.pushToServer());
+                    mediator.publish(new ShowEvent<>(EventType.SHOW, z, null));
+                }
             }
-            else if (event.getPayload() instanceof RouteDTO){
-                Route r = createRoute((RouteDTO) event.getPayload(), ((CreationEvent<T>)event).getExtraData());
-                r.setID(r.pushToServer());
-                mediator.publish(new ShowEvent<>(EventType.SHOW, r, null));
-            }
-            else if (event.getPayload() instanceof ZoneDTO){
-                Zone z = createZone((ZoneDTO) event.getPayload());
-                z.setID(z.pushToServer());
-                mediator.publish(new ShowEvent<>(EventType.SHOW, z, null));
+            case DELETE -> {
+                if (event.getPayload() instanceof StorageDTO){
+                    deleteStorage(((StorageDTO) event.getPayload()).getID());
+                }
+                else if (event.getPayload() instanceof RouteDTO){
+                    deleteRoute(((RouteDTO) event.getPayload()).getID());
+                }
+                else if (event.getPayload() instanceof ZoneDTO){
+                    deleteZone(((ZoneDTO) event.getPayload()).getID());
+                }
             }
         }
     }
@@ -317,64 +329,69 @@ public class MapService extends ComponentColleague {
         return need;
     }
 
-//
-//    public void deleteNeed(int ID) {
-//        Need need = needs.stream()
-//                .filter(m -> m.getID() == ID)
-//                .findFirst()
-//                .orElse(null);
-//        if (need != null) {
-//            need.removeFromMap(this.map.getMap());
-//            need.deleteFromServer();
-//            needs.remove(need);
-//            lLayerGroupNeeds.removeLayer(need.getMarkerObj());
-//            this.map.getMap().addLayer(lLayerGroupNeeds);
-//        }
-//    }
-//
-//    public void deleteZone(int ID) {
-//        Zone zone = zones.stream()
-//                .filter(z -> z.getID() == ID)
-//                .findFirst()
-//                .orElse(null);
-//        if (zone != null) {
-//            if (tempDeleteCommand != null){tempDeleteCommand.setElement(zone);}
-//            zone.removeFromMap(this.map.getMap());
-//            zone.deleteFromServer();
-//            zones.remove(zone);
-//            lLayerGroupZones.removeLayer(zone.getPolygon());
-//            this.map.getMap().addLayer(lLayerGroupZones);
-//        }
-//    }
-//
-//    public void deleteRoute(int ID) {
-//        Route route = routes.stream()
-//                .filter(r -> r.getID() == ID)
-//                .findFirst()
-//                .orElse(null);
-//
-//        if (route != null) {
-//            if (tempDeleteCommand != null) {tempDeleteCommand.setElement(route);}
-//            route.removeFromMap(this.map.getMap());
-//            route.deleteFromServer();
-//            List<RoutePoint> routePoints = this.routePoints.get(route.getID());
-//            if (routePoints != null) {
-//                if (tempDeleteCommand != null) {tempDeleteCommand.setPoints(routePoints);}
-//                for (RoutePoint routePoint : routePoints) {
-//                    routePoint.deleteFromServer();
-//                    routePoint.removeFromMap(this.map.getMap());
-//                }
-//                routes.remove(route);
-//                lLayerGroupRoutes.removeLayer(route.getPolygon());
-//                lLayerGroupRoutes.removeLayer(routePoints.get(0).getMarkerObj());
-//                lLayerGroupRoutes.removeLayer(routePoints.get(routePoints.size() - 1).getMarkerObj());
-//                this.map.getMap().addLayer(lLayerGroupRoutes);
-//                this.routePoints.remove(route.getID());
-//            }
-//            log.debug("Route deleted: {}", route.getID());
-//        }
-//    }
-//
+    public void deleteZone(int ID) {
+        Zone zone = map.getZones().stream()
+                .filter(z -> z.getID() == ID)
+                .findFirst()
+                .orElse(null);
+        if (zone != null) {
+            zone.removeFromMap(this.map.getMap());
+            zone.deleteFromServer();
+
+            map.getZones().remove(zone);
+            map.getLLayerGroupZones().removeLayer(zone.getPolygon());
+            this.map.getMap().addLayer(map.getLLayerGroupZones());
+
+            backendService.getZoneList().update();
+        }
+    }
+
+    public void deleteRoute(int ID) {
+        Route route = map.getRoutes().stream()
+                .filter(r -> r.getID() == ID)
+                .findFirst()
+                .orElse(null);
+
+        if (route != null) {
+            route.removeFromMap(this.map.getMap());
+            route.deleteFromServer();
+            List<RoutePoint> routePoints = map.getRoutePoints().get(route.getID());
+            if (routePoints != null) {
+                for (RoutePoint routePoint : routePoints) {
+                    routePoint.deleteFromServer();
+                    routePoint.removeFromMap(this.map.getMap());
+                }
+
+                map.getRoutes().remove(route);
+                map.getLLayerGroupRoutes().removeLayer(route.getPolygon());
+                map.getLLayerGroupRoutes().removeLayer(routePoints.get(0).getMarkerObj());
+                map.getLLayerGroupRoutes().removeLayer(routePoints.get(routePoints.size() - 1).getMarkerObj());
+                this.map.getMap().addLayer(map.getLLayerGroupRoutes());
+                map.getRoutePoints().remove(route.getID());
+
+                backendService.getRoutePointList().update();
+                backendService.getRouteList().update();
+            }
+        }
+    }
+
+    public void deleteStorage(int i) {
+        Storage storage = map.getStorages().stream()
+                .filter(s -> s.getID() == i)
+                .findFirst()
+                .orElse(null);
+        if (storage != null) {
+            storage.removeFromMap(this.map.getMap());
+            storage.deleteFromServer();
+
+            map.getStorages().remove(storage);
+            map.getLLayerGroupStorages().removeLayer(storage.getMarkerObj());
+            this.map.getMap().addLayer(map.getLLayerGroupStorages());
+
+            backendService.getStorageList().update();
+        }
+    }
+
 //    public Need getNeedByID(String ID) {
 //        return needs.stream()
 //                .filter(m -> m.getID() == Integer.parseInt(ID))
@@ -447,20 +464,6 @@ public class MapService extends ComponentColleague {
 //        }
 //    }
 //
-//    public void deleteStorage(int i) {
-//        Storage storage = storages.stream()
-//                .filter(s -> s.getID() == i)
-//                .findFirst()
-//                .orElse(null);
-//        if (storage != null) {
-//            if (tempDeleteCommand != null) {tempDeleteCommand.setElement(storage);}
-//            storage.removeFromMap(this.map.getMap());
-//            storage.deleteFromServer();
-//            storages.remove(storage);
-//            lLayerGroupStorages.removeLayer(storage.getMarkerObj());
-//            this.map.getMap().addLayer(lLayerGroupStorages);
-//        }
-//    }
 //
 //    public Storage getStorageByID(String id) {
 //        return storages.stream()

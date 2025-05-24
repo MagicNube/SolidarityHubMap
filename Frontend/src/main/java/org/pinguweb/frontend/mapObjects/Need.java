@@ -58,32 +58,11 @@ public class Need extends MapObject{
 
     @Override
     public int deleteFromServer() {
-        String finurl = "/api/needs/" + this.getID();
-        try{
-            HttpStatusCode status = BackendService.deleteFromBackend(finurl);
-            if (status == HttpStatus.OK){
-                //TODO: Eliminar del mapa
-            }
-        }
-        catch (Exception e){
-            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
-        }
         return 0;
     }
 
-    //TODO Comprobar si aquí la url es api zones o api needs
     @Override
     public int updateToServer() {
-        String finurl = "/api/needs/" + this.getID();
-        try{
-            HttpStatusCode status = BackendService.putToBackend(finurl, this);
-            if (status == HttpStatus.OK){
-
-            }
-        }
-        catch (Exception e){
-            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
-        }
         return 0;
     }
 }

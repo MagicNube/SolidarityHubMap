@@ -91,8 +91,6 @@ public class Zone extends MapObject{
         return 0;
     }
 
-
-
     @Override
     public int deleteFromServer() {
         String finurl = "/api/zones/" + this.getID();

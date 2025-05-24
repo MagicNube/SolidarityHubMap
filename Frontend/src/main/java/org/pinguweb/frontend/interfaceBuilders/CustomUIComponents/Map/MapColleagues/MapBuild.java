@@ -77,7 +77,6 @@ public class MapBuild extends ComponentColleague {
         map.getMapContainer().removeClassName("cursor-crear");
     }
 
-
     public void showZone(Zone zone, CreateZoneCommand c) {
         for (ZoneMarker zoneMarker : map.getZoneMarkers().values()) {
             zoneMarker.removeFromMap(map.getMap());
@@ -228,44 +227,6 @@ public class MapBuild extends ComponentColleague {
 //        notification.open();
 //    }
 //
-//    public void startDelete() {
-//        for (Need need : this.service.getNeeds()) {
-//            String clickFuncReferenceDeleteMarker = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteMarker" + need.getID();
-//            this.service.getReg().execJs(clickFuncReferenceDeleteMarker + "=e => document.getElementById('" + this.service.getID() + "').$server.removeMarker('" + need.getID() + "')");
-//            need.getMarkerObj().on("click", clickFuncReferenceDeleteMarker);
-//        }
-//        for (Zone zone : this.service.getZones()) {
-//            String clickFuncReferenceDeleteZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
-//            this.service.getReg().execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + this.service.getID() + "').$server.removePolygon('" + zone.getID() + "') ");
-//            zone.getPolygon().on("click", clickFuncReferenceDeleteZone);
-//        }
-//        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
-//            String clickFuncReferenceDeleteRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
-//            this.service.getReg().execJs(clickFuncReferenceDeleteRoute + "=e => document.getElementById('" + this.service.getID() + "').$server.removeRoute('" + route.getID() + "') ");
-//            route.getPolygon().on("click", clickFuncReferenceDeleteRoute);
-//        }
-//        for (Storage storage : this.service.getStorages()) {
-//            String clickFuncReferenceDeleteStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteStorage" + storage.getID();
-//            this.service.getReg().execJs(clickFuncReferenceDeleteStorage + "=e => document.getElementById('" + this.service.getID() + "').$server.removeStorage('" + storage.getID() + "') ");
-//            storage.getMarkerObj().on("click", clickFuncReferenceDeleteStorage);
-//        }
-//    }
-//
-//    public void endDelete(DeleteCommand c) {
-//        this.service.setTempDeleteCommand(c);
-//        for (Zone zone : this.service.getZones()) {
-//            String clickFuncReferenceDeleteZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
-//            zone.getPolygon().off("click", clickFuncReferenceDeleteZone);
-//        }
-//        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
-//            String clickFuncReferenceDeleteRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
-//            route.getPolygon().off("click", clickFuncReferenceDeleteRoute);
-//        }
-//        for (Storage storage : this.service.getStorages()) {
-//            String clickFuncReferenceDeleteStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteStorage" + storage.getID();
-//            storage.getMarkerObj().off("click", clickFuncReferenceDeleteStorage);
-//        }
-//    }
 //
 //    public void editStorage(Storage storage) {
 //        log.debug("Almacen editado");
