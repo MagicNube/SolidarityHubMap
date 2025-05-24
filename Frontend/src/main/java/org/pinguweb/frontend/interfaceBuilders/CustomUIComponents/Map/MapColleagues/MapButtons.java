@@ -69,7 +69,6 @@ public class MapButtons extends ComponentColleague {
             disableButtons((ButtonNames) event.getPayload());
         }
         else if (event.getType() == EventType.EXIT){
-            map.setState(MapState.IDLE);
             enableButtons();
         }
     }

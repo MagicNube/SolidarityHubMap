@@ -91,6 +91,8 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         else if (event.getPayload() == ClickedElement.STORAGE){
             startStorageConstruction();
         }
+
+        log.info(map.getMapContainer().getClassNames().toString());
     }
 
     @Override
@@ -100,16 +102,19 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
     }
 
     public void startZoneConstruction() {
+        map.getMapContainer().getClassNames().add("cursor-crear");
         map.getReg().execJs(clickFuncReferenceCreateZone + "=e => document.getElementById('" + mapId + "').$server.mapZona(e.latlng)");
         map.getMap().on("click", clickFuncReferenceCreateZone);
     }
 
     public void startRouteConstruction() {
+        map.getMapContainer().getClassNames().add("cursor-crear");
         map.getReg().execJs(clickFuncReferenceCreateRoute + "=e => document.getElementById('" + mapId + "').$server.mapRoute(e.latlng)");
         map.getMap().on("click", clickFuncReferenceCreateRoute);
     }
 
     public void startStorageConstruction() {
+        map.getMapContainer().getClassNames().add("cursor-crear");
         map.getReg().execJs(clickFuncReferenceCreateStorage + "=e => document.getElementById('" + mapId + "').$server.mapStorage(e.latlng)");
         map.getMap().on("click", clickFuncReferenceCreateStorage);
     }

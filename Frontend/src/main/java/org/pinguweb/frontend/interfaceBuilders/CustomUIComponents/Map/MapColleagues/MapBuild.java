@@ -74,6 +74,7 @@ public class MapBuild extends ComponentColleague {
         this.map.getMap().addLayer(map.getLLayerGroupStorages());
 
         map.getMap().off("click", clickFuncReferenceCreateStorage);
+        map.getMapContainer().removeClassName("cursor-crear");
     }
 
 
@@ -90,9 +91,10 @@ public class MapBuild extends ComponentColleague {
         map.getZones().add(zone);
         map.getLLayerGroupZones().addLayer(zone.getPolygon());
         this.map.getMap().addLayer(map.getLLayerGroupZones());
+        map.getMapContainer().removeClassName("cursor-crear");
     }
 
-    public ZoneMarker showZoneMarker(double lat, double lng) {
+    public void showZoneMarker(double lat, double lng) {
         ZoneMarkerFactory zoneMarkerFactory = new ZoneMarkerFactory();
         ZoneMarker zoneMarker = (ZoneMarker) zoneMarkerFactory.createMapObject(this.map.getReg(), lat, lng);
 
@@ -110,7 +112,7 @@ public class MapBuild extends ComponentColleague {
         map.getZoneMarkerPoints().add(coord);
         map.getZoneMarkers().put(coord, zoneMarker);
 
-        return zoneMarker;
+        map.getMapContainer().removeClassName("cursor-crear");
     }
 
 //    public void editZone(Zone zone) {
@@ -152,6 +154,7 @@ public class MapBuild extends ComponentColleague {
         points.get(0).getMarkerObj().bindPopup("Ruta: " + ruta.getName());
         points.get(points.size() - 1).getMarkerObj().bindPopup("Ruta: " + ruta.getName());
         this.map.getMap().addLayer(map.getLLayerGroupRoutes());
+        map.getMapContainer().removeClassName("cursor-crear");
     }
 
     public void showRoutePoint(double lat, double lng) {
@@ -168,6 +171,7 @@ public class MapBuild extends ComponentColleague {
 
         routePoint.addToMap(this.map.getMap());
         map.getNewRoutePoints().add(routePoint);
+        map.getMapContainer().removeClassName("cursor-crear");
     }
 
 //

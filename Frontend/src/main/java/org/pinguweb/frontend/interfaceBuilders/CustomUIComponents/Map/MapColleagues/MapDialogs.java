@@ -26,6 +26,7 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
+import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.services.BackendDTOService;
 import org.pinguweb.frontend.utils.Mediador.*;
 import org.yaml.snakeyaml.util.Tuple;
@@ -51,13 +52,16 @@ public class MapDialogs extends ComponentColleague {
     public void register() {
         mediator.subscribe(EventType.SHOW_DIALOG, this);
         mediator.subscribe(EventType.SHOW_EDIT, this);
+        mediator.subscribe(EventType.EXIT, this);
     }
 
     @Override
     public <T> void receive(Event<T> event) {
+        if (event.getType() == EventType.EXIT){
+            exit();
+        }
         if (event.getType() == EventType.SHOW_DIALOG){
             ShowEvent<T> e = (ShowEvent<T>) event;
-            log.info("Received {}", ((ShowEvent<T>) event).getName());
             if (e.getName() == DialogsNames.ZONE){
                 createDialogZona((CreateZoneCommand) event.getCommand());
             }
@@ -70,7 +74,24 @@ public class MapDialogs extends ComponentColleague {
         }
     }
 
-    public void createDialogZona(CreateZoneCommand c) {
+    private void exit(){
+        map.getMap().off("click");
+        map.getMapContainer().getClassNames().clear();
+
+        for (Tuple<Double, Double> p : map.getZoneMarkerPoints()){
+            map.getZoneMarkers().get(p).removeFromMap(map.getMap());
+        }
+        map.getZoneMarkers().clear();
+        map.getZoneMarkerPoints().clear();
+
+        for (RoutePoint p : map.getNewRoutePoints()){
+            p.removeFromMap(map.getMap());
+        }
+
+        map.getNewRoutePoints().clear();
+    }
+
+    private void createDialogZona(CreateZoneCommand c) {
         map.getMap().off("click", map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone");
         List<CatastropheDTO> catastropheDTOList = backendService.getCatastropheList().getValues();
         List<StorageDTO> storageDTOList = backendService.getStorageList().getValues();
@@ -189,7 +210,7 @@ public class MapDialogs extends ComponentColleague {
         });
     }
 
-    public void createDialogRuta(CreateRouteCommand c) {
+    private void createDialogRuta(CreateRouteCommand c) {
         map.getMap().off("click", map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute");
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
@@ -258,7 +279,7 @@ public class MapDialogs extends ComponentColleague {
         });
     }
 
-    public void createDialogAlmacen(Tuple<Double, Double> coords, CreateStorageCommand c) {
+    private void createDialogAlmacen(Tuple<Double, Double> coords, CreateStorageCommand c) {
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setCloseOnEsc(false);
