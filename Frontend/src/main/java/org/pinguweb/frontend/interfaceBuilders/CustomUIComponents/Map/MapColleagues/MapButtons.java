@@ -1,18 +1,15 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import lombok.Getter;
 import lombok.Setter;
-
-import com.vaadin.flow.component.icon.VaadinIcon;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.CommandButton;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.*;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
-import org.pinguweb.frontend.utils.Mediador.Colleague;
 import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
 import org.pinguweb.frontend.utils.Mediador.EventType;
@@ -73,7 +70,7 @@ public class MapButtons extends ComponentColleague {
         }
     }
 
-    public void disableButtons(ButtonNames name) {
+    private void disableButtons(ButtonNames name) {
         this.zone.setEnabled(name == ButtonNames.ZONE);
         this.route.setEnabled(name == ButtonNames.ROUTE);
         this.storage.setEnabled(name == ButtonNames.STORAGE);
@@ -83,7 +80,7 @@ public class MapButtons extends ComponentColleague {
         this.redo.setEnabled(name == ButtonNames.REDO);
     }
 
-    public void enableButtons() {
+    private void enableButtons() {
         this.zone.setEnabled(true);
         this.route.setEnabled(true);
         this.storage.setEnabled(true);

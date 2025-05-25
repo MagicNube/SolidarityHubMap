@@ -7,7 +7,6 @@ import org.pingu.domain.DTO.NeedDTO;
 import org.pingu.web.BackendObject;
 import org.pingu.web.BackendService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
 import software.xdev.vaadin.maps.leaflet.map.LMap;

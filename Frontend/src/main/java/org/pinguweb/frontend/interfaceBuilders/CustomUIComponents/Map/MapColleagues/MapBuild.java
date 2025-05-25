@@ -3,11 +3,14 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapCollea
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.*;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.mapObjects.*;
-import org.pinguweb.frontend.mapObjects.factories.*;
+import org.pinguweb.frontend.mapObjects.factories.RoutePointFactory;
+import org.pinguweb.frontend.mapObjects.factories.ZoneMarkerFactory;
 import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
 import org.pinguweb.frontend.utils.Mediador.EventType;
@@ -63,7 +66,7 @@ public class MapBuild extends ComponentColleague {
         }
     }
 
-    public void showStorage(Storage storage, CreateStorageCommand c){
+    private void showStorage(Storage storage, CreateStorageCommand c){
         if (c != null ) {c.setStorage(storage);}
         map.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
             map.getStorages().remove(s);
@@ -77,7 +80,7 @@ public class MapBuild extends ComponentColleague {
         map.getMapContainer().removeClassName("cursor-crear");
     }
 
-    public void showZone(Zone zone, CreateZoneCommand c) {
+    private void showZone(Zone zone, CreateZoneCommand c) {
         for (ZoneMarker zoneMarker : map.getZoneMarkers().values()) {
             zoneMarker.removeFromMap(map.getMap());
         }
@@ -93,7 +96,7 @@ public class MapBuild extends ComponentColleague {
         map.getMapContainer().removeClassName("cursor-crear");
     }
 
-    public void showZoneMarker(double lat, double lng) {
+    private void showZoneMarker(double lat, double lng) {
         ZoneMarkerFactory zoneMarkerFactory = new ZoneMarkerFactory();
         ZoneMarker zoneMarker = (ZoneMarker) zoneMarkerFactory.createMapObject(this.map.getReg(), lat, lng);
 
@@ -114,23 +117,9 @@ public class MapBuild extends ComponentColleague {
         map.getMapContainer().removeClassName("cursor-crear");
     }
 
-//    public void editZone(Zone zone) {
-//        log.debug("Zona editada");
-//        zone.updateToServer();
-//        service.getZones().stream().filter(z -> Objects.equals(z.getID(), zone.getID())).findFirst().ifPresent(z -> {
-//            service.getZones().remove(z);
-//            service.getZones().add(zone);
-//        });
-//        service.updateZone(zone);
-//    }
-
-
-    public void showRoute(Route ruta, List<RoutePoint> points, CreateRouteCommand c) {
+    private void showRoute(Route ruta, List<RoutePoint> points, CreateRouteCommand c) {
         map.getMap().off("click", clickFuncReferenceCreateRoute);
         List<Integer> pointsID = new ArrayList<>();
-        for (RoutePoint routePoint : points) {
-            pointsID.add(routePoint.pushToServer());
-        }
 
         if (c != null) {c.setPoints(points);}
 
@@ -156,7 +145,7 @@ public class MapBuild extends ComponentColleague {
         map.getMapContainer().removeClassName("cursor-crear");
     }
 
-    public void showRoutePoint(double lat, double lng) {
+    private void showRoutePoint(double lat, double lng) {
         RoutePoint routePoint = (RoutePoint) new RoutePointFactory().createMapObject(this.map.getReg(), lat, lng);
 
         String clickFuncReferenceDragStart = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragStart" + routePoint.getID();
@@ -172,70 +161,4 @@ public class MapBuild extends ComponentColleague {
         map.getNewRoutePoints().add(routePoint);
         map.getMapContainer().removeClassName("cursor-crear");
     }
-
-//
-//    public void editRoute(org.pinguweb.frontend.mapObjects.Route route) {
-//        log.debug("Ruta editada");
-//        route.updateToServer();
-//        service.getRoutes().stream().filter(r -> Objects.equals(r.getID(), route.getID())).findFirst().ifPresent(r -> {
-//            service.getRoutes().remove(r);
-//            service.getRoutes().add(route);
-//        });
-//        service.updateRoute(route);
-//    }
-//
-//    public void startEdit() {
-//        for (Need need : this.service.getNeeds()) {
-//            String clickFuncReferenceEditMarker = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditMarker" + need.getID();
-//            this.service.getReg().execJs(clickFuncReferenceEditMarker + "=e => document.getElementById('" + this.service.getID() + "').$server.editMarker('" + need.getID() + "')");
-//            need.getMarkerObj().on("click", clickFuncReferenceEditMarker);
-//        }
-//        for (Zone zone : this.service.getZones()) {
-//            String clickFuncReferenceEditZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
-//            this.service.getReg().execJs(clickFuncReferenceEditZone + "=e => document.getElementById('" + this.service.getID() + "').$server.editPolygon('" + zone.getID() + "') ");
-//            zone.getPolygon().on("click", clickFuncReferenceEditZone);
-//        }
-//        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
-//            String clickFuncReferenceEditRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditRoute" + route.getID();
-//            this.service.getReg().execJs(clickFuncReferenceEditRoute + "=e => document.getElementById('" + this.service.getID() + "').$server.editRoute('" + route.getID() + "') ");
-//            route.getPolygon().on("click", clickFuncReferenceEditRoute);
-//        }
-//        for (Storage storage : this.service.getStorages()) {
-//            String clickFuncReferenceEditStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
-//            this.service.getReg().execJs(clickFuncReferenceEditStorage + "=e => document.getElementById('" + this.service.getID() + "').$server.editStorage('" + storage.getID() + "') ");
-//            storage.getMarkerObj().on("click", clickFuncReferenceEditStorage);
-//        }
-//    }
-//
-//    public void endEdit(EditCommand c) {
-//        this.service.setTempEditCommand(c);
-//
-//        for (Zone zone : this.service.getZones()) {
-//            String clickFuncReferenceEditZone = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
-//            zone.getPolygon().off("click", clickFuncReferenceEditZone);
-//        }
-//        for (org.pinguweb.frontend.mapObjects.Route route : this.service.getRoutes()) {
-//            String clickFuncReferenceEditRoute = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditRoute" + route.getID();
-//            route.getPolygon().off("click", clickFuncReferenceEditRoute);
-//        }
-//        for (Storage storage : this.service.getStorages()) {
-//            String clickFuncReferenceEditStorage = this.service.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
-//            storage.getMarkerObj().off("click", clickFuncReferenceEditStorage);
-//        }
-//
-//        Notification notification = new Notification("Edición realizada exitosamente", 3000);
-//        notification.open();
-//    }
-//
-//
-//    public void editStorage(Storage storage) {
-//        log.debug("Almacen editado");
-//        storage.updateToServer();
-//        service.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
-//            service.getStorages().remove(s);
-//            service.getStorages().add(storage);
-//        });
-//        service.updateStorage(storage);
-//    }
-
 }

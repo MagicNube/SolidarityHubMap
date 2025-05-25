@@ -6,21 +6,19 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.*;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.DeleteCommand;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
 import org.pinguweb.frontend.services.BackendDTOService;
-import org.pinguweb.frontend.utils.Mediador.Colleague;
 import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
 import org.pinguweb.frontend.utils.Mediador.EventType;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
@@ -28,7 +26,6 @@ import software.xdev.vaadin.maps.leaflet.layer.LLayer;
 import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Setter
@@ -67,6 +64,7 @@ public class MapService extends ComponentColleague {
         mediator.subscribe(EventType.LOAD, this);
         mediator.subscribe(EventType.CREATE, this);
         mediator.subscribe(EventType.DELETE, this);
+        mediator.subscribe(EventType.EDIT, this);
     }
 
     @Override
@@ -77,16 +75,26 @@ public class MapService extends ComponentColleague {
                 if (event.getPayload() instanceof StorageDTO){
                     Storage s = createStorage((StorageDTO) event.getPayload());
                     s.setID(s.pushToServer());
+                    ((CreateStorageCommand) event.getCommand()).setStorage(s);
+                    event.getCommand().endExecution();
                     mediator.publish(new ShowEvent<>(EventType.SHOW, s, null));
                 }
                 else if (event.getPayload() instanceof RouteDTO){
-                    Route r = createRoute((RouteDTO) event.getPayload(), ((CreationEvent<T>)event).getExtraData());
+                    List<RoutePoint> points = ((CreationEvent<T>)event).getExtraData();
+                    Route r = createRoute((RouteDTO) event.getPayload(), points);
                     r.setID(r.pushToServer());
-                    mediator.publish(new ShowEvent<>(EventType.SHOW, r, null));
+                    ((CreateRouteCommand) event.getCommand()).setRoute(r);
+                    for (RoutePoint p :  points){
+                        p.pushToServer();
+                    }
+                    ((CreateRouteCommand) event.getCommand()).setPoints(points);
+                    mediator.publish(new CreationEvent<>(EventType.SHOW, r, null, points));
                 }
                 else if (event.getPayload() instanceof ZoneDTO){
                     Zone z = createZone((ZoneDTO) event.getPayload());
                     z.setID(z.pushToServer());
+                    ((CreateZoneCommand) event.getCommand()).setZone(z);
+                    event.getCommand().endExecution();
                     mediator.publish(new ShowEvent<>(EventType.SHOW, z, null));
                 }
             }
@@ -99,6 +107,17 @@ public class MapService extends ComponentColleague {
                 }
                 else if (event.getPayload() instanceof ZoneDTO){
                     deleteZone(((ZoneDTO) event.getPayload()).getID());
+                }
+            }
+            case EDIT -> {
+                if (event.getPayload() instanceof Storage){
+                    updateStorage((Storage) event.getPayload());
+                }
+                else if (event.getPayload() instanceof Route){
+                    updateRoute((Route) event.getPayload());
+                }
+                else if (event.getPayload() instanceof Zone){
+                    updateZone((Zone) event.getPayload());
                 }
             }
         }
@@ -195,7 +214,7 @@ public class MapService extends ComponentColleague {
         addControls();
     }
 
-    public void addControls() {
+    private void addControls() {
         final LinkedHashMap<String, LLayer<?>> baseLayers = new LinkedHashMap<>();
         final LControlLayers lControlLayers = new LControlLayers(
                 this.map.getReg(),
@@ -214,7 +233,6 @@ public class MapService extends ComponentColleague {
                 .addLayer(this.map.getLLayerGroupStorages());
     }
 
-
     private Storage createStorage(StorageDTO storage) {
         double lat = storage.getLatitude();
         double lng = storage.getLongitude();
@@ -231,7 +249,7 @@ public class MapService extends ComponentColleague {
         return storageObj;
     }
 
-    public Zone createZone(ZoneDTO zoneDTO) {
+    private Zone createZone(ZoneDTO zoneDTO) {
         List<Tuple<Double, Double>> points = new ArrayList<>();
 
         for (int i = 0; i < zoneDTO.getLatitudes().size(); i++) {
@@ -244,6 +262,7 @@ public class MapService extends ComponentColleague {
         }
 
         zone.setName(zoneDTO.getName() != null ? zoneDTO.getName() : "Sin nombre");
+        zone.setID(zoneDTO.getID());
         zone.setDescription(zoneDTO.getDescription() != null ? zoneDTO.getDescription() : "Sin descripción");
         zone.setEmergencyLevel(zoneDTO.getEmergencyLevel() != null ? zoneDTO.getEmergencyLevel() : "LOW"); // Nivel por defecto: "Bajo"
         zone.setCatastrophe(zoneDTO.getCatastrophe() != null ? zoneDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
@@ -273,9 +292,8 @@ public class MapService extends ComponentColleague {
         return zone;
     }
 
-    public Route createRoute(RouteDTO routeDTO, List<RoutePoint> routePoints) {
+    private Route createRoute(RouteDTO routeDTO, List<RoutePoint> routePoints) {
         Route route = (Route) routeFactory.createMapObject(this.map.getReg(), 0.0, routeDTO.getID() + 1.0);
-        route.setID(routeDTO.getID());
         for (RoutePoint routePoint : routePoints) {
             route.addPoint(this.map.getReg(), new Tuple<>(routePoint.getLatitude(), routePoint.getLongitude()));
             routePoint.removeFromMap(map.getMap());
@@ -305,7 +323,7 @@ public class MapService extends ComponentColleague {
         route.setRouteType(routeDTO.getRouteType());
         route.setName(routeDTO.getName() != null ? routeDTO.getName() : "Sin nombre");
         route.setCatastrophe(routeDTO.getCatastrophe() != null ? routeDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
-        route.setPointsID(routeDTO.getPoints() != null ? (ArrayList<Integer>) routeDTO.getPoints() : new ArrayList<>());
+        route.setPointsID(routeDTO.getPoints());
 
         route.getPolygon().bindPopup("Ruta: " + route.getName());
 
@@ -314,7 +332,7 @@ public class MapService extends ComponentColleague {
         return route;
     }
 
-    public Need createNeed(NeedDTO needDTO) {
+    private Need createNeed(NeedDTO needDTO) {
         double lat = needDTO.getLatitude();
         double lng = needDTO.getLongitude();
         Need need = (Need) needFactory.createMapObject(this.map.getReg(), lat, lng);
@@ -329,24 +347,23 @@ public class MapService extends ComponentColleague {
         return need;
     }
 
-    public void deleteZone(int ID) {
+    private void deleteZone(int ID) {
         Zone zone = map.getZones().stream()
                 .filter(z -> z.getID() == ID)
                 .findFirst()
                 .orElse(null);
         if (zone != null) {
             zone.removeFromMap(this.map.getMap());
-            zone.deleteFromServer();
-
             map.getZones().remove(zone);
             map.getLLayerGroupZones().removeLayer(zone.getPolygon());
             this.map.getMap().addLayer(map.getLLayerGroupZones());
 
+            zone.deleteFromServer();
             backendService.getZoneList().update();
         }
     }
 
-    public void deleteRoute(int ID) {
+    private void deleteRoute(int ID) {
         Route route = map.getRoutes().stream()
                 .filter(r -> r.getID() == ID)
                 .findFirst()
@@ -375,107 +392,98 @@ public class MapService extends ComponentColleague {
         }
     }
 
-    public void deleteStorage(int i) {
+    private void deleteStorage(int i) {
         Storage storage = map.getStorages().stream()
                 .filter(s -> s.getID() == i)
                 .findFirst()
                 .orElse(null);
         if (storage != null) {
-            storage.removeFromMap(this.map.getMap());
-            storage.deleteFromServer();
-
             map.getStorages().remove(storage);
             map.getLLayerGroupStorages().removeLayer(storage.getMarkerObj());
             this.map.getMap().addLayer(map.getLLayerGroupStorages());
+            storage.removeFromMap(this.map.getMap());
 
+            storage.deleteFromServer();
             backendService.getStorageList().update();
         }
     }
 
-//    public Need getNeedByID(String ID) {
-//        return needs.stream()
-//                .filter(m -> m.getID() == Integer.parseInt(ID))
-//                .findFirst()
-//                .orElse(null);
-//    }
-//
-//    public Zone getZoneByID(String ID) {
-//        return zones.stream()
-//                .filter(z -> z.getID() == Integer.parseInt(ID))
-//                .findFirst()
-//                .orElse(null);
-//    }
-//
-//    public Route getRouteByID(String ID) {
-//        return routes.stream()
-//                .filter(r -> r.getID() == Integer.parseInt(ID))
-//                .findFirst()
-//                .orElse(null);
-//    }
-//
-//
-//    public void updateZone(Zone zone) {
-//        zone.getPolygon().removeFrom(this.map.getMap());
-//        switch (zone.getEmergencyLevel()) {
-//            case "LOW":
-//                zone.generatePolygon(this.map.getReg(), "grey", "green");
-//                break;
-//            case "MEDIUM":
-//                zone.generatePolygon(this.map.getReg(), "grey", "yellow");
-//                break;
-//            case "HIGH":
-//                zone.generatePolygon(this.map.getReg(), "grey", "red");
-//                break;
-//            case "VERYHIGH":
-//                zone.generatePolygon(this.map.getReg(), "grey", "black");
-//                break;
-//            default:
-//                zone.generatePolygon(this.map.getReg(), "grey", "blue");
-//        }
-//        zone.getPolygon().bindPopup("Zona: " + zone.getName());
-//        zone.getPolygon().addTo(this.map.getMap());
-//    }
-//
-//    public void updateRoute(Route route) {
-//        route.getPolygon().removeFrom(this.map.getMap());
-//        switch (route.getRouteType()) {
-//            case "PREFERRED_ROUTE":
-//                route.generatePolygon(this.map.getReg(), "green", "green");
-//                break;
-//            case "LOW_RISK":
-//                route.generatePolygon(this.map.getReg(), "yellow", "yellow");
-//                break;
-//            case "MEDIUM_RISK":
-//                route.generatePolygon(this.map.getReg(), "red", "red");
-//                break;
-//            case "HIGH_RISK":
-//                route.generatePolygon(this.map.getReg(), "black", "black");
-//                break;
-//            case "CLOSED":
-//                route.generatePolygon(this.map.getReg(), "blue", "blue");
-//                break;
-//            default:
-//                route.generatePolygon(this.map.getReg(), "blue", "blue");
-//        }
-//        route.getPolygon().bindPopup("Ruta: " + route.getName());
-//        route.getPolygon().addTo(this.map.getMap());
-//        for (RoutePoint routePoint : this.routePoints.get(route.getID())) {
-//            routePoint.getMarkerObj().bindPopup("Ruta: " + route.getName());
-//        }
-//    }
-//
-//
-//    public Storage getStorageByID(String id) {
-//        return storages.stream()
-//                .filter(s -> s.getID() == Integer.parseInt(id))
-//                .findFirst()
-//                .orElse(null);
-//    }
-//
-//    public void updateStorage(Storage storage) {
-//        storage.getMarkerObj().removeFrom(this.map.getMap());
-//        storage.getMarkerObj().bindPopup("Almacen: " + storage.getName());
-//        storage.getMarkerObj().addTo(this.map.getMap());
-//    }
+    private void updateZone(Zone zone) {
+        zone.updateToServer();
+
+        map.getZones().stream().filter(z -> Objects.equals(z.getID(), zone.getID())).findFirst().ifPresent(z -> {
+            map.getZones().remove(z);
+            map.getZones().add(zone);
+        });
+
+        zone.getPolygon().removeFrom(this.map.getMap());
+        switch (zone.getEmergencyLevel()) {
+            case "LOW":
+                zone.generatePolygon(this.map.getReg(), "grey", "green");
+                break;
+            case "MEDIUM":
+                zone.generatePolygon(this.map.getReg(), "grey", "yellow");
+                break;
+            case "HIGH":
+                zone.generatePolygon(this.map.getReg(), "grey", "red");
+                break;
+            case "VERYHIGH":
+                zone.generatePolygon(this.map.getReg(), "grey", "black");
+                break;
+            default:
+                zone.generatePolygon(this.map.getReg(), "grey", "blue");
+        }
+        zone.getPolygon().bindPopup("Zona: " + zone.getName());
+        zone.getPolygon().addTo(this.map.getMap());
+        backendService.getZoneList().update();
+    }
+
+    private void updateRoute(Route route) {
+        route.updateToServer();
+
+        map.getRoutes().stream().filter(r -> Objects.equals(r.getID(), route.getID())).findFirst().ifPresent(r -> {
+            map.getRoutes().remove(r);
+            map.getRoutes().add(route);
+        });
+
+        route.getPolygon().removeFrom(this.map.getMap());
+        switch (route.getRouteType()) {
+            case "PREFERRED_ROUTE":
+                route.generatePolygon(this.map.getReg(), "green", "green");
+                break;
+            case "LOW_RISK":
+                route.generatePolygon(this.map.getReg(), "yellow", "yellow");
+                break;
+            case "MEDIUM_RISK":
+                route.generatePolygon(this.map.getReg(), "red", "red");
+                break;
+            case "HIGH_RISK":
+                route.generatePolygon(this.map.getReg(), "black", "black");
+                break;
+            case "CLOSED":
+                route.generatePolygon(this.map.getReg(), "blue", "blue");
+                break;
+            default:
+                route.generatePolygon(this.map.getReg(), "blue", "blue");
+        }
+        route.getPolygon().bindPopup("Ruta: " + route.getName());
+        route.getPolygon().addTo(this.map.getMap());
+        for (RoutePoint routePoint : map.getRoutePoints().get(route.getID())) {
+            routePoint.getMarkerObj().bindPopup("Ruta: " + route.getName());
+        }
+        backendService.getRouteList().update();
+    }
+
+    private void updateStorage(Storage storage) {
+        storage.updateToServer();
+        map.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
+            map.getStorages().remove(s);
+            map.getStorages().add(storage);
+        });
+        storage.getMarkerObj().removeFrom(this.map.getMap());
+        storage.getMarkerObj().bindPopup("Almacen: " + storage.getName());
+        storage.getMarkerObj().addTo(this.map.getMap());
+        backendService.getStorageList().update();
+    }
 
 }

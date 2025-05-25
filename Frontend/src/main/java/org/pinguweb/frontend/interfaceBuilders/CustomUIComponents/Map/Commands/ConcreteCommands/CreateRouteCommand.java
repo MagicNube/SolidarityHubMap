@@ -17,6 +17,7 @@ import java.util.List;
 public class CreateRouteCommand implements Command{
     MapButtons buttonController;
     private boolean working = false;
+    private boolean first = true;
 
     @Setter
     Route route;
@@ -38,22 +39,30 @@ public class CreateRouteCommand implements Command{
         else{
             buttonController.getZone().setText("Crear ruta");
             buttonController.getMediator().publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS,null));
-            buttonController.getMediator().publish(new ShowEvent<>(EventType.SHOW_DIALOG, null, DialogsNames.ROUTE));
-            buttonController.addExecutedCommand(this);
+            buttonController.getMediator().publish(new ShowEvent<>(EventType.SHOW_DIALOG, null, DialogsNames.ROUTE, this));
             working = false;
         }
     }
 
     @Override
+    public void endExecution(){
+        if (first)
+        {buttonController.addExecutedCommand(this); first = false;}
+        buttonController.getMediator().publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS,null));
+        Notification notification = new Notification("Ruta creada exitosamente", 3000);
+        notification.open();
+    }
+
+    @Override
     public void undo() {
-        buttonController.getMediator().publish(new DeleteEvent<>(this.route, this));
+        buttonController.getMediator().publish(new DeleteEvent<>(this.route.toDto(), this));
         Notification notification = new Notification("Creación de la ruta deshecha", 3000);
         notification.open();
     }
 
     @Override
     public void redo() {
-        buttonController.getMediator().publish(new CreationEvent<>(EventType.CREATE, route, this, points));
+        buttonController.getMediator().publish(new CreationEvent<>(EventType.CREATE, route.toDto(), this, points));
         Notification notification = new Notification("Ruta creada exitosamente", 3000);
         notification.open();
     }

@@ -17,10 +17,14 @@ import org.pingu.web.BackendObservableService.observableList.Observer;
 import org.pingu.web.BackendObservableService.observableList.ObserverChange;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.DeleteCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ClickedElement;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.DialogsNames;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.*;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
@@ -50,7 +54,8 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
 
     Command lastCommand;
     UI ui;
-    DeleteCommand command;
+    DeleteCommand deleteCommand;
+    EditCommand editCommand;
 
     public MapView() {
         this.setSizeFull();
@@ -101,7 +106,16 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
             }
             else{
                 startDelete();
-                command = (DeleteCommand) event.getCommand();
+                deleteCommand = (DeleteCommand) event.getCommand();
+            }
+        }
+        else if (event.getPayload() == ClickedElement.EDIT && event.getCommand() instanceof EditCommand){
+            if (((EditCommand) event.getCommand()).isWorking()){
+                endEdit();
+            }
+            else{
+                startEdit();
+                editCommand = (EditCommand) event.getCommand();
             }
         }
     }
@@ -141,6 +155,41 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         }
         for (Storage storage : map.getStorages()) {
             storage.getMarkerObj().off("click");
+        }
+    }
+
+    public void startEdit() {
+        map.getMapContainer().getClassNames().add("cursor-editar");
+        for (Zone zone : map.getZones()) {
+            String clickFuncReferenceEditZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
+            map.getReg().execJs(clickFuncReferenceEditZone + "=e => document.getElementById('" + MapView.getMapId() + "').$server.editPolygon('" + zone.getID() + "') ");
+            zone.getPolygon().on("click", clickFuncReferenceEditZone);
+        }
+        for (org.pinguweb.frontend.mapObjects.Route route : map.getRoutes()) {
+            String clickFuncReferenceEditRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditRoute" + route.getID();
+            map.getReg().execJs(clickFuncReferenceEditRoute + "=e => document.getElementById('" + MapView.getMapId() + "').$server.editRoute('" + route.getID() + "') ");
+            route.getPolygon().on("click", clickFuncReferenceEditRoute);
+        }
+        for (Storage storage : map.getStorages()) {
+            String clickFuncReferenceEditStorage = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
+            map.getReg().execJs(clickFuncReferenceEditStorage + "=e => document.getElementById('" + MapView.getMapId() + "').$server.editStorage('" + storage.getID() + "') ");
+            storage.getMarkerObj().on("click", clickFuncReferenceEditStorage);
+        }
+    }
+
+    public void endEdit() {
+        map.getMapContainer().getClassNames().clear();
+        for (Zone zone : map.getZones()) {
+            String clickFuncReferenceEditZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
+            zone.getPolygon().off("click", clickFuncReferenceEditZone);
+        }
+        for (org.pinguweb.frontend.mapObjects.Route route : map.getRoutes()) {
+            String clickFuncReferenceEditRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditRoute" + route.getID();
+            route.getPolygon().off("click", clickFuncReferenceEditRoute);
+        }
+        for (Storage storage : map.getStorages()) {
+            String clickFuncReferenceEditStorage = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
+            storage.getMarkerObj().off("click", clickFuncReferenceEditStorage);
         }
     }
 
@@ -192,7 +241,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         }
 
         Tuple<Double, Double> coords = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
-        ShowEvent<Tuple<Double, Double>> event = new ShowEvent<Tuple<Double, Double>>(EventType.SHOW_DIALOG, coords, DialogsNames.STORAGE);
+        ShowEvent<Tuple<Double, Double>> event = new ShowEvent<Tuple<Double, Double>>(EventType.SHOW_DIALOG, coords, DialogsNames.STORAGE, lastCommand);
         mediator.publish(event);
         map.getMap().off("click", clickFuncReferenceCreateStorage);
     }
@@ -202,7 +251,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         endDelete();
         ZoneDTO zone = new ZoneDTO();
         zone.setID(Integer.parseInt(ID));
-        command.end();
+        deleteCommand.endExecution();
         mediator.publish(new GenericEvent<>(EventType.DELETE, zone, null));
     }
 
@@ -211,7 +260,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         endDelete();
         RouteDTO route = new RouteDTO();
         route.setID(Integer.parseInt(ID));
-        command.end();
+        deleteCommand.endExecution();
         mediator.publish(new GenericEvent<>(EventType.DELETE, route, null));
     }
 
@@ -220,25 +269,28 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         endDelete();
         StorageDTO storage = new StorageDTO();
         storage.setID(Integer.parseInt(ID));
-        command.end();
+        deleteCommand.endExecution();
         mediator.publish(new GenericEvent<>(EventType.DELETE, storage, null));
     }
 
-//    @ClientCallable
-//    public void editPolygon(String ID) {
-//        System.out.println("editPolygon: " + ID);
-//        mapDialogs.editDialogZone(ID, controller.getTempEditCommand());
-//    }
-//
-//    @ClientCallable
-//    public void editRoute(String ID) {
-//        System.out.println("editRoute: " + ID);
-//        mapDialogs.editDialogRoute(ID, controller.getTempEditCommand());
-//    }
-//
-//    @ClientCallable
-//    public void editStorage(String ID) {
-//        System.out.println("editStorage: " + ID);
-//        mapDialogs.editDialogStorage(ID, controller.getTempEditCommand());
-//    }
+    @ClientCallable
+    public void editPolygon(String ID) {
+        endEdit();
+        editCommand.endExecution();
+        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.ZONE, editCommand));
+    }
+
+    @ClientCallable
+    public void editRoute(String ID) {
+        endEdit();
+        editCommand.endExecution();
+        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.ROUTE, editCommand));
+    }
+
+    @ClientCallable
+    public void editStorage(String ID) {
+        endEdit();
+        editCommand.endExecution();
+        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.STORAGE, editCommand));
+    }
 }
