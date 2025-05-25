@@ -12,5 +12,6 @@ public enum EventType {
     ENABLE_BUTTONS, // Activa todos los botones
     DISABLE_BUTTONS, // Desactiva un botón indicado
     REQUEST_CLICK, // Pide que el mapa espere un click
-    END_CLICK // Pide el fin de un evento de entrada
+    END_CLICK, // Pide el fin de un evento de entrada
+    CHANGE_BANNER, // Cambia el banner del mapa
 }

@@ -1,5 +1,7 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -8,10 +10,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapBuild;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapDialogs;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapService;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.*;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
 import org.pinguweb.frontend.mapObjects.*;
@@ -28,12 +27,10 @@ import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Getter
@@ -45,6 +42,7 @@ public class Map extends InterfaceComponent implements Mediator {
     private LMap map;
     private MapContainer mapContainer;
     private VerticalLayout component;
+    private Div actionBanner;
 
     private HashSet<Storage> storages = new HashSet<>();
     private HashSet<Need> needs = new HashSet<>();
@@ -96,25 +94,37 @@ public class Map extends InterfaceComponent implements Mediator {
         new MapService(this);
         new MapDialogs(this);
         new MapBuild(this);
-        stateOfMap();
+
+        initializeActionBanner();
+
 
         publish(new LoadEvent<>());
         publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS, null));
 
     }
 
-    public void stateOfMap(){
-        Div actionBanner;
-        actionBanner = new Div();
-        actionBanner.setText("Modo: Navegación");
-        actionBanner.getStyle().set("position", "absolute");
-        actionBanner.getStyle().set("align-items", "center");
-        actionBanner.getStyle().set("background-color", "rgba(0, 0, 0, 0.7)");
-        actionBanner.getStyle().set("color", "white");
-        actionBanner.getStyle().set("font-weight", "bold");
-        actionBanner.getStyle().set("z-index", "1000");
-        this.component.add(actionBanner);
+    private void initializeActionBanner(){
+        this.actionBanner = new Div();
+        this.actionBanner.setId("action-banner");
+
+        this.actionBanner.setText("Modo: Navegación");
+
+        // Estilos para posicionar y centrar el banner
+        this.actionBanner.getStyle().set("position", "absolute");
+        this.actionBanner.getStyle().set("top", "10px");
+        this.actionBanner.getStyle().set("left", "50%");
+        this.actionBanner.getStyle().set("transform", "translateX(-50%)");
+        this.actionBanner.getStyle().set("text-align", "center");
+        this.actionBanner.getStyle().set("background-color", "rgba(0, 0, 0, 0.7)");
+        this.actionBanner.getStyle().set("color", "white");
+        this.actionBanner.getStyle().set("font-weight", "bold");
+        this.actionBanner.getStyle().set("z-index", "1000");
+        this.actionBanner.getStyle().set("padding", "8px 15px");
+
+        this.component.add(this.actionBanner);
     }
+
+
 
     @Override
     public void subscribe(EventType eventType, Colleague colleague) {
@@ -126,6 +136,8 @@ public class Map extends InterfaceComponent implements Mediator {
                 .filter(x -> x._2() == event.getType())
                 .forEach(x -> x._1().receive(event));
     }
+
+
 
 
 
