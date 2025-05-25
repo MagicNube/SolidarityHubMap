@@ -3,8 +3,9 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.
 import com.vaadin.flow.component.notification.Notification;
 import lombok.Setter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ButtonNames;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ClickedElement;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Buttons;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.DeleteEvent;
@@ -13,18 +14,18 @@ import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.utils.Mediador.EventType;
 
 public class CreateStorageCommand implements Command {
-    MapButtons buttonController;
+    Buttons buttonController;
 
     private boolean first = true;
     @Setter
     Storage storage;
-    public CreateStorageCommand(MapButtons receiver){
+    public CreateStorageCommand(Buttons receiver){
         buttonController = receiver;
     }
 
     @Override
     public void execute() {
-        buttonController.getMediator().publish(new ButtonEvent<>(EventType.DISABLE_BUTTONS,null));
+        buttonController.getMediator().publish(new ButtonEvent<>(EventType.DISABLE_BUTTONS, ButtonNames.STORAGE));
         buttonController.getMediator().publish(new RequestClickEvent<>(ClickedElement.STORAGE, this));
     }
 

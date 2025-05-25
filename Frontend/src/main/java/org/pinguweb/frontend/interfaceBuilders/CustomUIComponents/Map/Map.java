@@ -1,15 +1,16 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map;
 
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapShow;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapDialogs;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapService;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Show;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Buttons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Dialogs;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Service;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
 import org.pinguweb.frontend.mapObjects.*;
@@ -41,6 +42,7 @@ public class Map extends InterfaceComponent implements Mediator {
     private LMap map;
     private MapContainer mapContainer;
     private VerticalLayout component;
+    private Div actionBanner;
 
     private HashSet<Storage> storages = new HashSet<>();
     private HashSet<Need> needs = new HashSet<>();
@@ -87,15 +89,42 @@ public class Map extends InterfaceComponent implements Mediator {
         this.map.locate(new LMapLocateOptions().withSetView(true).withMaxZoom(16));
 
         component.add(mapContainer);
-        component.add(new MapButtons(this).generateButtonRow());
+        component.add(new Buttons(this).generateButtonRow());
 
-        new MapService(this);
-        new MapDialogs(this);
-        new MapShow(this);
+        new Service(this);
+        new Dialogs(this);
+        new Show(this);
+
+        initializeActionBanner();
+
 
         publish(new LoadEvent<>());
         publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS, null));
+
     }
+
+    private void initializeActionBanner(){
+        this.actionBanner = new Div();
+        this.actionBanner.setId("action-banner");
+
+        this.actionBanner.setText("Modo: Navegación");
+
+        // Estilos para posicionar y centrar el banner
+        this.actionBanner.getStyle().set("position", "absolute");
+        this.actionBanner.getStyle().set("top", "10px");
+        this.actionBanner.getStyle().set("left", "50%");
+        this.actionBanner.getStyle().set("transform", "translateX(-50%)");
+        this.actionBanner.getStyle().set("text-align", "center");
+        this.actionBanner.getStyle().set("background-color", "rgba(0, 0, 0, 0.7)");
+        this.actionBanner.getStyle().set("color", "white");
+        this.actionBanner.getStyle().set("font-weight", "bold");
+        this.actionBanner.getStyle().set("z-index", "1000");
+        this.actionBanner.getStyle().set("padding", "8px 15px");
+
+        this.component.add(this.actionBanner);
+    }
+
+
 
     @Override
     public void subscribe(EventType eventType, Colleague colleague) {

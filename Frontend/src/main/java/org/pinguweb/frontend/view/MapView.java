@@ -92,29 +92,36 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
     public <T> void receive(Event<T> event) {
         lastCommand = event.getCommand();
         if (event.getPayload() == ClickedElement.ZONE){
+            this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Crear zona", null));
             startZoneConstruction();
         }
         else if (event.getPayload() == ClickedElement.ROUTE_POINT){
+            this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Crear ruta", null));
             startRouteConstruction();
         }
         else if (event.getPayload() == ClickedElement.STORAGE){
+            this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Crear almacén", null));
             startStorageConstruction();
         }
         else if (event.getPayload() == ClickedElement.DELETE && event.getCommand() instanceof DeleteCommand){
             if (((DeleteCommand) event.getCommand()).isWorking()){
                 endDelete();
+                this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Navegación", null));
             }
             else{
                 startDelete();
+                this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Borrar", null));
                 deleteCommand = (DeleteCommand) event.getCommand();
             }
         }
         else if (event.getPayload() == ClickedElement.EDIT && event.getCommand() instanceof EditCommand){
             if (((EditCommand) event.getCommand()).isWorking()){
                 endEdit();
+                this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Navegación", null));
             }
             else{
                 startEdit();
+                this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Editar", null));
                 editCommand = (EditCommand) event.getCommand();
             }
         }
