@@ -3,6 +3,7 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.
 import com.vaadin.flow.component.notification.Notification;
 import lombok.Setter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ButtonNames;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ClickedElement;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Buttons;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
@@ -24,7 +25,7 @@ public class CreateStorageCommand implements Command {
 
     @Override
     public void execute() {
-        buttonController.getMediator().publish(new ButtonEvent<>(EventType.DISABLE_BUTTONS,null));
+        buttonController.getMediator().publish(new ButtonEvent<>(EventType.DISABLE_BUTTONS, ButtonNames.STORAGE));
         buttonController.getMediator().publish(new RequestClickEvent<>(ClickedElement.STORAGE, this));
     }
 
