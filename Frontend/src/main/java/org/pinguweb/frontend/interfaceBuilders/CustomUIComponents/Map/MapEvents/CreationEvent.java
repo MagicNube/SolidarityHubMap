@@ -2,8 +2,6 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents
 
 import lombok.Getter;
 import lombok.Setter;
-import org.pingu.domain.DTO.DTO;
-import org.pingu.domain.DTO.RoutePointDTO;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ClickedElement;
 import org.pinguweb.frontend.mapObjects.RoutePoint;

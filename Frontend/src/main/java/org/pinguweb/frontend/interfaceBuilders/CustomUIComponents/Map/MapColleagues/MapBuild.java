@@ -3,11 +3,14 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapCollea
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.*;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.mapObjects.*;
-import org.pinguweb.frontend.mapObjects.factories.*;
+import org.pinguweb.frontend.mapObjects.factories.RoutePointFactory;
+import org.pinguweb.frontend.mapObjects.factories.ZoneMarkerFactory;
 import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
 import org.pinguweb.frontend.utils.Mediador.EventType;

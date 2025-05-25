@@ -21,9 +21,11 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ClickedElement;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.DialogsNames;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.*;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
-import org.pinguweb.frontend.mapObjects.Need;
 import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.services.BackendDTOService;

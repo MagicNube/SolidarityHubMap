@@ -1,18 +1,13 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands;
 
-import com.vaadin.flow.component.notification.Notification;
 import lombok.Getter;
-import lombok.Setter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ButtonNames;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ClickedElement;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.RequestClickEvent;
-import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.utils.Mediador.EventType;
-
-import java.util.List;
 
 public class DeleteCommand implements Command {
     MapButtons buttonController;

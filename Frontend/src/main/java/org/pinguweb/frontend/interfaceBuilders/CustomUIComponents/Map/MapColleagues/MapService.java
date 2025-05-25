@@ -6,21 +6,16 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.*;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.DeleteCommand;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.*;
 import org.pinguweb.frontend.services.BackendDTOService;
-import org.pinguweb.frontend.utils.Mediador.Colleague;
 import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
 import org.pinguweb.frontend.utils.Mediador.EventType;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.Tuple;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
 import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
@@ -28,7 +23,6 @@ import software.xdev.vaadin.maps.leaflet.layer.LLayer;
 import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Setter
@@ -225,7 +219,6 @@ public class MapService extends ComponentColleague {
                 .addLayer(this.map.getLLayerGroupRoutes())
                 .addLayer(this.map.getLLayerGroupStorages());
     }
-
 
     private Storage createStorage(StorageDTO storage) {
         double lat = storage.getLatitude();

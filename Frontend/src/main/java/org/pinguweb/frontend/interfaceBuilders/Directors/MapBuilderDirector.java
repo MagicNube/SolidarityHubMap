@@ -3,7 +3,6 @@ package org.pinguweb.frontend.interfaceBuilders.Directors;
 import com.vaadin.flow.component.Component;
 import org.pinguweb.frontend.interfaceBuilders.Builders.MapBuilder;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
-import org.pinguweb.frontend.utils.Mediador.Colleague;
 import org.pinguweb.frontend.view.MapView;
 
 public class MapBuilderDirector {

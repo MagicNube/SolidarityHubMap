@@ -7,7 +7,6 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.listbox.MultiSelectListBox;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -23,13 +22,17 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ClickedEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
-import org.pinguweb.frontend.mapObjects.*;
+import org.pinguweb.frontend.mapObjects.Route;
+import org.pinguweb.frontend.mapObjects.RoutePoint;
+import org.pinguweb.frontend.mapObjects.Storage;
+import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.services.BackendDTOService;
-import org.pinguweb.frontend.utils.Mediador.*;
+import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
+import org.pinguweb.frontend.utils.Mediador.Event;
+import org.pinguweb.frontend.utils.Mediador.EventType;
 import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.ArrayList;
