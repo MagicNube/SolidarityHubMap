@@ -22,6 +22,7 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.DialogsNames;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
@@ -39,13 +40,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class MapDialogs extends ComponentColleague {
+public class Dialogs extends ComponentColleague {
 
     private final BackendDTOService backendService = BackendDTOService.GetInstancia();
 
     private final Map map;
 
-    public MapDialogs(Map map) {
+    public Dialogs(Map map) {
         super(map);
         this.map = map;
     }

@@ -1,4 +1,4 @@
-package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues;
+package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums;
 
 public enum MapState {
     IDLE,

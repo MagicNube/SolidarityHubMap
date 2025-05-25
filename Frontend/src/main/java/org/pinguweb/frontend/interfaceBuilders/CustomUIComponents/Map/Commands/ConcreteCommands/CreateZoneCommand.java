@@ -3,16 +3,16 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.
 import com.vaadin.flow.component.notification.Notification;
 import lombok.Setter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ButtonNames;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ClickedElement;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.DialogsNames;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ButtonNames;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ClickedElement;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.DialogsNames;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Buttons;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.*;
 import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.utils.Mediador.EventType;
 
 public class CreateZoneCommand implements Command {
-    MapButtons buttonController;
+    Buttons buttonController;
 
     private boolean working = false;
     private boolean first = true;
@@ -20,7 +20,7 @@ public class CreateZoneCommand implements Command {
     @Setter
     private Zone zone;
 
-    public CreateZoneCommand(MapButtons receiver){
+    public CreateZoneCommand(Buttons receiver){
         buttonController = receiver;
     }
 

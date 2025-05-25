@@ -10,6 +10,7 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.CommandButton;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.*;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ButtonNames;
 import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
 import org.pinguweb.frontend.utils.Mediador.EventType;
@@ -18,7 +19,7 @@ import java.util.LinkedList;
 
 @Setter
 @Getter
-public class MapButtons extends ComponentColleague {
+public class Buttons extends ComponentColleague {
     private final CommandButton zone = new CommandButton("Crear zona");
     private final CommandButton route = new CommandButton("Crear ruta");
     private final CommandButton storage = new CommandButton("Crear almacen");
@@ -34,7 +35,7 @@ public class MapButtons extends ComponentColleague {
 
     private Map map;
 
-    public MapButtons(Map map) {
+    public Buttons(Map map) {
         super(map);
 
         this.map = map;

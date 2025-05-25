@@ -7,6 +7,7 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ClickedElement;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.mapObjects.factories.RoutePointFactory;
@@ -24,13 +25,13 @@ import java.util.Objects;
 @Slf4j
 @Setter
 @Getter
-public class MapBuild extends ComponentColleague {
+public class Show extends ComponentColleague {
     private String clickFuncReferenceCreateZone;
     private String clickFuncReferenceCreateRoute;
     private String clickFuncReferenceCreateStorage;
     private Map map;
 
-    public MapBuild(Map map) {
+    public Show(Map map) {
         super(map);
         this.map = map;
         clickFuncReferenceCreateZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone";
