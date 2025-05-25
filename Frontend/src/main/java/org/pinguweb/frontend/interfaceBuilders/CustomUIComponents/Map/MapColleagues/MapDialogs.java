@@ -383,6 +383,9 @@ public class MapDialogs extends ComponentColleague {
 
         ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
         catastropheComboBox.setItems(backendService.getCatastropheList().getValues().stream().map(CatastropheDTO::getName).toList());
+        catastropheComboBox.setValue(
+                backendService.getCatastropheList().stream().filter(x -> x.getID() == zone.getCatastrophe()).findFirst().get().getName()
+        );
 
         MultiSelectListBox<String> storageComboBox = new MultiSelectListBox<>();
         storageComboBox.setItems(backendService.getStorageList().getValues().stream().map(StorageDTO::getName).toList());
@@ -430,6 +433,7 @@ public class MapDialogs extends ComponentColleague {
             zone.setCatastrophe(catastropheID);
             zone.setEmergencyLevel(severityComboBox.getValue());
             zone.setStorages(selectedStorageIDs);
+            zone.setID(Integer.parseInt(zoneID));
             mediator.publish(new GenericEvent<>(EventType.EDIT, zone, null));
 //            c.setResultObject(zone);
             dialog.close();
@@ -489,7 +493,9 @@ public class MapDialogs extends ComponentColleague {
 
         ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
         catastropheComboBox.setItems(backendService.getCatastropheList().getValues().stream().map(CatastropheDTO::getName).toList());
-
+        catastropheComboBox.setValue(
+                backendService.getCatastropheList().stream().filter(x -> x.getID() == route.getCatastrophe()).findFirst().get().getName()
+        );
         Button cancelButton = new Button("Cancelar");
         cancelButton.addClickListener(event -> {
             mediator.publish(new GenericEvent<>(EventType.EXIT, null, c));
@@ -505,6 +511,7 @@ public class MapDialogs extends ComponentColleague {
             route.setName(nameTextArea.getValue());
             route.setRouteType(routeTypeComboBox.getValue());
             route.setCatastrophe(catastropheID);
+            route.setID(Integer.parseInt(routeID));
             mediator.publish(new GenericEvent<>(EventType.EDIT, route, null));
 //            c.setResultObject(route);
             dialog.close();
@@ -551,6 +558,9 @@ public class MapDialogs extends ComponentColleague {
 
         ComboBox<String> zoneComboBox = new ComboBox<>("Zona");
         zoneComboBox.setItems(backendService.getZoneList().getValues().stream().map(ZoneDTO::getName).toList());
+        zoneComboBox.setValue(
+                backendService.getZoneList().stream().filter(x -> x.getID() == storage.getZoneID()).findFirst().get().getName()
+        );
 
         ComboBox<String> llenoComboBox = new ComboBox<>("Estado");
         String[] llenoOptions = {"Lleno", "Vacio"};
@@ -571,6 +581,7 @@ public class MapDialogs extends ComponentColleague {
             storage.setName(nameTextArea.getValue());
             storage.setZoneID(zoneID);
             storage.setFull(llenoComboBox.getValue().equals("Lleno"));
+            storage.setID(Integer.parseInt(id));
             mediator.publish(new GenericEvent<>(EventType.EDIT, storage, null));
 //            c.setResultObject(storage);
             dialog.close();

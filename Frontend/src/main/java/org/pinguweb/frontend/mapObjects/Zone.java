@@ -50,6 +50,7 @@ public class Zone extends MapObject{
 
     public ZoneDTO toDto(){
         ZoneDTO zoneDTO = new ZoneDTO();
+        zoneDTO.setID(getID());
         zoneDTO.setName(this.name);
         zoneDTO.setDescription(this.description);
         zoneDTO.setEmergencyLevel(this.emergencyLevel);
@@ -74,7 +75,6 @@ public class Zone extends MapObject{
     public int pushToServer(){
         ZoneDTO zoneDTO = toDto();
 
-        //System.out.println("ZoneDTO: " + zoneDTO.getCatastrophe() + " " + zoneDTO.getStorages());
         String finurl = "/api/zones";
         try{
             BackendObject<ZoneDTO> status = BackendService.postToBackend(BackendDTOService.BACKEND + finurl, zoneDTO, ZoneDTO.class);
@@ -93,7 +93,7 @@ public class Zone extends MapObject{
 
     @Override
     public int deleteFromServer() {
-        String finurl = "/api/zones/" + this.getID();
+        String finurl = "/api/zones/" + getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(BackendDTOService.BACKEND + finurl);
             if (status == HttpStatus.OK){
@@ -120,7 +120,7 @@ public class Zone extends MapObject{
     public int updateToServer() {
         ZoneDTO zoneDTO = toDto();
 
-        String finurl = "/api/zones";
+        String finurl = "/api/zones/" + getID();
         try{
             HttpStatusCode status = BackendService.putToBackend(BackendDTOService.BACKEND + finurl, zoneDTO);
             if (status == HttpStatus.OK){

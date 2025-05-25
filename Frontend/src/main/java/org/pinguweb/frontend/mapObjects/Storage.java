@@ -48,6 +48,7 @@ public class Storage extends MapObject{
 
     public StorageDTO toDto(){
         StorageDTO storageDTO = new StorageDTO();
+        storageDTO.setID(getID());
         storageDTO.setLatitude(this.getLatitude());
         storageDTO.setLongitude(this.getLongitude());
         storageDTO.setName(this.getName());
@@ -70,7 +71,7 @@ public class Storage extends MapObject{
     public int pushToServer(){
         StorageDTO storageDTO = toDto();
 
-        String finurl = "/api/storages";
+        String finurl = "/api/storages" + storageDTO.getID();
         try{
             BackendObject<StorageDTO> status = BackendService.postToBackend(BackendDTOService.BACKEND + finurl, storageDTO, StorageDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
@@ -85,7 +86,7 @@ public class Storage extends MapObject{
 
     @Override
     public int deleteFromServer() {
-        String finurl = "/api/storages/" + this.getID();
+        String finurl = "/api/storages/" + getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(BackendDTOService.BACKEND + finurl);
             if (status == HttpStatus.OK){

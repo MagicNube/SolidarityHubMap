@@ -67,6 +67,7 @@ public class MapService extends ComponentColleague {
         mediator.subscribe(EventType.LOAD, this);
         mediator.subscribe(EventType.CREATE, this);
         mediator.subscribe(EventType.DELETE, this);
+        mediator.subscribe(EventType.EDIT, this);
     }
 
     @Override

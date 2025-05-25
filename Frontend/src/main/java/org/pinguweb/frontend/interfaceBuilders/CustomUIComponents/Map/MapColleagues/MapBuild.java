@@ -114,13 +114,6 @@ public class MapBuild extends ComponentColleague {
         map.getMapContainer().removeClassName("cursor-crear");
     }
 
-//    public void editZone(Zone zone) {
-//        log.debug("Zona editada");
-//        zone.updateToServer();
-//        service.updateZone(zone);
-//    }
-
-
     public void showRoute(Route ruta, List<RoutePoint> points, CreateRouteCommand c) {
         map.getMap().off("click", clickFuncReferenceCreateRoute);
         List<Integer> pointsID = new ArrayList<>();
