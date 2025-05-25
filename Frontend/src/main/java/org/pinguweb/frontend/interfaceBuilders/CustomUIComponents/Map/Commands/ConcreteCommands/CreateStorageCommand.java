@@ -24,6 +24,7 @@ public class CreateStorageCommand implements Command {
 
     @Override
     public void execute() {
+        buttonController.getMediator().publish(new ButtonEvent<>(EventType.DISABLE_BUTTONS,null));
         buttonController.getMediator().publish(new RequestClickEvent<>(ClickedElement.STORAGE, this));
     }
 

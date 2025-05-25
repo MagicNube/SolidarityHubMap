@@ -31,13 +31,13 @@ public class CreateRouteCommand implements Command{
     @Override
     public void execute() {
         if (!working) {
-            buttonController.getZone().setText("Terminar ruta");
+            buttonController.getRoute().setText("Terminar ruta");
             buttonController.getMediator().publish(new ButtonEvent<>(EventType.DISABLE_BUTTONS, ButtonNames.ROUTE));
             buttonController.getMediator().publish(new RequestClickEvent<>(ClickedElement.ROUTE_POINT));
             working = true;
         }
         else{
-            buttonController.getZone().setText("Crear ruta");
+            buttonController.getRoute().setText("Crear ruta");
             buttonController.getMediator().publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS,null));
             buttonController.getMediator().publish(new ShowEvent<>(EventType.SHOW_DIALOG, null, DialogsNames.ROUTE, this));
             working = false;
