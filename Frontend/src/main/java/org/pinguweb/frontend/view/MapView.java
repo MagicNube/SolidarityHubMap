@@ -241,7 +241,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         }
 
         Tuple<Double, Double> coords = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
-        ShowEvent<Tuple<Double, Double>> event = new ShowEvent<Tuple<Double, Double>>(EventType.SHOW_DIALOG, coords, DialogsNames.STORAGE);
+        ShowEvent<Tuple<Double, Double>> event = new ShowEvent<Tuple<Double, Double>>(EventType.SHOW_DIALOG, coords, DialogsNames.STORAGE, lastCommand);
         mediator.publish(event);
         map.getMap().off("click", clickFuncReferenceCreateStorage);
     }
@@ -251,7 +251,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         endDelete();
         ZoneDTO zone = new ZoneDTO();
         zone.setID(Integer.parseInt(ID));
-        deleteCommand.end();
+        deleteCommand.endExecution();
         mediator.publish(new GenericEvent<>(EventType.DELETE, zone, null));
     }
 
@@ -260,7 +260,7 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         endDelete();
         RouteDTO route = new RouteDTO();
         route.setID(Integer.parseInt(ID));
-        deleteCommand.end();
+        deleteCommand.endExecution();
         mediator.publish(new GenericEvent<>(EventType.DELETE, route, null));
     }
 
@@ -269,28 +269,28 @@ public class MapView extends HorizontalLayout implements Observer, Colleague {
         endDelete();
         StorageDTO storage = new StorageDTO();
         storage.setID(Integer.parseInt(ID));
-        deleteCommand.end();
+        deleteCommand.endExecution();
         mediator.publish(new GenericEvent<>(EventType.DELETE, storage, null));
     }
 
     @ClientCallable
     public void editPolygon(String ID) {
         endEdit();
-        editCommand.end();
-        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.ZONE));
+        editCommand.endExecution();
+        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.ZONE, editCommand));
     }
 
     @ClientCallable
     public void editRoute(String ID) {
         endEdit();
-        editCommand.end();
-        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.ROUTE));
+        editCommand.endExecution();
+        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.ROUTE, editCommand));
     }
 
     @ClientCallable
     public void editStorage(String ID) {
         endEdit();
-        editCommand.end();
-        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.STORAGE));
+        editCommand.endExecution();
+        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.STORAGE, editCommand));
     }
 }

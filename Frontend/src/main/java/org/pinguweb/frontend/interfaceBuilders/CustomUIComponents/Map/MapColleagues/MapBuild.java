@@ -66,7 +66,7 @@ public class MapBuild extends ComponentColleague {
         }
     }
 
-    public void showStorage(Storage storage, CreateStorageCommand c){
+    private void showStorage(Storage storage, CreateStorageCommand c){
         if (c != null ) {c.setStorage(storage);}
         map.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
             map.getStorages().remove(s);
@@ -80,7 +80,7 @@ public class MapBuild extends ComponentColleague {
         map.getMapContainer().removeClassName("cursor-crear");
     }
 
-    public void showZone(Zone zone, CreateZoneCommand c) {
+    private void showZone(Zone zone, CreateZoneCommand c) {
         for (ZoneMarker zoneMarker : map.getZoneMarkers().values()) {
             zoneMarker.removeFromMap(map.getMap());
         }
@@ -96,7 +96,7 @@ public class MapBuild extends ComponentColleague {
         map.getMapContainer().removeClassName("cursor-crear");
     }
 
-    public void showZoneMarker(double lat, double lng) {
+    private void showZoneMarker(double lat, double lng) {
         ZoneMarkerFactory zoneMarkerFactory = new ZoneMarkerFactory();
         ZoneMarker zoneMarker = (ZoneMarker) zoneMarkerFactory.createMapObject(this.map.getReg(), lat, lng);
 
@@ -117,12 +117,9 @@ public class MapBuild extends ComponentColleague {
         map.getMapContainer().removeClassName("cursor-crear");
     }
 
-    public void showRoute(Route ruta, List<RoutePoint> points, CreateRouteCommand c) {
+    private void showRoute(Route ruta, List<RoutePoint> points, CreateRouteCommand c) {
         map.getMap().off("click", clickFuncReferenceCreateRoute);
         List<Integer> pointsID = new ArrayList<>();
-        for (RoutePoint routePoint : points) {
-            pointsID.add(routePoint.pushToServer());
-        }
 
         if (c != null) {c.setPoints(points);}
 
@@ -148,7 +145,7 @@ public class MapBuild extends ComponentColleague {
         map.getMapContainer().removeClassName("cursor-crear");
     }
 
-    public void showRoutePoint(double lat, double lng) {
+    private void showRoutePoint(double lat, double lng) {
         RoutePoint routePoint = (RoutePoint) new RoutePointFactory().createMapObject(this.map.getReg(), lat, lng);
 
         String clickFuncReferenceDragStart = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragStart" + routePoint.getID();

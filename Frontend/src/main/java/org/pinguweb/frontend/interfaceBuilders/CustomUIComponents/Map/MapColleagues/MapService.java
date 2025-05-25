@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.*;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateRouteCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateStorageCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
@@ -72,16 +75,26 @@ public class MapService extends ComponentColleague {
                 if (event.getPayload() instanceof StorageDTO){
                     Storage s = createStorage((StorageDTO) event.getPayload());
                     s.setID(s.pushToServer());
+                    ((CreateStorageCommand) event.getCommand()).setStorage(s);
+                    event.getCommand().endExecution();
                     mediator.publish(new ShowEvent<>(EventType.SHOW, s, null));
                 }
                 else if (event.getPayload() instanceof RouteDTO){
-                    Route r = createRoute((RouteDTO) event.getPayload(), ((CreationEvent<T>)event).getExtraData());
+                    List<RoutePoint> points = ((CreationEvent<T>)event).getExtraData();
+                    Route r = createRoute((RouteDTO) event.getPayload(), points);
                     r.setID(r.pushToServer());
-                    mediator.publish(new ShowEvent<>(EventType.SHOW, r, null));
+                    ((CreateRouteCommand) event.getCommand()).setRoute(r);
+                    for (RoutePoint p :  points){
+                        p.pushToServer();
+                    }
+                    ((CreateRouteCommand) event.getCommand()).setPoints(points);
+                    mediator.publish(new CreationEvent<>(EventType.SHOW, r, null, points));
                 }
                 else if (event.getPayload() instanceof ZoneDTO){
                     Zone z = createZone((ZoneDTO) event.getPayload());
                     z.setID(z.pushToServer());
+                    ((CreateZoneCommand) event.getCommand()).setZone(z);
+                    event.getCommand().endExecution();
                     mediator.publish(new ShowEvent<>(EventType.SHOW, z, null));
                 }
             }
@@ -201,7 +214,7 @@ public class MapService extends ComponentColleague {
         addControls();
     }
 
-    public void addControls() {
+    private void addControls() {
         final LinkedHashMap<String, LLayer<?>> baseLayers = new LinkedHashMap<>();
         final LControlLayers lControlLayers = new LControlLayers(
                 this.map.getReg(),
@@ -249,6 +262,7 @@ public class MapService extends ComponentColleague {
         }
 
         zone.setName(zoneDTO.getName() != null ? zoneDTO.getName() : "Sin nombre");
+        zone.setID(zoneDTO.getID());
         zone.setDescription(zoneDTO.getDescription() != null ? zoneDTO.getDescription() : "Sin descripción");
         zone.setEmergencyLevel(zoneDTO.getEmergencyLevel() != null ? zoneDTO.getEmergencyLevel() : "LOW"); // Nivel por defecto: "Bajo"
         zone.setCatastrophe(zoneDTO.getCatastrophe() != null ? zoneDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
@@ -280,7 +294,6 @@ public class MapService extends ComponentColleague {
 
     private Route createRoute(RouteDTO routeDTO, List<RoutePoint> routePoints) {
         Route route = (Route) routeFactory.createMapObject(this.map.getReg(), 0.0, routeDTO.getID() + 1.0);
-        route.setID(routeDTO.getID());
         for (RoutePoint routePoint : routePoints) {
             route.addPoint(this.map.getReg(), new Tuple<>(routePoint.getLatitude(), routePoint.getLongitude()));
             routePoint.removeFromMap(map.getMap());
@@ -310,7 +323,7 @@ public class MapService extends ComponentColleague {
         route.setRouteType(routeDTO.getRouteType());
         route.setName(routeDTO.getName() != null ? routeDTO.getName() : "Sin nombre");
         route.setCatastrophe(routeDTO.getCatastrophe() != null ? routeDTO.getCatastrophe() : -1); // -1 podría indicar "sin catástrofe"
-        route.setPointsID(routeDTO.getPoints() != null ? (ArrayList<Integer>) routeDTO.getPoints() : new ArrayList<>());
+        route.setPointsID(routeDTO.getPoints());
 
         route.getPolygon().bindPopup("Ruta: " + route.getName());
 
@@ -341,12 +354,11 @@ public class MapService extends ComponentColleague {
                 .orElse(null);
         if (zone != null) {
             zone.removeFromMap(this.map.getMap());
-            zone.deleteFromServer();
-
             map.getZones().remove(zone);
             map.getLLayerGroupZones().removeLayer(zone.getPolygon());
             this.map.getMap().addLayer(map.getLLayerGroupZones());
 
+            zone.deleteFromServer();
             backendService.getZoneList().update();
         }
     }
@@ -386,18 +398,17 @@ public class MapService extends ComponentColleague {
                 .findFirst()
                 .orElse(null);
         if (storage != null) {
-            storage.removeFromMap(this.map.getMap());
-            storage.deleteFromServer();
-
             map.getStorages().remove(storage);
             map.getLLayerGroupStorages().removeLayer(storage.getMarkerObj());
             this.map.getMap().addLayer(map.getLLayerGroupStorages());
+            storage.removeFromMap(this.map.getMap());
 
+            storage.deleteFromServer();
             backendService.getStorageList().update();
         }
     }
 
-    public void updateZone(Zone zone) {
+    private void updateZone(Zone zone) {
         zone.updateToServer();
 
         map.getZones().stream().filter(z -> Objects.equals(z.getID(), zone.getID())).findFirst().ifPresent(z -> {
@@ -427,7 +438,7 @@ public class MapService extends ComponentColleague {
         backendService.getZoneList().update();
     }
 
-    public void updateRoute(Route route) {
+    private void updateRoute(Route route) {
         route.updateToServer();
 
         map.getRoutes().stream().filter(r -> Objects.equals(r.getID(), route.getID())).findFirst().ifPresent(r -> {
@@ -463,7 +474,7 @@ public class MapService extends ComponentColleague {
         backendService.getRouteList().update();
     }
 
-    public void updateStorage(Storage storage) {
+    private void updateStorage(Storage storage) {
         storage.updateToServer();
         map.getStorages().stream().filter(s -> Objects.equals(s.getID(), storage.getID())).findFirst().ifPresent(s -> {
             map.getStorages().remove(s);

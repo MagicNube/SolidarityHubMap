@@ -35,7 +35,8 @@ public class DeleteCommand implements Command {
         }
     }
 
-    public void end(){
+    @Override
+    public void endExecution(){
         buttonController.getMediator().publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS, ButtonNames.DELETE));
         working = false;
         buttonController.getDelete().setText("Borrar");

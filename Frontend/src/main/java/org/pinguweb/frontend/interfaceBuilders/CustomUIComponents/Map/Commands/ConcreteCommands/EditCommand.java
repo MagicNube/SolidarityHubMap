@@ -8,18 +8,19 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleag
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.ClickedElement;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.RequestClickEvent;
 import org.pinguweb.frontend.mapObjects.MapObject;
 import org.pinguweb.frontend.utils.Mediador.EventType;
 
 public class EditCommand implements Command {
     MapButtons buttonController;
+    private boolean first = true;
+    @Getter
+    boolean working;
 
     @Setter
     MapObject originalObject;
-
-    @Getter
-    boolean working;
 
     @Setter
     MapObject resultObject;
@@ -44,22 +45,27 @@ public class EditCommand implements Command {
         }
     }
 
-    public void end(){
+    @Override
+    public void endExecution(){
+        if (first)
+        {buttonController.addExecutedCommand(this); first = false;}
         buttonController.getMediator().publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS, ButtonNames.EDIT));
         working = false;
         buttonController.getEdit().setText("Editar");
+        Notification notification = new Notification("Edición realizada exitosamente", 3000);
+        notification.open();
     }
 
     @Override
     public void undo() {
+        buttonController.getMediator().publish(new GenericEvent<>(EventType.EDIT, originalObject, null));
         Notification notification = new Notification("Edición deshecha", 3000);
         notification.open();
     }
 
     @Override
     public void redo() {
-//        buttonController.editMapObject(resultObject);
-
+        buttonController.getMediator().publish(new GenericEvent<>(EventType.EDIT, resultObject, null));
         Notification notification = new Notification("Edición realizada exitosamente", 3000);
         notification.open();
     }

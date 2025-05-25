@@ -25,10 +25,7 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
-import org.pinguweb.frontend.mapObjects.Route;
-import org.pinguweb.frontend.mapObjects.RoutePoint;
-import org.pinguweb.frontend.mapObjects.Storage;
-import org.pinguweb.frontend.mapObjects.Zone;
+import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.services.BackendDTOService;
 import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
@@ -178,8 +175,6 @@ public class MapDialogs extends ComponentColleague {
             ArrayList<Double> latitudes = new ArrayList<>();
             ArrayList<Double> longitudes = new ArrayList<>();
 
-            log.info(" size {} {}", map.getZoneMarkers().keySet(), map.getZoneMarkerPoints().toArray());
-
             for (Tuple<Double, Double> point : map.getZoneMarkerPoints()){
                 latitudes.add(point._1());
                 longitudes.add(point._2());
@@ -268,11 +263,14 @@ public class MapDialogs extends ComponentColleague {
             RouteDTO routeDTO = new RouteDTO();
             routeDTO.setName(nameTextArea.getValue());
             routeDTO.setCatastrophe(catastropheID);
-            routeDTO.setPoints(new ArrayList<>());
             routeDTO.setID(0);
             routeDTO.setRouteType(routeTypeComboBox.getValue());
 
-            mediator.publish(new CreationEvent<>(EventType.CREATE, routeDTO, c, map.getNewRoutePoints()));
+            ArrayList<RoutePoint> points = new ArrayList<>(map.getNewRoutePoints());
+
+            routeDTO.setPoints(points.stream().map(MapObject::getID).toList());
+
+            mediator.publish(new CreationEvent<>(EventType.CREATE, routeDTO, c, points));
             dialog.close();
         });
 
@@ -359,7 +357,7 @@ public class MapDialogs extends ComponentColleague {
 
     private void editDialogZone(String zoneID, EditCommand c) {
         Zone zone = getZoneByID(zoneID);
-//        c.setOriginalObject(zone);
+        c.setOriginalObject(zone);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setCloseOnEsc(false);
@@ -438,7 +436,8 @@ public class MapDialogs extends ComponentColleague {
             zone.setStorages(selectedStorageIDs);
             zone.setID(Integer.parseInt(zoneID));
             mediator.publish(new GenericEvent<>(EventType.EDIT, zone, null));
-//            c.setResultObject(zone);
+            c.setResultObject(zone);
+            c.endExecution();
             dialog.close();
         });
 
@@ -471,7 +470,7 @@ public class MapDialogs extends ComponentColleague {
 
     private void editDialogRoute(String routeID, EditCommand c) {
         Route route = getRouteByID(routeID);
-//        c.setOriginalObject(route);
+        c.setOriginalObject(route);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setCloseOnEsc(false);
@@ -516,7 +515,8 @@ public class MapDialogs extends ComponentColleague {
             route.setCatastrophe(catastropheID);
             route.setID(Integer.parseInt(routeID));
             mediator.publish(new GenericEvent<>(EventType.EDIT, route, null));
-//            c.setResultObject(route);
+            c.setResultObject(route);
+            c.endExecution();
             dialog.close();
         });
 
@@ -543,7 +543,7 @@ public class MapDialogs extends ComponentColleague {
 
     private void editDialogStorage(String id, EditCommand c) {
         Storage storage = getStorageByID(id);
-//        c.setOriginalObject(storage);
+        c.setOriginalObject(storage);
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setCloseOnEsc(false);
@@ -586,7 +586,8 @@ public class MapDialogs extends ComponentColleague {
             storage.setFull(llenoComboBox.getValue().equals("Lleno"));
             storage.setID(Integer.parseInt(id));
             mediator.publish(new GenericEvent<>(EventType.EDIT, storage, null));
-//            c.setResultObject(storage);
+            c.setResultObject(storage);
+            c.endExecution();
             dialog.close();
         });
 

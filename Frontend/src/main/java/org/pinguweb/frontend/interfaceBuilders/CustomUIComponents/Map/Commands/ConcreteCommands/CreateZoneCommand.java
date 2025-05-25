@@ -15,6 +15,7 @@ public class CreateZoneCommand implements Command {
     MapButtons buttonController;
 
     private boolean working = false;
+    private boolean first = true;
 
     @Setter
     private Zone zone;
@@ -34,23 +35,29 @@ public class CreateZoneCommand implements Command {
         else{
             buttonController.getZone().setText("Crear zona");
             buttonController.getMediator().publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS,null));
-            buttonController.getMediator().publish(new ShowEvent<>(EventType.SHOW_DIALOG, null, DialogsNames.ZONE));
-            buttonController.addExecutedCommand(this);
+            buttonController.getMediator().publish(new ShowEvent<>(EventType.SHOW_DIALOG, null, DialogsNames.ZONE, this));
             working = false;
         }
     }
 
     @Override
+    public void endExecution(){
+        if (first)
+        {buttonController.addExecutedCommand(this); first = false;}
+        buttonController.getMediator().publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS,null));
+        Notification notification = new Notification("Zona creada exitosamente", 3000);
+        notification.open();
+    }
+
+    @Override
     public void undo() {
-        buttonController.getMediator().publish(new DeleteEvent<>(this.zone, this));
+        buttonController.getMediator().publish(new DeleteEvent<>(this.zone.toDto(), this));
         Notification notification = new Notification("Creación de la zona deshecha", 3000);
         notification.open();
     }
 
     @Override
     public void redo() {
-        buttonController.getMediator().publish(new CreationEvent<>(EventType.CREATE, zone, this, null));
-        Notification notification = new Notification("Zona creada exitosamente", 3000);
-        notification.open();
+        buttonController.getMediator().publish(new CreationEvent<>(EventType.CREATE, zone.toDto(), this, null));
     }
 }
