@@ -1,6 +1,7 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
@@ -93,8 +94,10 @@ public class MapDialogs extends ComponentColleague {
 
     private void createDialogZona(CreateZoneCommand c) {
         map.getMap().off("click", map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone");
+
         List<CatastropheDTO> catastropheDTOList = backendService.getCatastropheList().getValues();
         List<StorageDTO> storageDTOList = backendService.getStorageList().getValues();
+
         final Icon icoClose = VaadinIcon.CLOSE.create();
         final Dialog dialog = new Dialog(icoClose);
         dialog.setCloseOnEsc(false);
@@ -105,26 +108,44 @@ public class MapDialogs extends ComponentColleague {
         dialog.setHeight("70vh");
 
         H3 title = new H3("Crear zona");
+        //texto pequeño para indicar que los que contienen * son obligatorios
+        Span requiredFieldsInfo = new Span("Los campos con · son obligatorios");
+        requiredFieldsInfo.getStyle().set("color", "red");
+        requiredFieldsInfo.getStyle().set("font-weight", "bold");
+        requiredFieldsInfo.getStyle().set("font-size", "0.65em");
 
-        TextArea nameTextArea = new TextArea();
-        nameTextArea.setPlaceholder("Nombre");
+        // Campo obligatorio: Nombre
+        TextArea nameTextArea = new TextArea("Nombre");
+        nameTextArea.setPlaceholder("Introduce el nombre de la zona");
+        nameTextArea.setRequiredIndicatorVisible(true);
         nameTextArea.setWidth("50vw");
         nameTextArea.setHeight("5vh");
 
+        // Campo obligatorio: Gravedad
         ComboBox<String> severityComboBox = new ComboBox<>("Gravedad");
         String[] severityOptions = Arrays.stream(EmergencyLevel.values())
                 .map(EmergencyLevel::name)
                 .toArray(String[]::new);
         severityComboBox.setItems(severityOptions);
+        severityComboBox.setRequiredIndicatorVisible(true);
 
-        ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
+        // Campo obligatorio: Catástrofe
+        ComboBox<String> catastropheComboBox = new ComboBox<>("Catástrofe");
         catastropheComboBox.setItems(catastropheDTOList.stream().map(CatastropheDTO::getName).toList());
+        catastropheComboBox.setRequiredIndicatorVisible(true);
 
+        // Campo obligatorio: Almacenes
+        Span storageLabel = new Span("Almacenes ");
+        Span storageMark = new Span("·");
+        storageMark.getStyle().set("bold", "true");
+        storageLabel.add(storageMark);
         MultiSelectListBox<String> storageComboBox = new MultiSelectListBox<>();
         storageComboBox.setItems(storageDTOList.stream().map(StorageDTO::getName).toList());
 
-        TextArea descriptionTextArea = new TextArea();
-        descriptionTextArea.setPlaceholder("Descripcion");
+        // Campo obligatorio: Descripción
+        TextArea descriptionTextArea = new TextArea("Descripción");
+        descriptionTextArea.setPlaceholder("Describe la zona");
+        descriptionTextArea.setRequiredIndicatorVisible(true);
         descriptionTextArea.setWidthFull();
         descriptionTextArea.setHeight("50vh");
 
@@ -133,13 +154,13 @@ public class MapDialogs extends ComponentColleague {
             mediator.publish(new GenericEvent<>(EventType.EXIT, null, c));
             dialog.close();
         });
+
         Button acceptButton = new Button("Aceptar", event -> {
             int catastropheID = catastropheComboBox.getValue() != null ? catastropheDTOList.stream()
                     .filter(catastropheDTO -> catastropheDTO.getName().equals(catastropheComboBox.getValue()))
                     .findFirst()
                     .map(CatastropheDTO::getID)
                     .orElse(0) : 0;
-
 
             Set<String> seleccionados = storageComboBox.getSelectedItems();
             List<Integer> selectedStorageIDs = new ArrayList<>();
@@ -163,7 +184,7 @@ public class MapDialogs extends ComponentColleague {
 
             log.info(" size {} {}", map.getZoneMarkers().keySet(), map.getZoneMarkerPoints().toArray());
 
-            for (Tuple<Double, Double> point : map.getZoneMarkerPoints()){
+            for (Tuple<Double, Double> point : map.getZoneMarkerPoints()) {
                 latitudes.add(point._1());
                 longitudes.add(point._2());
                 map.getZoneMarkers().get(point).removeFromMap(map.getMap());
@@ -181,6 +202,7 @@ public class MapDialogs extends ComponentColleague {
         });
         acceptButton.setEnabled(false);
 
+        // Validaciones reactivas
         nameTextArea.addValueChangeListener(event -> {
             acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && severityComboBox.getValue() != null && !descriptionTextArea.getValue().isEmpty() && !catastropheComboBox.getValue().isEmpty() && !storageComboBox.getValue().isEmpty());
         });
@@ -199,9 +221,19 @@ public class MapDialogs extends ComponentColleague {
 
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
 
-        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, severityComboBox, catastropheComboBox, storageComboBox, descriptionTextArea, buttonLayout);
+        VerticalLayout dialogLayout = new VerticalLayout();
+        dialogLayout.add(
+                title,
+                requiredFieldsInfo,
+                nameTextArea,
+                severityComboBox,
+                catastropheComboBox,
+                storageLabel,
+                storageComboBox,
+                descriptionTextArea,
+                buttonLayout
+        );
         dialog.add(dialogLayout);
-
         dialog.open();
 
         icoClose.addClickListener(iev -> {
@@ -209,6 +241,7 @@ public class MapDialogs extends ComponentColleague {
             dialog.close();
         });
     }
+
 
     private void createDialogRuta(CreateRouteCommand c) {
         map.getMap().off("click", map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute");
@@ -222,18 +255,27 @@ public class MapDialogs extends ComponentColleague {
         dialog.setWidth("70vw");
         dialog.setHeight("40vh");
         H3 title = new H3("Crear ruta");
-        TextArea nameTextArea = new TextArea();
-        nameTextArea.setPlaceholder("nombre");
+        TextArea nameTextArea = new TextArea("Nombre");
+        nameTextArea.setPlaceholder("Introduce el nombre de la ruta");
+        nameTextArea.setRequiredIndicatorVisible(true);
         nameTextArea.setWidth("50vw");
         nameTextArea.setHeight("5vh");
 
+        //texto pequeño para indicar que los que contienen * son obligatorios
+        Span requiredFieldsInfo = new Span("Los campos con · son obligatorios");
+        requiredFieldsInfo.getStyle().set("color", "red");
+        requiredFieldsInfo.getStyle().set("font-weight", "bold");
+        requiredFieldsInfo.getStyle().set("font-size", "0.65em");
+
         ComboBox<String> routeTypeComboBox = new ComboBox<>("Tipo de ruta");
+        routeTypeComboBox.setRequiredIndicatorVisible(true);
         String[] routeTypeOptions = Arrays.stream(RouteType.values())
                 .map(RouteType::name)
                 .toArray(String[]::new);
         routeTypeComboBox.setItems(routeTypeOptions);
 
         ComboBox<String> catastropheComboBox = new ComboBox<>("Catastrofe");
+        catastropheComboBox.setRequiredIndicatorVisible(true);
         catastropheComboBox.setItems(catastropheDTOList.stream().map(CatastropheDTO::getName).toList());
 
         Button cancelButton = new Button("Cancelar");
@@ -270,7 +312,7 @@ public class MapDialogs extends ComponentColleague {
             acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && routeTypeComboBox.getValue() != null && !catastropheComboBox.getValue().isEmpty());
         });
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
-        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, routeTypeComboBox, catastropheComboBox, buttonLayout);
+        VerticalLayout dialogLayout = new VerticalLayout(title,requiredFieldsInfo, nameTextArea, routeTypeComboBox, catastropheComboBox, buttonLayout);
         dialog.add(dialogLayout);
         dialog.open();
         icoClose.addClickListener(iev -> {
@@ -289,15 +331,24 @@ public class MapDialogs extends ComponentColleague {
         dialog.setWidth("70vw");
         dialog.setHeight("40vh");
         H3 title = new H3("Crear almacen");
-        TextArea nameTextArea = new TextArea();
-        nameTextArea.setPlaceholder("nombre");
+        TextArea nameTextArea = new TextArea("Nombre");
+        nameTextArea.setPlaceholder("Introduce el nombre del almacen");
+        nameTextArea.setRequiredIndicatorVisible(true);
         nameTextArea.setWidth("50vw");
         nameTextArea.setHeight("5vh");
 
+        //texto pequeño para indicar que los que contienen * son obligatorios
+        Span requiredFieldsInfo = new Span("Los campos con · son obligatorios");
+        requiredFieldsInfo.getStyle().set("color", "red");
+        requiredFieldsInfo.getStyle().set("font-weight", "bold");
+        requiredFieldsInfo.getStyle().set("font-size", "0.65em");
+
         ComboBox<String> zoneComboBox = new ComboBox<>("Zona");
+        zoneComboBox.setRequiredIndicatorVisible(true);
         zoneComboBox.setItems(backendService.getZoneList().getValues().stream().map(ZoneDTO::getName).toList());
 
         ComboBox<String> llenoComboBox = new ComboBox<>("Estado");
+        llenoComboBox.setRequiredIndicatorVisible(true);
         String[] llenoOptions = {"Lleno", "Vacio"};
         llenoComboBox.setItems(llenoOptions);
         llenoComboBox.setValue("Vacio");
@@ -327,11 +378,18 @@ public class MapDialogs extends ComponentColleague {
 
         acceptButton.setEnabled(false);
         nameTextArea.addValueChangeListener(event -> {
-            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty());
+            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && zoneComboBox.getValue() != null && llenoComboBox.getValue() != null);
+        });
+        zoneComboBox.addValueChangeListener(event -> {
+            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && zoneComboBox.getValue() != null && llenoComboBox.getValue() != null);
+        });
+        llenoComboBox.addValueChangeListener(event -> {
+            acceptButton.setEnabled(!nameTextArea.getValue().isEmpty() && zoneComboBox.getValue() != null && llenoComboBox.getValue() != null);
         });
 
+
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, acceptButton);
-        VerticalLayout dialogLayout = new VerticalLayout(title, nameTextArea, zoneComboBox, llenoComboBox, buttonLayout);
+        VerticalLayout dialogLayout = new VerticalLayout(title, requiredFieldsInfo, nameTextArea, zoneComboBox, llenoComboBox, buttonLayout);
         dialog.add(dialogLayout);
         dialog.open();
         icoClose.addClickListener(iev -> {

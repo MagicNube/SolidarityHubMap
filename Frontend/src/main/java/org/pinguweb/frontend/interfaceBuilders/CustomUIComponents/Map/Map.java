@@ -1,5 +1,7 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map;
 
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +31,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Getter
@@ -91,9 +95,24 @@ public class Map extends InterfaceComponent implements Mediator {
         new MapService(this);
         new MapDialogs(this);
         new MapBuild(this);
+        stateOfMap();
 
         publish(new LoadEvent<>());
         publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS, null));
+
+    }
+
+    public void stateOfMap(){
+        Div actionBanner;
+        actionBanner = new Div();
+        actionBanner.setText("Modo: Navegación");
+        actionBanner.getStyle().set("position", "absolute");
+        actionBanner.getStyle().set("align-items", "center");
+        actionBanner.getStyle().set("background-color", "rgba(0, 0, 0, 0.7)");
+        actionBanner.getStyle().set("color", "white");
+        actionBanner.getStyle().set("font-weight", "bold");
+        actionBanner.getStyle().set("z-index", "1000");
+        this.component.add(actionBanner);
     }
 
     @Override
@@ -101,9 +120,12 @@ public class Map extends InterfaceComponent implements Mediator {
         suscribers.add(new Tuple<>(colleague, eventType));
     }
 
-    @Override
     public <T> void publish(Event<T> event) {
-        suscribers.stream().filter(x -> x._2() == event.getType())
-                            .forEach(x -> x._1().receive(event));
+        suscribers.stream()
+                .filter(x -> x._2() == event.getType())
+                .forEach(x -> x._1().receive(event));
     }
+
+
+
 }

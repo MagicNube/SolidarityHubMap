@@ -122,12 +122,12 @@ public class MapService extends ComponentColleague {
             log.warn("UI is null, cannot update UI components.");
             return;
         }
-
         loadNeeds(ui);
         loadZones(ui);
         loadRoutes(ui);
         loadStorages(ui);
     }
+
 
     private void loadNeeds(UI ui) {
         for (NeedDTO need : backendService.getNeedList().getValues()) {

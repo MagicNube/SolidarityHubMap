@@ -20,8 +20,10 @@ public class NavigationBar {
                 "http://localhost:8083/recursos", VaadinIcon.TOOLBOX.create());
         SideNavItem contactLink = new SideNavItem("Contacto",
                 ContactView.class, VaadinIcon.PHONE.create());
+        SideNavItem informationLink = new SideNavItem("Información",
+                InformationView.class, VaadinIcon.INFO_CIRCLE.create());
 
-        nav.addItem(homeLink,taskLink,mapLink,resourcesLink,dashboardLink, contactLink);
+        nav.addItem(homeLink,taskLink,mapLink,resourcesLink,dashboardLink, contactLink, informationLink);
         return nav;
     }
 }
