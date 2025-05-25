@@ -11,6 +11,10 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.*;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapShow;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapDialogs;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapService;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
 import org.pinguweb.frontend.mapObjects.*;
@@ -27,10 +31,10 @@ import software.xdev.vaadin.maps.leaflet.map.LMap;
 import software.xdev.vaadin.maps.leaflet.map.LMapLocateOptions;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 @Slf4j
 @Getter
@@ -93,7 +97,7 @@ public class Map extends InterfaceComponent implements Mediator {
 
         new MapService(this);
         new MapDialogs(this);
-        new MapBuild(this);
+        new MapShow(this);
 
         initializeActionBanner();
 
@@ -131,14 +135,9 @@ public class Map extends InterfaceComponent implements Mediator {
         suscribers.add(new Tuple<>(colleague, eventType));
     }
 
+    @Override
     public <T> void publish(Event<T> event) {
-        suscribers.stream()
-                .filter(x -> x._2() == event.getType())
-                .forEach(x -> x._1().receive(event));
+        suscribers.stream().filter(x -> x._2() == event.getType())
+                            .forEach(x -> x._1().receive(event));
     }
-
-
-
-
-
 }
