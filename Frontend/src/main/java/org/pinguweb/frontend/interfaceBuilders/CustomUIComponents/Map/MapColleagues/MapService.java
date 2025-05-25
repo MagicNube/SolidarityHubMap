@@ -30,7 +30,7 @@ import java.util.*;
 @Slf4j
 @Setter
 @Getter
-public class Service extends ComponentColleague {
+public class MapService extends ComponentColleague {
 
     private Object lock = new Object();
     private UI ui;
@@ -48,7 +48,7 @@ public class Service extends ComponentColleague {
     private RoutePointFactory routePointFactory;
     private StorageFactory storageFactory;
 
-    public Service(Map mediator) {
+    public MapService(Map mediator) {
         super(mediator);
         this.map = mediator;
 

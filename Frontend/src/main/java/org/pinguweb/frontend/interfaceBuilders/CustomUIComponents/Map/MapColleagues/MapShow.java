@@ -25,13 +25,13 @@ import java.util.Objects;
 @Slf4j
 @Setter
 @Getter
-public class Show extends ComponentColleague {
+public class MapShow extends ComponentColleague {
     private String clickFuncReferenceCreateZone;
     private String clickFuncReferenceCreateRoute;
     private String clickFuncReferenceCreateStorage;
     private Map map;
 
-    public Show(Map map) {
+    public MapShow(Map map) {
         super(map);
         this.map = map;
         clickFuncReferenceCreateZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone";

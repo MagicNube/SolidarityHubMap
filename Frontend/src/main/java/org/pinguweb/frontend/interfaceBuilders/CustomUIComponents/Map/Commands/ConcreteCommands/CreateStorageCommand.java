@@ -4,7 +4,7 @@ import com.vaadin.flow.component.notification.Notification;
 import lombok.Setter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ClickedElement;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Buttons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.DeleteEvent;
@@ -13,12 +13,12 @@ import org.pinguweb.frontend.mapObjects.Storage;
 import org.pinguweb.frontend.utils.Mediador.EventType;
 
 public class CreateStorageCommand implements Command {
-    Buttons buttonController;
+    MapButtons buttonController;
 
     private boolean first = true;
     @Setter
     Storage storage;
-    public CreateStorageCommand(Buttons receiver){
+    public CreateStorageCommand(MapButtons receiver){
         buttonController = receiver;
     }
 

@@ -40,13 +40,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class Dialogs extends ComponentColleague {
+public class MapDialogs extends ComponentColleague {
 
     private final BackendDTOService backendService = BackendDTOService.GetInstancia();
 
     private final Map map;
 
-    public Dialogs(Map map) {
+    public MapDialogs(Map map) {
         super(map);
         this.map = map;
     }

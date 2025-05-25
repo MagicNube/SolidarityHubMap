@@ -6,13 +6,13 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ButtonNames;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ClickedElement;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.DialogsNames;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Buttons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.*;
 import org.pinguweb.frontend.mapObjects.Zone;
 import org.pinguweb.frontend.utils.Mediador.EventType;
 
 public class CreateZoneCommand implements Command {
-    Buttons buttonController;
+    MapButtons buttonController;
 
     private boolean working = false;
     private boolean first = true;
@@ -20,7 +20,7 @@ public class CreateZoneCommand implements Command {
     @Setter
     private Zone zone;
 
-    public CreateZoneCommand(Buttons receiver){
+    public CreateZoneCommand(MapButtons receiver){
         buttonController = receiver;
     }
 

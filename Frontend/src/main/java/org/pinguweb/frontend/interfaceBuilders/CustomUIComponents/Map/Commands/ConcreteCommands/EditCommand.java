@@ -6,7 +6,7 @@ import lombok.Setter;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ButtonNames;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ClickedElement;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Buttons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.RequestClickEvent;
@@ -14,7 +14,7 @@ import org.pinguweb.frontend.mapObjects.MapObject;
 import org.pinguweb.frontend.utils.Mediador.EventType;
 
 public class EditCommand implements Command {
-    Buttons buttonController;
+    MapButtons buttonController;
     private boolean first = true;
     @Getter
     boolean working;
@@ -25,7 +25,7 @@ public class EditCommand implements Command {
     @Setter
     MapObject resultObject;
 
-    public EditCommand(Buttons receiver){
+    public EditCommand(MapButtons receiver){
         buttonController = receiver;
     }
 

@@ -6,10 +6,10 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Show;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Buttons;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Dialogs;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.Service;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapShow;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapButtons;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapDialogs;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.MapService;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ButtonEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
 import org.pinguweb.frontend.mapObjects.*;
@@ -87,11 +87,11 @@ public class Map extends InterfaceComponent implements Mediator {
         this.map.locate(new LMapLocateOptions().withSetView(true).withMaxZoom(16));
 
         component.add(mapContainer);
-        component.add(new Buttons(this).generateButtonRow());
+        component.add(new MapButtons(this).generateButtonRow());
 
-        new Service(this);
-        new Dialogs(this);
-        new Show(this);
+        new MapService(this);
+        new MapDialogs(this);
+        new MapShow(this);
 
         publish(new LoadEvent<>());
         publish(new ButtonEvent<>(EventType.ENABLE_BUTTONS, null));
