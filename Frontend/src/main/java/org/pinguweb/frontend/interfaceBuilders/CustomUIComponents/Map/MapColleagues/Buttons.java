@@ -19,7 +19,7 @@ import java.util.LinkedList;
 
 @Setter
 @Getter
-public class MapButtons extends ComponentColleague {
+public class Buttons extends ComponentColleague {
     private final CommandButton zone = new CommandButton("Crear zona");
     private final CommandButton route = new CommandButton("Crear ruta");
     private final CommandButton storage = new CommandButton("Crear almacen");
@@ -35,7 +35,7 @@ public class MapButtons extends ComponentColleague {
 
     private Map map;
 
-    public MapButtons(Map map) {
+    public Buttons(Map map) {
         super(map);
 
         this.map = map;

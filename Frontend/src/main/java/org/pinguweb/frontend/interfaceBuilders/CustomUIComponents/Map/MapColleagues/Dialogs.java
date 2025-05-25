@@ -11,7 +11,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.listbox.MultiSelectListBox;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -27,7 +26,6 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.C
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.CreateZoneCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ClickedEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.DialogsNames;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
@@ -41,13 +39,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class MapDialogs extends ComponentColleague {
+public class Dialogs extends ComponentColleague {
 
     private final BackendDTOService backendService = BackendDTOService.GetInstancia();
 
     private final Map map;
 
-    public MapDialogs(Map map) {
+    public Dialogs(Map map) {
         super(map);
         this.map = map;
     }
@@ -725,7 +723,7 @@ public class MapDialogs extends ComponentColleague {
 
     public static void editStateOfMap(String newStatusText) {
         UI.getCurrent().access(() -> {
-            Optional<Component> bannerComponent = VaadinUtils.findComponentById(UI.getCurrent(), "action-banner");
+            Optional<Component> bannerComponent = Utils.findComponentById(UI.getCurrent(), "action-banner");
 
             if (bannerComponent.isPresent() && bannerComponent.get() instanceof Div) {
                 Div foundBanner = (Div) bannerComponent.get();
