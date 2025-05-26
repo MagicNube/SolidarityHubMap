@@ -22,7 +22,7 @@ import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 
-@Route("map")
+@Route(value = "map", layout = MainLayout.class)
 @PageTitle("Visor del mapa")
 public class MapView extends HorizontalLayout {
 

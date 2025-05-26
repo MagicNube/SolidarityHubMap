@@ -21,8 +21,6 @@ public class DashboardBuilderDirector {
 
     public void buildComplete(){
         builder.reset();
-        builder.setTile("Dashboards pingu web");
-        builder.setSubtitle("Solidarity Hub");
 
         ChartGenerator generator = new ChartGenerator();
 

@@ -18,8 +18,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import org.pingu.domain.DTO.CatastropheDTO;
 
-@Layout
-@CssImport("./styles/mainLayout.css")
 public class MainLayout extends AppLayout {
 
     private boolean minimized = false;
@@ -65,7 +63,7 @@ public class MainLayout extends AppLayout {
         logoImage.addClassName("logo-principal");
         Button logoButton = new Button(logoImage);
         logoButton.addClassName("logo-button");
-        logoButton.addClickListener(e -> toggleDrawerMinimized());
+        logoButton.addClickListener(e -> UI.getCurrent().navigate("http://localhost:8083/home"));
 
         appName = new Span("SolidarityHub");
         appName.addClassName("app-name");
