@@ -58,7 +58,7 @@ public class MainView extends VerticalLayout {
     }
 
     private HorizontalLayout createHeader() {
-        Image logo = new Image("icons/PinguLogo.png", "Logo");
+        Image logo = new Image("icons/LogoBlancoSinFondo.png", "Logo");
         logo.setHeight("60px");
 
         H1 appName = new H1("Solidarity Hub");
