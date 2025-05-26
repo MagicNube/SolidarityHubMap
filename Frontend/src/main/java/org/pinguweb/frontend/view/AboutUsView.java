@@ -3,7 +3,6 @@ package org.pinguweb.frontend.view;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -25,62 +24,88 @@ public class AboutUsView extends VerticalLayout {
                 .set("background-repeat", "no-repeat")
                 .set("min-height", "100vh");
 
+        // Título en blanco y separado
         H2 title = new H2("Integrantes del Proyecto Solidarity Hub");
-        title.getStyle().set("margin-top", "30px");
+        title.getStyle()
+                .set("margin-top", "50px")
+                .set("color", "white")
+                .set("margin-bottom", "50px")
+                .set("font-size", "2.4rem")
+                .set("text-shadow", "0 2px 8px rgba(0,0,0,0.2)");
         add(title);
 
-        // Card de columna 1: Pingu Mobile (con enlace)
+        // Card columna 1: Pingu Mobile
         Div mobileCard = new Div();
         mobileCard.getStyle()
                 .set("background", "white")
-                .set("box-shadow", "0 2px 12px rgba(0,0,0,0.09)")
-                .set("border-radius", "20px")
-                .set("padding", "28px 24px")
-                .set("min-width", "230px")
-                .set("max-width", "270px")
-                .set("text-align", "center");
+                .set("box-shadow", "0 2px 16px rgba(0,0,0,0.13)")
+                .set("border-radius", "25px")
+                .set("padding", "36px 36px 28px 36px")
+                .set("min-width", "320px")
+                .set("max-width", "360px")
+                .set("text-align", "center")
+                .set("font-size", "1.12rem");
 
         Anchor mobileTitle = new Anchor("https://tu-url.com", "Pingu Mobile");
         mobileTitle.setTarget("_blank");
-        mobileTitle.getStyle().set("font-weight", "bold").set("font-size", "1.1rem").set("color", "#2563eb");
+        mobileTitle.getStyle()
+                .set("font-weight", "bold")
+                .set("font-size", "1.16rem")
+                .set("color", "#2563eb")
+                .set("display", "block")
+                .set("margin-bottom", "18px");
         mobileCard.add(mobileTitle);
         mobileCard.add(new Paragraph("Javier Moreno Aguilar"));
         mobileCard.add(new Paragraph("Arnau Pelechano García"));
         mobileCard.add(new Paragraph("África Muñoz Fernández"));
         mobileCard.add(new Paragraph("Joan Pastor Ferrer"));
 
-        // Card de columna 2: Pingu Web Tareas
+        // Card columna 2: Pingu Web Tareas
         Div webTareasCard = new Div();
         webTareasCard.getStyle()
                 .set("background", "white")
-                .set("box-shadow", "0 2px 12px rgba(0,0,0,0.09)")
-                .set("border-radius", "20px")
-                .set("padding", "28px 24px")
-                .set("min-width", "230px")
-                .set("max-width", "270px")
-                .set("text-align", "center");
+                .set("box-shadow", "0 2px 16px rgba(0,0,0,0.13)")
+                .set("border-radius", "25px")
+                .set("padding", "36px 36px 28px 36px")
+                .set("min-width", "320px")
+                .set("max-width", "360px")
+                .set("text-align", "center")
+                .set("font-size", "1.12rem");
 
         Anchor tareasTitle = new Anchor("https://github.com/Juguitoo/SolidarityHubTareas", "Pingu Web Tareas");
-        tareasTitle.getStyle().set("font-size", "1.1rem");
+        tareasTitle.setTarget("_blank");
+        tareasTitle.getStyle()
+                .set("font-weight", "bold")
+                .set("font-size", "1.16rem")
+                .set("color", "#2563eb")
+                .set("display", "block")
+                .set("margin-bottom", "18px");
         webTareasCard.add(tareasTitle);
         webTareasCard.add(new Paragraph("Hugo Juan Gómez"));
         webTareasCard.add(new Paragraph("Roberto Hortelano Toledo"));
         webTareasCard.add(new Paragraph("Javier García Fortis"));
         webTareasCard.add(new Paragraph("Adrián Labrador García"));
 
-        // Card de columna 3: Pingu Web Visualización
+        // Card columna 3: Pingu Web Visualización
         Div webVisualCard = new Div();
         webVisualCard.getStyle()
                 .set("background", "white")
-                .set("box-shadow", "0 2px 12px rgba(0,0,0,0.09)")
-                .set("border-radius", "20px")
-                .set("padding", "28px 24px")
-                .set("min-width", "230px")
-                .set("max-width", "270px")
-                .set("text-align", "center");
+                .set("box-shadow", "0 2px 16px rgba(0,0,0,0.13)")
+                .set("border-radius", "25px")
+                .set("padding", "36px 36px 28px 36px")
+                .set("min-width", "320px")
+                .set("max-width", "360px")
+                .set("text-align", "center")
+                .set("font-size", "1.12rem");
 
         Anchor visualTitle = new Anchor("https://github.com/Luubstar/SolidarityHubMap", "Pingu Web Visualización");
-        visualTitle.getStyle().set("font-size", "1.1rem");
+        visualTitle.setTarget("_blank");
+        visualTitle.getStyle()
+                .set("font-weight", "bold")
+                .set("font-size", "1.16rem")
+                .set("color", "#2563eb")
+                .set("display", "block")
+                .set("margin-bottom", "18px");
         webVisualCard.add(visualTitle);
         webVisualCard.add(new Paragraph("Jesús Caravaca González"));
         webVisualCard.add(new Paragraph("Nicolás Barona Riera"));
