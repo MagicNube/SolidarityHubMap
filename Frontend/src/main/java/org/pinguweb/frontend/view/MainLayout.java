@@ -18,8 +18,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import org.pingu.domain.DTO.CatastropheDTO;
 
+@Layout
 @CssImport("./styles/mainLayout.css")
-@Route("bar")
 public class MainLayout extends AppLayout {
 
     private boolean minimized = false;

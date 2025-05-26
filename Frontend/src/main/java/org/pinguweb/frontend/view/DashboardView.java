@@ -1,6 +1,8 @@
 package org.pinguweb.frontend.view;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.Layout;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.web.BackendObservableService.observableList.Observer;
@@ -11,7 +13,8 @@ import org.pinguweb.frontend.services.BackendDTOService;
 import java.util.Arrays;
 
 @Slf4j
-@Route("dashboard")
+@PageTitle("Dashboard")
+@Route(value = "dashboard", layout = MainLayout.class)
 public class DashboardView extends VerticalLayout implements Observer {
 
     public DashboardView(){
