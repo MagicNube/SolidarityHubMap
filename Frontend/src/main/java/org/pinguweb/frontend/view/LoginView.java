@@ -55,7 +55,8 @@ public class LoginView extends VerticalLayout {
         errorMessage.setMessage("DNI o contraseña incorrectos.");
 
         i18n.setErrorMessage(errorMessage);
-        loginForm.setI18n(i18n)loginForm.setI18n(i18n);
+        loginForm.setI18n(i18n);
+        loginForm.setI18n(i18n);
 
         loginForm.addLoginListener(e -> {
             if (authenticate(new LoginRequest(e.getUsername(), e.getPassword()))) {
