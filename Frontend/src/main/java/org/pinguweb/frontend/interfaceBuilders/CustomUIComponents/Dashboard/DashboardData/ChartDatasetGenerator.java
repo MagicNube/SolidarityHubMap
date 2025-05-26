@@ -2,43 +2,20 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Das
 
 import com.storedobject.chart.Color;
 import org.pingu.domain.DTO.NeedDTO;
+import org.pingu.domain.DTO.ResourceDTO;
 import org.pingu.domain.DTO.TaskDTO;
 import org.pingu.domain.DTO.VolunteerDTO;
+import org.pingu.domain.enums.ResourceType;
 import org.pingu.domain.enums.TaskType;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.time.chrono.ChronoLocalDate;
+import java.time.chrono.ChronoLocalDateTime;
+import java.util.*;
 
 public class ChartDatasetGenerator {
     public Color generateColorForType(String type) {
-        // Implementación que devuelve el mismo color para el mismo tipo de tarea
         return generateColorPalette(1)[0];
-    }
-
-    public List<List<TaskDTO>> calculateCompletedTasksPerDay(Integer[] completedTasksPerDay, List<TaskDTO> tasks) {
-        Arrays.fill(completedTasksPerDay, 0);
-
-        List<List<TaskDTO>> finishedTasks = new ArrayList<>(7);
-        for (int i = 0; i < 7; i++) {
-            finishedTasks.add(new ArrayList<>());
-        }
-
-        for (TaskDTO task : tasks) {
-            if ("FINISHED".equals(task.getStatus())
-                    && task.getEstimatedEndTimeDate() != null) {
-
-                int dowIndex = task.getEstimatedEndTimeDate()
-                        .getDayOfWeek()
-                        .getValue() - 1;
-
-                completedTasksPerDay[dowIndex]++;
-                finishedTasks.get(dowIndex).add(task);
-            }
-        }
-
-        return finishedTasks;
     }
 
     public List<List<TaskDTO>> calculateTaskPerUrgency(Integer[] taskPerUrgency, List<TaskDTO> tasks) {
@@ -50,10 +27,10 @@ public class ChartDatasetGenerator {
             tasksByUrgency.add(new ArrayList<>());
         }
 
-        LocalDate today = LocalDate.now();
+        ChronoLocalDateTime today = LocalDate.now().atStartOfDay();
 
         for (TaskDTO task : tasks) {
-            if (today.equals(task.getEstimatedEndTimeDate())) {
+            if (task.getEstimatedEndTimeDate() != null && !task.getEstimatedEndTimeDate().isAfter(today)) {
                 switch (task.getPriority().toUpperCase()) {
                     case "URGENT":
                         taskPerUrgency[0]++;
@@ -74,6 +51,28 @@ public class ChartDatasetGenerator {
         }
 
         return tasksByUrgency;
+    }
+
+
+    public List<List<ResourceDTO>> calculateResourcesByType(Integer[] resourcesByType, List<ResourceDTO> resources) {
+        Arrays.fill(resourcesByType, 0);
+
+        int typesCount = ResourceType.values().length;
+        List<List<ResourceDTO>> resourcesByTypeList = new ArrayList<>(typesCount);
+        for (int i = 0; i < typesCount; i++) {
+            resourcesByTypeList.add(new ArrayList<>());
+        }
+
+        for (ResourceDTO resource : resources) {
+            if (resource.getType() != null) {
+                ResourceType type = resource.getType();
+                int idx = type.ordinal();
+                resourcesByType[idx]++;
+                resourcesByTypeList.get(idx).add(resource);
+            }
+        }
+
+        return resourcesByTypeList;
     }
 
     public List<List<NeedDTO>> calculateNeedsPerType(Integer[] needsByTaskType, List<NeedDTO> needs) {
@@ -97,6 +96,28 @@ public class ChartDatasetGenerator {
             }
         }
         return needsPerType;
+    }
+
+    public List<List<TaskDTO>> calculateUnfinishedTasksByType(Integer[] unfinishedTasks, List<TaskDTO> tasks) {
+        Arrays.fill(unfinishedTasks, 0);
+        int typesCount = TaskType.values().length;
+        List<List<TaskDTO>> tasksByType = new ArrayList<>(typesCount);
+        for (int i = 0; i < typesCount; i++) {
+            tasksByType.add(new ArrayList<>());
+        }
+
+        for (TaskDTO task : tasks) {
+            if (task.getStatus() != null
+                    && !"FINISHED".equalsIgnoreCase(task.getStatus().trim())
+                    && task.getType() != null) {
+                TaskType type = TaskType.valueOf(task.getType());
+                int idx = type.ordinal();
+                unfinishedTasks[idx]++;
+                tasksByType.get(idx).add(task);
+            }
+        }
+
+        return tasksByType;
     }
 
     public List<List<TaskDTO>> calculateCompletedTasksPerType(Integer[] completedTasks, List<TaskDTO> tasks) {

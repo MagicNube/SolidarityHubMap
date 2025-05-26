@@ -33,46 +33,60 @@ public class DashboardBuilderDirector {
 
 
         List<InterfaceComponent> zero = generator.tasksToday(new ChartType[]{ChartType.BAR});
-        List<InterfaceComponent> fisrtPair = generator.buildCompletedTasksChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
-        List<InterfaceComponent> secondPair = generator.buildUncoveredNeedsChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
-        List<InterfaceComponent> thirdPair = generator.buildUncoveredTaskTypeChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
-        List<InterfaceComponent> fourthPair = generator.buildVolunteersByTaskTypeChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
+        List<InterfaceComponent> fisrtPair = generator.buildCompletedTasksChart(new ChartType[]{ChartType.LINECHART});
+        List<InterfaceComponent> secondPair = generator.buildUncompletedTasksLineChart(new ChartType[]{ChartType.LINECHART});
+        List<InterfaceComponent> thirdPair = generator.buildUncoveredNeedsChart(new ChartType[]{ChartType.PIE});
+        List<InterfaceComponent> fourthPair = generator.buildVolunteersByTaskTypeChart(new ChartType[]{ChartType.PIE});
         List<InterfaceComponent> fifthPair = generator.buildVolunteersVSAffectedChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
+        List<InterfaceComponent> sixthPair = generator.buildResourcesByTypePieChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
+
+        List<InterfaceComponent> completedAndUncompleted = new ArrayList<>();
+        completedAndUncompleted.addAll(fisrtPair);
+        completedAndUncompleted.addAll(secondPair);
 
         dashboards.clear();
 
         dashboards.add((Dashboard) zero.get(0));
         dashboards.add((Dashboard) fisrtPair.get(0));
-        dashboards.add((Dashboard) fisrtPair.get(1));
         dashboards.add((Dashboard) secondPair.get(0));
-        dashboards.add((Dashboard) secondPair.get(1));
         dashboards.add((Dashboard) thirdPair.get(0));
-        dashboards.add((Dashboard) thirdPair.get(1));
         dashboards.add((Dashboard) fourthPair.get(0));
-        dashboards.add((Dashboard) fourthPair.get(1));
         dashboards.add((Dashboard) fifthPair.get(0));
         dashboards.add((Dashboard) fifthPair.get(1));
+        dashboards.add((Dashboard) sixthPair.get(0));
 
         Filters zeroFilters = Filters.builder().build();
-        Filters firstPairFilters = Filters.builder().build();
-        Filters secondPairFilters = Filters.builder().build();
+        //Filters firstPairFilters = Filters.builder().build();
+        //Filters secondPairFilters = Filters.builder().build();
         Filters thirdPairFilters = Filters.builder().build();
         Filters fourthPairFilters = Filters.builder().build();
+        Filters fifthPairFilters = Filters.builder().build();
+        Filters sixthPairFilters = Filters.builder().build();
+
+        Filters completedVsUncompletedFilters = Filters.builder().build();
+        completedVsUncompletedFilters.addDashboard(completedAndUncompleted);
+
+
+        builder.addBelow(completedVsUncompletedFilters);
+        builder.addSide(completedAndUncompleted);
 
         zeroFilters.addDashboard(zero);
-        firstPairFilters.addDashboard(fisrtPair);
-        secondPairFilters.addDashboard(secondPair);
+        //firstPairFilters.addDashboard(fisrtPair);
+        //secondPairFilters.addDashboard(secondPair);
         thirdPairFilters.addDashboard(thirdPair);
         fourthPairFilters.addDashboard(fourthPair);
+        fifthPairFilters.addDashboard(fifthPair);
+        sixthPairFilters.addDashboard(sixthPair);
 
-        builder.addBelow(firstPairFilters);
-        builder.addSide(fisrtPair);
-        builder.addBelow(secondPairFilters);
-        builder.addSide(secondPair);
-        builder.addBelow(thirdPairFilters);;
+        builder.addBelow(zeroFilters);
+        builder.addSide(zero);
         builder.addSide(thirdPair);
+        builder.addBelow(thirdPairFilters);;
         builder.addBelow(fourthPairFilters);
         builder.addSide(fourthPair);
         builder.addSide(fifthPair);
+        builder.addSide(sixthPair);
+        builder.addBelow(sixthPairFilters);
+
     }
 }
