@@ -3,7 +3,6 @@ package org.pinguweb.frontend.interfaceBuilders.Builders;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import org.pinguweb.frontend.view.NavigationBar;
 
 public class Interface {
 
@@ -30,7 +29,7 @@ public class Interface {
     public HorizontalLayout getInterface(){
         HorizontalLayout hl = new HorizontalLayout();
         hl.setSizeFull();
-        hl.add(NavigationBar.createNavBar(), layout);
+        hl.add(layout);
         return hl;
     }
 }
