@@ -28,12 +28,14 @@ public class BackendDTOService extends Singleton implements BackendObservableSer
         RouteList = new DTOObservableList<>(BACKEND + "/api/routes", 3,  new ParameterizedTypeReference<>() {});
         RoutePointList = new DTOObservableList<>(BACKEND + "/api/routepoints", 3,  new ParameterizedTypeReference<>() {});
         StorageList = new DTOObservableList<>(BACKEND + "/api/storages", 5,  new ParameterizedTypeReference<>() {});
+        ResourceList = new DTOObservableList<>(BACKEND + "/api/resources", 3,  new ParameterizedTypeReference<>() {});
         TaskList = new DTOObservableList<>(BACKEND + "/api/tasks", 3, new ParameterizedTypeReference<>() {});
         VolunteerList = new DTOObservableList<>(BACKEND + "/api/volunteers", 3,  new ParameterizedTypeReference<>() {});
         ZoneList = new DTOObservableList<>(BACKEND + "/api/zones", 3,  new ParameterizedTypeReference<>() {});
     }
 
     private final DTOObservableList<NeedDTO> NeedList;
+    private final DTOObservableList<ResourceDTO> ResourceList;
     private final DTOObservableList<AffectedDTO> AffectedList;
     private final DTOObservableList<CatastropheDTO> CatastropheList;
     private final DTOObservableList<RouteDTO> RouteList;
@@ -53,6 +55,7 @@ public class BackendDTOService extends Singleton implements BackendObservableSer
         StorageList.shutdown();
         TaskList.shutdown();;
         VolunteerList.shutdown();
+        ResourceList.shutdown();
         ZoneList.shutdown();
     }
 

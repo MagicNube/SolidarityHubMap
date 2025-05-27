@@ -202,6 +202,17 @@ public class Filters extends InterfaceComponent {
                 bar.setYData(yFiltrado);
                 return bar;
             }
+            case LINECHART -> {
+                LineChart line = (LineChart) pair._1();
+                line.setXData(xFiltrado);
+                line.setYData(yFiltrado);
+                return line;
+            }
+            case SOLIDGAUGE -> {
+                GaugeChart gauge = (GaugeChart) pair._1();
+                gauge.setData(yFiltrado);
+                return gauge;
+            }
             case PIE -> {
                 PieChart pie = (PieChart) pair._1();
                 pie.setItemNames(xFiltrado);
