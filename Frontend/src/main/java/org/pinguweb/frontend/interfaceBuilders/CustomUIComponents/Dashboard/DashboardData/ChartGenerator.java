@@ -27,7 +27,9 @@ public class ChartGenerator {
     private final List<AffectedDTO> affecteds;
     private final List<NeedDTO> needs;
     private final List<ResourceDTO> resources;
+    private final List<DonationDTO> donations;
     private final ChartDatasetGenerator dataGenerator;
+
 
     //TODO: Recuerda convertirlo en observador
 
@@ -38,6 +40,8 @@ public class ChartGenerator {
         needs = service.getNeedList().getValues();
         tasks = service.getTaskList().getValues();
         resources = service.getResourceList().getValues();
+        donations = service.getDonationList().getValues();
+        System.out.println("PASO 2 Recursos obtenidos: " + resources); // Log para verificar los datos
         dataGenerator = new ChartDatasetGenerator();
     }
 
@@ -318,7 +322,7 @@ public class ChartGenerator {
 
 
     public List<InterfaceComponent> buildResourcesByTypeChart(ChartType[] types) {
-        List<List<ResourceDTO>> resources= dataGenerator.calculateResourcesByType(resourcesByType, this.resources);
+        List<List<ResourceDTO>> resourcesByTypeList = dataGenerator.calculateResourcesByType(resourcesByType, this.resources);
 
         String[] allLabels = Arrays.stream(ResourceType.values())
                 .map(ResourceType::name)
@@ -356,9 +360,9 @@ public class ChartGenerator {
                             .map(e -> new Etiqueta[]{e})
                             .toArray(Etiqueta[][]::new),
                     values,
-                    Arrays.stream(values)
-                            .map(v -> new Integer[]{v})
-                            .toArray(Integer[][]::new),
+                    resourcesByTypeList.stream()
+                            .map(lista -> lista.toArray(ResourceDTO[]::new))
+                            .toArray(ResourceDTO[][]::new),
                     "Recursos por Tipo",
                     palette
             );
