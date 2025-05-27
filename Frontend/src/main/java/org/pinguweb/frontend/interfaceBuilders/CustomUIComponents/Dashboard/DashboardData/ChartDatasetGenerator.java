@@ -9,9 +9,10 @@ import org.pingu.domain.enums.ResourceType;
 import org.pingu.domain.enums.TaskType;
 
 import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
 import java.time.chrono.ChronoLocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ChartDatasetGenerator {
     public Color generateColorForType(String type) {
@@ -49,10 +50,8 @@ public class ChartDatasetGenerator {
                 }
             }
         }
-
         return tasksByUrgency;
     }
-
 
     public List<List<ResourceDTO>> calculateResourcesByType(Integer[] resourcesByType, List<ResourceDTO> resources) {
         Arrays.fill(resourcesByType, 0);
@@ -116,7 +115,6 @@ public class ChartDatasetGenerator {
                 tasksByType.get(idx).add(task);
             }
         }
-
         return tasksByType;
     }
 

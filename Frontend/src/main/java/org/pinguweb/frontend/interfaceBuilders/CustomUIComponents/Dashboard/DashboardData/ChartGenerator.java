@@ -9,8 +9,9 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dash
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 import org.pinguweb.frontend.services.BackendDTOService;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ChartGenerator {
 
