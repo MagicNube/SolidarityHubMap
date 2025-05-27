@@ -49,19 +49,16 @@ public class ZoneMarker extends MapObject{
 
     @Override
     public int pushToServer(){
-        System.err.println("Se ha intentado pushear un objeto local");
         return 0;
     }
 
     @Override
     public int deleteFromServer() {
-        System.err.println("Se ha intentado pushear un objeto local");
         return 0;
     }
 
     @Override
     public int updateToServer() {
-        System.err.println("Se ha intentado pushear un objeto local");
         return 0;
     }
 

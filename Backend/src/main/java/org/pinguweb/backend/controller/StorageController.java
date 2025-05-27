@@ -74,11 +74,11 @@ public class StorageController {
     }
 
     @Async
-    @PutMapping("/storages")
-    public CompletableFuture<ResponseEntity<StorageDTO>> updateZone(@RequestBody StorageDTO storage) {
+    @PutMapping("/storages/{ID}")
+    public CompletableFuture<ResponseEntity<StorageDTO>> updateZone(@RequestBody StorageDTO storage, @PathVariable int ID) {
         if (ServerException.isServerClosed(service.getStorageRepository())){return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());}
 
-        Optional<Storage> res = service.findByID(storage.getID());
+        Optional<Storage> res = service.findByID(ID);
         if (res.isPresent()) {
 
             return CompletableFuture.completedFuture(ResponseEntity.ok(factory.createDTO(service.saveStorage(dtoFactory.createFromDTO(storage)))));

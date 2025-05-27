@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.StorageDTO;
 import org.pingu.web.BackendObject;
 import org.pingu.web.BackendService;
+import org.pinguweb.frontend.services.BackendDTOService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import software.xdev.vaadin.maps.leaflet.basictypes.LIcon;
@@ -40,9 +41,20 @@ public class Storage extends MapObject{
                 .withShadowSize(new LPoint(reg, 41, 41))
         );
 
-        LMarkerOptions options = new LMarkerOptions().withDraggable(true).withIcon(icon);
+        LMarkerOptions options = new LMarkerOptions().withDraggable(false).withIcon(icon);
 
         this.markerObj = new LMarker(reg, new LLatLng(reg, latitude, longitude), options);
+    }
+
+    public StorageDTO toDto(){
+        StorageDTO storageDTO = new StorageDTO();
+        storageDTO.setID(getID());
+        storageDTO.setLatitude(this.getLatitude());
+        storageDTO.setLongitude(this.getLongitude());
+        storageDTO.setName(this.getName());
+        storageDTO.setZone(this.getZoneID());
+        storageDTO.setFull(this.isFull());
+        return storageDTO;
     }
 
     @Override
@@ -57,18 +69,11 @@ public class Storage extends MapObject{
 
     @Override
     public int pushToServer(){
-        StorageDTO storageDTO = new StorageDTO();
-        storageDTO.setLatitude(this.getLatitude());
-        storageDTO.setLongitude(this.getLongitude());
-        storageDTO.setName(this.getName());
-        storageDTO.setZone(this.getZoneID());
-        storageDTO.setFull(this.isFull());
+        StorageDTO storageDTO = toDto();
 
-        // TODO: AGREGAR LO QUE QUIERAS GUARDAR
-
-        String finurl = "/api/storages";
+        String finurl = "/api/storages" + storageDTO.getID();
         try{
-            BackendObject<StorageDTO> status = BackendService.postToBackend(finurl, storageDTO, StorageDTO.class);
+            BackendObject<StorageDTO> status = BackendService.postToBackend(BackendDTOService.BACKEND + finurl, storageDTO, StorageDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
                 return status.getData().getID();
             }
@@ -81,9 +86,9 @@ public class Storage extends MapObject{
 
     @Override
     public int deleteFromServer() {
-        String finurl = "/api/storages/" + this.getID();
+        String finurl = "/api/storages/" + getID();
         try{
-            HttpStatusCode status = BackendService.deleteFromBackend(finurl);
+            HttpStatusCode status = BackendService.deleteFromBackend(BackendDTOService.BACKEND + finurl);
             if (status == HttpStatus.OK){
                 //TODO: Eliminar del mapa
             }
@@ -96,18 +101,16 @@ public class Storage extends MapObject{
 
     @Override
     public int updateToServer() {
-        StorageDTO storageDTO = new StorageDTO();
-        storageDTO.setLatitude(this.getLatitude());
-        storageDTO.setLongitude(this.getLongitude());
-        storageDTO.setName(this.getName());
-        storageDTO.setZone(this.getZoneID());
-        storageDTO.setFull(this.isFull());
+        StorageDTO storageDTO = toDto();
 
         String finurl = "/api/storages/" + this.getID();
         try{
-            HttpStatus status = (HttpStatus) BackendService.putToBackend(finurl, storageDTO);
+            HttpStatus status = (HttpStatus) BackendService.putToBackend(BackendDTOService.BACKEND + finurl, storageDTO);
             if (status == HttpStatus.OK){
-
+                log.info("Editado exitosamente");
+            }
+            else{
+                log.info("Error editando");
             }
         }
         catch (Exception e){

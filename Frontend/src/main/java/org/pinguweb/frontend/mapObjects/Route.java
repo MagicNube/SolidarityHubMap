@@ -31,7 +31,7 @@ public class Route extends MapObject{
     private String name;
     private String routeType;
     private int catastrophe;
-    private ArrayList<Integer> pointsID;
+    private List<Integer> pointsID;
 
     public Route(){
         this.points = new ArrayList<>();
@@ -55,13 +55,19 @@ public class Route extends MapObject{
         this.getPolygon().removeFrom(map);
     }
 
-    @Override
-    public int pushToServer(){
+    public RouteDTO toDto(){
         RouteDTO routeDTO = new RouteDTO();
         routeDTO.setName(this.name);
+        routeDTO.setID(getID());
         routeDTO.setRouteType(this.routeType);
         routeDTO.setCatastrophe(this.catastrophe);
         routeDTO.setPoints(this.pointsID);
+        return routeDTO;
+    }
+
+    @Override
+    public int pushToServer(){
+        RouteDTO routeDTO = toDto();
 
         String finurl = "/api/routes";
         try{
@@ -112,14 +118,8 @@ public class Route extends MapObject{
 
     @Override
     public int updateToServer() {
-        RouteDTO routeDTO = new RouteDTO();
-        routeDTO.setID(this.getID());
-        routeDTO.setName(this.name);
-        routeDTO.setRouteType(this.routeType);
-        routeDTO.setCatastrophe(this.catastrophe);
-        routeDTO.setPoints(this.pointsID);
-        System.out.println(routeDTO.getPoints());
-        String finurl = "/api/routes";
+        RouteDTO routeDTO = toDto();
+        String finurl = "/api/routes/" + getID();
         try{
             HttpStatusCode status = BackendService.putToBackend(BackendDTOService.BACKEND + finurl, routeDTO);
             if (status == HttpStatus.OK){

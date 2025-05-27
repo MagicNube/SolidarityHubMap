@@ -106,7 +106,7 @@ public class RoutePoint extends MapObject {
         RoutePointDTO routePointDTO = new RoutePointDTO();
         String finurl = "/api/routepoints/" + this.getID();
         try {
-            HttpStatusCode status = BackendService.putToBackend(finurl, routePointDTO);
+            HttpStatusCode status = BackendService.putToBackend(BackendDTOService.BACKEND + finurl, routePointDTO);
             if (status == HttpStatus.OK) {
 
             }

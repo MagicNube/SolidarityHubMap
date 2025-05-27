@@ -48,6 +48,19 @@ public class Zone extends MapObject{
         this.polygon = new LPolygon(reg, points, new LPolylineOptions().withColor(lineColor).withFillColor(fillColor));
     }
 
+    public ZoneDTO toDto(){
+        ZoneDTO zoneDTO = new ZoneDTO();
+        zoneDTO.setID(getID());
+        zoneDTO.setName(this.name);
+        zoneDTO.setDescription(this.description);
+        zoneDTO.setEmergencyLevel(this.emergencyLevel);
+        zoneDTO.setCatastrophe(this.catastrophe);
+        zoneDTO.setStorages(this.storages);
+        zoneDTO.setLatitudes(this.latitudes);
+        zoneDTO.setLongitudes(this.longitudes);
+        return zoneDTO;
+    }
+
     @Override
     public void addToMap(LMap map){
         this.getPolygon().addTo(map);
@@ -60,16 +73,8 @@ public class Zone extends MapObject{
 
     @Override
     public int pushToServer(){
-        ZoneDTO zoneDTO = new ZoneDTO();
-        zoneDTO.setName(this.name);
-        zoneDTO.setDescription(this.description);
-        zoneDTO.setEmergencyLevel(this.emergencyLevel);
-        zoneDTO.setCatastrophe(this.catastrophe);
-        zoneDTO.setStorages(this.storages);
-        zoneDTO.setLatitudes(this.latitudes);
-        zoneDTO.setLongitudes(this.longitudes);
+        ZoneDTO zoneDTO = toDto();
 
-        //System.out.println("ZoneDTO: " + zoneDTO.getCatastrophe() + " " + zoneDTO.getStorages());
         String finurl = "/api/zones";
         try{
             BackendObject<ZoneDTO> status = BackendService.postToBackend(BackendDTOService.BACKEND + finurl, zoneDTO, ZoneDTO.class);
@@ -86,11 +91,9 @@ public class Zone extends MapObject{
         return 0;
     }
 
-
-
     @Override
     public int deleteFromServer() {
-        String finurl = "/api/zones/" + this.getID();
+        String finurl = "/api/zones/" + getID();
         try{
             HttpStatusCode status = BackendService.deleteFromBackend(BackendDTOService.BACKEND + finurl);
             if (status == HttpStatus.OK){
@@ -115,17 +118,9 @@ public class Zone extends MapObject{
 
     @Override
     public int updateToServer() {
-        ZoneDTO zoneDTO = new ZoneDTO();
-        zoneDTO.setID(this.getID());
-        zoneDTO.setName(this.name);
-        zoneDTO.setDescription(this.description);
-        zoneDTO.setEmergencyLevel(this.emergencyLevel);
-        zoneDTO.setCatastrophe(this.catastrophe);
-        zoneDTO.setStorages(this.storages);
-        zoneDTO.setLatitudes(this.latitudes);
-        zoneDTO.setLongitudes(this.longitudes);
+        ZoneDTO zoneDTO = toDto();
 
-        String finurl = "/api/zones";
+        String finurl = "/api/zones/" + getID();
         try{
             HttpStatusCode status = BackendService.putToBackend(BackendDTOService.BACKEND + finurl, zoneDTO);
             if (status == HttpStatus.OK){

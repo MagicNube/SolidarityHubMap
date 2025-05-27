@@ -7,7 +7,6 @@ import org.pingu.domain.DTO.NeedDTO;
 import org.pingu.web.BackendObject;
 import org.pingu.web.BackendService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import software.xdev.vaadin.maps.leaflet.basictypes.LLatLng;
 import software.xdev.vaadin.maps.leaflet.layer.ui.LMarker;
 import software.xdev.vaadin.maps.leaflet.map.LMap;
@@ -58,32 +57,11 @@ public class Need extends MapObject{
 
     @Override
     public int deleteFromServer() {
-        String finurl = "/api/needs/" + this.getID();
-        try{
-            HttpStatusCode status = BackendService.deleteFromBackend(finurl);
-            if (status == HttpStatus.OK){
-                //TODO: Eliminar del mapa
-            }
-        }
-        catch (Exception e){
-            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
-        }
         return 0;
     }
 
-    //TODO Comprobar si aquí la url es api zones o api needs
     @Override
     public int updateToServer() {
-        String finurl = "/api/needs/" + this.getID();
-        try{
-            HttpStatusCode status = BackendService.putToBackend(finurl, this);
-            if (status == HttpStatus.OK){
-
-            }
-        }
-        catch (Exception e){
-            log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
-        }
         return 0;
     }
 }

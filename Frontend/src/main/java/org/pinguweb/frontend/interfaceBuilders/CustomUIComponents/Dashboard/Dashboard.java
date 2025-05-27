@@ -53,13 +53,18 @@ public class Dashboard extends InterfaceComponent {
                 layout.add(this.chart);
                 return layout;
             }
-            case GAUGE -> {
+            /*case SOLIDGAUGE -> {
                 generateGaugeChart();
                 layout.add(this.chart);
                 return layout;
-            }
+            }*/
             case STACKED_BAR -> {
                 generateStackedBarChart();
+                layout.add(this.chart);
+                return layout;
+            }
+            case LINECHART -> {
+                generateLineChart();
                 layout.add(this.chart);
                 return layout;
             }
@@ -90,6 +95,30 @@ public class Dashboard extends InterfaceComponent {
             this.chart.add(bar);
         }
     }
+    private void generateLineChart(){
+        this.chart.clear();
+        for(ChartData<?,?> d: data){
+            AbstractDataProvider<?> xAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(0).getDataType(), d.flatten().stream().map(ChartPoint::getXValue).toArray());
+            AbstractDataProvider<?> yAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), d.flatten().stream().map(ChartPoint::getYValue).toArray());
+            LineChart lineChart = new LineChart(xAxis, yAxis);
+            lineChart.setColors(d.getColor());
+            lineChart.setName(d.getLabel());
+            lineChart.plotOn(this.coordinateConfiguration);
+            this.pairs.add(new Tuple<>(lineChart, d));
+            this.chart.add(lineChart);
+        }
+    }
+    /*private void generateGaugeChart(){
+        this.chart.clear();
+        for (ChartData<?,?> d : data) {
+            AbstractDataProvider<?> yAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), d.flatten().stream().map(ChartPoint::getYValue).toArray());
+            GaugeChart gauge = new GaugeChart((Data) yAxis);
+            gauge.setColor(d.getColor()[0]);
+            gauge.setTitle(d.getLabel());
+            this.pairs.add(new Tuple<>(gauge, d));
+            this.chart.add(gauge);
+        }
+    }*/
 
     private void generatePieChart(){
         this.chart.clear();
@@ -105,9 +134,6 @@ public class Dashboard extends InterfaceComponent {
         }
     }
 
-    private void generateGaugeChart(){
-        this.chart.clear();
-    }
 
     private void generateStackedBarChart(){
         this.chart.clear();
