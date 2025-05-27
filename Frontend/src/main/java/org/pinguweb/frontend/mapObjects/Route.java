@@ -31,7 +31,7 @@ public class Route extends MapObject{
     private String name;
     private String routeType;
     private int catastrophe;
-    private ArrayList<Integer> pointsID;
+    private List<Integer> pointsID;
 
     public Route(){
         this.points = new ArrayList<>();
@@ -58,6 +58,7 @@ public class Route extends MapObject{
     public RouteDTO toDto(){
         RouteDTO routeDTO = new RouteDTO();
         routeDTO.setName(this.name);
+        routeDTO.setID(getID());
         routeDTO.setRouteType(this.routeType);
         routeDTO.setCatastrophe(this.catastrophe);
         routeDTO.setPoints(this.pointsID);
@@ -118,7 +119,7 @@ public class Route extends MapObject{
     @Override
     public int updateToServer() {
         RouteDTO routeDTO = toDto();
-        String finurl = "/api/routes";
+        String finurl = "/api/routes/" + getID();
         try{
             HttpStatusCode status = BackendService.putToBackend(BackendDTOService.BACKEND + finurl, routeDTO);
             if (status == HttpStatus.OK){

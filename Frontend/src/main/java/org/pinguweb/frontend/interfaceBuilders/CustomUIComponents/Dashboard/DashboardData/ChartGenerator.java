@@ -4,7 +4,6 @@ import com.storedobject.chart.*;
 import org.pingu.domain.DTO.*;
 import org.pingu.domain.enums.ResourceType;
 import org.pingu.domain.enums.TaskType;
-import org.pingu.domain.enums.ResourceType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;

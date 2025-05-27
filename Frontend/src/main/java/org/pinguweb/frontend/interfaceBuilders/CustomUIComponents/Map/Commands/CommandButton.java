@@ -3,7 +3,6 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands;
 import com.vaadin.flow.component.button.Button;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapState;
 
 @Setter
 @Slf4j

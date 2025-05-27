@@ -33,6 +33,14 @@ vaadin-text-field.bordered::part(input-field) {
     padding: 0;
 }
 
-.map_action {
-   cursor: crosshair;
+.cursor-crear {
+    cursor: crosshair;
+}
+
+.cursor-borrar {
+    cursor: not-allowed;
+}
+
+.cursor-editar {
+    cursor: crosshair;
 }
