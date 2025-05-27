@@ -65,7 +65,7 @@ public class ChartDatasetGenerator {
 
         for (ResourceDTO resource : resources) {
             if (resource.getType() != null) {
-                ResourceType type = resource.getType();
+                ResourceType type = ResourceType.valueOf(resource.getType());
                 int idx = type.ordinal();
                 resourcesByType[idx]++;
                 resourcesByTypeList.get(idx).add(resource);
