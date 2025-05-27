@@ -19,15 +19,6 @@ public class Interface {
         this.layout = layout;
     }
 
-    private HorizontalLayout twoColumns(Component left, Component right) {
-        HorizontalLayout row = new HorizontalLayout(left, right);
-        row.setWidthFull();
-        row.setSpacing(true);
-        row.setPadding(false);
-        row.expand(left, right);
-        return row;
-    }
-
     protected void addComponent(Component[] component){
         this.layout.add(component);
     }

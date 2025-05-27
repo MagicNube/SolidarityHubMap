@@ -1,93 +1,221 @@
 package org.pinguweb.frontend.view;
 
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapDialogs;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapClasses.MapService;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.pingu.domain.DTO.RouteDTO;
+import org.pingu.domain.DTO.StorageDTO;
+import org.pingu.domain.DTO.ZoneDTO;
+import org.pingu.web.BackendObservableService.observableList.Observer;
+import org.pingu.web.BackendObservableService.observableList.ObserverChange;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.Command;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.DeleteCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Commands.ConcreteCommands.EditCommand;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ClickedElement;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.DialogsNames;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.GenericEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.LoadEvent;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
 import org.pinguweb.frontend.interfaceBuilders.Directors.MapBuilderDirector;
-import org.pinguweb.frontend.mapObjects.RoutePoint;
 import org.pinguweb.frontend.mapObjects.Storage;
-import org.pinguweb.frontend.mapObjects.ZoneMarker;
+import org.pinguweb.frontend.mapObjects.Zone;
+import org.pinguweb.frontend.services.BackendDTOService;
+import org.pinguweb.frontend.utils.Mediador.Colleague;
+import org.pinguweb.frontend.utils.Mediador.Event;
+import org.pinguweb.frontend.utils.Mediador.EventType;
+import org.pinguweb.frontend.utils.Mediador.Mediator;
 import org.yaml.snakeyaml.util.Tuple;
-import software.xdev.vaadin.maps.leaflet.controls.LControlLayers;
-import software.xdev.vaadin.maps.leaflet.controls.LControlLayersOptions;
-import software.xdev.vaadin.maps.leaflet.layer.LLayer;
-import software.xdev.vaadin.maps.leaflet.layer.LLayerGroup;
 
-import java.util.LinkedHashMap;
-import java.util.Objects;
-
+@Slf4j
 @Route("map")
 @PageTitle("Visor del mapa")
-public class MapView extends HorizontalLayout {
+public class MapView extends HorizontalLayout implements Observer, Colleague {
 
     @Getter
     private static String mapId = "MapView";
-    private static MapService controller;
-    private static MapDialogs mapDialogs;
+
+    @Setter
+    private Map map;
+    @Setter
+    private Mediator mediator;
+
+    private String clickFuncReferenceCreateZone;
+    private String clickFuncReferenceCreateRoute;
+    private String clickFuncReferenceCreateStorage;
+
+    Command lastCommand;
+    UI ui;
+    DeleteCommand deleteCommand;
+    EditCommand editCommand;
 
     public MapView() {
         this.setSizeFull();
         this.setId(mapId);
 
+        BackendDTOService.GetInstancia().getNeedList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getZoneList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getStorageList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getRouteList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getRoutePointList().attach(this,ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getCatastropheList().attach(this, ObserverChange.ADD_ALL);
+
         MapBuilderDirector director = new MapBuilderDirector();
+        this.add(director.createFullMap(this));
 
-        this.add(director.createFullMap());
+        this.ui = UI.getCurrent();
+        if (ui == null) {
+            log.warn("UI is null, cannot update UI components.");
+        }
 
-        this.generateLayers();
+        clickFuncReferenceCreateZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateZone";
+        clickFuncReferenceCreateRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateRoute";
+        clickFuncReferenceCreateStorage = map.getMap().clientComponentJsAccessor() + ".myClickFuncCreateStorage";
 
-        controller.load();
-
+        register();
     }
 
-    private void generateLayers() {
-
-        controller.setLLayerGroupNeeds(new LLayerGroup(controller.getReg()));
-        controller.setLLayerGroupZones(new LLayerGroup(controller.getReg()));
-        controller.setLLayerGroupRoutes(new LLayerGroup(controller.getReg()));
-        controller.setLLayerGroupStorages(new LLayerGroup(controller.getReg()));
-        addControls(
-                controller.getLLayerGroupZones(),
-                controller.getLLayerGroupNeeds(),
-                controller.getLLayerGroupRoutes(),
-                controller.getLLayerGroupStorages()
-        );
-
+    @Override
+    public void register() {
+        mediator.subscribe(EventType.REQUEST_CLICK, this);
     }
 
-    public void addControls(
-            final LLayerGroup lLayerGroupZones,
-            final LLayerGroup lLayerGroupNeeds,
-            final LLayerGroup lLayerGroupRoutes,
-            final LLayerGroup lLayerGroupStorages
-    ) {
-        // Use LinkedHashMap for order
-        final LinkedHashMap<String, LLayer<?>> baseLayers = new LinkedHashMap<>();
-        final LControlLayers lControlLayers = new LControlLayers(
-                controller.getReg(),
-                baseLayers,
-                new LControlLayersOptions().withCollapsed(true))
-                .addOverlay(lLayerGroupNeeds, "Necesidades")
-                .addOverlay(lLayerGroupZones, "Zonas")
-                .addOverlay(lLayerGroupRoutes, "Rutas")
-                .addOverlay(lLayerGroupStorages, "Almacenes")
-                .addTo(controller.getMap());
-
-        controller.getMap().addControl(lControlLayers);
-        controller.getMap().addLayer(lLayerGroupZones).addLayer(lLayerGroupNeeds).addLayer(lLayerGroupRoutes).addLayer(lLayerGroupStorages);
+    @Override
+    public <T> void receive(Event<T> event) {
+        lastCommand = event.getCommand();
+        if (event.getPayload() == ClickedElement.ZONE){
+            this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Crear zona", null));
+            startZoneConstruction();
+        }
+        else if (event.getPayload() == ClickedElement.ROUTE_POINT){
+            this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Crear ruta", null));
+            startRouteConstruction();
+        }
+        else if (event.getPayload() == ClickedElement.STORAGE){
+            this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Crear almacén", null));
+            startStorageConstruction();
+        }
+        else if (event.getPayload() == ClickedElement.DELETE && event.getCommand() instanceof DeleteCommand){
+            if (((DeleteCommand) event.getCommand()).isWorking()){
+                endDelete();
+                this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Navegación", null));
+            }
+            else{
+                startDelete();
+                this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Borrar", null));
+                deleteCommand = (DeleteCommand) event.getCommand();
+            }
+        }
+        else if (event.getPayload() == ClickedElement.EDIT && event.getCommand() instanceof EditCommand){
+            if (((EditCommand) event.getCommand()).isWorking()){
+                endEdit();
+                this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Navegación", null));
+            }
+            else{
+                startEdit();
+                this.mediator.publish(new GenericEvent<>(EventType.CHANGE_BANNER, "Editar", null));
+                editCommand = (EditCommand) event.getCommand();
+            }
+        }
     }
 
-    public static void setMapService(MapService controller) {
-        MapView.controller = controller;
+    @Override
+    public void update(ObserverChange change) {
+        ui.access(() -> this.mediator.publish(new LoadEvent<>()));
+        log.info("Mapa actualizado");
     }
 
-    public static void setMapDialogs(MapDialogs mapDialogs) {
-        MapView.mapDialogs = mapDialogs;
+    public void startDelete() {
+        map.getMapContainer().getClassNames().add("cursor-borrar");
+        for (Zone zone : map.getZones()) {
+            String clickFuncReferenceDeleteZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteZone" + zone.getID();
+            map.getReg().execJs(clickFuncReferenceDeleteZone + "=e => document.getElementById('" + MapView.getMapId() + "').$server.removePolygon('" + zone.getID() + "') ");
+            zone.getPolygon().on("click", clickFuncReferenceDeleteZone);
+        }
+        for (org.pinguweb.frontend.mapObjects.Route route : map.getRoutes()) {
+            String clickFuncReferenceDeleteRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteRoute" + route.getID();
+            map.getReg().execJs(clickFuncReferenceDeleteRoute + "=e => document.getElementById('" +  MapView.getMapId() + "').$server.removeRoute('" + route.getID() + "') ");
+            route.getPolygon().on("click", clickFuncReferenceDeleteRoute);
+        }
+        for (Storage storage : map.getStorages()) {
+            String clickFuncReferenceDeleteStorage = map.getMap().clientComponentJsAccessor() + ".myClickFuncDeleteStorage" + storage.getID();
+            map.getReg().execJs(clickFuncReferenceDeleteStorage + "=e => document.getElementById('" +  MapView.getMapId() + "').$server.removeStorage('" + storage.getID() + "') ");
+            storage.getMarkerObj().on("click", clickFuncReferenceDeleteStorage);
+        }
+    }
+
+    public void endDelete() {
+        map.getMapContainer().getClassNames().clear();
+        for (Zone zone : map.getZones()) {
+            zone.getPolygon().off("click");
+        }
+        for (org.pinguweb.frontend.mapObjects.Route route : map.getRoutes()) {
+            route.getPolygon().off("click");
+        }
+        for (Storage storage : map.getStorages()) {
+            storage.getMarkerObj().off("click");
+        }
+    }
+
+    public void startEdit() {
+        map.getMapContainer().getClassNames().add("cursor-editar");
+        for (Zone zone : map.getZones()) {
+            String clickFuncReferenceEditZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
+            map.getReg().execJs(clickFuncReferenceEditZone + "=e => document.getElementById('" + MapView.getMapId() + "').$server.editPolygon('" + zone.getID() + "') ");
+            zone.getPolygon().on("click", clickFuncReferenceEditZone);
+        }
+        for (org.pinguweb.frontend.mapObjects.Route route : map.getRoutes()) {
+            String clickFuncReferenceEditRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditRoute" + route.getID();
+            map.getReg().execJs(clickFuncReferenceEditRoute + "=e => document.getElementById('" + MapView.getMapId() + "').$server.editRoute('" + route.getID() + "') ");
+            route.getPolygon().on("click", clickFuncReferenceEditRoute);
+        }
+        for (Storage storage : map.getStorages()) {
+            String clickFuncReferenceEditStorage = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
+            map.getReg().execJs(clickFuncReferenceEditStorage + "=e => document.getElementById('" + MapView.getMapId() + "').$server.editStorage('" + storage.getID() + "') ");
+            storage.getMarkerObj().on("click", clickFuncReferenceEditStorage);
+        }
+    }
+
+    public void endEdit() {
+        map.getMapContainer().getClassNames().clear();
+        for (Zone zone : map.getZones()) {
+            String clickFuncReferenceEditZone = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditZone" + zone.getID();
+            zone.getPolygon().off("click", clickFuncReferenceEditZone);
+        }
+        for (org.pinguweb.frontend.mapObjects.Route route : map.getRoutes()) {
+            String clickFuncReferenceEditRoute = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditRoute" + route.getID();
+            route.getPolygon().off("click", clickFuncReferenceEditRoute);
+        }
+        for (Storage storage : map.getStorages()) {
+            String clickFuncReferenceEditStorage = map.getMap().clientComponentJsAccessor() + ".myClickFuncEditStorage" + storage.getID();
+            storage.getMarkerObj().off("click", clickFuncReferenceEditStorage);
+        }
+    }
+
+    public void startZoneConstruction() {
+        map.getMapContainer().getClassNames().add("cursor-crear");
+        map.getReg().execJs(clickFuncReferenceCreateZone + "=e => document.getElementById('" + mapId + "').$server.mapZona(e.latlng)");
+        map.getMap().on("click", clickFuncReferenceCreateZone);
+    }
+
+    public void startRouteConstruction() {
+        map.getMapContainer().getClassNames().add("cursor-crear");
+        map.getReg().execJs(clickFuncReferenceCreateRoute + "=e => document.getElementById('" + mapId + "').$server.mapRoute(e.latlng)");
+        map.getMap().on("click", clickFuncReferenceCreateRoute);
+    }
+
+    public void startStorageConstruction() {
+        map.getMapContainer().getClassNames().add("cursor-crear");
+        map.getReg().execJs(clickFuncReferenceCreateStorage + "=e => document.getElementById('" + mapId + "').$server.mapStorage(e.latlng)");
+        map.getMap().on("click", clickFuncReferenceCreateStorage);
     }
 
     @ClientCallable
@@ -96,15 +224,10 @@ public class MapView extends HorizontalLayout {
             return;
         }
 
-        ZoneMarker zoneMarker = controller.createZoneMarker(obj.getNumber("lat"), obj.getNumber("lng"));
-        controller.getTempZoneDTO().getLatitudes().add(obj.getNumber("lat"));
-        controller.getTempZoneDTO().getLongitudes().add(obj.getNumber("lng"));
-        controller.getZoneMarkerPoints().add(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
-        controller.getZoneMarkers().put(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")), zoneMarker);
-
-        /*if (zoneMarkerPoints.size() > 2) {
-            zona.setEnabled(true);
-        }*/
+        Tuple<Double, Double> coords = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+        CreationEvent<Tuple<Double, Double>> event = new CreationEvent<Tuple<Double, Double>>(EventType.SHOW, coords, lastCommand, null);
+        event.setElement(ClickedElement.ZONE_MARKER);
+        mediator.publish(event);
     }
 
     @ClientCallable
@@ -112,153 +235,69 @@ public class MapView extends HorizontalLayout {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
-        RoutePoint routePoint = controller.createRoutePoint(obj.getNumber("lat"), obj.getNumber("lng"));
-
-        controller.getTempRouteDTO().getPoints().add(routePoint.getID());
-
-        controller.getRoutePoint().add(routePoint);
-
-
-        /*if (routePoints.size() > 1) {
-            ruta.setEnabled(true);
-        }*/
-
-
+        Tuple<Double, Double> coords = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+        CreationEvent<Tuple<Double, Double>> event = new CreationEvent<Tuple<Double, Double>>(EventType.SHOW, coords, lastCommand, null);
+        event.setElement(ClickedElement.ROUTE_POINT);
+        mediator.publish(event);
     }
-
-    @ClientCallable
-    public void zoneMarkerStart(final JsonValue input) {
-        if (!(input instanceof final JsonObject obj)) {
-            return;
-        }
-
-        controller.setZoneMarkerStartingPoint(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
-    }
-
-    @ClientCallable
-    public void zoneMarkerEnd(final JsonValue input) {
-        if (!(input instanceof final JsonObject obj)) {
-            return;
-        }
-
-        Tuple<Double, Double> point = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
-
-        int index = -1;
-        for (int i = 0; i < controller.getZoneMarkerPoints().size(); i++) {
-            Tuple<Double, Double> t = controller.getZoneMarkerPoints().get(i);
-
-            if (t._1().equals(controller.getZoneMarkerStartingPoint()._1()) && t._2().equals(controller.getZoneMarkerStartingPoint()._2())) {
-                index = i;
-                break;
-            }
-        }
-
-        controller.getZoneMarkerPoints().set(index, point);
-    }
-
-    @ClientCallable
-    public void routePointStart(final JsonValue input) {
-        if (!(input instanceof final JsonObject obj)) {
-            return;
-        }
-
-        controller.setRoutePointStartingPoint(new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng")));
-    }
-
-    @ClientCallable
-    public void routePointEnd(final JsonValue input) {
-        if (!(input instanceof final JsonObject obj)) {
-            return;
-        }
-
-        Tuple<Double, Double> point = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
-
-        int index = -1;
-        for (int i = 0; i < controller.getRoutePoint().size(); i++) {
-            RoutePoint t = controller.getRoutePoint().get(i);
-
-            if (Objects.equals(t.getLatitude(), controller.getRoutePointStartingPoint()._1()) && Objects.equals(t.getLongitude(), controller.getRoutePointStartingPoint()._2())) {
-                index = i;
-                break;
-            }
-        }
-
-        RoutePoint t = controller.getRoutePoint().get(index);
-        t.setLatitude(point._1());
-        t.setLongitude(point._2());
-        controller.getRoutePoint().set(index, t);
-    }
-
 
     @ClientCallable
     public void mapStorage(final JsonValue input) {
         if (!(input instanceof final JsonObject obj)) {
             return;
         }
-        controller.getTempStorageDTO().setLatitude(obj.getNumber("lat"));
-        controller.getTempStorageDTO().setLongitude(obj.getNumber("lng"));
-        Storage storage = controller.createStorage(controller.getTempStorageDTO());
-        int tempId = storage.pushToServer();
-        storage.setID(tempId);
-        controller.getStorages().stream().filter(s -> s.getID() == storage.getID()).findFirst().ifPresent(s -> {
-            controller.getStorages().remove(s);
-        });
-        System.out.println(controller.getStorages());
-        synchronized (controller.getLock()) {
-            controller.getLock().notify();
-        }
-        controller.getMap().off("click", controller.getClickFuncReferenceCreateStorage());
-        //controller.getUi().push();
-    }
 
-
-    @ClientCallable
-    public void removeMarker(String ID) {
-        System.out.println("removeMarker: " + ID);
-        controller.deleteNeed(Integer.parseInt(ID));
+        Tuple<Double, Double> coords = new Tuple<>(obj.getNumber("lat"), obj.getNumber("lng"));
+        ShowEvent<Tuple<Double, Double>> event = new ShowEvent<Tuple<Double, Double>>(EventType.SHOW_DIALOG, coords, DialogsNames.STORAGE, lastCommand);
+        mediator.publish(event);
+        map.getMap().off("click", clickFuncReferenceCreateStorage);
     }
 
     @ClientCallable
     public void removePolygon(String ID) {
-        System.out.println("removePolygon: " + ID);
-        controller.deleteZone(Integer.parseInt(ID));
+        endDelete();
+        ZoneDTO zone = new ZoneDTO();
+        zone.setID(Integer.parseInt(ID));
+        deleteCommand.endExecution();
+        mediator.publish(new GenericEvent<>(EventType.DELETE, zone, null));
     }
 
     @ClientCallable
     public void removeRoute(String ID) {
-        System.out.println("removeRoute: " + ID);
-        controller.deleteRoute(Integer.parseInt(ID));
+        endDelete();
+        RouteDTO route = new RouteDTO();
+        route.setID(Integer.parseInt(ID));
+        deleteCommand.endExecution();
+        mediator.publish(new GenericEvent<>(EventType.DELETE, route, null));
     }
 
     @ClientCallable
     public void removeStorage(String ID) {
-        System.out.println("removeStorage: " + ID);
-        controller.deleteStorage(Integer.parseInt(ID));
+        endDelete();
+        StorageDTO storage = new StorageDTO();
+        storage.setID(Integer.parseInt(ID));
+        deleteCommand.endExecution();
+        mediator.publish(new GenericEvent<>(EventType.DELETE, storage, null));
     }
-
-    /*@ClientCallable
-    public void editMarker(Need need) {
-        System.out.println("editMarker: " + need.getID());
-        controller.editNeed(need);
-    }*/
 
     @ClientCallable
     public void editPolygon(String ID) {
-        System.out.println("editPolygon: " + ID);
-        mapDialogs.editDialogZone(ID);
+        endEdit();
+        editCommand.endExecution();
+        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.ZONE, editCommand));
     }
 
     @ClientCallable
     public void editRoute(String ID) {
-        System.out.println("editRoute: " + ID);
-        mapDialogs.editDialogRoute(ID);
+        endEdit();
+        editCommand.endExecution();
+        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.ROUTE, editCommand));
     }
 
     @ClientCallable
     public void editStorage(String ID) {
-        System.out.println("editStorage: " + ID);
-        mapDialogs.editDialogStorage(ID);
+        endEdit();
+        editCommand.endExecution();
+        mediator.publish(new ShowEvent<>(EventType.SHOW_EDIT, ID, DialogsNames.STORAGE, editCommand));
     }
-
-
 }

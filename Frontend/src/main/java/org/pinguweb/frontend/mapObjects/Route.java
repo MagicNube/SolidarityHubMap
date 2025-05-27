@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.domain.DTO.RouteDTO;
-import org.pinguweb.frontend.services.backend.BackendObject;
-import org.pinguweb.frontend.services.backend.BackendService;
-import org.springframework.core.ParameterizedTypeReference;
+import org.pingu.web.BackendObject;
+import org.pingu.web.BackendService;
+import org.pinguweb.frontend.services.BackendDTOService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.yaml.snakeyaml.util.Tuple;
@@ -31,7 +31,7 @@ public class Route extends MapObject{
     private String name;
     private String routeType;
     private int catastrophe;
-    private ArrayList<Integer> pointsID;
+    private List<Integer> pointsID;
 
     public Route(){
         this.points = new ArrayList<>();
@@ -55,17 +55,23 @@ public class Route extends MapObject{
         this.getPolygon().removeFrom(map);
     }
 
-    @Override
-    public int pushToServer(){
+    public RouteDTO toDto(){
         RouteDTO routeDTO = new RouteDTO();
         routeDTO.setName(this.name);
+        routeDTO.setID(getID());
         routeDTO.setRouteType(this.routeType);
         routeDTO.setCatastrophe(this.catastrophe);
         routeDTO.setPoints(this.pointsID);
+        return routeDTO;
+    }
+
+    @Override
+    public int pushToServer(){
+        RouteDTO routeDTO = toDto();
 
         String finurl = "/api/routes";
         try{
-            BackendObject<RouteDTO> status = BackendService.postToBackend(BackendService.BACKEND + finurl, routeDTO, RouteDTO.class);
+            BackendObject<RouteDTO> status = BackendService.postToBackend(BackendDTOService.BACKEND + finurl, routeDTO, RouteDTO.class);
             if (status.getStatusCode() == HttpStatus.OK){
                 this.setID(status.getData().getID());
                 return status.getData().getID();
@@ -90,7 +96,7 @@ public class Route extends MapObject{
     public int deleteFromServer() {
         String finurl = "/api/routes/" + this.getID();
         try{
-            HttpStatusCode status = BackendService.deleteFromBackend(BackendService.BACKEND + finurl);
+            HttpStatusCode status = BackendService.deleteFromBackend(BackendDTOService.BACKEND + finurl);
             if (status == HttpStatus.OK){
                 return this.getID();
             }
@@ -112,16 +118,10 @@ public class Route extends MapObject{
 
     @Override
     public int updateToServer() {
-        RouteDTO routeDTO = new RouteDTO();
-        routeDTO.setID(this.getID());
-        routeDTO.setName(this.name);
-        routeDTO.setRouteType(this.routeType);
-        routeDTO.setCatastrophe(this.catastrophe);
-        routeDTO.setPoints(this.pointsID);
-        System.out.println(routeDTO.getPoints());
-        String finurl = "/api/routes";
+        RouteDTO routeDTO = toDto();
+        String finurl = "/api/routes/" + getID();
         try{
-            HttpStatusCode status = BackendService.putToBackend(BackendService.BACKEND + finurl, routeDTO);
+            HttpStatusCode status = BackendService.putToBackend(BackendDTOService.BACKEND + finurl, routeDTO);
             if (status == HttpStatus.OK){
                 return this.getID();
             }
@@ -139,23 +139,5 @@ public class Route extends MapObject{
             log.error(e.getMessage(),  Arrays.stream(e.getStackTrace()).toArray());
         }
         return 0;
-    }
-
-    public static List<RouteDTO> getAllFromServer() {
-        BackendObject<List<RouteDTO>> routes = BackendService.getListFromBackend(BackendService.BACKEND + "/api/routes",
-                new ParameterizedTypeReference<>() {
-                });
-
-        if (routes.getStatusCode() == HttpStatus.OK) {
-            return routes.getData();
-        } else if (routes.getStatusCode() == HttpStatus.NO_CONTENT) {
-            log.error("FALLO: No se ha encontrado contenido en la petición: /api/routes");
-            return new ArrayList<>();
-        } else if (routes.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE) {
-            log.error("FALLO: Petición /api/routes devolvió servicio no disponible. ¿El backend funciona?");
-            return new ArrayList<>();
-        } else {
-            throw new RuntimeException("Backend object return unexpected status code");
-        }
     }
 }

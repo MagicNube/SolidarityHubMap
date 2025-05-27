@@ -15,13 +15,15 @@ public class NavigationBar {
         SideNavItem taskLink = new SideNavItem("Tareas", "http://localhost:8083/",
                 VaadinIcon.TASKS.create());
         SideNavItem dashboardLink = new SideNavItem("Dashboard",
-                DashboardNewView.class, VaadinIcon.DASHBOARD.create());
+                DashboardView.class, VaadinIcon.DASHBOARD.create());
         SideNavItem resourcesLink = new SideNavItem("Recursos",
                 "http://localhost:8083/recursos", VaadinIcon.TOOLBOX.create());
         SideNavItem contactLink = new SideNavItem("Contacto",
                 ContactView.class, VaadinIcon.PHONE.create());
+        SideNavItem informationLink = new SideNavItem("Información",
+                InformationView.class, VaadinIcon.INFO_CIRCLE.create());
 
-        nav.addItem(homeLink,taskLink,mapLink,resourcesLink,dashboardLink, contactLink);
+        nav.addItem(homeLink,taskLink,mapLink,resourcesLink,dashboardLink, contactLink, informationLink);
         return nav;
     }
 }
