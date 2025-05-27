@@ -1,10 +1,8 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData;
 
 import com.storedobject.chart.Color;
-import org.pingu.domain.DTO.NeedDTO;
-import org.pingu.domain.DTO.ResourceDTO;
-import org.pingu.domain.DTO.TaskDTO;
-import org.pingu.domain.DTO.VolunteerDTO;
+import org.pingu.domain.DTO.*;
+import org.pingu.domain.enums.DonationType;
 import org.pingu.domain.enums.ResourceType;
 import org.pingu.domain.enums.TaskType;
 
@@ -72,6 +70,26 @@ public class ChartDatasetGenerator {
         }
 
         return resourcesByTypeList;
+    }
+    public List<List<DonationDTO>> calculateDonationsByType(Integer[] donationsByType, List<DonationDTO> donations) {
+        Arrays.fill(donationsByType, 0);
+
+        int typesCount = DonationType.values().length;
+        List<List<DonationDTO>> donationsByTypeList = new ArrayList<>(typesCount);
+        for (int i = 0; i < typesCount; i++) {
+            donationsByTypeList.add(new ArrayList<>());
+        }
+
+        for (DonationDTO donation : donations) {
+            if (donation.getType() != null) {
+                DonationType type = DonationType.valueOf(donation.getType());
+                int idx = type.ordinal();
+                donationsByType[idx]++;
+                donationsByTypeList.get(idx).add(donation);
+            }
+        }
+
+        return donationsByTypeList;
     }
 
     public List<List<NeedDTO>> calculateNeedsPerType(Integer[] needsByTaskType, List<NeedDTO> needs) {

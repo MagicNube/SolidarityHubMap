@@ -27,7 +27,7 @@ public class DashboardView extends VerticalLayout implements Observer {
         BackendDTOService.GetInstancia().getVolunteerList().attach(this, ObserverChange.ADD_ALL);
         BackendDTOService.GetInstancia().getAffectedList().attach(this, ObserverChange.ADD_ALL);
         BackendDTOService.GetInstancia().getResourceList().attach(this, ObserverChange.ADD_ALL);
-        //BackendDTOService.GetInstancia().getDonationList().attach(this, ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getDonationList().attach(this, ObserverChange.ADD_ALL);
         director.buildComplete();
         dashboard = director.get().getInterface();
         this.add(dashboard);
