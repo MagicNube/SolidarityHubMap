@@ -8,7 +8,9 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Char
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartGenerator;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.Filters;
+import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.GenericComponent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
+import org.pinguweb.frontend.view.InfoPopup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +89,7 @@ public class DashboardBuilderDirector {
         builder.addSide(fifthPair);
         builder.addSide(sixthPair);
         builder.addBelow(sixthPairFilters);
+        builder.addBelow(GenericComponent.builder().component(InfoPopup.DashboardPopup()).build());
 
     }
 }
