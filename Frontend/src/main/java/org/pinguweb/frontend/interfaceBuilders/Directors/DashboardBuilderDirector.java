@@ -8,9 +8,7 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Char
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dashboard;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.ChartGenerator;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData.Filters;
-import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.GenericComponent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
-import org.pinguweb.frontend.view.InfoPopup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +38,7 @@ public class DashboardBuilderDirector {
         List<InterfaceComponent> thirdPair = generator.buildUncoveredNeedsChart(new ChartType[]{ChartType.PIE});
         List<InterfaceComponent> fourthPair = generator.buildVolunteersByTaskTypeChart(new ChartType[]{ChartType.PIE});
         List<InterfaceComponent> fifthPair = generator.buildVolunteersVSAffectedChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
-        List<InterfaceComponent> sixthPair = generator.buildResourcesByTypePieChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
+        List<InterfaceComponent> sixthPair = generator.buildResourcesByTypeChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
 
         List<InterfaceComponent> completedAndUncompleted = new ArrayList<>();
         completedAndUncompleted.addAll(fisrtPair);
@@ -57,39 +55,44 @@ public class DashboardBuilderDirector {
         dashboards.add((Dashboard) fifthPair.get(1));
         dashboards.add((Dashboard) sixthPair.get(0));
 
-        Filters zeroFilters = Filters.builder().build();
-        //Filters firstPairFilters = Filters.builder().build();
-        //Filters secondPairFilters = Filters.builder().build();
-        Filters thirdPairFilters = Filters.builder().build();
-        Filters fourthPairFilters = Filters.builder().build();
-        Filters fifthPairFilters = Filters.builder().build();
-        Filters sixthPairFilters = Filters.builder().build();
-
+        // Filtros existentes para tareas completadas y no completadas
         Filters completedVsUncompletedFilters = Filters.builder().build();
         completedVsUncompletedFilters.addDashboard(completedAndUncompleted);
-
 
         builder.addBelow(completedVsUncompletedFilters);
         builder.addSide(completedAndUncompleted);
 
-        zeroFilters.addDashboard(zero);
-        //firstPairFilters.addDashboard(fisrtPair);
-        //secondPairFilters.addDashboard(secondPair);
-        thirdPairFilters.addDashboard(thirdPair);
-        fourthPairFilters.addDashboard(fourthPair);
-        fifthPairFilters.addDashboard(fifthPair);
-        sixthPairFilters.addDashboard(sixthPair);
+        // Nuevos filtros
+        Filters urgencyLevelFilters = Filters.builder().build();
+        urgencyLevelFilters.addDashboard(zero);
 
-        builder.addBelow(zeroFilters);
+        Filters uncoveredNeedsFilters = Filters.builder().build();
+        uncoveredNeedsFilters.addDashboard(thirdPair);
+
+        Filters volunteersByTaskTypeFilters = Filters.builder().build();
+        volunteersByTaskTypeFilters.addDashboard(fourthPair);
+
+        Filters volunteersVsAffectedFilters = Filters.builder().build();
+        volunteersVsAffectedFilters.addDashboard(fifthPair);
+
+        Filters resourcesByTypeFilters = Filters.builder().build();
+        resourcesByTypeFilters.addDashboard(sixthPair);
+
+        // Agregar nuevos filtros y gráficas
+        builder.addBelow(urgencyLevelFilters);
         builder.addSide(zero);
+
+        builder.addBelow(uncoveredNeedsFilters);
         builder.addSide(thirdPair);
-        builder.addBelow(thirdPairFilters);;
-        builder.addBelow(fourthPairFilters);
+
+        builder.addBelow(volunteersByTaskTypeFilters);
         builder.addSide(fourthPair);
+
+        builder.addBelow(volunteersVsAffectedFilters);
         builder.addSide(fifthPair);
+
+        builder.addBelow(resourcesByTypeFilters);
         builder.addSide(sixthPair);
-        builder.addBelow(sixthPairFilters);
-        builder.addBelow(GenericComponent.builder().component(InfoPopup.DashboardPopup()).build());
 
     }
 }

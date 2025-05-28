@@ -1,17 +1,16 @@
 package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.DashboardData;
 
 import com.storedobject.chart.Color;
-import org.pingu.domain.DTO.NeedDTO;
-import org.pingu.domain.DTO.ResourceDTO;
-import org.pingu.domain.DTO.TaskDTO;
-import org.pingu.domain.DTO.VolunteerDTO;
+import org.pingu.domain.DTO.*;
+import org.pingu.domain.enums.DonationType;
 import org.pingu.domain.enums.ResourceType;
 import org.pingu.domain.enums.TaskType;
 
 import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
 import java.time.chrono.ChronoLocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ChartDatasetGenerator {
     public Color generateColorForType(String type) {
@@ -49,10 +48,8 @@ public class ChartDatasetGenerator {
                 }
             }
         }
-
         return tasksByUrgency;
     }
-
 
     public List<List<ResourceDTO>> calculateResourcesByType(Integer[] resourcesByType, List<ResourceDTO> resources) {
         Arrays.fill(resourcesByType, 0);
@@ -73,6 +70,26 @@ public class ChartDatasetGenerator {
         }
 
         return resourcesByTypeList;
+    }
+    public List<List<DonationDTO>> calculateDonationsByType(Integer[] donationsByType, List<DonationDTO> donations) {
+        Arrays.fill(donationsByType, 0);
+
+        int typesCount = DonationType.values().length;
+        List<List<DonationDTO>> donationsByTypeList = new ArrayList<>(typesCount);
+        for (int i = 0; i < typesCount; i++) {
+            donationsByTypeList.add(new ArrayList<>());
+        }
+
+        for (DonationDTO donation : donations) {
+            if (donation.getType() != null) {
+                DonationType type = DonationType.valueOf(donation.getType());
+                int idx = type.ordinal();
+                donationsByType[idx]++;
+                donationsByTypeList.get(idx).add(donation);
+            }
+        }
+
+        return donationsByTypeList;
     }
 
     public List<List<NeedDTO>> calculateNeedsPerType(Integer[] needsByTaskType, List<NeedDTO> needs) {
@@ -116,7 +133,6 @@ public class ChartDatasetGenerator {
                 tasksByType.get(idx).add(task);
             }
         }
-
         return tasksByType;
     }
 

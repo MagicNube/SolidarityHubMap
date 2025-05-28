@@ -2,6 +2,7 @@ package org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Das
 
 import com.storedobject.chart.*;
 import org.pingu.domain.DTO.*;
+import org.pingu.domain.enums.DonationType;
 import org.pingu.domain.enums.ResourceType;
 import org.pingu.domain.enums.TaskType;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.ChartType;
@@ -9,8 +10,9 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dash
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 import org.pinguweb.frontend.services.BackendDTOService;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ChartGenerator {
 
@@ -20,13 +22,16 @@ public class ChartGenerator {
     private final Integer[] volunteersCountByType = new Integer[TaskType.values().length];
     private final Integer[] tasksPerUrgency = new Integer[3];
     private final Integer[] resourcesByType = new Integer[ResourceType.values().length];
+    private final Integer[] donationsByType = new Integer[DonationType.values().length];
 
     private final List<TaskDTO> tasks;
     private final List<VolunteerDTO> volunteers;
     private final List<AffectedDTO> affecteds;
     private final List<NeedDTO> needs;
     private final List<ResourceDTO> resources;
+    private final List<DonationDTO> donations;
     private final ChartDatasetGenerator dataGenerator;
+
 
     //TODO: Recuerda convertirlo en observador
 
@@ -37,6 +42,8 @@ public class ChartGenerator {
         needs = service.getNeedList().getValues();
         tasks = service.getTaskList().getValues();
         resources = service.getResourceList().getValues();
+        donations = service.getDonationList().getValues();
+        System.out.println("PASO 2 Recursos obtenidos: " + resources); // Log para verificar los datos
         dataGenerator = new ChartDatasetGenerator();
     }
 
@@ -204,7 +211,7 @@ public class ChartGenerator {
         List<InterfaceComponent> dashboards = new ArrayList<>();
         for (ChartType type : types) {
             Dashboard d = Dashboard.createSimpleDashboard(
-                    "Tareas No Completadas (LineChart)",
+                    "Tareas No Completadas ",
                     type,
                     new RectangularCoordinate(
                             new XAxis(DataType.CATEGORY),
@@ -317,7 +324,7 @@ public class ChartGenerator {
 
 
     public List<InterfaceComponent> buildResourcesByTypeChart(ChartType[] types) {
-        List<List<ResourceDTO>> resources= dataGenerator.calculateResourcesByType(resourcesByType, this.resources);
+        List<List<ResourceDTO>> resourcesByTypeList = dataGenerator.calculateResourcesByType(resourcesByType, this.resources);
 
         String[] allLabels = Arrays.stream(ResourceType.values())
                 .map(ResourceType::name)
@@ -355,9 +362,9 @@ public class ChartGenerator {
                             .map(e -> new Etiqueta[]{e})
                             .toArray(Etiqueta[][]::new),
                     values,
-                    Arrays.stream(values)
-                            .map(v -> new Integer[]{v})
-                            .toArray(Integer[][]::new),
+                    resourcesByTypeList.stream()
+                            .map(lista -> lista.toArray(ResourceDTO[]::new))
+                            .toArray(ResourceDTO[][]::new),
                     "Recursos por Tipo",
                     palette
             );

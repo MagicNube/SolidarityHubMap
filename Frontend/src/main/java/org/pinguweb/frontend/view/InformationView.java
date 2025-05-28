@@ -23,8 +23,6 @@ public class InformationView extends VerticalLayout {
         content.setSizeFull();
         content.setPadding(false);
         content.setSpacing(true);
-
-        mainLayout.add(NavigationBar.createNavBar(), content);
         mainLayout.expand(content); // Para que el contenido ocupe el espacio restante
 
         add(mainLayout);
