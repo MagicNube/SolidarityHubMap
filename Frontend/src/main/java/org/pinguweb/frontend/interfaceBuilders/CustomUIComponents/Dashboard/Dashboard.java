@@ -97,6 +97,7 @@ public class Dashboard extends InterfaceComponent {
     }
     private void generateLineChart(){
         this.chart.clear();
+        if (data.isEmpty()) {return;}
         for(ChartData<?,?> d: data){
             AbstractDataProvider<?> xAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(0).getDataType(), d.flatten().stream().map(ChartPoint::getXValue).toArray());
             AbstractDataProvider<?> yAxis = castObjectByCoordinateType(this.coordinateConfiguration.getAxis(1).getDataType(), d.flatten().stream().map(ChartPoint::getYValue).toArray());
