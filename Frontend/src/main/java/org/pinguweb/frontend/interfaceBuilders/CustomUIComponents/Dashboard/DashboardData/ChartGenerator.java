@@ -10,9 +10,7 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Dashboard.Dash
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.InterfaceComponent;
 import org.pinguweb.frontend.services.BackendDTOService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class ChartGenerator {
 
@@ -48,17 +46,23 @@ public class ChartGenerator {
     }
 
     public List<InterfaceComponent> buildCompletedTasksChart(ChartType[] types) {
-        List<List<TaskDTO>> completedTasksByType = dataGenerator.calculateCompletedTasksPerType(completedTasks, this.tasks);
+        List<List<TaskDTO>> completedTasksByType = dataGenerator.calculateCompletedTasksPerType(completedTasks, !this.tasks.isEmpty() ? tasks : new ArrayList<>());
+
+        Integer[] uncompletedTasks = new Integer[TaskType.values().length];
+        Arrays.fill(uncompletedTasks, 0);
+
+        List<List<TaskDTO>> uncompletedTasksByType = dataGenerator.calculateUnfinishedTasksByType(uncompletedTasks, !this.tasks.isEmpty() ? tasks : new ArrayList<>());
 
         String[] allLabels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)
                 .toArray(String[]::new);
 
-        List<String> lbl = new ArrayList<>();
+        Set<String> lbl = new HashSet<>();
+
         List<Integer> val = new ArrayList<>();
         for (int i = 0; i < allLabels.length; i++) {
             int v = completedTasks[i] != null ? completedTasks[i] : 0;
-            if (v > 0) {
+            if (v >= 0) {
                 lbl.add(allLabels[i]);
                 val.add(v);
             }
@@ -66,9 +70,32 @@ public class ChartGenerator {
         String[] labels = lbl.toArray(new String[0]);
         Integer[] values = val.toArray(new Integer[0]);
 
-        // Generar paleta de colores
-        Color[] palette = dataGenerator.generateColorPalette(labels.length);
+        String[] allLabels2 = Arrays.stream(TaskType.values())
+                .map(TaskType::name)
+                .toArray(String[]::new);
 
+        List<Integer> filteredValues = new ArrayList<>();
+        for (int i = 0; i < allLabels2.length; i++) {
+            int value = uncompletedTasks[i] != null ? uncompletedTasks[i] : 0;
+            if (value >= 0) {
+                lbl.add(allLabels2[i]);
+                filteredValues.add(value);
+            }
+        }
+
+        // Generar paleta de colores
+        Color[] palette = dataGenerator.generateColorPalette(labels.length + lbl.size());
+
+        Color[] sub1;
+        Color[] sub2;
+        if (palette.length != 0) {
+            sub1 = Arrays.copyOfRange(palette, 0, labels.length);
+            sub2 = Arrays.copyOfRange(palette, labels.length + 1, palette.length);
+        }
+        else{
+            sub1 = palette;
+            sub2 = palette;
+        }
         // Crear dashboards
         List<InterfaceComponent> dashboards = new ArrayList<>();
         for (ChartType type : types) {
@@ -91,7 +118,20 @@ public class ChartGenerator {
                             .map(lista -> lista.toArray(TaskDTO[]::new))
                             .toArray(TaskDTO[][]::new),
                     "Tareas Completadas",
-                    palette
+                    sub1
+            );
+            d.addData(
+                    lbl.toArray(new String[0]),
+                    lbl.stream()
+                            .map(Etiqueta::new)
+                            .map(e -> new Etiqueta[]{e})
+                            .toArray(Etiqueta[][]::new),
+                    filteredValues.toArray(new Integer[0]),
+                    uncompletedTasksByType.stream()
+                            .map(lista -> lista.toArray(TaskDTO[]::new))
+                            .toArray(TaskDTO[][]::new),
+                    "Tareas No Completadas",
+                    sub2
             );
             dashboards.add(d);
         }
@@ -191,7 +231,6 @@ public class ChartGenerator {
         Arrays.fill(uncompletedTasks, 0);
 
         List<List<TaskDTO>> uncompletedTasksByType = dataGenerator.calculateUnfinishedTasksByType(uncompletedTasks, this.tasks);
-
 
         String[] allLabels = Arrays.stream(TaskType.values())
                 .map(TaskType::name)

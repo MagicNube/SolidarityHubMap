@@ -78,7 +78,7 @@ public class Filters extends InterfaceComponent {
             classes
         );
 
-        classname.setItemLabelGenerator(Class::getSimpleName);
+        classname.setItemLabelGenerator(x -> x.getSimpleName().replace("DTO", ""));
 
         // 2. ComboBox de propiedades (se llena tras seleccionar clase)
         ComboBox<String> property = new ComboBox<>("Propiedad");
