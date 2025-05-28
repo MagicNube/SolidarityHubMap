@@ -35,9 +35,6 @@ import org.pinguweb.frontend.utils.Mediador.EventType;
 import org.pinguweb.frontend.utils.Mediador.Mediator;
 import org.yaml.snakeyaml.util.Tuple;
 
-import java.util.LinkedHashMap;
-import java.util.Objects;
-
 @Slf4j
 @Route(value = "map", layout = MainLayout.class)
 @PageTitle("Visor del mapa")

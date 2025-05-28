@@ -1,6 +1,6 @@
 package org.pinguweb.backend.controller;
 
-import org.pingu.domain.DTO.ResourceDTO;
+import org.pingu.domain.DTO .ResourceDTO;
 import org.pingu.domain.DTO.factories.BackendDTOFactory;
 import org.pingu.domain.DTO.factories.ModelDTOFactory;
 import org.pingu.persistence.service.ResourceService;
