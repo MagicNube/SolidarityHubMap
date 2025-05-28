@@ -4,6 +4,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
@@ -28,7 +29,20 @@ public class MainView extends VerticalLayout {
         setPadding(false);
         setSpacing(false);
 
-        add(createHeader());
+        // 1. Creamos el Dialog aquí
+        Dialog aboutDialog = new Dialog();
+        aboutDialog.setCloseOnEsc(true);
+        aboutDialog.setCloseOnOutsideClick(true);
+
+        H1 modalTitle = new H1("¿Qué es Solidarity Hub?");
+        Paragraph modalText = new Paragraph("Aquí va tu texto explicando Solidarity Hub...");
+        Button closeModal = new Button("Cerrar", e -> aboutDialog.close());
+
+        VerticalLayout dialogLayout = new VerticalLayout(modalTitle, modalText, closeModal);
+        dialogLayout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        aboutDialog.add(dialogLayout);
+
+        add(createHeader(aboutDialog));
 
         VerticalLayout content = new VerticalLayout();
         content.addClassName("content-wrapper");
@@ -57,8 +71,9 @@ public class MainView extends VerticalLayout {
         addAndExpand(content);
     }
 
-    private HorizontalLayout createHeader() {
-        Image logo = new Image("icons/PinguLogo.png", "Logo");
+    // 2. Ahora el header recibe el Dialog para pasárselo al botón
+    private HorizontalLayout createHeader(Dialog aboutDialog) {
+        Image logo = new Image("icons/LogoBlancoSinFondo.png", "Logo");
         logo.setHeight("60px");
 
         H1 appName = new H1("Solidarity Hub");
@@ -72,20 +87,7 @@ public class MainView extends VerticalLayout {
 
         logo.getElement().setAttribute("title", "Logo de Pingu Solidarity Hub");
 
-        Button home = new Button("Home", e -> UI.getCurrent().navigate(""));
-        Button about = new Button("About Us", e -> UI.getCurrent().navigate("about"));
-        home.addClassName("nav-button");
-        about.addClassName("nav-button");
-
-        ComboBox<String> lang = new ComboBox<>();
-        lang.setItems("Castellano", "English", "Valencià");
-        lang.setValue("Castellano");
-        lang.addClassName("nav-combo");
-
-        HorizontalLayout right = new HorizontalLayout(home, about, lang);
-        right.addClassName("right");
-        right.setSpacing(true);
-        right.setAlignItems(FlexComponent.Alignment.CENTER);
+        HorizontalLayout right = getHorizontalLayout(aboutDialog);
 
         HorizontalLayout header = new HorizontalLayout(left, right);
         header.addClassName("app-header");
@@ -94,5 +96,24 @@ public class MainView extends VerticalLayout {
         header.setAlignItems(FlexComponent.Alignment.CENTER);
 
         return header;
+    }
+
+    // 3. Ahora el layout de botones recibe el Dialog para abrirlo desde el botón
+    private HorizontalLayout getHorizontalLayout(Dialog aboutDialog) {
+        Button home = new Button("Home", e -> UI.getCurrent().navigate(""));
+        Button whatIsSHUB = new Button("Qué es SHUB", e -> aboutDialog.open());
+        home.addClassName("nav-button");
+        whatIsSHUB.addClassName("nav-button");
+
+        ComboBox<String> lang = new ComboBox<>();
+        lang.setItems("Castellano", "English", "Valencià");
+        lang.setValue("Castellano");
+        lang.addClassName("nav-combo");
+
+        HorizontalLayout right = new HorizontalLayout(home, whatIsSHUB, lang);
+        right.addClassName("right");
+        right.setSpacing(true);
+        right.setAlignItems(Alignment.CENTER);
+        return right;
     }
 }

@@ -32,7 +32,9 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
 import org.pinguweb.frontend.mapObjects.*;
 import org.pinguweb.frontend.services.BackendDTOService;
-import org.pinguweb.frontend.utils.Mediador.*;
+import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
+import org.pinguweb.frontend.utils.Mediador.Event;
+import org.pinguweb.frontend.utils.Mediador.EventType;
 import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.*;

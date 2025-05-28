@@ -3,6 +3,8 @@ package org.pinguweb.frontend.view;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.Layout;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.pingu.web.BackendObservableService.observableList.Observer;
@@ -11,7 +13,8 @@ import org.pinguweb.frontend.interfaceBuilders.Directors.DashboardBuilderDirecto
 import org.pinguweb.frontend.services.BackendDTOService;
 
 @Slf4j
-@Route("dashboard")
+@PageTitle("Dashboard")
+@Route(value = "dashboard", layout = MainLayout.class)
 public class DashboardView extends VerticalLayout implements Observer {
 
     DashboardBuilderDirector director = new DashboardBuilderDirector();
@@ -23,6 +26,8 @@ public class DashboardView extends VerticalLayout implements Observer {
         BackendDTOService.GetInstancia().getTaskList().attach(this, ObserverChange.ADD_ALL);
         BackendDTOService.GetInstancia().getVolunteerList().attach(this, ObserverChange.ADD_ALL);
         BackendDTOService.GetInstancia().getAffectedList().attach(this, ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getResourceList().attach(this, ObserverChange.ADD_ALL);
+        BackendDTOService.GetInstancia().getDonationList().attach(this, ObserverChange.ADD_ALL);
         director.buildComplete();
         dashboard = director.get().getInterface();
         this.add(dashboard);

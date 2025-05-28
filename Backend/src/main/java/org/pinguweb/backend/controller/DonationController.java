@@ -3,7 +3,6 @@ package org.pinguweb.backend.controller;
 import org.pingu.domain.DTO.DonationDTO;
 import org.pingu.domain.DTO.factories.BackendDTOFactory;
 import org.pingu.domain.DTO.factories.ModelDTOFactory;
-import org.pingu.persistence.model.Donation;
 import org.pingu.persistence.service.DonationService;
 import org.pinguweb.backend.controller.common.ServerException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
