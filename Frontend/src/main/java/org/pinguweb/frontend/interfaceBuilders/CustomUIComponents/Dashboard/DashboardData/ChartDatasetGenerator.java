@@ -72,6 +72,11 @@ public class ChartDatasetGenerator {
         return resourcesByTypeList;
     }
     public List<List<DonationDTO>> calculateDonationsByType(Integer[] donationsByType, List<DonationDTO> donations) {
+        System.out.println("Donaciones cargadas desde la base de datos:");
+        for (DonationDTO donation : donations) {
+            System.out.println(donation);
+        }
+
         Arrays.fill(donationsByType, 0);
 
         int typesCount = DonationType.values().length;
@@ -82,13 +87,21 @@ public class ChartDatasetGenerator {
 
         for (DonationDTO donation : donations) {
             if (donation.getType() != null) {
-                DonationType type = DonationType.valueOf(donation.getType());
-                int idx = type.ordinal();
-                donationsByType[idx]++;
-                donationsByTypeList.get(idx).add(donation);
+                try {
+                    DonationType type = DonationType.valueOf(donation.getType().toUpperCase());
+                    int idx = type.ordinal();
+                    donationsByType[idx]++;
+                    donationsByTypeList.get(idx).add(donation);
+                    System.out.println("Procesando donación: " + donation + " Tipo: " + type);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Tipo de donación inválido: " + donation.getType());
+                }
+            } else {
+                System.out.println("Donación sin tipo: " + donation);
             }
         }
 
+        System.out.println("Donaciones por tipo: " + Arrays.toString(donationsByType));
         return donationsByTypeList;
     }
 
