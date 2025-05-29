@@ -10,8 +10,6 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapColleagues.enums.ClickedElement;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.mapObjects.*;
-import org.pinguweb.frontend.mapObjects.factories.RoutePointFactory;
-import org.pinguweb.frontend.mapObjects.factories.ZoneMarkerFactory;
 import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
 import org.pinguweb.frontend.utils.Mediador.EventType;
@@ -98,8 +96,8 @@ public class Show extends ComponentColleague {
     }
 
     private void showZoneMarker(double lat, double lng) {
-        ZoneMarkerFactory zoneMarkerFactory = new ZoneMarkerFactory();
-        ZoneMarker zoneMarker = (ZoneMarker) zoneMarkerFactory.createMapObject(this.map.getReg(), lat, lng);
+        MapObjectFactory mapObjectFactory = new MapObjectFactory();
+        ZoneMarker zoneMarker = mapObjectFactory.createZoneMarker(this.map.getReg(), lat, lng);
 
         String clickFuncReferenceDragStart = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragStart" + zoneMarker.getID();
         String clickFuncReferenceDragEnd = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragEnd" + zoneMarker.getID();
@@ -147,7 +145,7 @@ public class Show extends ComponentColleague {
     }
 
     private void showRoutePoint(double lat, double lng) {
-        RoutePoint routePoint = (RoutePoint) new RoutePointFactory().createMapObject(this.map.getReg(), lat, lng);
+        RoutePoint routePoint = new MapObjectFactory().createRoutePoint(this.map.getReg(), lat, lng);
 
         String clickFuncReferenceDragStart = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragStart" + routePoint.getID();
         String clickFuncReferenceDragEnd = this.map.getMap().clientComponentJsAccessor() + ".myClickFuncDragEnd" + routePoint.getID();

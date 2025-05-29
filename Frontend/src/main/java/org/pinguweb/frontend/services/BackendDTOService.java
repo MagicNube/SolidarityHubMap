@@ -11,9 +11,6 @@ import org.springframework.core.ParameterizedTypeReference;
 @Getter
 @Slf4j
 public class BackendDTOService extends Singleton implements BackendObservableService {
-
-    // Lazy loading + gestor de carga?
-
     private static final BackendDTOService s_pInstancia = new BackendDTOService();
     public static final String BACKEND = "http://localhost:8081";
     public static BackendDTOService GetInstancia() {
