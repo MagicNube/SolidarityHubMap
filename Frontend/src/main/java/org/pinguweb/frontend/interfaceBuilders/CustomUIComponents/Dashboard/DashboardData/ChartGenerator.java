@@ -226,31 +226,66 @@ public class ChartGenerator {
         return dashboards;
     }
 
-    public List<InterfaceComponent> buildUncompletedTasksLineChart(ChartType[] types) {
-        Integer[] uncompletedTasks = new Integer[TaskType.values().length];
-        Arrays.fill(uncompletedTasks, 0);
+    public List<List<DonationDTO>> calculateDonationsByType(Integer[] donationsByType, List<DonationDTO> donations) {
+        Arrays.fill(donationsByType, 0);
 
-        List<List<TaskDTO>> uncompletedTasksByType = dataGenerator.calculateUnfinishedTasksByType(uncompletedTasks, this.tasks);
+        int typesCount = DonationType.values().length;
+        List<List<DonationDTO>> donationsByTypeList = new ArrayList<>(typesCount);
+        for (int i = 0; i < typesCount; i++) {
+            donationsByTypeList.add(new ArrayList<>());
+        }
 
-        String[] allLabels = Arrays.stream(TaskType.values())
-                .map(TaskType::name)
+        for (DonationDTO donation : donations) {
+            if (donation.getType() != null) {
+                try {
+                    DonationType type = DonationType.valueOf(donation.getType());
+                    int idx = type.ordinal();
+                    donationsByType[idx]++;
+                    donationsByTypeList.get(idx).add(donation);
+                    System.out.println("Procesando donación: " + donation + " Tipo: " + type);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Tipo de donación inválido: " + donation.getType());
+                }
+            } else {
+                System.out.println("Donación sin tipo: " + donation);
+            }
+        }
+
+        System.out.println("Donaciones por tipo: " + Arrays.toString(donationsByType));
+        return donationsByTypeList;
+    }
+
+    public List<InterfaceComponent> buildDonationsByTypeChart(ChartType[] types) {
+        List<List<DonationDTO>> donationsByTypeList = dataGenerator.calculateDonationsByType(donationsByType, this.donations);
+
+        System.out.println("Donaciones agrupadas por tipo: " + donationsByTypeList);
+
+        String[] allLabels = Arrays.stream(DonationType.values())
+                .map(DonationType::name)
                 .toArray(String[]::new);
 
         List<String> filteredLabels = new ArrayList<>();
         List<Integer> filteredValues = new ArrayList<>();
         for (int i = 0; i < allLabels.length; i++) {
-            int value = uncompletedTasks[i] != null ? uncompletedTasks[i] : 0;
+            int value = donationsByType[i] != null ? donationsByType[i] : 0;
             if (value > 0) {
                 filteredLabels.add(allLabels[i]);
                 filteredValues.add(value);
             }
         }
 
-        Color[] palette = dataGenerator.generateColorPalette(filteredLabels.size());
+        System.out.println("Etiquetas filtradas: " + filteredLabels);
+        System.out.println("Valores filtrados: " + filteredValues);
+
+        String[] labels = filteredLabels.toArray(new String[0]);
+        Integer[] values = filteredValues.toArray(new Integer[0]);
+
+        Color[] palette = dataGenerator.generateColorPalette(labels.length);
+
         List<InterfaceComponent> dashboards = new ArrayList<>();
         for (ChartType type : types) {
             Dashboard d = Dashboard.createSimpleDashboard(
-                    "Tareas No Completadas ",
+                    "Donaciones por Tipo",
                     type,
                     new RectangularCoordinate(
                             new XAxis(DataType.CATEGORY),
@@ -258,16 +293,16 @@ public class ChartGenerator {
                     )
             );
             d.addData(
-                    filteredLabels.toArray(new String[0]),
-                    filteredLabels.stream()
+                    labels,
+                    Arrays.stream(labels)
                             .map(Etiqueta::new)
                             .map(e -> new Etiqueta[]{e})
                             .toArray(Etiqueta[][]::new),
-                    filteredValues.toArray(new Integer[0]),
-                    uncompletedTasksByType.stream()
-                            .map(lista -> lista.toArray(TaskDTO[]::new))
-                            .toArray(TaskDTO[][]::new),
-                    "Tareas No Completadas",
+                    values,
+                    donationsByTypeList.stream()
+                            .map(lista -> lista.toArray(DonationDTO[]::new))
+                            .toArray(DonationDTO[][]::new),
+                    "Donaciones por Tipo",
                     palette
             );
             dashboards.add(d);

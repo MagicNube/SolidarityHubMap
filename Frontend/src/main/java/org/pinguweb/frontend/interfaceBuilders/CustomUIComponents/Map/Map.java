@@ -124,8 +124,6 @@ public class Map extends InterfaceComponent implements Mediator {
         this.component.add(this.actionBanner);
     }
 
-
-
     @Override
     public void subscribe(EventType eventType, Colleague colleague) {
         suscribers.add(new Tuple<>(colleague, eventType));

@@ -26,7 +26,7 @@ public class DashboardBuilderDirector {
         return builder.build();
     }
 
-    public void buildComplete(){
+    public void buildComplete() {
         builder.reset();
         builder.setTile("Dashboards pingu web");
         builder.setSubtitle("Solidarity Hub");
@@ -36,9 +36,10 @@ public class DashboardBuilderDirector {
         List<InterfaceComponent> zero = generator.tasksToday(new ChartType[]{ChartType.BAR});
         List<InterfaceComponent> fisrtPair = generator.buildCompletedTasksChart(new ChartType[]{ChartType.LINECHART});
         List<InterfaceComponent> thirdPair = generator.buildUncoveredNeedsChart(new ChartType[]{ChartType.BAR});
-        List<InterfaceComponent> fourthPair = generator.buildVolunteersByTaskTypeChart(new ChartType[]{ChartType.PIE});
-        List<InterfaceComponent> fifthPair = generator.buildVolunteersVSAffectedChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
+        List<InterfaceComponent> fourthPair = generator.buildVolunteersByTaskTypeChart(new ChartType[]{ChartType.DONUTCHART});
+        List<InterfaceComponent> fifthPair = generator.buildVolunteersVSAffectedChart(new ChartType[]{ChartType.BAR, ChartType.DONUTCHART});
         List<InterfaceComponent> sixthPair = generator.buildResourcesByTypeChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
+        List<InterfaceComponent> donationsChart = generator.buildDonationsByTypeChart(new ChartType[]{ChartType.DONUTCHART});
 
         List<InterfaceComponent> completedAndUncompleted = new ArrayList<>(fisrtPair);
 
@@ -62,6 +63,9 @@ public class DashboardBuilderDirector {
         Filters resourcesByTypeFilters = Filters.builder().build();
         resourcesByTypeFilters.addDashboard(sixthPair);
 
+        Filters donationsFilters = Filters.builder().build();
+        donationsFilters.addDashboard(donationsChart);
+
         // Agregar nuevos filtros y gráficas
 
         builder.addBelow(urgencyLevelFilters);
@@ -79,7 +83,9 @@ public class DashboardBuilderDirector {
         builder.addBelow(resourcesByTypeFilters);
         builder.addBelow(sixthPair.get(0));
 
-        builder.addBelow(GenericComponent.builder().component(InfoPopup.DashboardPopup()).build());
+        builder.addBelow(donationsFilters);
+        builder.addSide(donationsChart);
 
+        builder.addBelow(GenericComponent.builder().component(InfoPopup.DashboardPopup()).build());
     }
 }

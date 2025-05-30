@@ -46,7 +46,7 @@ public class AboutUsView extends VerticalLayout {
                 .set("text-align", "center")
                 .set("font-size", "1.12rem");
 
-        Anchor mobileTitle = new Anchor("https://tu-url.com", "Pingu Mobile");
+        Anchor mobileTitle = new Anchor("https://youtu.be/HRTWYxbXDXU?feature=shared&t=7", "Pingu Mobile");
         mobileTitle.setTarget("_blank");
         mobileTitle.getStyle()
                 .set("font-weight", "bold")

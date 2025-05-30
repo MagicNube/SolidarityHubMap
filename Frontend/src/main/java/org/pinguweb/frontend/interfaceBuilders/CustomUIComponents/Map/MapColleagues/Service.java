@@ -13,7 +13,6 @@ import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.Map;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.CreationEvent;
 import org.pinguweb.frontend.interfaceBuilders.CustomUIComponents.Map.MapEvents.ShowEvent;
 import org.pinguweb.frontend.mapObjects.*;
-import org.pinguweb.frontend.mapObjects.factories.*;
 import org.pinguweb.frontend.services.BackendDTOService;
 import org.pinguweb.frontend.utils.Mediador.ComponentColleague;
 import org.pinguweb.frontend.utils.Mediador.Event;
@@ -41,22 +40,12 @@ public class Service extends ComponentColleague {
     private Map map;
     private final BackendDTOService backendService = BackendDTOService.GetInstancia();
 
-    private NeedFactory needFactory;
-    private ZoneFactory zoneFactory;
-    private ZoneMarkerFactory zoneMarkerFactory;
-    private RouteFactory routeFactory;
-    private RoutePointFactory routePointFactory;
-    private StorageFactory storageFactory;
-
+    private MapObjectFactory mapObjectFactory;
     public Service(Map mediator) {
         super(mediator);
         this.map = mediator;
 
-        this.needFactory = new NeedFactory();
-        this.zoneFactory = new ZoneFactory();
-        this.routeFactory = new RouteFactory();
-        this.routePointFactory = new RoutePointFactory();
-        this.storageFactory = new StorageFactory();
+        this.mapObjectFactory = new MapObjectFactory();
     }
 
     @Override
@@ -190,7 +179,7 @@ public class Service extends ComponentColleague {
                         double lon = routePoint.get().getLongitude();
                         int id = routePoint.get().getID();
 
-                        RoutePoint point = (RoutePoint) routePointFactory.createMapObject(this.map.getReg(), lat, lon);
+                        RoutePoint point = mapObjectFactory.createRoutePoint(this.map.getReg(), lat, lon);
                         point.setID(id);
                         point.getMarkerObj().bindPopup("Ruta: " + route.getName());
                         this.map.getRoutePoints().computeIfAbsent(route.getID(), k -> new ArrayList<>()).add(point);
@@ -236,7 +225,7 @@ public class Service extends ComponentColleague {
     private Storage createStorage(StorageDTO storage) {
         double lat = storage.getLatitude();
         double lng = storage.getLongitude();
-        Storage storageObj = (Storage) storageFactory.createMapObject(this.map.getReg(), lat, lng);
+        Storage storageObj = mapObjectFactory.createStorage(this.map.getReg(), lat, lng);
         storageObj.setID(storage.getID());
         storageObj.setName(storage.getName() != null ? storage.getName() : "Sin nombre");
         storageObj.setFull(storage.isFull());
@@ -256,7 +245,7 @@ public class Service extends ComponentColleague {
             points.add(new Tuple<>(zoneDTO.getLatitudes().get(i), zoneDTO.getLongitudes().get(i)));
         }
 
-        Zone zone = (Zone) zoneFactory.createMapObject(this.map.getReg(), 0.0, zoneDTO.getID() + 1.0);
+        Zone zone = mapObjectFactory.createZone();
         for (Tuple<Double, Double> marker : points) {
             zone.addPoint(this.map.getReg(), marker);
         }
@@ -293,7 +282,7 @@ public class Service extends ComponentColleague {
     }
 
     private Route createRoute(RouteDTO routeDTO, List<RoutePoint> routePoints) {
-        Route route = (Route) routeFactory.createMapObject(this.map.getReg(), 0.0, routeDTO.getID() + 1.0);
+        Route route = mapObjectFactory.createRoute();
         for (RoutePoint routePoint : routePoints) {
             route.addPoint(this.map.getReg(), new Tuple<>(routePoint.getLatitude(), routePoint.getLongitude()));
             routePoint.removeFromMap(map.getMap());
@@ -335,7 +324,7 @@ public class Service extends ComponentColleague {
     private Need createNeed(NeedDTO needDTO) {
         double lat = needDTO.getLatitude();
         double lng = needDTO.getLongitude();
-        Need need = (Need) needFactory.createMapObject(this.map.getReg(), lat, lng);
+        Need need = mapObjectFactory.createNeed(this.map.getReg(), lat, lng);
         need.setID(needDTO.getID());
         need.addToMap(this.map.getMap());
 
