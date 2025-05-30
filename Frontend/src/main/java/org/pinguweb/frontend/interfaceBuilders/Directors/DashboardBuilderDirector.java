@@ -36,10 +36,10 @@ public class DashboardBuilderDirector {
         List<InterfaceComponent> zero = generator.tasksToday(new ChartType[]{ChartType.BAR});
         List<InterfaceComponent> fisrtPair = generator.buildCompletedTasksChart(new ChartType[]{ChartType.LINECHART});
         List<InterfaceComponent> thirdPair = generator.buildUncoveredNeedsChart(new ChartType[]{ChartType.BAR});
-        List<InterfaceComponent> fourthPair = generator.buildVolunteersByTaskTypeChart(new ChartType[]{ChartType.PIE});
-        List<InterfaceComponent> fifthPair = generator.buildVolunteersVSAffectedChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
+        List<InterfaceComponent> fourthPair = generator.buildVolunteersByTaskTypeChart(new ChartType[]{ChartType.DONUTCHART});
+        List<InterfaceComponent> fifthPair = generator.buildVolunteersVSAffectedChart(new ChartType[]{ChartType.BAR, ChartType.DONUTCHART});
         List<InterfaceComponent> sixthPair = generator.buildResourcesByTypeChart(new ChartType[]{ChartType.BAR, ChartType.PIE});
-        List<InterfaceComponent> donationsChart = generator.buildDonationsByTypeChart(new ChartType[]{ChartType.PIE});
+        List<InterfaceComponent> donationsChart = generator.buildDonationsByTypeChart(new ChartType[]{ChartType.DONUTCHART});
 
         List<InterfaceComponent> completedAndUncompleted = new ArrayList<>(fisrtPair);
 

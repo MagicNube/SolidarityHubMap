@@ -208,11 +208,7 @@ public class Filters extends InterfaceComponent {
                 line.setYData(yFiltrado);
                 return line;
             }
-            case SOLIDGAUGE -> {
-                GaugeChart gauge = (GaugeChart) pair._1();
-                gauge.setData(yFiltrado);
-                return gauge;
-            }
+
             case PIE -> {
                 PieChart pie = (PieChart) pair._1();
                 pie.setItemNames(xFiltrado);
