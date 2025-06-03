@@ -15,15 +15,35 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.i18n.I18NProvider;
+import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.i18n.LocaleChangeObserver;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Locale;
 
 @Route("")
-@PageTitle("Bienvenido")
+@PageTitle("")
 @PermitAll
 @CssImport("./styles/mainView.css")
-public class MainView extends VerticalLayout {
+public class MainView extends VerticalLayout implements LocaleChangeObserver {
 
-    public MainView() {
+    private final I18NProvider i18n;
+
+    private H1 modalTitle;
+    private Paragraph modalText;
+    private Button closeModal;
+    private H1 title;
+    private Paragraph subtitle;
+    private Button login;
+    private Button home;
+    private Button whatIsSHUB;
+    private ComboBox<String> lang;
+
+    @Autowired
+    public MainView(I18NProvider i18n) {
+        this.i18n = i18n;
         addClassName("main");
         setSizeFull();
         setPadding(false);
@@ -34,9 +54,9 @@ public class MainView extends VerticalLayout {
         aboutDialog.setCloseOnEsc(true);
         aboutDialog.setCloseOnOutsideClick(true);
 
-        H1 modalTitle = new H1("¿Qué es Solidarity Hub?");
-        Paragraph modalText = new Paragraph("Aquí va tu texto explicando Solidarity Hub...");
-        Button closeModal = new Button("Cerrar", e -> aboutDialog.close());
+        modalTitle = new H1(getTranslation("about.title"));
+        modalText = new Paragraph(getTranslation("about.text"));
+        closeModal = new Button(getTranslation("about.close"), e -> aboutDialog.close());
 
         VerticalLayout dialogLayout = new VerticalLayout(modalTitle, modalText, closeModal);
         dialogLayout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
@@ -51,16 +71,14 @@ public class MainView extends VerticalLayout {
         content.setWidthFull();
         content.setHeightFull();
 
-        H1 title = new H1("Bienvenido al Proyecto Solidarity Hub");
+        title = new H1(getTranslation("main.title"));
         title.addClassName("content-title");
 
-        Paragraph subtitle = new Paragraph(
-                "Inicia sesión para acceder a las funcionalidades."
-        );
+        subtitle = new Paragraph(getTranslation("main.subtitle"));
         subtitle.addClassName("content-subtitle");
 
         Icon arrow = VaadinIcon.ARROW_RIGHT.create();
-        Button login = new Button("Iniciar Sesión", arrow, e ->
+        login = new Button(getTranslation("main.login"), arrow, e ->
                 getUI().ifPresent(ui -> ui.navigate("login"))
         );
         login.setIconAfterText(true);
@@ -69,6 +87,7 @@ public class MainView extends VerticalLayout {
         content.add(title, subtitle, login);
 
         addAndExpand(content);
+        UI.getCurrent().getPage().setTitle(getTranslation("app.title"));
     }
 
     // 2. Ahora el header recibe el Dialog para pasárselo al botón
@@ -100,20 +119,55 @@ public class MainView extends VerticalLayout {
 
     // 3. Ahora el layout de botones recibe el Dialog para abrirlo desde el botón
     private HorizontalLayout getHorizontalLayout(Dialog aboutDialog) {
-        Button home = new Button("Home", e -> UI.getCurrent().navigate(""));
-        Button whatIsSHUB = new Button("Qué es SHUB", e -> aboutDialog.open());
+        home = new Button(getTranslation("header.home"), e -> UI.getCurrent().navigate(""));
+        whatIsSHUB = new Button(getTranslation("header.about"), e -> aboutDialog.open());
         home.addClassName("nav-button");
         whatIsSHUB.addClassName("nav-button");
 
-        ComboBox<String> lang = new ComboBox<>();
+        lang = new ComboBox<>();
         lang.setItems("Castellano", "English", "Valencià");
-        lang.setValue("Castellano");
+        lang.setValue(getCurrentLanguage());
         lang.addClassName("nav-combo");
+        lang.addValueChangeListener(e -> changeLanguage(e.getValue()));
 
         HorizontalLayout right = new HorizontalLayout(home, whatIsSHUB, lang);
         right.addClassName("right");
         right.setSpacing(true);
         right.setAlignItems(Alignment.CENTER);
         return right;
+    }
+
+    private String getTranslation(String key) {
+        return i18n.getTranslation(key, UI.getCurrent().getLocale());
+    }
+
+    private void changeLanguage(String value) {
+        Locale locale = switch (value) {
+            case "English" -> new Locale("en");
+            case "Valencià" -> new Locale("va");
+            default -> new Locale("es");
+        };
+        UI.getCurrent().setLocale(locale);
+    }
+
+    @Override
+    public void localeChange(LocaleChangeEvent event) {
+        UI.getCurrent().getPage().setTitle(getTranslation("app.title"));
+        modalTitle.setText(getTranslation("about.title"));
+        modalText.setText(getTranslation("about.text"));
+        closeModal.setText(getTranslation("about.close"));
+        home.setText(getTranslation("header.home"));
+        whatIsSHUB.setText(getTranslation("header.about"));
+        title.setText(getTranslation("main.title"));
+        subtitle.setText(getTranslation("main.subtitle"));
+        login.setText(getTranslation("main.login"));
+        lang.setValue(getCurrentLanguage());
+    }
+
+    private String getCurrentLanguage() {
+        Locale l = UI.getCurrent().getLocale();
+        if (l.getLanguage().equals("en")) return "English";
+        if (l.getLanguage().equals("va")) return "Valencià";
+        return "Castellano";
     }
 }
