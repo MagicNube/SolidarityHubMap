@@ -15,6 +15,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.i18n.I18NProvider;
+import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.i18n.LocaleChangeObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.objects.LoginRequest;
@@ -27,9 +29,11 @@ import org.springframework.web.client.RestTemplate;
 @Route("login")
 @PageTitle("Admin · Solidarity Hub")
 @CssImport("./styles/loginView.css")
-public class LoginView extends VerticalLayout {
+public class LoginView extends VerticalLayout implements LocaleChangeObserver {
 
     private final I18NProvider i18n;
+    private LoginForm loginForm;
+    private Button back;
 
     @Autowired
     public LoginView(I18NProvider i18n) {
@@ -45,10 +49,10 @@ public class LoginView extends VerticalLayout {
     }
 
     private void createLoginForm() {
-        LoginForm loginForm = new LoginForm();
+        loginForm = new LoginForm();
         loginForm.addClassName("login-form");
 
-        LoginI18n loginI18n = LoginI18n.createDefault();
+        LoginI18n loginI18n = createI18n();
 
         loginI18n.getForm().setTitle(getTranslation("login.title"));
         loginI18n.getForm().setUsername(getTranslation("login.username"));
@@ -56,12 +60,6 @@ public class LoginView extends VerticalLayout {
         loginI18n.getForm().setSubmit(getTranslation("login.submit"));
         loginI18n.getForm().setForgotPassword(getTranslation("login.forgot"));
 
-        LoginI18n.ErrorMessage errorMessage = new LoginI18n.ErrorMessage();
-        errorMessage.setTitle(getTranslation("login.error.title"));
-        errorMessage.setMessage(getTranslation("login.error.message"));
-
-        loginI18n.setErrorMessage(errorMessage);
-        loginForm.setI18n(loginI18n);
         loginForm.setI18n(loginI18n);
 
         loginForm.addLoginListener(e -> {
@@ -92,12 +90,29 @@ public class LoginView extends VerticalLayout {
         });
 
         Icon arrow = VaadinIcon.ARROW_LEFT.create();
-        Button back = new Button(getTranslation("login.back"), arrow);
+        back = new Button(getTranslation("login.back"), arrow);
         back.getStyle().set("gap", "0.5em");
         back.addClassName("back-button");
         back.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
 
         add(loginForm, back);
+    }
+
+    private LoginI18n createI18n() {
+        LoginI18n loginI18n = LoginI18n.createDefault();
+
+        loginI18n.getForm().setTitle(getTranslation("login.title"));
+        loginI18n.getForm().setUsername(getTranslation("login.username"));
+        loginI18n.getForm().setPassword(getTranslation("login.password"));
+        loginI18n.getForm().setSubmit(getTranslation("login.submit"));
+        loginI18n.getForm().setForgotPassword(getTranslation("login.forgot"));
+
+        LoginI18n.ErrorMessage errorMessage = new LoginI18n.ErrorMessage();
+        errorMessage.setTitle(getTranslation("login.error.title"));
+        errorMessage.setMessage(getTranslation("login.error.message"));
+
+        loginI18n.setErrorMessage(errorMessage);
+        return loginI18n;
     }
 
     private boolean authenticate(LoginRequest req) {
@@ -111,5 +126,11 @@ public class LoginView extends VerticalLayout {
 
     private String getTranslation(String key) {
         return i18n.getTranslation(key, getLocale());
+    }
+
+    @Override
+    public void localeChange(LocaleChangeEvent event) {
+        loginForm.setI18n(createI18n());
+        back.setText(getTranslation("login.back"));
     }
 }

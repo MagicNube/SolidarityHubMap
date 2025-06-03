@@ -16,20 +16,30 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.i18n.I18NProvider;
+import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.i18n.LocaleChangeObserver;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Locale;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 @Route("")
 @PageTitle("")
 @PermitAll
 @CssImport("./styles/mainView.css")
-public class MainView extends VerticalLayout {
+public class MainView extends VerticalLayout implements LocaleChangeObserver {
 
     private final I18NProvider i18n;
+
+    private H1 modalTitle;
+    private Paragraph modalText;
+    private Button closeModal;
+    private H1 title;
+    private Paragraph subtitle;
+    private Button login;
+    private Button home;
+    private Button whatIsSHUB;
+    private ComboBox<String> lang;
 
     @Autowired
     public MainView(I18NProvider i18n) {
@@ -44,9 +54,9 @@ public class MainView extends VerticalLayout {
         aboutDialog.setCloseOnEsc(true);
         aboutDialog.setCloseOnOutsideClick(true);
 
-        H1 modalTitle = new H1(getTranslation("about.title"));
-        Paragraph modalText = new Paragraph(getTranslation("about.text"));
-        Button closeModal = new Button(getTranslation("about.close"), e -> aboutDialog.close());
+        modalTitle = new H1(getTranslation("about.title"));
+        modalText = new Paragraph(getTranslation("about.text"));
+        closeModal = new Button(getTranslation("about.close"), e -> aboutDialog.close());
 
         VerticalLayout dialogLayout = new VerticalLayout(modalTitle, modalText, closeModal);
         dialogLayout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
@@ -61,14 +71,14 @@ public class MainView extends VerticalLayout {
         content.setWidthFull();
         content.setHeightFull();
 
-        H1 title = new H1(getTranslation("main.title"));
+        title = new H1(getTranslation("main.title"));
         title.addClassName("content-title");
 
-        Paragraph subtitle = new Paragraph(getTranslation("main.subtitle"));
+        subtitle = new Paragraph(getTranslation("main.subtitle"));
         subtitle.addClassName("content-subtitle");
 
         Icon arrow = VaadinIcon.ARROW_RIGHT.create();
-        Button login = new Button(getTranslation("main.login"), arrow, e ->
+        login = new Button(getTranslation("main.login"), arrow, e ->
                 getUI().ifPresent(ui -> ui.navigate("login"))
         );
         login.setIconAfterText(true);
@@ -109,12 +119,12 @@ public class MainView extends VerticalLayout {
 
     // 3. Ahora el layout de botones recibe el Dialog para abrirlo desde el botón
     private HorizontalLayout getHorizontalLayout(Dialog aboutDialog) {
-        Button home = new Button(getTranslation("header.home"), e -> UI.getCurrent().navigate(""));
-        Button whatIsSHUB = new Button(getTranslation("header.about"), e -> aboutDialog.open());
+        home = new Button(getTranslation("header.home"), e -> UI.getCurrent().navigate(""));
+        whatIsSHUB = new Button(getTranslation("header.about"), e -> aboutDialog.open());
         home.addClassName("nav-button");
         whatIsSHUB.addClassName("nav-button");
 
-        ComboBox<String> lang = new ComboBox<>();
+        lang = new ComboBox<>();
         lang.setItems("Castellano", "English", "Valencià");
         lang.setValue(getCurrentLanguage());
         lang.addClassName("nav-combo");
@@ -138,8 +148,20 @@ public class MainView extends VerticalLayout {
             default -> new Locale("es");
         };
         UI.getCurrent().setLocale(locale);
+    }
+
+    @Override
+    public void localeChange(LocaleChangeEvent event) {
         UI.getCurrent().getPage().setTitle(getTranslation("app.title"));
-        UI.getCurrent().getPage().reload();
+        modalTitle.setText(getTranslation("about.title"));
+        modalText.setText(getTranslation("about.text"));
+        closeModal.setText(getTranslation("about.close"));
+        home.setText(getTranslation("header.home"));
+        whatIsSHUB.setText(getTranslation("header.about"));
+        title.setText(getTranslation("main.title"));
+        subtitle.setText(getTranslation("main.subtitle"));
+        login.setText(getTranslation("main.login"));
+        lang.setValue(getCurrentLanguage());
     }
 
     private String getCurrentLanguage() {
