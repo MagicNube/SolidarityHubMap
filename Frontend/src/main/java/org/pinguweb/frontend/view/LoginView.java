@@ -14,6 +14,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.i18n.I18NProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 import org.pinguweb.frontend.objects.LoginRequest;
 import org.springframework.http.*;
@@ -27,7 +29,11 @@ import org.springframework.web.client.RestTemplate;
 @CssImport("./styles/loginView.css")
 public class LoginView extends VerticalLayout {
 
-    public LoginView() {
+    private final I18NProvider i18n;
+
+    @Autowired
+    public LoginView(I18NProvider i18n) {
+        this.i18n = i18n;
         addClassName("login-view");
         setSizeFull();
         setPadding(false);
@@ -42,21 +48,21 @@ public class LoginView extends VerticalLayout {
         LoginForm loginForm = new LoginForm();
         loginForm.addClassName("login-form");
 
-        LoginI18n i18n = LoginI18n.createDefault();
+        LoginI18n loginI18n = LoginI18n.createDefault();
 
-        i18n.getForm().setTitle("Iniciar sesión");
-        i18n.getForm().setUsername("DNI");
-        i18n.getForm().setPassword("Contraseña");
-        i18n.getForm().setSubmit("Iniciar sesión");
-        i18n.getForm().setForgotPassword("¿Olvidaste tu contraseña?");
+        loginI18n.getForm().setTitle(getTranslation("login.title"));
+        loginI18n.getForm().setUsername(getTranslation("login.username"));
+        loginI18n.getForm().setPassword(getTranslation("login.password"));
+        loginI18n.getForm().setSubmit(getTranslation("login.submit"));
+        loginI18n.getForm().setForgotPassword(getTranslation("login.forgot"));
 
         LoginI18n.ErrorMessage errorMessage = new LoginI18n.ErrorMessage();
-        errorMessage.setTitle("Error de autenticación");
-        errorMessage.setMessage("DNI o contraseña incorrectos.");
+        errorMessage.setTitle(getTranslation("login.error.title"));
+        errorMessage.setMessage(getTranslation("login.error.message"));
 
-        i18n.setErrorMessage(errorMessage);
-        loginForm.setI18n(i18n);
-        loginForm.setI18n(i18n);
+        loginI18n.setErrorMessage(errorMessage);
+        loginForm.setI18n(loginI18n);
+        loginForm.setI18n(loginI18n);
 
         loginForm.addLoginListener(e -> {
             if (authenticate(new LoginRequest(e.getUsername(), e.getPassword()))) {
@@ -72,12 +78,12 @@ public class LoginView extends VerticalLayout {
             Dialog dlg = new Dialog();
             VerticalLayout dl = new VerticalLayout();
             dl.setAlignItems(Alignment.CENTER);
-            H2 h = new H2("Recuperar contraseña");
-            Paragraph p = new Paragraph("Introduce tu DNI para recibir un enlace de recuperación.");
-            TextField dni = new TextField("DNI");
+            H2 h = new H2(getTranslation("login.recover.title"));
+            Paragraph p = new Paragraph(getTranslation("login.recover.message"));
+            TextField dni = new TextField(getTranslation("login.username"));
             dni.setWidthFull();
-            Button b = new Button("Enviar", ev -> {
-                Notification.show("Enlace enviado a " + dni.getValue(), 3000, Notification.Position.TOP_CENTER);
+            Button b = new Button(getTranslation("login.recover.send"), ev -> {
+                Notification.show(getTranslation("login.recover.send") + " " + dni.getValue(), 3000, Notification.Position.TOP_CENTER);
                 dlg.close();
             });
             dl.add(h, p, dni, b);
@@ -86,7 +92,7 @@ public class LoginView extends VerticalLayout {
         });
 
         Icon arrow = VaadinIcon.ARROW_LEFT.create();
-        Button back = new Button("Volver", arrow);
+        Button back = new Button(getTranslation("login.back"), arrow);
         back.getStyle().set("gap", "0.5em");
         back.addClassName("back-button");
         back.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
@@ -101,5 +107,9 @@ public class LoginView extends VerticalLayout {
         HttpEntity<LoginRequest> body = new HttpEntity<>(req, h);
         ResponseEntity<Void> resp = rt.postForEntity("http://localhost:8081/api/auth/login", body, Void.class);
         return resp.getStatusCode() == HttpStatus.OK;
+    }
+
+    private String getTranslation(String key) {
+        return i18n.getTranslation(key, getLocale());
     }
 }
