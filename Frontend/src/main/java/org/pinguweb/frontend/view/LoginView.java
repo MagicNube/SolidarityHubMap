@@ -66,7 +66,7 @@ public class LoginView extends VerticalLayout implements LocaleChangeObserver {
             if (authenticate(new LoginRequest(e.getUsername(), e.getPassword()))) {
                 SecurityContextHolder.getContext()
                         .setAuthentication(new UsernamePasswordAuthenticationToken(e.getUsername(), null, null));
-                getUI().ifPresent(ui -> ui.navigate("map"));
+                getUI().ifPresent(ui -> ui.navigate("localhost:8083/home"));
             } else {
                 loginForm.setError(true);
             }
